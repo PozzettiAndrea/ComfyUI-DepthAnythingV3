@@ -1072,7 +1072,7 @@ class DA3_To3DGaussians:
     DESCRIPTION = """
 Extract 3D Gaussian Splats from DA3 model.
 
-⚠️ NOTE: This requires a fine-tuned DA3 model with GS-DPT head.
+NOTE: This requires a fine-tuned DA3 model with GS-DPT head.
 Base models (Small/Base/Large/Giant) do NOT include the GS head by default.
 
 If your model supports 3DGS, this will output:
