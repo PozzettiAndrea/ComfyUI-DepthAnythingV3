@@ -203,18 +203,15 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                 gs_adapter=None,  # Not implemented
             )
 
-            # Wrap the model so parameter names match checkpoint (da3.backbone... etc)
-            self.model = DA3ModelWrapper(inner_model)
-
         # Load weights
         state_dict = load_torch_file(model_path)
 
-        # Strip 'model.' prefix from keys if present (but keep 'da3.' since that's the actual path)
+        # Strip 'model.' prefix from keys if present
         new_state_dict = {}
         stripped_count = 0
         for key, value in state_dict.items():
             new_key = key
-            # Strip model. prefix only (da3. is part of actual parameter path in wrapper)
+            # Strip model. prefix only
             if new_key.startswith('model.'):
                 new_key = new_key[6:]  # Remove 'model.' prefix
                 stripped_count += 1
@@ -228,6 +225,18 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
         # Show head keys to understand structure
         head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
         print(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
+
+        # Check if checkpoint uses da3. prefix (nested model format)
+        has_da3_prefix = any(k.startswith('da3.') for k in new_state_dict.keys())
+
+        if has_da3_prefix:
+            # Wrap model to match nested checkpoint structure (da3.backbone... etc)
+            print("Detected nested model checkpoint format (da3. prefix)")
+            self.model = DA3ModelWrapper(inner_model)
+        else:
+            # Use model directly (keys match backbone.*, head.*)
+            print("Detected standard model checkpoint format (no prefix)")
+            self.model = inner_model
 
         if use_empty_weights:
             # Used init_empty_weights, must use set_module_tensor_to_device
