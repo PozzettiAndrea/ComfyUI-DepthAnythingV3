@@ -478,26 +478,23 @@ class DepthAnythingV3_Advanced:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
-    RETURN_NAMES = ("depth", "depth_raw", "confidence", "ray_origin", "ray_direction", "ray_origin_raw", "ray_direction_raw", "extrinsics", "intrinsics")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
+    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
 Advanced Depth Anything V3 node that outputs all available data:
 - Depth map (normalized 0-1 for visualization)
-- Depth raw (metric depth values for point cloud reconstruction)
 - Confidence map
 - Ray origin maps (normalized 0-1 for visualization)
 - Ray direction maps (normalized 0-1 for visualization)
-- Ray origin raw (unnormalized, for point cloud reconstruction)
-- Ray direction raw (unnormalized, for point cloud reconstruction)
 - Camera extrinsics (predicted camera pose)
 - Camera intrinsics (predicted camera parameters)
 
 Note: Ray maps and camera parameters only available for main series models (Small/Base/Large/Giant).
 Mono/Metric models output only depth and confidence (dummy zeros for rays).
 
-IMPORTANT: For point cloud generation, use depth_raw, ray_origin_raw, and ray_direction_raw!
+For point cloud generation, use the DepthAnythingV3_3D node instead which outputs raw metric depth.
 """
 
     def process(self, da3_model, images):
@@ -530,7 +527,6 @@ IMPORTANT: For point cloud generation, use depth_raw, ray_origin_raw, and ray_di
 
         pbar = ProgressBar(B)
         depth_out = []
-        depth_raw_out = []  # Store raw metric depth
         conf_out = []
         ray_origin_out = []
         ray_dir_out = []
@@ -570,14 +566,11 @@ IMPORTANT: For point cloud generation, use depth_raw, ray_origin_raw, and ray_di
                     # If no confidence, create uniform confidence
                     conf = torch.ones_like(depth)
 
-                # Store raw depth first (for point cloud reconstruction)
-                depth_raw_out.append(depth.cpu())
-
                 # Normalize depth and confidence for visualization
-                depth_norm = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
+                depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
                 conf = (conf - conf.min()) / (conf.max() - conf.min() + 1e-8)
 
-                depth_out.append(depth_norm.cpu())
+                depth_out.append(depth.cpu())
                 conf_out.append(conf.cpu())
 
                 # Extract ray maps (if available)
@@ -635,27 +628,15 @@ IMPORTANT: For point cloud generation, use depth_raw, ray_origin_raw, and ray_di
 
         # Process outputs
         depth_final = self._process_tensor_to_image(depth_out, orig_H, orig_W)
-        depth_raw_final = self._process_tensor_to_image(depth_raw_out, orig_H, orig_W)
         conf_final = self._process_tensor_to_image(conf_out, orig_H, orig_W)
         ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True)
         ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True)
-        ray_origin_raw = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=False)
-        ray_dir_raw = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=False)
-
-        # Debug: Check if rays are actually available
-        print(f"\n=== DA3 Advanced Debug ===")
-        print(f"Depth raw stats: min={depth_raw_final.min():.4f}, max={depth_raw_final.max():.4f}, std={depth_raw_final.std():.4f}")
-        print(f"Ray origin raw stats: min={ray_origin_raw.min():.4f}, max={ray_origin_raw.max():.4f}, std={ray_origin_raw.std():.4f}")
-        print(f"Ray dir raw stats: min={ray_dir_raw.min():.4f}, max={ray_dir_raw.max():.4f}, std={ray_dir_raw.std():.4f}")
-        if len(ray_origin_out) > 0:
-            print(f"Raw tensor before processing: min={ray_origin_out[0].min():.4f}, max={ray_origin_out[0].max():.4f}")
-        print(f"==========================\n")
 
         # Format camera parameters as strings
         extrinsics_str = self._format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = self._format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_final, depth_raw_final, conf_final, ray_origin_final, ray_dir_final, ray_origin_raw, ray_dir_raw, extrinsics_str, intrinsics_str)
+        return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str)
 
     def _process_tensor_to_image(self, tensor_list, orig_H, orig_W):
         """Convert list of depth/conf tensors to ComfyUI IMAGE format."""
@@ -914,9 +895,6 @@ Output POINTCLOUD contains:
 
             # Multiply by depth to get 3D points in camera space
             points_3d = rays * depth_map.unsqueeze(-1)  # (H, W, 3)
-
-            # Flip Z axis to match viewer coordinate system
-            points_3d[:, :, 2] *= -1
 
             # Flatten arrays
             points_flat = points_3d.reshape(-1, 3)  # (N, 3)
