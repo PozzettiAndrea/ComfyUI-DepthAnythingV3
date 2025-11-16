@@ -81,10 +81,14 @@ MODEL_CONFIGS = {
     },
     'da3nested-giant-large': {
         'encoder': 'vitg',
-        'features': 384,
-        'out_channels': [1536, 1536, 1536, 1536],
-        'dim_in': 1536,
-        'out_layers': [9, 19, 29, 39],
+        'features': 256,
+        'out_channels': [256, 512, 1024, 1024],
+        'dim_in': 3072,  # vitg has 1536 dim, cat_token=True doubles it
+        'out_layers': [19, 27, 33, 39],
+        'cat_token': True,
+        'alt_start': 13,
+        'qknorm_start': 13,
+        'rope_start': 13,
         'has_cam': True,
         'is_nested': True,
         'is_mono': False,
