@@ -10,9 +10,9 @@ from PIL import Image
 
 
 def load_bridge_image():
-    """Load the bridge.jpeg test image"""
+    """Load the bridge.jpg test image"""
     # Load the bridge image from assets
-    img_path = Path(__file__).parent.parent.parent / "assets" / "bridge.jpeg"
+    img_path = Path(__file__).parent.parent.parent / "assets" / "bridge.jpg"
     img = Image.open(img_path).convert("RGB")
 
     # Resize to reasonable size for testing (keeping aspect ratio)
