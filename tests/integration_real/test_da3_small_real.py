@@ -50,7 +50,8 @@ def test_da3_small_load(mock_comfy_environment):
 @pytest.mark.real_model
 def test_da3_small_inference_bridge(mock_comfy_environment):
     """Test real depth inference with DA3 Small model on bridge image"""
-    from nodes import DownloadAndLoadDepthAnythingV3Model, DepthAnything_V3
+    # Import directly from nodes_impl to bypass __init__.py pytest checks
+    from nodes.nodes_impl import DownloadAndLoadDepthAnythingV3Model, DepthAnything_V3
 
     # Load the bridge image
     bridge_image = load_bridge_image()
