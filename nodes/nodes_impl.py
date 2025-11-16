@@ -8,11 +8,12 @@ import comfy.model_management as mm
 from comfy.utils import ProgressBar, load_torch_file
 import folder_paths
 
-from ..depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
-from ..depth_anything_v3.model.da3 import DepthAnything3Net
-from ..depth_anything_v3.model.dinov2.dinov2 import DinoV2
-from ..depth_anything_v3.model.dualdpt import DualDPT
-from ..depth_anything_v3.model.dpt import DPT
+# Use absolute imports instead of relative to support both ComfyUI and pytest contexts
+from depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
+from depth_anything_v3.model.da3 import DepthAnything3Net
+from depth_anything_v3.model.dinov2.dinov2 import DinoV2
+from depth_anything_v3.model.dualdpt import DualDPT
+from depth_anything_v3.model.dpt import DPT
 
 try:
     from accelerate import init_empty_weights
@@ -103,7 +104,9 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
         # Build the model architecture
         # For simplicity, we'll create a minimal DepthAnything3Net
         # This is a simplified version - full version would use cfg.create_object
-        with (init_empty_weights() if is_accelerate_available else nullcontext()):
+        # Only use init_empty_weights on CUDA devices to avoid meta device issues on CPU
+        use_empty_weights = is_accelerate_available and device.type == 'cuda'
+        with (init_empty_weights() if use_empty_weights else nullcontext()):
             # Create backbone (DinoV2)
             backbone = DinoV2(
                 name=config['encoder'],
@@ -154,7 +157,8 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             else:
                 new_state_dict[key] = value
 
-        if is_accelerate_available:
+        if use_empty_weights:
+            # Used init_empty_weights, must use set_module_tensor_to_device
             failed_keys = []
             for key in new_state_dict:
                 try:
@@ -164,7 +168,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             if failed_keys:
                 print(f"Warning: Could not load {len(failed_keys)} weights (this is normal for simplified models)")
         else:
-            # Try to load state dict, handling potential key mismatches
+            # Standard model loading (CPU or no accelerate)
             try:
                 self.model.load_state_dict(new_state_dict, strict=False)
             except Exception as e:
@@ -175,9 +179,9 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                 model_dict.update(filtered_dict)
                 self.model.load_state_dict(model_dict)
 
-        # Don't move to device here if using accelerate (already done during loading)
-        if not is_accelerate_available:
-            self.model.to(device)
+        # Move to device if we didn't use init_empty_weights
+        if not use_empty_weights:
+            self.model.to(device).to(dtype)
 
         self.model.eval()
 
