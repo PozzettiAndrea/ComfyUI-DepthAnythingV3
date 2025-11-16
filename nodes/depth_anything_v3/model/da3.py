@@ -153,11 +153,8 @@ class DepthAnything3Net(nn.Module):
         """Process camera pose estimation if camera decoder is available."""
         if self.cam_dec is not None:
             pose_enc = self.cam_dec(feats[-1][1])
-            # Remove ray information as it's not needed for pose estimation
-            if "ray" in output:
-                del output.ray
-            if "ray_conf" in output:
-                del output.ray_conf
+            # Keep ray information - it's complementary to pose estimation
+            # Both rays and camera parameters provide valuable geometric information
 
             # Convert pose encoding to extrinsics and intrinsics
             c2w, ixt = pose_encoding_to_extri_intri(pose_enc, (H, W))

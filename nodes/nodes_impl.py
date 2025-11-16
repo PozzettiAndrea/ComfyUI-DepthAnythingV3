@@ -14,6 +14,8 @@ from .depth_anything_v3.model.da3 import DepthAnything3Net
 from .depth_anything_v3.model.dinov2.dinov2 import DinoV2
 from .depth_anything_v3.model.dualdpt import DualDPT
 from .depth_anything_v3.model.dpt import DPT
+from .depth_anything_v3.model.cam_enc import CameraEnc
+from .depth_anything_v3.model.cam_dec import CameraDec
 
 try:
     from accelerate import init_empty_weights
@@ -106,6 +108,15 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
         # This is a simplified version - full version would use cfg.create_object
         # Only use init_empty_weights on CUDA devices to avoid meta device issues on CPU
         use_empty_weights = is_accelerate_available and device.type == 'cuda'
+
+        # Encoder embed dimensions for camera modules
+        encoder_embed_dims = {
+            'vits': 384,
+            'vitb': 768,
+            'vitl': 1024,
+            'vitg': 1536,
+        }
+
         with (init_empty_weights() if use_empty_weights else nullcontext()):
             # Create backbone (DinoV2)
             backbone = DinoV2(
@@ -135,14 +146,34 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                     out_channels=config['out_channels'],
                 )
 
-            # Create the full model (simplified - no camera dec/enc for now)
+            # Create camera encoder/decoder if model has camera support
+            cam_enc = None
+            cam_dec = None
+            if config.get('has_cam', False) and config.get('alt_start', -1) != -1:
+                embed_dim = encoder_embed_dims.get(config['encoder'], 1024)
+                # Camera encoder: encodes known camera params to tokens
+                cam_enc = CameraEnc(
+                    dim_out=embed_dim,
+                    dim_in=9,  # 9D pose encoding: [T(3), quat(4), fov(2)]
+                    trunk_depth=4,
+                    num_heads=embed_dim // 64,  # Match head dim = 64
+                    mlp_ratio=4,
+                    init_values=0.01,
+                )
+                # Camera decoder: decodes features to camera pose
+                # dim_in from config accounts for cat_token (e.g., 2048 for vitl with cat_token=True)
+                cam_dec = CameraDec(
+                    dim_in=config['dim_in'],  # Uses concatenated token dimension
+                )
+
+            # Create the full model with camera encoder/decoder
             self.model = DepthAnything3Net(
                 net=backbone,
                 head=head,
-                cam_dec=None,  # Simplified
-                cam_enc=None,  # Simplified
-                gs_head=None,  # Simplified
-                gs_adapter=None,  # Simplified
+                cam_dec=cam_dec,
+                cam_enc=cam_enc,
+                gs_head=None,  # Not implemented (requires fine-tuned model)
+                gs_adapter=None,  # Not implemented
             )
 
         # Load weights
@@ -202,6 +233,9 @@ class DepthAnything_V3:
                 "da3_model": ("DA3MODEL", ),
                 "images": ("IMAGE", ),
             },
+            "optional": {
+                "camera_params": ("CAMERA_PARAMS", ),
+            }
         }
 
     RETURN_TYPES = ("IMAGE",)
@@ -211,9 +245,12 @@ class DepthAnything_V3:
     DESCRIPTION = """
 Depth Anything V3 - depth estimation from images.
 Returns normalized depth maps.
+
+Optional: Provide camera_params for camera-conditioned depth estimation.
+Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
 """
 
-    def process(self, da3_model, images):
+    def process(self, da3_model, images, camera_params=None):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -241,6 +278,24 @@ Returns normalized depth maps.
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
         normalized_images = normalized_images.unsqueeze(1)
 
+        # Prepare camera parameters if provided
+        extrinsics_input = None
+        intrinsics_input = None
+        if camera_params is not None:
+            has_cam_support = (
+                hasattr(model, 'cam_enc') and model.cam_enc is not None and
+                hasattr(model, 'cam_dec') and model.cam_dec is not None
+            )
+            if has_cam_support:
+                extrinsics_input = camera_params["extrinsics"].to(device).to(dtype)
+                intrinsics_input = camera_params["intrinsics"].to(device).to(dtype)
+                if extrinsics_input.shape[0] == 1 and B > 1:
+                    extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
+                    intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
+                print("[DepthAnything_V3] Using camera-conditioned depth estimation")
+            else:
+                print("[DepthAnything_V3] Warning: Model does not support camera conditioning. Camera params ignored.")
+
         pbar = ProgressBar(B)
         out = []
 
@@ -257,8 +312,12 @@ Returns normalized depth maps.
             for i in range(B):
                 img = normalized_images[i:i+1].to(device)
 
-                # Run model forward
-                output = model(img)
+                # Get camera params for this batch item
+                ext_i = extrinsics_input[i:i+1] if extrinsics_input is not None else None
+                int_i = intrinsics_input[i:i+1] if intrinsics_input is not None else None
+
+                # Run model forward with optional camera conditioning
+                output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth from output
                 if hasattr(output, 'depth'):
@@ -308,6 +367,9 @@ class DepthAnythingV3_3D:
                 "da3_model": ("DA3MODEL", ),
                 "images": ("IMAGE", ),
             },
+            "optional": {
+                "camera_params": ("CAMERA_PARAMS", ),
+            }
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
@@ -326,10 +388,13 @@ These outputs can be directly connected to DA3_ToPointCloud or DA3_ToGaussianSpl
 Uses the official DA3 approach: geometric unprojection with camera intrinsics,
 NOT the model's auxiliary ray outputs.
 
+Optional: Provide camera_params for camera-conditioned depth estimation.
+Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
+
 Works with all model types (Small/Base/Large/Giant/Mono/Metric).
 """
 
-    def process(self, da3_model, images):
+    def process(self, da3_model, images, camera_params=None):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -357,6 +422,24 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
         normalized_images = normalized_images.unsqueeze(1)
 
+        # Prepare camera parameters if provided
+        extrinsics_input = None
+        intrinsics_input = None
+        if camera_params is not None:
+            has_cam_support = (
+                hasattr(model, 'cam_enc') and model.cam_enc is not None and
+                hasattr(model, 'cam_dec') and model.cam_dec is not None
+            )
+            if has_cam_support:
+                extrinsics_input = camera_params["extrinsics"].to(device).to(dtype)
+                intrinsics_input = camera_params["intrinsics"].to(device).to(dtype)
+                if extrinsics_input.shape[0] == 1 and B > 1:
+                    extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
+                    intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
+                print("[DepthAnythingV3_3D] Using camera-conditioned depth estimation")
+            else:
+                print("[DepthAnythingV3_3D] Warning: Model does not support camera conditioning. Camera params ignored.")
+
         pbar = ProgressBar(B)
         depth_raw_out = []
         conf_out = []
@@ -375,8 +458,12 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
             for i in range(B):
                 img = normalized_images[i:i+1].to(device)
 
-                # Run model forward
-                output = model(img)
+                # Get camera params for this batch item
+                ext_i = extrinsics_input[i:i+1] if extrinsics_input is not None else None
+                int_i = intrinsics_input[i:i+1] if intrinsics_input is not None else None
+
+                # Run model forward with optional camera conditioning
+                output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth
                 if hasattr(output, 'depth'):
@@ -480,6 +567,9 @@ class DepthAnythingV3_Advanced:
                 "da3_model": ("DA3MODEL", ),
                 "images": ("IMAGE", ),
             },
+            "optional": {
+                "camera_params": ("CAMERA_PARAMS", ),
+            }
         }
 
     RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
@@ -495,13 +585,16 @@ Advanced Depth Anything V3 node that outputs all available data:
 - Camera extrinsics (predicted camera pose)
 - Camera intrinsics (predicted camera parameters)
 
+Optional: Provide camera_params for camera-conditioned depth estimation.
+Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
+
 Note: Ray maps and camera parameters only available for main series models (Small/Base/Large/Giant).
 Mono/Metric models output only depth and confidence (dummy zeros for rays).
 
 For point cloud generation, use the DepthAnythingV3_3D node instead which outputs raw metric depth.
 """
 
-    def process(self, da3_model, images):
+    def process(self, da3_model, images, camera_params=None):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -529,6 +622,24 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
         normalized_images = normalized_images.unsqueeze(1)
 
+        # Prepare camera parameters if provided
+        extrinsics_input = None
+        intrinsics_input = None
+        if camera_params is not None:
+            has_cam_support = (
+                hasattr(model, 'cam_enc') and model.cam_enc is not None and
+                hasattr(model, 'cam_dec') and model.cam_dec is not None
+            )
+            if has_cam_support:
+                extrinsics_input = camera_params["extrinsics"].to(device).to(dtype)
+                intrinsics_input = camera_params["intrinsics"].to(device).to(dtype)
+                if extrinsics_input.shape[0] == 1 and B > 1:
+                    extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
+                    intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
+                print("[DepthAnythingV3_Advanced] Using camera-conditioned depth estimation")
+            else:
+                print("[DepthAnythingV3_Advanced] Warning: Model does not support camera conditioning. Camera params ignored.")
+
         pbar = ProgressBar(B)
         depth_out = []
         conf_out = []
@@ -550,8 +661,12 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
             for i in range(B):
                 img = normalized_images[i:i+1].to(device)
 
-                # Run model forward
-                output = model(img)
+                # Get camera params for this batch item
+                ext_i = extrinsics_input[i:i+1] if extrinsics_input is not None else None
+                int_i = intrinsics_input[i:i+1] if intrinsics_input is not None else None
+
+                # Run model forward with optional camera conditioning
+                output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth
                 if hasattr(output, 'depth'):
@@ -899,6 +1014,12 @@ Output POINTCLOUD contains:
 
             # Multiply by depth to get 3D points in camera space
             points_3d = rays * depth_map.unsqueeze(-1)  # (H, W, 3)
+
+            # Transform from OpenCV to standard 3D convention
+            # OpenCV: X-right, Y-down, Z-forward
+            # Standard 3D (Three.js/OpenGL): X-right, Y-up, Z-backward
+            points_3d[..., 1] *= -1  # Flip Y: down -> up
+            points_3d[..., 2] *= -1  # Flip Z: forward -> backward
 
             # Flatten arrays
             points_flat = points_3d.reshape(-1, 3)  # (N, 3)
@@ -1297,6 +1418,216 @@ The saved PLY file can be viewed in:
                 f.write(line + '\n')
 
 
+class DA3_CreateCameraParams:
+    """Create camera parameters (extrinsics and intrinsics) for conditioning depth estimation."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image_width": ("INT", {"default": 512, "min": 1, "max": 8192}),
+                "image_height": ("INT", {"default": 512, "min": 1, "max": 8192}),
+            },
+            "optional": {
+                # Camera position (translation)
+                "cam_x": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
+                "cam_y": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
+                "cam_z": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
+                # Camera rotation (Euler angles in degrees)
+                "rot_x": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
+                "rot_y": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
+                "rot_z": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
+                # Intrinsics
+                "focal_length": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 1.0}),
+                "fov_degrees": ("FLOAT", {"default": 60.0, "min": 1.0, "max": 180.0, "step": 1.0}),
+            }
+        }
+
+    RETURN_TYPES = ("CAMERA_PARAMS",)
+    RETURN_NAMES = ("camera_params",)
+    FUNCTION = "create_params"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Create camera parameters for conditioning DA3 depth estimation.
+
+Provides known camera pose to improve depth estimation accuracy.
+
+Parameters:
+- cam_x/y/z: Camera position in world space
+- rot_x/y/z: Camera rotation (Euler angles in degrees)
+- focal_length: If > 0, uses this value. Otherwise uses fov_degrees.
+- fov_degrees: Field of view in degrees (used if focal_length is 0)
+
+Output:
+- CAMERA_PARAMS: Dictionary with extrinsics (4x4) and intrinsics (3x3) matrices
+"""
+
+    def create_params(self, image_width, image_height, cam_x=0.0, cam_y=0.0, cam_z=0.0,
+                     rot_x=0.0, rot_y=0.0, rot_z=0.0, focal_length=0.0, fov_degrees=60.0):
+        import numpy as np
+
+        # Create rotation matrix from Euler angles (XYZ order)
+        rx = np.radians(rot_x)
+        ry = np.radians(rot_y)
+        rz = np.radians(rot_z)
+
+        # Rotation matrices
+        Rx = np.array([
+            [1, 0, 0],
+            [0, np.cos(rx), -np.sin(rx)],
+            [0, np.sin(rx), np.cos(rx)]
+        ])
+        Ry = np.array([
+            [np.cos(ry), 0, np.sin(ry)],
+            [0, 1, 0],
+            [-np.sin(ry), 0, np.cos(ry)]
+        ])
+        Rz = np.array([
+            [np.cos(rz), -np.sin(rz), 0],
+            [np.sin(rz), np.cos(rz), 0],
+            [0, 0, 1]
+        ])
+
+        R = Rz @ Ry @ Rx  # Rotation matrix
+        t = np.array([cam_x, cam_y, cam_z])  # Translation
+
+        # Create extrinsics (world-to-camera, 4x4)
+        extrinsics = np.eye(4, dtype=np.float32)
+        extrinsics[:3, :3] = R.T  # Inverse rotation
+        extrinsics[:3, 3] = -R.T @ t  # Inverse translation
+
+        # Create intrinsics (3x3)
+        if focal_length > 0:
+            fx = fy = focal_length
+        else:
+            # Calculate from FOV
+            fov_rad = np.radians(fov_degrees)
+            fx = fy = (image_width / 2.0) / np.tan(fov_rad / 2.0)
+
+        cx = image_width / 2.0
+        cy = image_height / 2.0
+
+        intrinsics = np.array([
+            [fx, 0, cx],
+            [0, fy, cy],
+            [0, 0, 1]
+        ], dtype=np.float32)
+
+        # Convert to tensors
+        extrinsics_tensor = torch.from_numpy(extrinsics).unsqueeze(0).unsqueeze(0)  # [1, 1, 4, 4]
+        intrinsics_tensor = torch.from_numpy(intrinsics).unsqueeze(0).unsqueeze(0)  # [1, 1, 3, 3]
+
+        camera_params = {
+            "extrinsics": extrinsics_tensor,
+            "intrinsics": intrinsics_tensor,
+            "image_size": (image_height, image_width),
+        }
+
+        return (camera_params,)
+
+
+class DA3_ParseCameraPose:
+    """Parse camera pose from DA3 output strings into usable format."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "extrinsics_json": ("STRING", {"multiline": True}),
+                "intrinsics_json": ("STRING", {"multiline": True}),
+            },
+            "optional": {
+                "batch_index": ("INT", {"default": 0, "min": 0, "max": 100}),
+            }
+        }
+
+    RETURN_TYPES = ("FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("cam_x", "cam_y", "cam_z", "rot_x", "rot_y", "rot_z", "fx", "fy")
+    FUNCTION = "parse"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Parse camera pose from DA3 JSON output.
+
+Extracts camera position and rotation from extrinsics matrix,
+and focal lengths from intrinsics matrix.
+
+Inputs:
+- extrinsics_json: JSON string from DA3 output
+- intrinsics_json: JSON string from DA3 output
+- batch_index: Which image's parameters to extract (default 0)
+
+Outputs:
+- cam_x/y/z: Camera position in world space
+- rot_x/y/z: Camera rotation (Euler angles in degrees)
+- fx/fy: Focal lengths
+"""
+
+    def parse(self, extrinsics_json, intrinsics_json, batch_index=0):
+        import json
+        import numpy as np
+
+        # Default values
+        cam_x, cam_y, cam_z = 0.0, 0.0, 0.0
+        rot_x, rot_y, rot_z = 0.0, 0.0, 0.0
+        fx, fy = 512.0, 512.0
+
+        try:
+            # Parse extrinsics
+            ext_data = json.loads(extrinsics_json)
+            if "extrinsics" in ext_data and isinstance(ext_data["extrinsics"], list):
+                if batch_index < len(ext_data["extrinsics"]):
+                    img_key = f"image_{batch_index}"
+                    ext_matrix = ext_data["extrinsics"][batch_index].get(img_key)
+
+                    if ext_matrix is not None:
+                        ext = np.array(ext_matrix)
+                        if ext.ndim == 3:  # [N, 4, 4] or [N, 3, 4]
+                            ext = ext[0]  # Take first view
+
+                        # Extract rotation and translation
+                        R = ext[:3, :3]
+                        t = ext[:3, 3]
+
+                        # Convert world-to-camera to camera position in world
+                        # cam_pos = -R^T @ t
+                        cam_pos = -R.T @ t
+                        cam_x, cam_y, cam_z = float(cam_pos[0]), float(cam_pos[1]), float(cam_pos[2])
+
+                        # Extract Euler angles from rotation matrix (XYZ order)
+                        # R = Rz @ Ry @ Rx, so we extract in reverse
+                        sy = np.sqrt(R[0, 0]**2 + R[1, 0]**2)
+                        singular = sy < 1e-6
+
+                        if not singular:
+                            rot_x = np.degrees(np.arctan2(R[2, 1], R[2, 2]))
+                            rot_y = np.degrees(np.arctan2(-R[2, 0], sy))
+                            rot_z = np.degrees(np.arctan2(R[1, 0], R[0, 0]))
+                        else:
+                            rot_x = np.degrees(np.arctan2(-R[1, 2], R[1, 1]))
+                            rot_y = np.degrees(np.arctan2(-R[2, 0], sy))
+                            rot_z = 0.0
+
+            # Parse intrinsics
+            int_data = json.loads(intrinsics_json)
+            if "intrinsics" in int_data and isinstance(int_data["intrinsics"], list):
+                if batch_index < len(int_data["intrinsics"]):
+                    img_key = f"image_{batch_index}"
+                    int_matrix = int_data["intrinsics"][batch_index].get(img_key)
+
+                    if int_matrix is not None:
+                        intr = np.array(int_matrix)
+                        if intr.ndim == 3:  # [N, 3, 3]
+                            intr = intr[0]  # Take first view
+
+                        fx = float(intr[0, 0])
+                        fy = float(intr[1, 1])
+
+        except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
+            print(f"[DA3_ParseCameraPose] Error parsing camera params: {e}")
+
+        return (cam_x, cam_y, cam_z, rot_x, rot_y, rot_z, fx, fy)
+
+
 NODE_CLASS_MAPPINGS = {
     "DepthAnything_V3": DepthAnything_V3,
     "DepthAnythingV3_3D": DepthAnythingV3_3D,
@@ -1306,6 +1637,8 @@ NODE_CLASS_MAPPINGS = {
     "DA3_SavePointCloud": DA3_SavePointCloud,
     "DA3_To3DGaussians": DA3_To3DGaussians,
     "DA3_Save3DGaussians": DA3_Save3DGaussians,
+    "DA3_CreateCameraParams": DA3_CreateCameraParams,
+    "DA3_ParseCameraPose": DA3_ParseCameraPose,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -1317,4 +1650,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DA3_SavePointCloud": "DA3 Save Point Cloud",
     "DA3_To3DGaussians": "DA3 to 3D Gaussians",
     "DA3_Save3DGaussians": "DA3 Save 3D Gaussians",
+    "DA3_CreateCameraParams": "DA3 Create Camera Parameters",
+    "DA3_ParseCameraPose": "DA3 Parse Camera Pose",
 }
