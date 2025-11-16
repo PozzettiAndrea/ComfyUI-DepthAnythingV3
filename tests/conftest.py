@@ -73,12 +73,12 @@ def setup_test_device(request):
     if use_gpu:
         os.environ["PYTEST_USE_GPU"] = "1"
         if torch.cuda.is_available():
-            print(f"\n🚀 Using GPU: {torch.cuda.get_device_name(0)}")
+            print(f"\n[GPU] Using GPU: {torch.cuda.get_device_name(0)}")
         else:
-            print("\n⚠️  --use-gpu specified but CUDA not available, using CPU")
+            print("\n[WARN] --use-gpu specified but CUDA not available, using CPU")
     else:
         os.environ["PYTEST_USE_GPU"] = "0"
-        print("\n💻 Using CPU (use --use-gpu for GPU acceleration)")
+        print("\n[CPU] Using CPU (use --use-gpu for GPU acceleration)")
 
     yield
 
