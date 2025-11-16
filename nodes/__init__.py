@@ -2,28 +2,39 @@
 ComfyUI-DepthAnythingV3: Depth Anything V3 nodes for ComfyUI
 """
 
-from .nodes_impl import (
-    DownloadAndLoadDepthAnythingV3Model,
-    DepthAnything_V3,
-    NODE_CLASS_MAPPINGS as IMPL_NODE_CLASS_MAPPINGS,
-    NODE_DISPLAY_NAME_MAPPINGS as IMPL_NODE_DISPLAY_NAME_MAPPINGS,
-)
+import sys
 
-from .preview_nodes import (
-    NODE_CLASS_MAPPINGS as PREVIEW_NODE_CLASS_MAPPINGS,
-    NODE_DISPLAY_NAME_MAPPINGS as PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
-)
+# Only do imports when NOT running under pytest
+# This prevents relative import errors during test collection
+if 'pytest' not in sys.modules:
+    from .nodes_impl import (
+        DownloadAndLoadDepthAnythingV3Model,
+        DepthAnything_V3,
+        NODE_CLASS_MAPPINGS as IMPL_NODE_CLASS_MAPPINGS,
+        NODE_DISPLAY_NAME_MAPPINGS as IMPL_NODE_DISPLAY_NAME_MAPPINGS,
+    )
 
-# Merge all node mappings
-NODE_CLASS_MAPPINGS = {
-    **IMPL_NODE_CLASS_MAPPINGS,
-    **PREVIEW_NODE_CLASS_MAPPINGS,
-}
+    from .preview_nodes import (
+        NODE_CLASS_MAPPINGS as PREVIEW_NODE_CLASS_MAPPINGS,
+        NODE_DISPLAY_NAME_MAPPINGS as PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
+    )
 
-NODE_DISPLAY_NAME_MAPPINGS = {
-    **IMPL_NODE_DISPLAY_NAME_MAPPINGS,
-    **PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
-}
+    # Merge all node mappings
+    NODE_CLASS_MAPPINGS = {
+        **IMPL_NODE_CLASS_MAPPINGS,
+        **PREVIEW_NODE_CLASS_MAPPINGS,
+    }
+
+    NODE_DISPLAY_NAME_MAPPINGS = {
+        **IMPL_NODE_DISPLAY_NAME_MAPPINGS,
+        **PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
+    }
+else:
+    # Dummy values during pytest to prevent import errors
+    DownloadAndLoadDepthAnythingV3Model = None
+    DepthAnything_V3 = None
+    NODE_CLASS_MAPPINGS = {}
+    NODE_DISPLAY_NAME_MAPPINGS = {}
 
 __all__ = [
     'DownloadAndLoadDepthAnythingV3Model',
