@@ -296,6 +296,178 @@ Returns normalized depth maps.
         return (depth_out,)
 
 
+class DepthAnythingV3_3D:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "da3_model": ("DA3MODEL", ),
+                "images": ("IMAGE", ),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
+    RETURN_NAMES = ("depth_raw", "confidence", "intrinsics")
+    FUNCTION = "process"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Depth Anything V3 node optimized for 3D reconstruction (point clouds, gaussian splats, etc).
+Outputs the essential data needed for proper 3D reconstruction:
+- Depth raw: Metric depth values (NOT normalized)
+- Confidence: Confidence map
+- Intrinsics: Camera intrinsic matrix (3x3) for geometric unprojection
+
+These outputs can be directly connected to DA3_ToPointCloud or DA3_ToGaussianSplat nodes.
+
+Uses the official DA3 approach: geometric unprojection with camera intrinsics,
+NOT the model's auxiliary ray outputs.
+
+Works with all model types (Small/Base/Large/Giant/Mono/Metric).
+"""
+
+    def process(self, da3_model, images):
+        device = mm.get_torch_device()
+        offload_device = mm.unet_offload_device()
+        model = da3_model['model']
+        dtype = da3_model['dtype']
+        config = da3_model['config']
+
+        B, H, W, C = images.shape
+
+        # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
+        images_pt = images.permute(0, 3, 1, 2)
+
+        # DA3 uses patch size 14
+        orig_H, orig_W = H, W
+        if W % 14 != 0:
+            W = W - (W % 14)
+        if H % 14 != 0:
+            H = H - (H % 14)
+        if orig_H % 14 != 0 or orig_W % 14 != 0:
+            images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+
+        # Normalize with ImageNet stats
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalized_images = normalize(images_pt)
+
+        # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
+        normalized_images = normalized_images.unsqueeze(1)
+
+        pbar = ProgressBar(B)
+        depth_raw_out = []
+        conf_out = []
+        intrinsics_list = []
+
+        # Move model to device if not already there
+        try:
+            model.to(device)
+        except NotImplementedError:
+            # Model might already be on device (via accelerate loading)
+            pass
+
+        autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
+
+        with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
+            for i in range(B):
+                img = normalized_images[i:i+1].to(device)
+
+                # Run model forward
+                output = model(img)
+
+                # Extract depth
+                if hasattr(output, 'depth'):
+                    depth = output.depth
+                elif isinstance(output, dict) and 'depth' in output:
+                    depth = output['depth']
+                else:
+                    raise ValueError("Model output does not contain depth")
+
+                # Extract confidence
+                if hasattr(output, 'depth_conf'):
+                    conf = output.depth_conf
+                elif isinstance(output, dict) and 'depth_conf' in output:
+                    conf = output['depth_conf']
+                else:
+                    # If no confidence, create uniform confidence
+                    conf = torch.ones_like(depth)
+
+                # Store RAW depth (no normalization!)
+                depth_raw_out.append(depth.cpu())
+
+                # Normalize confidence only
+                conf = (conf - conf.min()) / (conf.max() - conf.min() + 1e-8)
+                conf_out.append(conf.cpu())
+
+                # Extract camera intrinsics (if available)
+                intr = None
+                if hasattr(output, 'intrinsics'):
+                    intr = output.intrinsics
+                elif isinstance(output, dict) and 'intrinsics' in output:
+                    intr = output['intrinsics']
+
+                if intr is not None and torch.is_tensor(intr):
+                    intrinsics_list.append(intr.cpu())
+                else:
+                    intrinsics_list.append(None)
+
+                pbar.update(1)
+
+        model.to(offload_device)
+        mm.soft_empty_cache()
+
+        # Process outputs WITHOUT normalization
+        depth_raw_final = self._process_tensor_to_image(depth_raw_out, orig_H, orig_W)
+        conf_final = self._process_tensor_to_image(conf_out, orig_H, orig_W)
+
+        # Format intrinsics as JSON string
+        intrinsics_str = self._format_camera_params(intrinsics_list, "intrinsics")
+
+        return (depth_raw_final, conf_final, intrinsics_str)
+
+    def _format_camera_params(self, param_list, param_name):
+        """Format camera parameters as JSON string."""
+        import json
+
+        if all(p is None for p in param_list):
+            return json.dumps({param_name: "Not available (mono/metric model)"})
+
+        formatted = []
+        for i, param in enumerate(param_list):
+            if param is not None:
+                # Convert tensor to list for JSON serialization
+                formatted.append({
+                    f"image_{i}": param.squeeze().tolist()
+                })
+            else:
+                formatted.append({
+                    f"image_{i}": None
+                })
+
+        return json.dumps({param_name: formatted}, indent=2)
+
+    def _process_tensor_to_image(self, tensor_list, orig_H, orig_W):
+        """Convert list of depth/conf tensors to ComfyUI IMAGE format (no normalization)."""
+        # Concatenate all tensors
+        out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W]
+
+        # Convert to 3-channel image [B, H, W, 3]
+        out = out.squeeze(1)  # [B, H, W]
+        out = out.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()  # [B, H, W, 3]
+
+        # Resize back to original dimensions (with even constraint)
+        final_H = (orig_H // 2) * 2
+        final_W = (orig_W // 2) * 2
+
+        if out.shape[1] != final_H or out.shape[2] != final_W:
+            out = F.interpolate(
+                out.permute(0, 3, 1, 2),
+                size=(final_H, final_W),
+                mode="bilinear"
+            ).permute(0, 2, 3, 1)
+
+        return out
+
+
 class DepthAnythingV3_Advanced:
     @classmethod
     def INPUT_TYPES(s):
@@ -306,21 +478,26 @@ class DepthAnythingV3_Advanced:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
+    RETURN_NAMES = ("depth", "depth_raw", "confidence", "ray_origin", "ray_direction", "ray_origin_raw", "ray_direction_raw", "extrinsics", "intrinsics")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
 Advanced Depth Anything V3 node that outputs all available data:
-- Depth map
+- Depth map (normalized 0-1 for visualization)
+- Depth raw (metric depth values for point cloud reconstruction)
 - Confidence map
-- Ray origin maps (3D coordinates as RGB)
-- Ray direction maps (3D vectors as RGB)
+- Ray origin maps (normalized 0-1 for visualization)
+- Ray direction maps (normalized 0-1 for visualization)
+- Ray origin raw (unnormalized, for point cloud reconstruction)
+- Ray direction raw (unnormalized, for point cloud reconstruction)
 - Camera extrinsics (predicted camera pose)
 - Camera intrinsics (predicted camera parameters)
 
 Note: Ray maps and camera parameters only available for main series models (Small/Base/Large/Giant).
-Mono/Metric models output only depth and confidence.
+Mono/Metric models output only depth and confidence (dummy zeros for rays).
+
+IMPORTANT: For point cloud generation, use depth_raw, ray_origin_raw, and ray_direction_raw!
 """
 
     def process(self, da3_model, images):
@@ -353,6 +530,7 @@ Mono/Metric models output only depth and confidence.
 
         pbar = ProgressBar(B)
         depth_out = []
+        depth_raw_out = []  # Store raw metric depth
         conf_out = []
         ray_origin_out = []
         ray_dir_out = []
@@ -392,11 +570,14 @@ Mono/Metric models output only depth and confidence.
                     # If no confidence, create uniform confidence
                     conf = torch.ones_like(depth)
 
-                # Normalize depth and confidence
-                depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
+                # Store raw depth first (for point cloud reconstruction)
+                depth_raw_out.append(depth.cpu())
+
+                # Normalize depth and confidence for visualization
+                depth_norm = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
                 conf = (conf - conf.min()) / (conf.max() - conf.min() + 1e-8)
 
-                depth_out.append(depth.cpu())
+                depth_out.append(depth_norm.cpu())
                 conf_out.append(conf.cpu())
 
                 # Extract ray maps (if available)
@@ -454,15 +635,27 @@ Mono/Metric models output only depth and confidence.
 
         # Process outputs
         depth_final = self._process_tensor_to_image(depth_out, orig_H, orig_W)
+        depth_raw_final = self._process_tensor_to_image(depth_raw_out, orig_H, orig_W)
         conf_final = self._process_tensor_to_image(conf_out, orig_H, orig_W)
-        ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W)
-        ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W)
+        ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True)
+        ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True)
+        ray_origin_raw = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=False)
+        ray_dir_raw = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=False)
+
+        # Debug: Check if rays are actually available
+        print(f"\n=== DA3 Advanced Debug ===")
+        print(f"Depth raw stats: min={depth_raw_final.min():.4f}, max={depth_raw_final.max():.4f}, std={depth_raw_final.std():.4f}")
+        print(f"Ray origin raw stats: min={ray_origin_raw.min():.4f}, max={ray_origin_raw.max():.4f}, std={ray_origin_raw.std():.4f}")
+        print(f"Ray dir raw stats: min={ray_dir_raw.min():.4f}, max={ray_dir_raw.max():.4f}, std={ray_dir_raw.std():.4f}")
+        if len(ray_origin_out) > 0:
+            print(f"Raw tensor before processing: min={ray_origin_out[0].min():.4f}, max={ray_origin_out[0].max():.4f}")
+        print(f"==========================\n")
 
         # Format camera parameters as strings
         extrinsics_str = self._format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = self._format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str)
+        return (depth_final, depth_raw_final, conf_final, ray_origin_final, ray_dir_final, ray_origin_raw, ray_dir_raw, extrinsics_str, intrinsics_str)
 
     def _process_tensor_to_image(self, tensor_list, orig_H, orig_W):
         """Convert list of depth/conf tensors to ComfyUI IMAGE format."""
@@ -490,20 +683,28 @@ Mono/Metric models output only depth and confidence.
 
         return torch.clamp(out, 0, 1)
 
-    def _process_ray_to_image(self, ray_list, orig_H, orig_W):
-        """Convert list of ray tensors to ComfyUI IMAGE format."""
+    def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True):
+        """Convert list of ray tensors to ComfyUI IMAGE format.
+
+        Args:
+            ray_list: List of ray tensors [3, H, W]
+            orig_H: Original height
+            orig_W: Original width
+            normalize: If True, normalize to 0-1 for visualization. If False, keep original values for point cloud.
+        """
         # Concatenate all ray tensors
         out = torch.cat([r.unsqueeze(0) for r in ray_list], dim=0)  # [B, 3, H, W]
 
-        # Normalize each batch independently for visualization
-        for i in range(out.shape[0]):
-            ray_batch = out[i]  # [3, H, W]
-            ray_min = ray_batch.min()
-            ray_max = ray_batch.max()
-            if ray_max > ray_min:
-                out[i] = (ray_batch - ray_min) / (ray_max - ray_min)
-            else:
-                out[i] = torch.zeros_like(ray_batch)
+        if normalize:
+            # Normalize each batch independently for visualization
+            for i in range(out.shape[0]):
+                ray_batch = out[i]  # [3, H, W]
+                ray_min = ray_batch.min()
+                ray_max = ray_batch.max()
+                if ray_max > ray_min:
+                    out[i] = (ray_batch - ray_min) / (ray_max - ray_min)
+                else:
+                    out[i] = torch.zeros_like(ray_batch)
 
         # Convert to ComfyUI format [B, H, W, 3]
         out = out.permute(0, 2, 3, 1).float()  # [B, H, W, 3]
@@ -519,7 +720,10 @@ Mono/Metric models output only depth and confidence.
                 mode="bilinear"
             ).permute(0, 2, 3, 1)
 
-        return torch.clamp(out, 0, 1)
+        if normalize:
+            return torch.clamp(out, 0, 1)
+        else:
+            return out
 
     def _format_camera_params(self, param_list, param_name):
         """Format camera parameters as JSON string."""
@@ -548,12 +752,11 @@ class DA3_ToPointCloud:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "depth": ("IMAGE", ),
+                "depth_raw": ("IMAGE", ),
                 "confidence": ("IMAGE", ),
-                "ray_origin": ("IMAGE", ),
-                "ray_direction": ("IMAGE", ),
             },
             "optional": {
+                "intrinsics": ("STRING", {"default": ""}),
                 "source_image": ("IMAGE", ),
                 "confidence_threshold": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "downsample": ("INT", {"default": 1, "min": 1, "max": 16, "step": 1}),
@@ -565,50 +768,113 @@ class DA3_ToPointCloud:
     FUNCTION = "convert"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
-Convert DA3 depth and ray maps to 3D point cloud.
-Uses the formula: P = ray_origin + depth × ray_direction
+Convert DA3 depth map to 3D point cloud using proper camera geometry.
+Uses geometric unprojection: P = K^(-1) * [u, v, 1]^T * depth
+
+Inputs:
+- depth_raw: Metric depth map (from DA3_3D or DA3_Advanced)
+- confidence: Confidence map
+- intrinsics: (Optional) Camera intrinsics JSON from DA3_Advanced
+- source_image: (Optional) Source image for point colors
+
+If intrinsics not provided, uses default pinhole camera model.
 
 Parameters:
 - confidence_threshold: Filter points below this confidence (0-1)
 - downsample: Reduce point density by factor N (1 = no downsampling)
 
-Output is a POINTCLOUD type containing:
+Output POINTCLOUD contains:
 - points: Nx3 array of 3D coordinates
-- colors: Nx3 array of RGB colors (from input image if available)
+- colors: Nx3 array of RGB colors (if source_image provided)
 - confidence: Nx1 array of confidence values
 """
 
-    def convert(self, depth, confidence, ray_origin, ray_direction, source_image=None, confidence_threshold=0.5, downsample=1):
+    def _parse_intrinsics(self, intrinsics_str, batch_idx=0):
+        """Parse camera intrinsics from JSON string."""
+        import json
+        import numpy as np
+
+        if not intrinsics_str or intrinsics_str.strip() == "":
+            return None
+
+        try:
+            data = json.loads(intrinsics_str)
+            if "intrinsics" not in data:
+                return None
+
+            intrinsics_list = data["intrinsics"]
+            if batch_idx >= len(intrinsics_list):
+                return None
+
+            intrinsics_data = intrinsics_list[batch_idx]
+            img_key = f"image_{batch_idx}"
+
+            if img_key not in intrinsics_data or intrinsics_data[img_key] is None:
+                return None
+
+            # Convert to tensor
+            K = torch.tensor(intrinsics_data[img_key], dtype=torch.float32)
+            return K
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            print(f"[DA3_ToPointCloud] Warning: Could not parse intrinsics: {e}")
+            return None
+
+    def _create_default_intrinsics(self, H, W):
+        """Create default pinhole camera intrinsics."""
+        # Assume focal length = image width (reasonable default)
+        fx = fy = float(W)
+        cx = W / 2.0
+        cy = H / 2.0
+
+        K = torch.tensor([
+            [fx, 0, cx],
+            [0, fy, cy],
+            [0, 0, 1]
+        ], dtype=torch.float32)
+
+        return K
+
+    def convert(self, depth_raw, confidence, intrinsics="", source_image=None, confidence_threshold=0.5, downsample=1):
         """
-        Convert depth + ray maps to point cloud.
+        Convert depth map to point cloud using geometric unprojection.
 
         Args:
-            depth: [B, H, W, 3] depth map (grayscale repeated across 3 channels)
+            depth_raw: [B, H, W, 3] metric depth map
             confidence: [B, H, W, 3] confidence map
-            ray_origin: [B, H, W, 3] ray origin coordinates
-            ray_direction: [B, H, W, 3] ray direction vectors
+            intrinsics: JSON string with camera intrinsics (optional)
             source_image: [B, H, W, 3] source image for colors (optional)
             confidence_threshold: Minimum confidence to include point
             downsample: Downsample factor
         """
-        B = depth.shape[0]
+        B = depth_raw.shape[0]
         point_clouds = []
 
         for b in range(B):
             # Extract single image
-            depth_map = depth[b, :, :, 0]  # [H, W] - use first channel only
+            depth_map = depth_raw[b, :, :, 0]  # [H, W] - use first channel only
             conf_map = confidence[b, :, :, 0]  # [H, W] - use first channel only
-            ray_o = ray_origin[b]  # [H, W, 3]
-            ray_d = ray_direction[b]  # [H, W, 3]
 
             H, W = depth_map.shape
+
+            # Get camera intrinsics
+            K = self._parse_intrinsics(intrinsics, b)
+            if K is None:
+                K = self._create_default_intrinsics(H, W)
+                intrinsics_source = "default"
+            else:
+                intrinsics_source = "DA3 model"
 
             # Downsample if needed
             if downsample > 1:
                 depth_map = depth_map[::downsample, ::downsample]
                 conf_map = conf_map[::downsample, ::downsample]
-                ray_o = ray_o[::downsample, ::downsample]
-                ray_d = ray_d[::downsample, ::downsample]
+
+                # Scale intrinsics for downsampling
+                K = K.clone()
+                K[0, 0] /= downsample  # fx
+                K[1, 1] /= downsample  # fy
+                K[0, 2] /= downsample  # cx
+                K[1, 2] /= downsample  # cy
 
                 if source_image is not None:
                     colors = source_image[b, ::downsample, ::downsample]  # [H', W', 3]
@@ -620,29 +886,67 @@ Output is a POINTCLOUD type containing:
                 else:
                     colors = None
 
-            # Flatten to points
-            depth_flat = depth_map.flatten().unsqueeze(-1)  # [N, 1]
-            ray_o_flat = ray_o.reshape(-1, 3)  # [N, 3]
-            ray_d_flat = ray_d.reshape(-1, 3)  # [N, 3]
-            conf_flat = conf_map.flatten()  # [N]
+            # Resize colors to match depth_map dimensions if needed
+            if colors is not None:
+                if colors.shape[0] != depth_map.shape[0] or colors.shape[1] != depth_map.shape[1]:
+                    import torch.nn.functional as F
+                    # Convert to [1, 3, H, W] for interpolation
+                    colors = colors.permute(2, 0, 1).unsqueeze(0)
+                    colors = F.interpolate(colors, size=depth_map.shape, mode='bilinear', align_corners=False)
+                    # Convert back to [H, W, 3]
+                    colors = colors.squeeze(0).permute(1, 2, 0)
+
+            # Generate pixel grid coordinates
+            H_final, W_final = depth_map.shape
+            u, v = torch.meshgrid(
+                torch.arange(W_final, dtype=torch.float32, device=depth_map.device),
+                torch.arange(H_final, dtype=torch.float32, device=depth_map.device),
+                indexing='xy'
+            )
+
+            # Create homogeneous pixel coordinates [u, v, 1]
+            pix_coords = torch.stack([u, v, torch.ones_like(u)], dim=-1)  # (H, W, 3)
+
+            # Unproject using camera intrinsics: K^(-1) @ [u, v, 1]^T
+            K = K.to(depth_map.device)
+            K_inv = torch.inverse(K)
+            rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)  # (H, W, 3)
+
+            # Multiply by depth to get 3D points in camera space
+            points_3d = rays * depth_map.unsqueeze(-1)  # (H, W, 3)
+
+            # Flip Z axis to match viewer coordinate system
+            points_3d[:, :, 2] *= -1
+
+            # Flatten arrays
+            points_flat = points_3d.reshape(-1, 3)  # (N, 3)
+            conf_flat = conf_map.flatten()  # (N,)
 
             if colors is not None:
-                colors_flat = colors.reshape(-1, 3)  # [N, 3]
+                colors_flat = colors.reshape(-1, 3)  # (N, 3)
             else:
                 colors_flat = None
 
             # Filter by confidence
             mask = conf_flat >= confidence_threshold
-            depth_flat = depth_flat[mask]
-            ray_o_flat = ray_o_flat[mask]
-            ray_d_flat = ray_d_flat[mask]
+            points_3d = points_flat[mask]
             conf_flat = conf_flat[mask]
 
             if colors_flat is not None:
                 colors_flat = colors_flat[mask]
 
-            # Compute 3D points: P = origin + depth * direction
-            points_3d = ray_o_flat + depth_flat * ray_d_flat  # [N, 3]
+            # Debug prints
+            print(f"\n=== Point Cloud Debug (batch {b}) ===")
+            print(f"Intrinsics source: {intrinsics_source}")
+            print(f"Focal length: fx={K[0,0]:.2f}, fy={K[1,1]:.2f}")
+            print(f"Principal point: cx={K[0,2]:.2f}, cy={K[1,2]:.2f}")
+            print(f"Depth range: [{depth_map.min():.4f}, {depth_map.max():.4f}]")
+            print(f"Number of points after filtering: {points_3d.shape[0]}")
+            print(f"Points 3D range: X[{points_3d[:, 0].min():.4f}, {points_3d[:, 0].max():.4f}], "
+                  f"Y[{points_3d[:, 1].min():.4f}, {points_3d[:, 1].max():.4f}], "
+                  f"Z[{points_3d[:, 2].min():.4f}, {points_3d[:, 2].max():.4f}]")
+            print(f"Points 3D std: X={points_3d[:, 0].std():.4f}, Y={points_3d[:, 1].std():.4f}, Z={points_3d[:, 2].std():.4f}")
+            print(f"=================================\n")
 
             # Create point cloud dict
             pc = {
@@ -1013,6 +1317,7 @@ The saved PLY file can be viewed in:
 
 NODE_CLASS_MAPPINGS = {
     "DepthAnything_V3": DepthAnything_V3,
+    "DepthAnythingV3_3D": DepthAnythingV3_3D,
     "DepthAnythingV3_Advanced": DepthAnythingV3_Advanced,
     "DownloadAndLoadDepthAnythingV3Model": DownloadAndLoadDepthAnythingV3Model,
     "DA3_ToPointCloud": DA3_ToPointCloud,
@@ -1023,6 +1328,7 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DepthAnything_V3": "Depth Anything V3",
+    "DepthAnythingV3_3D": "Depth Anything V3 (3D/Raw)",
     "DepthAnythingV3_Advanced": "Depth Anything V3 (Advanced)",
     "DownloadAndLoadDepthAnythingV3Model": "(down)Load Depth Anything V3 Model",
     "DA3_ToPointCloud": "DA3 to Point Cloud",
