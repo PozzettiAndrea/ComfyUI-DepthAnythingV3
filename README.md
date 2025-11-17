@@ -4,7 +4,7 @@ ByteDance and PozzettiAndrea did a great job with the new Depth Anything V3, but
 
 We solved this by adding a new V2-style output node to PozzettiAndrea’s custom node, fixing both normalization and sky treatment. Now the depth maps behave exactly like standard ControlNet depth inputs — and the whole setup is finally ready to rock.
 
-Only for Models with Sky Segmentation like Mono or Metrix
+Recommended: Use Mono or Metric models with sky segmentation.
 
 ![V2 output Style for V3](assets/TBG_V2_Style.png)
 
