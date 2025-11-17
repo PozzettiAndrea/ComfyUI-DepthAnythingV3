@@ -4,7 +4,7 @@ Preview nodes for Point Clouds and Gaussian Splats
 
 class DA3_PreviewPointCloud:
     """
-    Preview point cloud or Gaussian splat PLY files in the browser using Three.js
+    Preview point cloud PLY files in the browser using VTK.js
     """
 
     @classmethod
@@ -20,23 +20,26 @@ class DA3_PreviewPointCloud:
     OUTPUT_NODE = True
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
-Preview point clouds and Gaussian splats in 3D using Three.js.
+Preview point clouds in 3D using VTK.js (scientific visualization).
 
 Features:
-- Interactive 3D viewing with mouse controls
-- Automatic point cloud centering and scaling
-- RGB color support
-- Works with both point clouds and Gaussian splats
+- VTK.js rendering engine
+- Trackball camera controls
+- Axis orientation widget
+- Adjustable point size
+- Scientific color mapping support
+- Max 1M points
 
 Controls:
 - Left Mouse: Rotate view
 - Right Mouse: Pan camera
 - Mouse Wheel: Zoom in/out
+- Slider: Adjust point size
 """
 
     def preview(self, file_path):
         """
-        Preview the point cloud or Gaussian splat file.
+        Preview the point cloud file using VTK.js.
 
         Args:
             file_path: Path to the PLY file
