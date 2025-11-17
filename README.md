@@ -1,3 +1,9 @@
+# ComfyUI Depth Anything V3 with V2 Style output by TBG
+
+ByteDance and PozzettiAndrea did a great job with the new Depth Anything V3, but in its default form it isn’t very useful inside our normal ControlNet workflow in ComfyUI. The main issues come from its non-standard normalization and the way sky regions are handled, which makes the raw output unusable for standard applications.
+
+We solved this by adding a new V2-style output node to PozzettiAndrea’s custom node, fixing both normalization and sky treatment. Now the depth maps behave exactly like standard ControlNet depth inputs — and the whole setup is finally ready to rock.
+
 # ComfyUI Depth Anything V3
 
 Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Anything-3) integration with ComfyUI.
