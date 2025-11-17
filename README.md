@@ -16,7 +16,8 @@ https://github.com/user-attachments/assets/24a1c640-4dee-48fe-a35b-34bec6bc6347
 
 You can reconstruct 3D point clouds!
 
-https://github.com/user-attachments/assets/9e95e18a-21ba-4206-bce1-dbee46f3716f
+
+https://github.com/user-attachments/assets/e9744270-3df1-4ac0-92fe-53c6e835ca68
 
 
 Even from multiple views, with the option to either match them (with icp) or leave them to use the predicted camera positions.
