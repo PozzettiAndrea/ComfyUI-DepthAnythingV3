@@ -11,6 +11,7 @@ if not logger.handlers:
     handler.setFormatter(logging.Formatter('[%(name)s] %(levelname)s: %(message)s'))
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
+    logger.propagate = False  # Prevent duplicate output to root logger
 
 # Constants
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
