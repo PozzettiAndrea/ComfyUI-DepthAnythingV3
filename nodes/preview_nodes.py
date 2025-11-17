@@ -28,7 +28,7 @@ Features:
 - Axis orientation widget
 - Adjustable point size
 - Scientific color mapping support
-- Max 1M points
+- Max 2M points
 
 Controls:
 - Left Mouse: Rotate view

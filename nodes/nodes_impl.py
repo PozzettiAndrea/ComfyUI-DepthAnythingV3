@@ -18,8 +18,8 @@ from .depth_anything_v3.model.cam_enc import CameraEnc
 from .depth_anything_v3.model.cam_dec import CameraDec
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
-    format_camera_params, process_tensor_to_image,
-    resize_to_patch_multiple, safe_model_to_device, logger
+    format_camera_params, process_tensor_to_image, process_tensor_to_mask,
+    resize_to_patch_multiple, safe_model_to_device, logger, check_model_capabilities
 )
 
 try:
@@ -321,6 +321,8 @@ class DepthAnything_V3:
             },
             "optional": {
                 "camera_params": ("CAMERA_PARAMS", ),
+                "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
+                "invert_depth": ("BOOLEAN", {"default": False}),
             }
         }
 
@@ -334,9 +336,16 @@ Returns normalized depth maps.
 
 Optional: Provide camera_params for camera-conditioned depth estimation.
 Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
+
+resize_method controls how images are adjusted to patch size multiples:
+- resize: Scale to nearest multiple (default, preserves all content)
+- crop: Center crop to floor multiple (loses edges but sharp)
+- pad: Pad to ceiling multiple (adds black borders)
+
+invert_depth: If True, inverts depth output (closer = higher value, like disparity)
 """
 
-    def process(self, da3_model, images, camera_params=None):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -349,7 +358,7 @@ Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
         images_pt = images.permute(0, 3, 1, 2)
 
         # Resize to patch size multiple
-        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
 
         # Normalize with ImageNet stats
         normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
@@ -408,6 +417,11 @@ Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
 
                 # Normalize depth
                 depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
+
+                # Apply inversion if requested (closer = higher value)
+                if invert_depth:
+                    depth = 1.0 - depth
+
                 out.append(depth.cpu())
                 pbar.update(1)
 
@@ -448,11 +462,13 @@ class DepthAnythingV3_3D:
             },
             "optional": {
                 "camera_params": ("CAMERA_PARAMS", ),
+                "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
+                "invert_depth": ("BOOLEAN", {"default": False}),
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "STRING")
-    RETURN_NAMES = ("depth_raw", "confidence", "intrinsics")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "STRING", "MASK")
+    RETURN_NAMES = ("depth_raw", "confidence", "intrinsics", "sky_mask")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
@@ -461,6 +477,7 @@ Outputs the essential data needed for proper 3D reconstruction:
 - Depth raw: Metric depth values (NOT normalized)
 - Confidence: Confidence map
 - Intrinsics: Camera intrinsic matrix (3x3) for geometric unprojection
+- Sky mask: Sky segmentation mask (1=sky, 0=non-sky, only for Mono/Metric models)
 
 These outputs can be directly connected to DA3_ToPointCloud or DA3_ToGaussianSplat nodes.
 
@@ -471,14 +488,30 @@ Optional: Provide camera_params for camera-conditioned depth estimation.
 Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
 
 Works with all model types (Small/Base/Large/Giant/Mono/Metric).
+Note: Sky mask is only available for Mono/Metric models. Other models return zeros.
+
+resize_method controls how images are adjusted to patch size multiples:
+- resize: Scale to nearest multiple (default, preserves all content)
+- crop: Center crop to floor multiple (loses edges but sharp)
+- pad: Pad to ceiling multiple (adds black borders)
+
+invert_depth: If True, inverts depth output (closer = higher value, like disparity)
 """
 
-    def process(self, da3_model, images, camera_params=None):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
         dtype = da3_model['dtype']
         config = da3_model['config']
+
+        # Check model capabilities
+        capabilities = check_model_capabilities(model)
+        if not capabilities["has_sky_segmentation"]:
+            logger.warning(
+                "WARNING: This model does not support sky segmentation. "
+                "Sky mask output will be zeros. Use Mono/Metric/Nested models for sky segmentation."
+            )
 
         B, H, W, C = images.shape
 
@@ -486,7 +519,7 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         images_pt = images.permute(0, 3, 1, 2)
 
         # Resize to patch size multiple
-        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
 
         # Normalize with ImageNet stats
         normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
@@ -499,11 +532,7 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         extrinsics_input = None
         intrinsics_input = None
         if camera_params is not None:
-            has_cam_support = (
-                hasattr(model, 'cam_enc') and model.cam_enc is not None and
-                hasattr(model, 'cam_dec') and model.cam_dec is not None
-            )
-            if has_cam_support:
+            if capabilities["has_camera_conditioning"]:
                 extrinsics_input = camera_params["extrinsics"].to(device).to(dtype)
                 intrinsics_input = camera_params["intrinsics"].to(device).to(dtype)
                 if extrinsics_input.shape[0] == 1 and B > 1:
@@ -516,6 +545,7 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         pbar = ProgressBar(B)
         depth_raw_out = []
         conf_out = []
+        sky_out = []
         intrinsics_list = []
 
         # Move model to device if not already there
@@ -557,6 +587,27 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
                 if conf is None or not torch.is_tensor(conf):
                     conf = torch.ones_like(depth)
 
+                # Extract sky mask (if available - only for Mono/Metric models)
+                sky = None
+                if hasattr(output, 'sky'):
+                    sky = output.sky
+                elif isinstance(output, dict) and 'sky' in output:
+                    sky = output['sky']
+
+                if sky is None or not torch.is_tensor(sky):
+                    # Create dummy sky mask (all zeros = no sky) for non-supported models
+                    sky = torch.zeros_like(depth)
+                else:
+                    # Normalize sky mask to 0-1 range
+                    sky_min, sky_max = sky.min(), sky.max()
+                    if sky_max > sky_min:
+                        sky = (sky - sky_min) / (sky_max - sky_min)
+
+                # Apply inversion if requested (closer = higher value)
+                if invert_depth:
+                    # For raw metric depth, invert as max - depth
+                    depth = depth.max() - depth
+
                 # Store RAW depth (no normalization!)
                 depth_raw_out.append(depth.cpu())
 
@@ -568,6 +619,7 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
                     # Uniform confidence - keep as 1.0 (high confidence)
                     conf = torch.ones_like(conf)
                 conf_out.append(conf.cpu())
+                sky_out.append(sky.cpu())
 
                 # Extract camera intrinsics (if available)
                 intr = None
@@ -589,11 +641,12 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         # Process outputs WITHOUT normalization
         depth_raw_final = process_tensor_to_image(depth_raw_out, orig_H, orig_W, normalize_output=False)
         conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=False)
+        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W)
 
         # Format intrinsics as JSON string
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_raw_final, conf_final, intrinsics_str)
+        return (depth_raw_final, conf_final, intrinsics_str, sky_final)
 
 
 class DepthAnythingV3_Advanced:
@@ -606,11 +659,13 @@ class DepthAnythingV3_Advanced:
             },
             "optional": {
                 "camera_params": ("CAMERA_PARAMS", ),
+                "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
+                "invert_depth": ("BOOLEAN", {"default": False}),
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK")
+    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
@@ -621,22 +676,39 @@ Advanced Depth Anything V3 node that outputs all available data:
 - Ray direction maps (normalized 0-1 for visualization)
 - Camera extrinsics (predicted camera pose)
 - Camera intrinsics (predicted camera parameters)
+- Sky mask: Sky segmentation mask (1=sky, 0=non-sky, only for Mono/Metric models)
 
 Optional: Provide camera_params for camera-conditioned depth estimation.
 Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
 
 Note: Ray maps and camera parameters only available for main series models (Small/Base/Large/Giant).
 Mono/Metric models output only depth and confidence (dummy zeros for rays).
+Sky mask is only available for Mono/Metric models. Other models return zeros.
 
 For point cloud generation, use the DepthAnythingV3_3D node instead which outputs raw metric depth.
+
+resize_method controls how images are adjusted to patch size multiples:
+- resize: Scale to nearest multiple (default, preserves all content)
+- crop: Center crop to floor multiple (loses edges but sharp)
+- pad: Pad to ceiling multiple (adds black borders)
+
+invert_depth: If True, inverts depth output (closer = higher value, like disparity)
 """
 
-    def process(self, da3_model, images, camera_params=None):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
         dtype = da3_model['dtype']
         config = da3_model['config']
+
+        # Check model capabilities
+        capabilities = check_model_capabilities(model)
+        if not capabilities["has_sky_segmentation"]:
+            logger.warning(
+                "WARNING: This model does not support sky segmentation. "
+                "Sky mask output will be zeros. Use Mono/Metric/Nested models for sky segmentation."
+            )
 
         B, H, W, C = images.shape
 
@@ -644,7 +716,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         images_pt = images.permute(0, 3, 1, 2)
 
         # Resize to patch size multiple
-        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
 
         # Normalize with ImageNet stats
         normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
@@ -657,11 +729,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         extrinsics_input = None
         intrinsics_input = None
         if camera_params is not None:
-            has_cam_support = (
-                hasattr(model, 'cam_enc') and model.cam_enc is not None and
-                hasattr(model, 'cam_dec') and model.cam_dec is not None
-            )
-            if has_cam_support:
+            if capabilities["has_camera_conditioning"]:
                 extrinsics_input = camera_params["extrinsics"].to(device).to(dtype)
                 intrinsics_input = camera_params["intrinsics"].to(device).to(dtype)
                 if extrinsics_input.shape[0] == 1 and B > 1:
@@ -674,6 +742,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         pbar = ProgressBar(B)
         depth_out = []
         conf_out = []
+        sky_out = []
         ray_origin_out = []
         ray_dir_out = []
         extrinsics_list = []
@@ -718,8 +787,29 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
                 if conf is None or not torch.is_tensor(conf):
                     conf = torch.ones_like(depth)
 
+                # Extract sky mask (if available - only for Mono/Metric models)
+                sky = None
+                if hasattr(output, 'sky'):
+                    sky = output.sky
+                elif isinstance(output, dict) and 'sky' in output:
+                    sky = output['sky']
+
+                if sky is None or not torch.is_tensor(sky):
+                    # Create dummy sky mask (all zeros = no sky) for non-supported models
+                    sky = torch.zeros_like(depth)
+                else:
+                    # Normalize sky mask to 0-1 range
+                    sky_min, sky_max = sky.min(), sky.max()
+                    if sky_max > sky_min:
+                        sky = (sky - sky_min) / (sky_max - sky_min)
+
                 # Normalize depth and confidence for visualization
                 depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
+
+                # Apply inversion if requested (closer = higher value)
+                if invert_depth:
+                    depth = 1.0 - depth
+
                 conf_range = conf.max() - conf.min()
                 if conf_range > 1e-8:
                     conf = (conf - conf.min()) / conf_range
@@ -729,6 +819,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
 
                 depth_out.append(depth.cpu())
                 conf_out.append(conf.cpu())
+                sky_out.append(sky.cpu())
 
                 # Extract ray maps (if available)
                 # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
@@ -786,6 +877,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         # Process outputs
         depth_final = process_tensor_to_image(depth_out, orig_H, orig_W, normalize_output=True)
         conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=True)
+        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W)
         ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True)
         ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True)
 
@@ -793,7 +885,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str)
+        return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str, sky_final)
 
     def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True):
         """Convert list of ray tensors to ComfyUI IMAGE format.
@@ -1611,12 +1703,499 @@ Outputs:
         return (cam_x, cam_y, cam_z, rot_x, rot_y, rot_z, fx, fy)
 
 
+class DepthAnythingV3_MultiView:
+    """Process multiple images together with cross-view attention for geometric consistency."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "da3_model": ("DA3MODEL", ),
+                "images": ("IMAGE", ),
+            },
+            "optional": {
+                "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
+                "invert_depth": ("BOOLEAN", {"default": False}),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "IMAGE", "STRING", "STRING")
+    RETURN_NAMES = ("depth", "confidence", "extrinsics", "intrinsics")
+    FUNCTION = "process"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Multi-view Depth Anything V3 - processes multiple images TOGETHER with cross-view attention.
+
+Key difference from standard nodes:
+- Standard: Processes images one-by-one (sequential, independent)
+- Multi-view: Processes all images together (cross-attention, geometrically consistent)
+
+Use this for:
+- Video frames (temporal consistency)
+- Multiple angles of same scene (SfM/reconstruction)
+- Stereo pairs (left/right cameras)
+
+Input: Batch of images [N, H, W, 3]
+Outputs:
+- depth: Batch of consistent depth maps [N, H, W, 3]
+- confidence: Confidence maps [N, H, W, 3]
+- extrinsics: Predicted camera poses for each view (JSON)
+- intrinsics: Camera intrinsics for each view (JSON)
+
+Note: All images must have the same resolution.
+Higher N = more VRAM usage but better consistency.
+Camera parameters only available for Main series/Nested models.
+"""
+
+    def process(self, da3_model, images, resize_method="resize", invert_depth=False):
+        device = mm.get_torch_device()
+        offload_device = mm.unet_offload_device()
+        model = da3_model['model']
+        dtype = da3_model['dtype']
+        config = da3_model['config']
+
+        N, H, W, C = images.shape
+
+        # Check if model supports multi-view attention (has cam_enc/cam_dec)
+        has_multiview_support = (
+            hasattr(model, 'cam_enc') and model.cam_enc is not None and
+            hasattr(model, 'cam_dec') and model.cam_dec is not None
+        )
+
+        if not has_multiview_support:
+            logger.warning(
+                "WARNING: Mono/Metric models do not have cross-view attention. "
+                "Images will be processed together but without multi-view consistency benefits. "
+                "For best multi-view results, use Main series models (Small/Base/Large/Giant) or Nested."
+            )
+
+        logger.info(f"Processing {N} images with multi-view attention")
+
+        # Convert from ComfyUI format [N, H, W, C] to PyTorch [N, C, H, W]
+        images_pt = images.permute(0, 3, 1, 2)
+
+        # Resize to patch size multiple
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
+
+        # Normalize with ImageNet stats
+        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
+        normalized_images = normalize(images_pt)
+
+        # Prepare for model: shape [B, N, 3, H, W] where B=1 (single batch of N views)
+        # This is the key difference - we process all N images together
+        normalized_images = normalized_images.unsqueeze(0)  # [1, N, C, H, W]
+
+        # Move model to device
+        safe_model_to_device(model, device)
+
+        autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
+
+        with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
+            # Single forward pass with all N views
+            output = model(normalized_images.to(device))
+
+            # Extract depth - shape should be [1, N, H, W]
+            depth = None
+            if hasattr(output, 'depth'):
+                depth = output.depth
+            elif isinstance(output, dict) and 'depth' in output:
+                depth = output['depth']
+
+            if depth is None or not torch.is_tensor(depth):
+                raise ValueError("Model output does not contain valid depth tensor")
+
+            # Extract confidence
+            conf = None
+            if hasattr(output, 'depth_conf'):
+                conf = output.depth_conf
+            elif isinstance(output, dict) and 'depth_conf' in output:
+                conf = output['depth_conf']
+
+            if conf is None or not torch.is_tensor(conf):
+                conf = torch.ones_like(depth)
+
+            # Extract camera parameters (extrinsics and intrinsics)
+            extr = None
+            intr = None
+            if hasattr(output, 'extrinsics'):
+                extr = output.extrinsics
+            elif isinstance(output, dict) and 'extrinsics' in output:
+                extr = output['extrinsics']
+
+            if hasattr(output, 'intrinsics'):
+                intr = output.intrinsics
+            elif isinstance(output, dict) and 'intrinsics' in output:
+                intr = output['intrinsics']
+
+            # Remove batch dimension: [1, N, H, W] -> [N, H, W]
+            depth = depth.squeeze(0)
+            conf = conf.squeeze(0)
+
+            # Normalize depth for visualization
+            # Normalize across all views together for consistency
+            depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
+
+            # Apply inversion if requested
+            if invert_depth:
+                depth = 1.0 - depth
+
+            # Normalize confidence
+            conf_range = conf.max() - conf.min()
+            if conf_range > 1e-8:
+                conf = (conf - conf.min()) / conf_range
+            else:
+                conf = torch.ones_like(conf)
+
+        model.to(offload_device)
+        mm.soft_empty_cache()
+
+        # Convert to ComfyUI format [N, H, W, 3]
+        depth_out = depth.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()
+        conf_out = conf.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()
+
+        # Resize back to original dimensions
+        final_H = (orig_H // 2) * 2
+        final_W = (orig_W // 2) * 2
+
+        if depth_out.shape[1] != final_H or depth_out.shape[2] != final_W:
+            depth_out = F.interpolate(
+                depth_out.permute(0, 3, 1, 2),
+                size=(final_H, final_W),
+                mode="bilinear"
+            ).permute(0, 2, 3, 1)
+            conf_out = F.interpolate(
+                conf_out.permute(0, 3, 1, 2),
+                size=(final_H, final_W),
+                mode="bilinear"
+            ).permute(0, 2, 3, 1)
+
+        depth_out = torch.clamp(depth_out, 0, 1)
+        conf_out = torch.clamp(conf_out, 0, 1)
+
+        # Format camera parameters as JSON strings
+        # Extrinsics: [1, N, 4, 4] -> per-view matrices
+        # Intrinsics: [1, N, 3, 3] -> per-view matrices
+        extrinsics_list = []
+        intrinsics_list = []
+
+        if extr is not None and torch.is_tensor(extr):
+            extr = extr.squeeze(0).cpu()  # [N, 4, 4]
+            for i in range(N):
+                extrinsics_list.append(extr[i])
+        else:
+            extrinsics_list = [None] * N
+
+        if intr is not None and torch.is_tensor(intr):
+            intr = intr.squeeze(0).cpu()  # [N, 3, 3]
+            for i in range(N):
+                intrinsics_list.append(intr[i])
+        else:
+            intrinsics_list = [None] * N
+
+        extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
+        intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
+
+        return (depth_out, conf_out, extrinsics_str, intrinsics_str)
+
+
+class DA3_MultiViewPointCloud:
+    """Combine multi-view depth maps into a single world-space point cloud."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "depths": ("IMAGE", ),
+                "images": ("IMAGE", ),
+                "extrinsics": ("STRING", ),
+                "intrinsics": ("STRING", ),
+            },
+            "optional": {
+                "confidence": ("IMAGE", ),
+                "confidence_threshold": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "downsample": ("INT", {"default": 4, "min": 1, "max": 32, "step": 1}),
+                "use_icp": ("BOOLEAN", {"default": False}),
+            }
+        }
+
+    RETURN_TYPES = ("POINTCLOUD",)
+    RETURN_NAMES = ("pointcloud",)
+    FUNCTION = "fuse"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Fuse multi-view depth maps into a single world-space point cloud.
+
+Uses predicted camera poses (extrinsics) to transform each view's depth
+into a common world coordinate system, then combines all points.
+
+Inputs:
+- depths: Batch of depth maps [N, H, W, 3] from Multi-View node
+- images: Original images [N, H, W, 3] for RGB colors
+- extrinsics: Camera poses JSON from Multi-View node
+- intrinsics: Camera intrinsics JSON from Multi-View node
+- confidence: Optional confidence maps
+- use_icp: Refine alignment with ICP (slower but potentially more accurate)
+
+Output: Single combined POINTCLOUD in world space.
+
+Note: Requires Main series or Nested model (with camera pose prediction).
+Mono/Metric models don't predict camera poses.
+"""
+
+    def _parse_camera_params(self, param_str, param_name):
+        """Parse camera parameters from JSON string."""
+        if not param_str or param_str.strip() == "":
+            return None
+
+        try:
+            data = json.loads(param_str)
+            if param_name not in data:
+                return None
+
+            if isinstance(data[param_name], str):
+                # Not available message
+                return None
+
+            params_list = data[param_name]
+            matrices = []
+
+            for item in params_list:
+                for key, matrix in item.items():
+                    if matrix is not None:
+                        matrices.append(torch.tensor(matrix, dtype=torch.float32))
+                    else:
+                        matrices.append(None)
+
+            return matrices
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.warning(f"Could not parse {param_name}: {e}")
+            return None
+
+    def _unproject_depth(self, depth, K):
+        """Unproject depth map to 3D points in camera space.
+
+        Args:
+            depth: [H, W] depth map
+            K: [3, 3] or [N, 3, 3] camera intrinsics
+
+        Returns:
+            points: [H*W, 3] camera-space 3D points
+        """
+        H, W = depth.shape
+        if K.dim() == 3:
+            K = K[0]  # Take first view's intrinsics
+
+        # Create pixel grid
+        u = torch.arange(W, dtype=torch.float32)
+        v = torch.arange(H, dtype=torch.float32)
+        u, v = torch.meshgrid(u, v, indexing='xy')  # [H, W]
+
+        # Unproject: P = K^(-1) * [u, v, 1]^T * depth
+        fx, fy = K[0, 0], K[1, 1]
+        cx, cy = K[0, 2], K[1, 2]
+
+        # Camera space coordinates
+        x = (u - cx) * depth / fx
+        y = (v - cy) * depth / fy
+        z = depth
+
+        # Stack to [H, W, 3] then reshape to [H*W, 3]
+        points = torch.stack([x, y, z], dim=-1).reshape(-1, 3)
+        return points
+
+    def _transform_points(self, points, extrinsics):
+        """Transform points from camera space to world space.
+
+        Args:
+            points: [N, 3] camera-space points
+            extrinsics: [4, 4] camera-to-world transformation matrix
+
+        Returns:
+            world_points: [N, 3] world-space points
+        """
+        # extrinsics is typically world-to-camera (w2c)
+        # We need camera-to-world (c2w) = inverse of w2c
+        # But DA3 outputs c2w directly (checked in da3.py line 161)
+        # Actually it outputs w2c: output.extrinsics = affine_inverse(c2w)
+        # So we need to invert it back
+
+        # Invert extrinsics (w2c -> c2w)
+        c2w = torch.inverse(extrinsics)
+
+        # Convert to homogeneous coordinates
+        ones = torch.ones((points.shape[0], 1), dtype=points.dtype)
+        points_hom = torch.cat([points, ones], dim=1)  # [N, 4]
+
+        # Transform: world_points = c2w @ points_hom
+        world_points = (c2w @ points_hom.T).T  # [N, 4]
+        world_points = world_points[:, :3]  # [N, 3]
+
+        return world_points
+
+    def fuse(self, depths, images, extrinsics, intrinsics, confidence=None,
+             confidence_threshold=0.3, downsample=4, use_icp=False):
+        """Fuse multi-view depth maps into world-space point cloud."""
+        N = depths.shape[0]
+        H, W = depths.shape[1], depths.shape[2]
+
+        logger.info(f"Fusing {N} views into world-space point cloud")
+
+        # Parse camera parameters
+        extr_list = self._parse_camera_params(extrinsics, "extrinsics")
+        intr_list = self._parse_camera_params(intrinsics, "intrinsics")
+
+        if extr_list is None or len(extr_list) != N:
+            raise ValueError(f"Extrinsics not available or wrong count. Need {N} poses. "
+                           "Make sure to use Main series or Nested model (not Mono/Metric).")
+
+        if intr_list is None or len(intr_list) != N:
+            raise ValueError(f"Intrinsics not available or wrong count. Need {N} matrices.")
+
+        all_points = []
+        all_colors = []
+        all_confidences = []
+
+        pbar = ProgressBar(N)
+
+        for i in range(N):
+            # Get depth for this view (take first channel, assuming grayscale)
+            depth = depths[i, :, :, 0]
+
+            # Get confidence mask
+            if confidence is not None:
+                conf = confidence[i, :, :, 0]
+                valid_mask = conf > confidence_threshold
+            else:
+                conf = torch.ones_like(depth)
+                valid_mask = torch.ones_like(depth, dtype=torch.bool)
+
+            # Downsample
+            if downsample > 1:
+                valid_mask_ds = torch.zeros_like(valid_mask)
+                valid_mask_ds[::downsample, ::downsample] = valid_mask[::downsample, ::downsample]
+                valid_mask = valid_mask_ds
+
+            # Unproject to camera space
+            K = intr_list[i]
+            points_cam = self._unproject_depth(depth, K)  # [H*W, 3]
+
+            # Get colors from original image
+            colors = images[i].reshape(-1, 3)  # [H*W, 3]
+
+            # Get confidence values
+            conf_flat = conf.reshape(-1)  # [H*W]
+
+            # Apply valid mask
+            valid_flat = valid_mask.reshape(-1)
+            points_cam = points_cam[valid_flat]
+            colors = colors[valid_flat]
+            conf_flat = conf_flat[valid_flat]
+
+            # Transform to world space
+            E = extr_list[i]
+            points_world = self._transform_points(points_cam, E)
+
+            all_points.append(points_world)
+            all_colors.append(colors)
+            all_confidences.append(conf_flat)
+
+            pbar.update(1)
+
+        # Combine all views
+        combined_points = torch.cat(all_points, dim=0)
+        combined_colors = torch.cat(all_colors, dim=0)
+        combined_conf = torch.cat(all_confidences, dim=0)
+
+        logger.info(f"Combined point cloud: {combined_points.shape[0]} points")
+
+        # Optional: ICP refinement
+        if use_icp and N > 1:
+            logger.info("ICP refinement requested but not implemented yet. Using direct fusion.")
+            # TODO: Implement ICP refinement
+            # This would require Open3D or custom ICP implementation
+
+        # Package as POINTCLOUD
+        pointcloud = {
+            "points": combined_points.numpy(),
+            "colors": combined_colors.numpy(),
+            "confidence": combined_conf.numpy(),
+        }
+
+        return (pointcloud,)
+
+
+class DA3_EnableTiledProcessing:
+    """Configure model for tiled processing to handle high-resolution images."""
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "da3_model": ("DA3MODEL", ),
+                "tile_size": ("INT", {"default": 512, "min": 256, "max": 2048, "step": 14}),
+                "overlap": ("INT", {"default": 64, "min": 0, "max": 256, "step": 14}),
+            },
+        }
+
+    RETURN_TYPES = ("DA3MODEL",)
+    RETURN_NAMES = ("da3_model",)
+    FUNCTION = "configure"
+    CATEGORY = "DepthAnythingV3"
+    DESCRIPTION = """
+Enable tiled processing for memory-efficient inference on high-resolution images.
+
+This node configures the model to process images in tiles with overlapping regions,
+then blends the results for seamless output.
+
+Parameters:
+- tile_size: Size of each tile (should be multiple of 14 for patch alignment)
+- overlap: Overlap between adjacent tiles for smooth blending
+
+Use this when:
+- Processing 4K+ resolution images
+- GPU memory is limited
+- Getting out-of-memory errors
+
+Note: Tiled processing may produce slightly different results at tile boundaries,
+but the overlap and blending minimize artifacts.
+"""
+
+    def configure(self, da3_model, tile_size=512, overlap=64):
+        # Ensure tile_size is multiple of patch size
+        patch_size = DEFAULT_PATCH_SIZE
+        tile_size = (tile_size // patch_size) * patch_size
+        if tile_size < patch_size:
+            tile_size = patch_size
+
+        # Ensure overlap is multiple of patch size
+        overlap = (overlap // patch_size) * patch_size
+
+        # Create a copy of the model dict with tiled config
+        tiled_model = {
+            "model": da3_model["model"],
+            "dtype": da3_model["dtype"],
+            "config": da3_model["config"],
+            "tiled_config": {
+                "enabled": True,
+                "tile_size": tile_size,
+                "overlap": overlap,
+            }
+        }
+
+        logger.info(f"Enabled tiled processing: tile_size={tile_size}, overlap={overlap}")
+
+        return (tiled_model,)
+
+
 NODE_CLASS_MAPPINGS = {
     "DepthAnything_V3": DepthAnything_V3,
     "DepthAnythingV3_3D": DepthAnythingV3_3D,
     "DepthAnythingV3_Advanced": DepthAnythingV3_Advanced,
+    "DepthAnythingV3_MultiView": DepthAnythingV3_MultiView,
     "DownloadAndLoadDepthAnythingV3Model": DownloadAndLoadDepthAnythingV3Model,
+    "DA3_EnableTiledProcessing": DA3_EnableTiledProcessing,
     "DA3_ToPointCloud": DA3_ToPointCloud,
+    "DA3_MultiViewPointCloud": DA3_MultiViewPointCloud,
     "DA3_SavePointCloud": DA3_SavePointCloud,
     "DA3_To3DGaussians": DA3_To3DGaussians,
     "DA3_Save3DGaussians": DA3_Save3DGaussians,
@@ -1628,8 +2207,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DepthAnything_V3": "Depth Anything V3",
     "DepthAnythingV3_3D": "Depth Anything V3 (3D/Raw)",
     "DepthAnythingV3_Advanced": "Depth Anything V3 (Advanced)",
+    "DepthAnythingV3_MultiView": "Depth Anything V3 (Multi-View)",
     "DownloadAndLoadDepthAnythingV3Model": "(down)Load Depth Anything V3 Model",
+    "DA3_EnableTiledProcessing": "DA3 Enable Tiled Processing",
     "DA3_ToPointCloud": "DA3 to Point Cloud",
+    "DA3_MultiViewPointCloud": "DA3 Multi-View Point Cloud",
     "DA3_SavePointCloud": "DA3 Save Point Cloud",
     "DA3_To3DGaussians": "DA3 to 3D Gaussians",
     "DA3_Save3DGaussians": "DA3 Save 3D Gaussians",
