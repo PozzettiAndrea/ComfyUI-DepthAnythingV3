@@ -84,7 +84,7 @@ def check_model_capabilities(model):
     }
 
 
-def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False):
+def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False, skip_resize=False):
     """Convert list of depth/conf tensors to ComfyUI IMAGE format.
 
     Args:
@@ -92,6 +92,7 @@ def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False)
         orig_H: Original image height
         orig_W: Original image width
         normalize_output: If True, clamp output to 0-1 range
+        skip_resize: If True, keep model's native output size instead of resizing back
 
     Returns:
         Tensor with shape [B, H, W, 3] in ComfyUI IMAGE format
@@ -107,29 +108,31 @@ def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False)
     out = out.squeeze(1)  # [B, H, W]
     out = out.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()  # [B, H, W, 3]
 
-    # Resize back to original dimensions (with even constraint)
-    final_H = (orig_H // 2) * 2
-    final_W = (orig_W // 2) * 2
+    # Resize back to original dimensions (with even constraint) unless skip_resize is True
+    if not skip_resize:
+        final_H = (orig_H // 2) * 2
+        final_W = (orig_W // 2) * 2
 
-    if out.shape[1] != final_H or out.shape[2] != final_W:
-        out = F.interpolate(
-            out.permute(0, 3, 1, 2),
-            size=(final_H, final_W),
-            mode="bilinear"
-        ).permute(0, 2, 3, 1)
+        if out.shape[1] != final_H or out.shape[2] != final_W:
+            out = F.interpolate(
+                out.permute(0, 3, 1, 2),
+                size=(final_H, final_W),
+                mode="bilinear"
+            ).permute(0, 2, 3, 1)
 
     if normalize_output:
         return torch.clamp(out, 0, 1)
     return out
 
 
-def process_tensor_to_mask(tensor_list, orig_H, orig_W):
+def process_tensor_to_mask(tensor_list, orig_H, orig_W, skip_resize=False):
     """Convert list of tensors to ComfyUI MASK format.
 
     Args:
         tensor_list: List of tensors with shape [1, H, W] or [H, W]
         orig_H: Original image height
         orig_W: Original image width
+        skip_resize: If True, keep model's native output size instead of resizing back
 
     Returns:
         Tensor with shape [B, H, W] in ComfyUI MASK format
@@ -143,16 +146,17 @@ def process_tensor_to_mask(tensor_list, orig_H, orig_W):
 
     out = out.cpu().float()
 
-    # Resize back to original dimensions (with even constraint)
-    final_H = (orig_H // 2) * 2
-    final_W = (orig_W // 2) * 2
+    # Resize back to original dimensions (with even constraint) unless skip_resize is True
+    if not skip_resize:
+        final_H = (orig_H // 2) * 2
+        final_W = (orig_W // 2) * 2
 
-    if out.shape[1] != final_H or out.shape[2] != final_W:
-        out = F.interpolate(
-            out.unsqueeze(1),  # [B, 1, H, W] for interpolation
-            size=(final_H, final_W),
-            mode="bilinear"
-        ).squeeze(1)  # Back to [B, H, W]
+        if out.shape[1] != final_H or out.shape[2] != final_W:
+            out = F.interpolate(
+                out.unsqueeze(1),  # [B, 1, H, W] for interpolation
+                size=(final_H, final_W),
+                mode="bilinear"
+            ).squeeze(1)  # Back to [B, H, W]
 
     return torch.clamp(out, 0, 1)
 

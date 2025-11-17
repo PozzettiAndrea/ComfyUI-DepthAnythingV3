@@ -1,0 +1,426 @@
+{
+  "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
+  "revision": 0,
+  "last_node_id": 27,
+  "last_link_id": 62,
+  "nodes": [
+    {
+      "id": 17,
+      "type": "DA3_PreviewPointCloud",
+      "pos": [
+        1341.1834852554143,
+        57.73435196198827
+      ],
+      "size": [
+        334.8990234375,
+        602
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "widget": {
+            "name": "file_path"
+          },
+          "link": 26
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DA3_PreviewPointCloud",
+        "cnr_id": "ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DownloadAndLoadDepthAnythingV3Model",
+      "pos": [
+        -104.0109375,
+        -61.48984374999994
+      ],
+      "size": [
+        388.65,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "links": [
+            53
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model",
+        "cnr_id": "ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "da3_giant.safetensors",
+        "auto"
+      ]
+    },
+    {
+      "id": 24,
+      "type": "DepthAnythingV3_MultiView_3D",
+      "pos": [
+        362.82852309665515,
+        43.45764378145801
+      ],
+      "size": [
+        347.853125,
+        162
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 53
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 54
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth_raw",
+          "type": "IMAGE",
+          "links": [
+            56
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": [
+            58
+          ]
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": [
+            59
+          ]
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": [
+            60
+          ]
+        },
+        {
+          "name": "sky_mask",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "cf26ceba61756a6775e4569b345512cff032c893",
+        "Node name for S&R": "DepthAnythingV3_MultiView_3D",
+        "cnr_id": "ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "resize",
+        false
+      ]
+    },
+    {
+      "id": 15,
+      "type": "DA3_SavePointCloud",
+      "pos": [
+        1064.8090351971778,
+        -45.96817023971618
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DA3_SavePointCloud",
+        "cnr_id": "ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "pointcloud"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "DA3_MultiViewPointCloud",
+      "pos": [
+        772.0285230966552,
+        10.457643781457994
+      ],
+      "size": [
+        278.08203125,
+        194
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "depths",
+          "type": "IMAGE",
+          "link": 56
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 57
+        },
+        {
+          "name": "confidence",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 58
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "widget": {
+            "name": "extrinsics"
+          },
+          "link": 59
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "widget": {
+            "name": "intrinsics"
+          },
+          "link": 60
+        }
+      ],
+      "outputs": [
+        {
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "links": [
+            61
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "cf26ceba61756a6775e4569b345512cff032c893",
+        "Node name for S&R": "DA3_MultiViewPointCloud",
+        "cnr_id": "ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0.3,
+        4,
+        true
+      ]
+    },
+    {
+      "id": 21,
+      "type": "LoadImageSetFromFolderNode",
+      "pos": [
+        -54.76944391600907,
+        247.25927548255098
+      ],
+      "size": [
+        301.4439453125,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            54,
+            57,
+            62
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImageSetFromFolderNode"
+      },
+      "widgets_values": [
+        "SOH",
+        "None"
+      ]
+    },
+    {
+      "id": 27,
+      "type": "PreviewImage",
+      "pos": [
+        344.7579926297135,
+        336.7909807652015
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 62
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      26,
+      15,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      53,
+      3,
+      0,
+      24,
+      0,
+      "DA3MODEL"
+    ],
+    [
+      54,
+      21,
+      0,
+      24,
+      1,
+      "IMAGE"
+    ],
+    [
+      56,
+      24,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      57,
+      21,
+      0,
+      26,
+      1,
+      "IMAGE"
+    ],
+    [
+      58,
+      24,
+      1,
+      26,
+      2,
+      "IMAGE"
+    ],
+    [
+      59,
+      24,
+      2,
+      26,
+      3,
+      "STRING"
+    ],
+    [
+      60,
+      24,
+      3,
+      26,
+      4,
+      "STRING"
+    ],
+    [
+      61,
+      26,
+      0,
+      15,
+      0,
+      "POINTCLOUD"
+    ],
+    [
+      62,
+      21,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.750171527994453,
+      "offset": [
+        224.02859027450342,
+        304.90601057083796
+      ]
+    },
+    "frontendVersion": "1.28.8",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

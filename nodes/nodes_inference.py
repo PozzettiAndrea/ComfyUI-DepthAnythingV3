@@ -26,6 +26,7 @@ class DepthAnything_V3:
                 "camera_params": ("CAMERA_PARAMS", ),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
+                "keep_model_size": ("BOOLEAN", {"default": False}),
             }
         }
 
@@ -46,9 +47,12 @@ resize_method controls how images are adjusted to patch size multiples:
 - pad: Pad to ceiling multiple (adds black borders)
 
 invert_depth: If True, inverts depth output (closer = higher value, like disparity)
+
+keep_model_size: If True, keeps the model's native output size (patch-aligned) instead of
+resizing back to original dimensions. Useful when you want to preserve the exact model output.
 """
 
-    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False, keep_model_size=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -137,16 +141,17 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
         depth_out = depth_out.squeeze(1)  # [B, H, W]
         depth_out = depth_out.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()  # [B, H, W, 3]
 
-        # Resize back to original dimensions (with even constraint)
-        final_H = (orig_H // 2) * 2
-        final_W = (orig_W // 2) * 2
+        # Resize back to original dimensions (with even constraint) unless keep_model_size is True
+        if not keep_model_size:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
 
-        if depth_out.shape[1] != final_H or depth_out.shape[2] != final_W:
-            depth_out = F.interpolate(
-                depth_out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
+            if depth_out.shape[1] != final_H or depth_out.shape[2] != final_W:
+                depth_out = F.interpolate(
+                    depth_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
 
         depth_out = torch.clamp(depth_out, 0, 1)
 
@@ -165,6 +170,7 @@ class DepthAnythingV3_3D:
                 "camera_params": ("CAMERA_PARAMS", ),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
+                "keep_model_size": ("BOOLEAN", {"default": False}),
             }
         }
 
@@ -197,9 +203,12 @@ resize_method controls how images are adjusted to patch size multiples:
 - pad: Pad to ceiling multiple (adds black borders)
 
 invert_depth: If True, inverts depth output (closer = higher value, like disparity)
+
+keep_model_size: If True, keeps the model's native output size (patch-aligned) instead of
+resizing back to original dimensions. Useful when you want to preserve the exact model output.
 """
 
-    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False, keep_model_size=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -338,9 +347,9 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
         mm.soft_empty_cache()
 
         # Process outputs WITHOUT normalization
-        depth_raw_final = process_tensor_to_image(depth_raw_out, orig_H, orig_W, normalize_output=False)
-        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=False)
-        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W)
+        depth_raw_final = process_tensor_to_image(depth_raw_out, orig_H, orig_W, normalize_output=False, skip_resize=keep_model_size)
+        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=False, skip_resize=keep_model_size)
+        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W, skip_resize=keep_model_size)
 
         # Format intrinsics as JSON string
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
@@ -360,6 +369,7 @@ class DepthAnythingV3_Advanced:
                 "camera_params": ("CAMERA_PARAMS", ),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
+                "keep_model_size": ("BOOLEAN", {"default": False}),
             }
         }
 
@@ -392,9 +402,12 @@ resize_method controls how images are adjusted to patch size multiples:
 - pad: Pad to ceiling multiple (adds black borders)
 
 invert_depth: If True, inverts depth output (closer = higher value, like disparity)
+
+keep_model_size: If True, keeps the model's native output size (patch-aligned) instead of
+resizing back to original dimensions. Useful when you want to preserve the exact model output.
 """
 
-    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False):
+    def process(self, da3_model, images, camera_params=None, resize_method="resize", invert_depth=False, keep_model_size=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -570,11 +583,11 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
         mm.soft_empty_cache()
 
         # Process outputs
-        depth_final = process_tensor_to_image(depth_out, orig_H, orig_W, normalize_output=True)
-        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=True)
-        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W)
-        ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True)
-        ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True)
+        depth_final = process_tensor_to_image(depth_out, orig_H, orig_W, normalize_output=True, skip_resize=keep_model_size)
+        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=True, skip_resize=keep_model_size)
+        sky_final = process_tensor_to_mask(sky_out, orig_H, orig_W, skip_resize=keep_model_size)
+        ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True, skip_resize=keep_model_size)
+        ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True, skip_resize=keep_model_size)
 
         # Format camera parameters as strings
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
@@ -582,7 +595,7 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
 
         return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str, sky_final)
 
-    def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True):
+    def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True, skip_resize=False):
         """Convert list of ray tensors to ComfyUI IMAGE format."""
         # Concatenate all ray tensors
         out = torch.cat([r.unsqueeze(0) for r in ray_list], dim=0)  # [B, 3, H, W]
@@ -601,16 +614,17 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
         # Convert to ComfyUI format [B, H, W, 3]
         out = out.permute(0, 2, 3, 1).float()  # [B, H, W, 3]
 
-        # Resize back to original dimensions
-        final_H = (orig_H // 2) * 2
-        final_W = (orig_W // 2) * 2
+        # Resize back to original dimensions unless skip_resize is True
+        if not skip_resize:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
 
-        if out.shape[1] != final_H or out.shape[2] != final_W:
-            out = F.interpolate(
-                out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
+            if out.shape[1] != final_H or out.shape[2] != final_W:
+                out = F.interpolate(
+                    out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
 
         if normalize:
             return torch.clamp(out, 0, 1)
