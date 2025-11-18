@@ -6,25 +6,13 @@ Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Any
 
 ![Advanced Workflow](docs/advanced_workflow.png)
 
-![Advanced 3D Workflow](docs/advanced_3d_workflow.png)
-
 ## Demo Videos
 
 You can use the multi-view node to use the cross attention feature of the main class of models. This is done to have a more consistent depth across frames of a video.
 
-https://github.com/user-attachments/assets/24a1c640-4dee-48fe-a35b-34bec6bc6347
-
 You can reconstruct 3D point clouds!
 
-
-https://github.com/user-attachments/assets/e9744270-3df1-4ac0-92fe-53c6e835ca68
-
-
 Even from multiple views, with the option to either match them (with icp) or leave them to use the predicted camera positions.
-
-https://github.com/user-attachments/assets/0ca86877-836a-41c8-8851-5a92b7f2a028
-
-
 
 ## Description
 
@@ -78,6 +66,8 @@ Depth Anything V3 is the latest depth estimation model that predicts spatially c
 - Output: `pointcloud`
 - **Sky filtering**: When sky_mask is connected, sky pixels are automatically excluded from the point cloud
 - **Input validation**: Automatically detects and rejects normalized depth inputs (requires Raw mode)
+
+**DA3 to Point Cloud (Multi view)** - Convert depth to point cloud using geometric unprojection
 
 **DA3 Save Point Cloud** - Export to PLY format
 
