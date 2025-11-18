@@ -463,6 +463,67 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
 
         self.model.eval()
 
+        # === DEBUG: Print Model Structure Information ===
+        logger.info("=" * 60)
+        logger.info("MODEL STRUCTURE DEBUG INFO")
+        logger.info("=" * 60)
+
+        # Model type and architecture
+        logger.info(f"Model Name: {model}")
+        logger.info(f"Model Key: {model_key}")
+        logger.info(f"Is Nested Model: {is_nested}")
+
+        # Backbone configuration
+        encoder_name = config.get('encoder', 'unknown')
+        encoder_names_map = {
+            'vits': 'ViT-Small (ViT-S)',
+            'vitb': 'ViT-Base (ViT-B)',
+            'vitl': 'ViT-Large (ViT-L)',
+            'vitg': 'ViT-Giant (ViT-G)',
+        }
+        encoder_display = encoder_names_map.get(encoder_name, encoder_name)
+        logger.info(f"Backbone: DinoV2 {encoder_display}")
+        logger.info(f"  - Encoder Embed Dim: {encoder_embed_dims.get(encoder_name, 'unknown')}")
+        logger.info(f"  - Output Layers: {config.get('out_layers', 'unknown')}")
+        logger.info(f"  - Patch Size: {DEFAULT_PATCH_SIZE}")
+        logger.info(f"  - Cat Token: {config.get('cat_token', False)}")
+
+        # Decoder head configuration
+        head_type = "DualDPT" if not (config.get('is_mono', False) or config.get('is_metric', False)) else "DPT"
+        if is_nested:
+            head_type = "NestedModel (DualDPT + DPT)"
+        logger.info(f"Decoder Head: {head_type}")
+        logger.info(f"  - Input Dim: {config.get('dim_in', 'unknown')}")
+        logger.info(f"  - Features: {config.get('features', 'unknown')}")
+        logger.info(f"  - Output Channels: {config.get('out_channels', 'unknown')}")
+
+        # Model capabilities
+        has_cam = config.get('has_cam', False) and config.get('alt_start', -1) != -1
+        logger.info(f"Camera Support: {has_cam}")
+        logger.info(f"Sky Segmentation: {config.get('is_mono', False) or config.get('is_metric', False) or is_nested}")
+        logger.info(f"Is Mono Model: {config.get('is_mono', False)}")
+        logger.info(f"Is Metric Model: {config.get('is_metric', False)}")
+
+        # Count total parameters
+        total_params = sum(p.numel() for p in self.model.parameters())
+        trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+        logger.info(f"Total Parameters: {total_params:,} ({total_params / 1e6:.2f}M)")
+        logger.info(f"Trainable Parameters: {trainable_params:,} ({trainable_params / 1e6:.2f}M)")
+
+        # Device and precision info
+        logger.info(f"Precision: {dtype}")
+        logger.info(f"Device: {device}")
+        logger.info(f"Offload Device: {mm.unet_offload_device()}")
+
+        # Memory usage estimate
+        param_memory_mb = (total_params * 4) / (1024 * 1024)  # Assuming fp32 base
+        if dtype == torch.float16 or dtype == torch.bfloat16:
+            param_memory_mb /= 2
+        logger.info(f"Estimated Model Memory: {param_memory_mb:.2f} MB")
+
+        logger.info("=" * 60)
+        # === END DEBUG ===
+
         da3_model = {
             "model": self.model,
             "dtype": dtype,

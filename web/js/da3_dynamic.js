@@ -12,28 +12,31 @@ import { app } from "../../../scripts/app.js";
 function getModelType(modelName) {
     if (!modelName) return "unknown";
 
-    // Main series models (have camera support, no sky)
-    if (modelName.includes("DA3-Small") || modelName.includes("DA3-Base") ||
-        modelName.includes("DA3-Large") || modelName.includes("DA3-Giant")) {
-        // Check it's not Mono/Metric/Nested variants
-        if (!modelName.includes("Mono") && !modelName.includes("Metric") && !modelName.includes("Nested")) {
-            return "main_series";
-        }
+    // Convert to lowercase for easier matching
+    const name = modelName.toLowerCase();
+
+    // Nested model (has both camera and sky) - check first as it contains "giant" and "large"
+    if (name.includes("nested") || name.includes("da3nested")) {
+        return "nested";
     }
 
     // Mono model (no camera support, has sky)
-    if (modelName.includes("DA3Mono")) {
+    if (name.includes("mono") || name.includes("da3mono")) {
         return "mono";
     }
 
     // Metric model (no camera support, has sky)
-    if (modelName.includes("DA3Metric")) {
+    if (name.includes("metric") || name.includes("da3metric")) {
         return "metric";
     }
 
-    // Nested model (has both camera and sky)
-    if (modelName.includes("DA3Nested") || modelName.includes("Nested")) {
-        return "nested";
+    // Main series models (have camera support, no sky)
+    // Match file names like: da3_small.safetensors, da3_base.safetensors, etc.
+    if (name.includes("da3_small") || name.includes("da3_base") ||
+        name.includes("da3_large") || name.includes("da3_giant") ||
+        name.includes("da3-small") || name.includes("da3-base") ||
+        name.includes("da3-large") || name.includes("da3-giant")) {
+        return "main_series";
     }
 
     return "unknown";
@@ -138,6 +141,51 @@ function forceUIUpdate(node) {
     });
 }
 
+// Hide an input slot from the node
+function hideInputSlot(node, slotName) {
+    if (!node.inputs) return null;
+
+    const input = node.inputs.find(i => i.name === slotName);
+    if (!input || input._da3_hidden) return input;
+
+    // Store original index for restoration
+    input._da3_originalIndex = node.inputs.indexOf(input);
+    input._da3_hidden = true;
+
+    // Remove from inputs array
+    node.inputs.splice(input._da3_originalIndex, 1);
+
+    // Store reference for later
+    if (!node._da3_hiddenInputs) {
+        node._da3_hiddenInputs = {};
+    }
+    node._da3_hiddenInputs[slotName] = input;
+
+    forceUIUpdate(node);
+    return input;
+}
+
+// Show a hidden input slot
+function showInputSlot(node, slotName) {
+    if (!node._da3_hiddenInputs || !node._da3_hiddenInputs[slotName]) return;
+
+    const input = node._da3_hiddenInputs[slotName];
+    if (!input._da3_hidden) return;
+
+    // Re-insert at original position
+    const targetIndex = input._da3_originalIndex || node.inputs.length;
+    const insertIndex = Math.min(targetIndex, node.inputs.length);
+
+    // Check if already in array
+    if (node.inputs.indexOf(input) === -1) {
+        node.inputs.splice(insertIndex, 0, input);
+    }
+
+    input._da3_hidden = false;
+
+    forceUIUpdate(node);
+}
+
 // Get the model type from a connected model loader node
 function getConnectedModelType(node) {
     // Find the da3_model input
@@ -161,23 +209,54 @@ function getConnectedModelType(node) {
 
 // Setup dynamic widgets for inference nodes
 function setupInferenceNode(node) {
-    // Store hidden widgets
+    // Store hidden widgets and inputs
     node._da3_hiddenWidgets = {};
+    node._da3_hiddenInputs = {};
 
-    // Get the camera_params widget (if it exists as an input)
-    // Note: camera_params is an optional input, not a widget, so we handle it differently
+    // Store reference to camera_params input before any hiding
+    const cameraParamsInput = node.inputs?.find(i => i.name === "camera_params");
+    if (cameraParamsInput) {
+        node._da3_cameraParamsInput = cameraParamsInput;
+    }
+
+    let lastModelType = null;
 
     const updateVisibility = () => {
         const modelType = getConnectedModelType(node);
-        if (!modelType || modelType === "unknown") return;
+
+        // If no model connected, show all inputs (default state)
+        if (!modelType || modelType === "unknown") {
+            // Show camera_params if it was hidden
+            if (node._da3_hiddenInputs["camera_params"]) {
+                showInputSlot(node, "camera_params");
+                console.log(`[DA3] ${node.title || node.type}: No model connected, showing camera_params`);
+            }
+            lastModelType = null;
+            return;
+        }
+
+        // Skip if model type hasn't changed
+        if (modelType === lastModelType) return;
+        lastModelType = modelType;
 
         const capabilities = getModelCapabilities(modelType);
-
-        // Update node title or add indicator for model capabilities
         const nodeTitle = node.title || node.type;
 
-        // We can't hide optional inputs dynamically, but we can show a warning
-        // The Python backend will handle the actual warning
+        // Hide or show camera_params based on model capabilities
+        if (capabilities.has_camera_conditioning) {
+            // Model supports camera conditioning - show the input
+            if (node._da3_hiddenInputs["camera_params"]) {
+                showInputSlot(node, "camera_params");
+                console.log(`[DA3] ${nodeTitle}: Model supports camera conditioning, showing camera_params`);
+            }
+        } else {
+            // Model does NOT support camera conditioning - hide the input
+            const input = node.inputs?.find(i => i.name === "camera_params");
+            if (input && !input._da3_hidden) {
+                hideInputSlot(node, "camera_params");
+                console.log(`[DA3] ${nodeTitle}: Model does NOT support camera conditioning, hiding camera_params`);
+            }
+        }
 
         // Store current capabilities in node for reference
         node._da3_modelCapabilities = capabilities;
@@ -201,7 +280,7 @@ function setupInferenceNode(node) {
     // Initial check
     setTimeout(() => updateVisibility(), 200);
 
-    // Poll for changes (in case connection change event is missed)
+    // Poll for changes (in case connection change event is missed or model selection changes)
     const pollInterval = setInterval(() => {
         if (!node.graph) {
             clearInterval(pollInterval);
@@ -209,6 +288,15 @@ function setupInferenceNode(node) {
         }
         updateVisibility();
     }, 2000);
+
+    // Clean up on node removal
+    const origOnRemoved = node.onRemoved;
+    node.onRemoved = function() {
+        clearInterval(pollInterval);
+        if (origOnRemoved) {
+            origOnRemoved.apply(this, arguments);
+        }
+    };
 }
 
 // Setup model loader to track model selection
