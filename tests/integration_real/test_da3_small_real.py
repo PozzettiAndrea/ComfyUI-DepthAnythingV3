@@ -51,7 +51,7 @@ def test_da3_small_load(mock_comfy_environment):
     assert "dtype" in model_dict
     assert "config" in model_dict
     assert model_dict["config"]["encoder"] == "vits"
-    print(f"✅ Model loaded successfully: encoder={model_dict['config']['encoder']}, dtype={model_dict['dtype']}")
+    print(f"Model loaded successfully: encoder={model_dict['config']['encoder']}, dtype={model_dict['dtype']}")
 
 
 @pytest.mark.real_model
@@ -106,7 +106,7 @@ def test_da3_small_inference_bridge(mock_comfy_environment):
     assert depth_output.shape[3] == 3  # 3-channel depth map
     assert depth_output.min() >= 0.0
     assert depth_output.max() <= 1.0
-    print("✅ All assertions passed!")
+    print("All assertions passed!")
 
 
 @pytest.mark.real_model

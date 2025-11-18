@@ -41,8 +41,8 @@ class PointCloudViewer {
         this.controls.style.fontSize = "12px";
         this.controls.style.fontFamily = "monospace";
         this.controls.innerHTML = `
-            <div>🖱️ Left: Rotate | Right: Pan</div>
-            <div>🔍 Scroll: Zoom</div>
+            <div>Left: Rotate | Right: Pan</div>
+            <div>Scroll: Zoom</div>
             <div id="point-count">Points: 0</div>
         `;
         this.container.appendChild(this.controls);
