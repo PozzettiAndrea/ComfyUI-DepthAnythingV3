@@ -23,10 +23,23 @@ class DA3_ToPointCloud:
                 "confidence": ("IMAGE", ),
             },
             "optional": {
-                "intrinsics": ("STRING", {"default": ""}),
+                "intrinsics": ("STRING", {"forceInput": True}),
+                "sky_mask": ("MASK", ),
                 "source_image": ("IMAGE", ),
-                "confidence_threshold": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "downsample": ("INT", {"default": 10, "min": 1, "max": 16, "step": 1}),
+                "confidence_threshold": ("FLOAT", {
+                    "default": 0.5,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.01,
+                    "tooltip": "Filter out points with confidence below this threshold (0-1)"
+                }),
+                "downsample": ("INT", {
+                    "default": 5,
+                    "min": 1,
+                    "max": 16,
+                    "step": 1,
+                    "tooltip": "Take every Nth pixel to reduce point cloud density. Higher = fewer points, faster processing. 1 = no downsampling (slowest, most detail)"
+                }),
             }
         }
 
@@ -39,16 +52,16 @@ Convert DA3 depth map to 3D point cloud using proper camera geometry.
 Uses geometric unprojection: P = K^(-1) * [u, v, 1]^T * depth
 
 Inputs:
-- depth_raw: Metric depth map (from DA3_3D or DA3_Advanced)
+- depth_raw: Metric depth map (from DepthAnything_V3 with normalization_mode="Raw")
 - confidence: Confidence map
-- intrinsics: (Optional) Camera intrinsics JSON from DA3_Advanced
+- intrinsics: (Optional) Camera intrinsics JSON from DepthAnything_V3
+  ⚠️ If not provided, uses estimated intrinsics (may cause warping)
+- sky_mask: (Optional but RECOMMENDED) Sky segmentation - excludes sky from point cloud
 - source_image: (Optional) Source image for point colors
-
-If intrinsics not provided, uses default pinhole camera model.
 
 Parameters:
 - confidence_threshold: Filter points below this confidence (0-1)
-- downsample: Reduce point density by factor N (1 = no downsampling)
+- downsample: Take every Nth pixel (5 = 1/25th of points, faster)
 
 Output POINTCLOUD contains:
 - points: Nx3 array of 3D coordinates
@@ -87,11 +100,19 @@ Output POINTCLOUD contains:
             return None
 
     def _create_default_intrinsics(self, H, W):
-        """Create default pinhole camera intrinsics."""
-        # Assume focal length = image width (reasonable default)
-        fx = fy = float(W)
-        cx = W / 2.0
-        cy = H / 2.0
+        """
+        Create default pinhole camera intrinsics.
+
+        WARNING: These are rough estimates! For accurate 3D reconstruction,
+        provide actual camera intrinsics from the depth model or calibration.
+
+        Assumes ~60 degree horizontal FOV (common for consumer cameras).
+        """
+        # For ~60° horizontal FOV: fx = W / (2 * tan(30°)) ≈ 0.866 * W
+        # Using a slightly wider assumption for better general results
+        fx = fy = float(W) * 0.7  # Assumes ~70° FOV
+        cx = (W - 1) / 2.0  # Principal point at image center (0-indexed)
+        cy = (H - 1) / 2.0
 
         K = torch.tensor([
             [fx, 0, cx],
@@ -99,10 +120,25 @@ Output POINTCLOUD contains:
             [0, 0, 1]
         ], dtype=torch.float32)
 
+        logger.warning(
+            f"Using default camera intrinsics (fx={fx:.1f}, fy={fy:.1f}, cx={cx:.1f}, cy={cy:.1f}). "
+            "For accurate 3D reconstruction, connect intrinsics output from DepthAnything_V3 node."
+        )
+
         return K
 
-    def convert(self, depth_raw, confidence, intrinsics="", source_image=None, confidence_threshold=0.5, downsample=1):
+    def convert(self, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.5, downsample=1):
         """Convert depth map to point cloud using geometric unprojection."""
+        # Validate that depth is raw/metric, not normalized
+        max_depth = depth_raw.max().item()
+        if max_depth < 2.0:
+            raise ValueError(
+                f"Depth input appears to be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
+                f"Point cloud generation requires raw metric depth values. "
+                f"Please use DepthAnything_V3 node with normalization_mode='Raw' "
+                f"and connect the depth output to this node's depth_raw input."
+            )
+
         B = depth_raw.shape[0]
         point_clouds = []
 
@@ -121,10 +157,19 @@ Output POINTCLOUD contains:
             else:
                 intrinsics_source = "DA3 model"
 
+            # Extract sky mask if provided
+            if sky_mask is not None:
+                sky_map = sky_mask[b]  # [H, W]
+            else:
+                sky_map = None
+
             # Downsample if needed
             if downsample > 1:
                 depth_map = depth_map[::downsample, ::downsample]
                 conf_map = conf_map[::downsample, ::downsample]
+
+                if sky_map is not None:
+                    sky_map = sky_map[::downsample, ::downsample]
 
                 # Scale intrinsics for downsampling
                 K = K.clone()
@@ -188,6 +233,13 @@ Output POINTCLOUD contains:
 
             # Filter by confidence
             mask = conf_flat >= confidence_threshold
+
+            # ALWAYS filter out sky pixels if sky mask is provided
+            if sky_map is not None:
+                sky_flat = sky_map.flatten()  # (N,)
+                # Sky mask: 1=sky, 0=non-sky, so we keep pixels where sky < 0.5
+                mask = mask & (sky_flat < 0.5)
+
             points_3d = points_flat[mask]
             conf_flat = conf_flat[mask]
 
