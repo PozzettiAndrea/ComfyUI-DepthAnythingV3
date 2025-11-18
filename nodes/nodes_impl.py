@@ -8,12 +8,12 @@ import comfy.model_management as mm
 from comfy.utils import ProgressBar, load_torch_file
 import folder_paths
 
-# Use absolute imports instead of relative to support both ComfyUI and pytest contexts
-from depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
-from depth_anything_v3.model.da3 import DepthAnything3Net
-from depth_anything_v3.model.dinov2.dinov2 import DinoV2
-from depth_anything_v3.model.dualdpt import DualDPT
-from depth_anything_v3.model.dpt import DPT
+# Use relative imports since depth_anything_v3 is now inside the nodes package
+from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
+from .depth_anything_v3.model.da3 import DepthAnything3Net
+from .depth_anything_v3.model.dinov2.dinov2 import DinoV2
+from .depth_anything_v3.model.dualdpt import DualDPT
+from .depth_anything_v3.model.dpt import DPT
 
 try:
     from accelerate import init_empty_weights
@@ -744,7 +744,7 @@ class DA3_ToPointCloud:
                 "intrinsics": ("STRING", {"default": ""}),
                 "source_image": ("IMAGE", ),
                 "confidence_threshold": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "downsample": ("INT", {"default": 1, "min": 1, "max": 16, "step": 1}),
+                "downsample": ("INT", {"default": 10, "min": 1, "max": 16, "step": 1}),
             }
         }
 

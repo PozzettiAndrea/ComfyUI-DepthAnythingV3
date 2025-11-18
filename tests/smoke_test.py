@@ -5,6 +5,13 @@ Tests basic module import functionality without requiring ComfyUI to be installe
 
 import sys
 import traceback
+from pathlib import Path
+
+# Add nodes directory to path so depth_anything_v3 can be imported
+# (depth_anything_v3 is now inside the nodes package)
+_nodes_dir = Path(__file__).parent.parent / "nodes"
+if str(_nodes_dir) not in sys.path:
+    sys.path.insert(0, str(_nodes_dir))
 
 # Mock ComfyUI dependencies before importing nodes
 # This allows smoke test to run without ComfyUI installed
