@@ -107,21 +107,46 @@ class PointCloudViewer {
     }
 
     async loadThreeJS() {
-        return new Promise((resolve, reject) => {
-            if (window.THREE) {
-                resolve();
-                return;
+        if (window.THREE) {
+            return;
+        }
+
+        try {
+            // Try to load from local bundled Three.js ES module
+            // Get the current script path to calculate relative path
+            const currentScript = document.currentScript ||
+                Array.from(document.scripts).find(s => s.src.includes('pointcloud_preview'));
+
+            let basePath = '';
+            if (currentScript && currentScript.src) {
+                const scriptUrl = new URL(currentScript.src);
+                basePath = scriptUrl.pathname.substring(0, scriptUrl.pathname.lastIndexOf('/'));
+            } else {
+                // Fallback: find the extension path from existing ComfyUI extensions
+                basePath = '/extensions/ComfyUI-DepthAnythingV3/js';
             }
 
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
-            script.onload = () => {
-                console.log("[DepthAnythingV3] Three.js loaded from CDN");
-                resolve();
-            };
-            script.onerror = () => reject(new Error('Failed to load Three.js'));
-            document.head.appendChild(script);
-        });
+            const threeModulePath = `${basePath}/lib/three.module.min.js`;
+            console.log("[DepthAnythingV3] Loading Three.js from:", threeModulePath);
+
+            // Use dynamic import for ES module
+            const THREE = await import(threeModulePath);
+            window.THREE = THREE;
+            console.log("[DepthAnythingV3] Three.js loaded from local ES module");
+        } catch (error) {
+            console.warn("[DepthAnythingV3] Failed to load local Three.js, falling back to CDN:", error);
+            // Fallback to CDN if local loading fails
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
+                script.onload = () => {
+                    console.log("[DepthAnythingV3] Three.js loaded from CDN (fallback)");
+                    resolve();
+                };
+                script.onerror = () => reject(new Error('Failed to load Three.js'));
+                document.head.appendChild(script);
+            });
+        }
     }
 
     setupControls() {
