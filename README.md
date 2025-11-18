@@ -11,23 +11,15 @@ Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Any
 ## Demo Videos
 
 ### Simple 3D Workflow
-https://github.com/user-attachments/assets/simple-3d.mp4
-
-[Download Video](docs/simple-3d.mp4)
+<video controls autoplay loop src="docs/simple-3d.mp4"></video>
 
 ### Video Depth Processing
-https://github.com/user-attachments/assets/video_depth.mp4
-
-[Download Video](docs/video_depth.mp4)
+<video controls autoplay loop src="docs/video_depth.mp4"></video>
 
 ### Multi-View Depth Estimation
-https://github.com/user-attachments/assets/multiview_depth.mp4
-
-[Download Video](docs/multiview_depth.mp4)
+<video controls autoplay loop src="docs/multiview_depth.mp4"></video>
 
 ---
-
-If the normal viewer doesn't work, try the VTK one!
 
 ## Description
 
