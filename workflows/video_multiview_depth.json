@@ -1,0 +1,478 @@
+{
+  "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
+  "revision": 0,
+  "last_node_id": 60,
+  "last_link_id": 88,
+  "nodes": [
+    {
+      "id": 28,
+      "type": "DepthAnythingV3_MultiView",
+      "pos": [
+        358.98074127847354,
+        92.10506196327631
+      ],
+      "size": [
+        294.1705078125,
+        142
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 62
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 87
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            81
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "cf26ceba61756a6775e4569b345512cff032c893",
+        "Node name for S&R": "DepthAnythingV3_MultiView"
+      },
+      "widgets_values": [
+        "resize",
+        false
+      ]
+    },
+    {
+      "id": 35,
+      "type": "DepthAnything_V3",
+      "pos": [
+        364.5312693450436,
+        283.4071499389302
+      ],
+      "size": [
+        270,
+        122
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 67
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 88
+        },
+        {
+          "name": "camera_params",
+          "shape": 7,
+          "type": "CAMERA_PARAMS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            82
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "cf26ceba61756a6775e4569b345512cff032c893",
+        "Node name for S&R": "DepthAnything_V3"
+      },
+      "widgets_values": [
+        "resize",
+        false
+      ]
+    },
+    {
+      "id": 52,
+      "type": "CreateVideo",
+      "pos": [
+        721.9625478845606,
+        78.27694211451613
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 81
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            83
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        30
+      ]
+    },
+    {
+      "id": 54,
+      "type": "SaveVideo",
+      "pos": [
+        1095.2674162976687,
+        99.94635400129286
+      ],
+      "size": [
+        270,
+        249.875
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 83
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "video/ComfyUI",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": 53,
+      "type": "CreateVideo",
+      "pos": [
+        707.1879488708487,
+        334.369991685514
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 82
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            84
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        30
+      ]
+    },
+    {
+      "id": 55,
+      "type": "SaveVideo",
+      "pos": [
+        1052.9135657916966,
+        489.0107946956937
+      ],
+      "size": [
+        270,
+        249.87500000000006
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 84
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "video/ComfyUI",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DownloadAndLoadDepthAnythingV3Model",
+      "pos": [
+        -104.0109375,
+        -61.48984374999994
+      ],
+      "size": [
+        388.65,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "links": [
+            62,
+            67
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model",
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "da3_base.safetensors",
+        "auto"
+      ]
+    },
+    {
+      "id": 59,
+      "type": "VHS_LoadVideoPath",
+      "pos": [
+        -329.9889018916935,
+        297.9259807850262
+      ],
+      "size": [
+        231.8896484375,
+        419.2192348182624
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            87,
+            88
+          ]
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "1.7.7",
+        "Node name for S&R": "VHS_LoadVideoPath"
+      },
+      "widgets_values": {
+        "video": "input/robot_unitree.mp4",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 4,
+        "format": "AnimateDiff",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "input/robot_unitree.mp4",
+            "type": "path",
+            "format": "video/mp4",
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 4
+          }
+        }
+      }
+    }
+  ],
+  "links": [
+    [
+      62,
+      3,
+      0,
+      28,
+      0,
+      "DA3MODEL"
+    ],
+    [
+      67,
+      3,
+      0,
+      35,
+      0,
+      "DA3MODEL"
+    ],
+    [
+      81,
+      28,
+      0,
+      52,
+      0,
+      "IMAGE"
+    ],
+    [
+      82,
+      35,
+      0,
+      53,
+      0,
+      "IMAGE"
+    ],
+    [
+      83,
+      52,
+      0,
+      54,
+      0,
+      "VIDEO"
+    ],
+    [
+      84,
+      53,
+      0,
+      55,
+      0,
+      "VIDEO"
+    ],
+    [
+      87,
+      59,
+      0,
+      28,
+      1,
+      "IMAGE"
+    ],
+    [
+      88,
+      59,
+      0,
+      35,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6934334949441338,
+      "offset": [
+        314.46247196793,
+        32.04241200405204
+      ]
+    },
+    "frontendVersion": "1.28.8",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

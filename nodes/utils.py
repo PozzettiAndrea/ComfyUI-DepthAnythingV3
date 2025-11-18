@@ -46,6 +46,44 @@ def format_camera_params(param_list, param_name):
     return json.dumps({param_name: formatted}, indent=2)
 
 
+def check_model_capabilities(model):
+    """Check what capabilities a model has.
+
+    Args:
+        model: The DA3 model
+
+    Returns:
+        Dictionary of capabilities
+    """
+    has_camera = (
+        hasattr(model, 'cam_enc') and model.cam_enc is not None and
+        hasattr(model, 'cam_dec') and model.cam_dec is not None
+    )
+
+    # Main series models have camera support, Mono/Metric don't
+    # Sky is available on Mono/Metric (DPT head), not on Main series (DualDPT head)
+    has_sky = not has_camera  # Inverse relationship
+
+    # Nested model has both (camera from main branch, sky from metric branch)
+    is_nested = hasattr(model, 'da3') and hasattr(model, 'da3_metric')
+    if is_nested:
+        has_sky = True
+        has_camera = True
+
+    has_gs = (
+        hasattr(model, 'gs_head') and model.gs_head is not None and
+        hasattr(model, 'gs_adapter') and model.gs_adapter is not None
+    )
+
+    return {
+        "has_camera_conditioning": has_camera,
+        "has_sky_segmentation": has_sky,
+        "has_multiview_attention": has_camera,
+        "has_3d_gaussians": has_gs,
+        "is_nested": is_nested,
+    }
+
+
 def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False):
     """Convert list of depth/conf tensors to ComfyUI IMAGE format.
 
@@ -85,12 +123,50 @@ def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False)
     return out
 
 
-def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE):
+def process_tensor_to_mask(tensor_list, orig_H, orig_W):
+    """Convert list of tensors to ComfyUI MASK format.
+
+    Args:
+        tensor_list: List of tensors with shape [1, H, W] or [H, W]
+        orig_H: Original image height
+        orig_W: Original image width
+
+    Returns:
+        Tensor with shape [B, H, W] in ComfyUI MASK format
+    """
+    # Concatenate all tensors
+    out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W] or [B, H, W]
+
+    # Ensure 3D: [B, H, W]
+    if out.dim() == 4:
+        out = out.squeeze(1)  # [B, H, W]
+
+    out = out.cpu().float()
+
+    # Resize back to original dimensions (with even constraint)
+    final_H = (orig_H // 2) * 2
+    final_W = (orig_W // 2) * 2
+
+    if out.shape[1] != final_H or out.shape[2] != final_W:
+        out = F.interpolate(
+            out.unsqueeze(1),  # [B, 1, H, W] for interpolation
+            size=(final_H, final_W),
+            mode="bilinear"
+        ).squeeze(1)  # Back to [B, H, W]
+
+    return torch.clamp(out, 0, 1)
+
+
+def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE, method="resize"):
     """Resize images to be divisible by patch size.
 
     Args:
         images_pt: Tensor with shape [B, C, H, W]
         patch_size: Patch size to align to (default 14)
+        method: How to handle non-divisible sizes:
+            - "resize": Resize to nearest patch multiple (default, preserves content)
+            - "crop": Center crop to floor patch multiple (loses edges)
+            - "pad": Pad to ceiling patch multiple (adds black padding)
 
     Returns:
         Tuple of (resized_images, original_H, original_W)
@@ -98,13 +174,54 @@ def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE):
     _, _, H, W = images_pt.shape
     orig_H, orig_W = H, W
 
-    if W % patch_size != 0:
-        W = W - (W % patch_size)
-    if H % patch_size != 0:
-        H = H - (H % patch_size)
+    if H % patch_size == 0 and W % patch_size == 0:
+        return images_pt, orig_H, orig_W
 
-    if orig_H % patch_size != 0 or orig_W % patch_size != 0:
-        images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+    if method == "crop":
+        # Center crop to floor of patch multiple
+        new_H = (H // patch_size) * patch_size
+        new_W = (W // patch_size) * patch_size
+
+        if new_H == 0 or new_W == 0:
+            raise ValueError(f"Image too small for patch size {patch_size}. Min size: {patch_size}x{patch_size}")
+
+        # Calculate crop offsets (center crop)
+        top = (H - new_H) // 2
+        left = (W - new_W) // 2
+
+        images_pt = images_pt[:, :, top:top+new_H, left:left+new_W]
+        logger.debug(f"Cropped from {orig_H}x{orig_W} to {new_H}x{new_W} (center crop)")
+
+    elif method == "pad":
+        # Pad to ceiling of patch multiple
+        new_H = ((H + patch_size - 1) // patch_size) * patch_size
+        new_W = ((W + patch_size - 1) // patch_size) * patch_size
+
+        # Calculate padding (pad bottom and right)
+        pad_bottom = new_H - H
+        pad_right = new_W - W
+
+        # F.pad expects (left, right, top, bottom) for 4D tensor
+        images_pt = F.pad(images_pt, (0, pad_right, 0, pad_bottom), mode='constant', value=0)
+        logger.debug(f"Padded from {orig_H}x{orig_W} to {new_H}x{new_W} (zero padding)")
+
+    else:  # method == "resize" (default)
+        # Resize to nearest patch multiple
+        def nearest_multiple(x, p):
+            down = (x // p) * p
+            up = down + p
+            return up if abs(up - x) <= abs(x - down) else down
+
+        new_H = nearest_multiple(H, patch_size)
+        new_W = nearest_multiple(W, patch_size)
+
+        if new_H == 0:
+            new_H = patch_size
+        if new_W == 0:
+            new_W = patch_size
+
+        images_pt = F.interpolate(images_pt, size=(new_H, new_W), mode="bilinear", align_corners=False)
+        logger.debug(f"Resized from {orig_H}x{orig_W} to {new_H}x{new_W} (nearest multiple)")
 
     return images_pt, orig_H, orig_W
 
