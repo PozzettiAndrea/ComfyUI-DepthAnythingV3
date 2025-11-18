@@ -70,7 +70,7 @@ class PointCloudViewer {
             0.001,
             1000
         );
-        this.camera.position.set(0, 0, 2);
+        this.camera.position.set(0, 0, -2);
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -316,8 +316,8 @@ class PointCloudViewer {
             pointCountDiv.textContent = `Points: ${pointData.count.toLocaleString()}`;
         }
 
-        // Reset camera
-        this.camera.position.set(0, 0, 2);
+        // Reset camera (opposite side from default)
+        this.camera.position.set(0, 0, -2);
         this.camera.lookAt(0, 0, 0);
 
         console.log('[DepthAnythingV3] Point cloud displayed');
