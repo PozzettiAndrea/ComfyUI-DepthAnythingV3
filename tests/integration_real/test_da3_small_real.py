@@ -2,9 +2,16 @@
 Real model integration tests for Depth Anything V3
 These tests download and use actual models on the bridge image
 """
+import sys
+from pathlib import Path
+
+# Add repo root to path to enable imports
+repo_root = Path(__file__).parent.parent.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
 import pytest
 import torch
-from pathlib import Path
 import numpy as np
 from PIL import Image
 
@@ -28,7 +35,7 @@ def load_bridge_image():
 @pytest.mark.real_model
 def test_da3_small_load(mock_comfy_environment):
     """Test loading real DA3 Small model"""
-    from nodes import DownloadAndLoadDepthAnythingV3Model
+    from nodes.nodes_impl import DownloadAndLoadDepthAnythingV3Model
 
     loader = DownloadAndLoadDepthAnythingV3Model()
 
@@ -88,7 +95,7 @@ def test_da3_small_inference_bridge(mock_comfy_environment):
     print(f"Saved input image to {output_dir / 'bridge_input.png'}")
 
     # Convert depth tensor to PIL Image and save
-    depth_np = (depth_output[0].cpu().numpy() * 255).astype(np.uint8)
+    depth_np = (depth_output[0].detach().cpu().numpy() * 255).astype(np.uint8)
     depth_pil = Image.fromarray(depth_np[:, :, 0])
     depth_pil.save(output_dir / "bridge_da3_small_depth.png")
     print(f"Saved depth map to {output_dir / 'bridge_da3_small_depth.png'}")
@@ -105,7 +112,7 @@ def test_da3_small_inference_bridge(mock_comfy_environment):
 @pytest.mark.real_model
 def test_da3_large_load(mock_comfy_environment):
     """Test loading real DA3 Large model"""
-    from nodes import DownloadAndLoadDepthAnythingV3Model
+    from nodes.nodes_impl import DownloadAndLoadDepthAnythingV3Model
 
     loader = DownloadAndLoadDepthAnythingV3Model()
 
@@ -125,7 +132,7 @@ def test_da3_large_load(mock_comfy_environment):
 @pytest.mark.real_model
 def test_da3_precision_options(mock_comfy_environment):
     """Test that different precision options work"""
-    from nodes import DownloadAndLoadDepthAnythingV3Model
+    from nodes.nodes_impl import DownloadAndLoadDepthAnythingV3Model
 
     loader = DownloadAndLoadDepthAnythingV3Model()
 
