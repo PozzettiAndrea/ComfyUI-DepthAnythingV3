@@ -5,45 +5,6 @@
   "last_link_id": 15,
   "nodes": [
     {
-      "id": 2,
-      "type": "LoadImage",
-      "pos": [
-        13.60546875,
-        219.2109375
-      ],
-      "size": [
-        274.080078125,
-        314
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            13
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.68",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "da3_example_bridge.jpeg",
-        "image"
-      ]
-    },
-    {
       "id": 11,
       "type": "DepthAnything_V3",
       "pos": [
@@ -82,7 +43,8 @@
         "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
         "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
         "Node name for S&R": "DepthAnything_V3"
-      }
+      },
+      "widgets_values": []
     },
     {
       "id": 4,
@@ -125,7 +87,7 @@
         82
       ],
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -145,6 +107,45 @@
       "widgets_values": [
         "da3_large.safetensors",
         "auto"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        13.60546875,
+        219.2109375
+      ],
+      "size": [
+        274.080078125,
+        314
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            13
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "bridge.jpg",
+        "image"
       ]
     }
   ],
@@ -178,10 +179,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7513148009015777,
+      "scale": 1.1000000000000005,
       "offset": [
-        641.2607432119137,
-        321.69861661755715
+        219.26743006943605,
+        100.59071374263488
       ]
     },
     "frontendVersion": "1.28.8"

@@ -5,45 +5,6 @@
   "last_link_id": 11,
   "nodes": [
     {
-      "id": 2,
-      "type": "LoadImage",
-      "pos": [
-        13.60546875,
-        219.2109375
-      ],
-      "size": [
-        274.080078125,
-        314
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            5
-          ]
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null
-        }
-      ],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.68",
-        "Node name for S&R": "LoadImage"
-      },
-      "widgets_values": [
-        "da3_example_bridge.jpeg",
-        "image"
-      ]
-    },
-    {
       "id": 3,
       "type": "DownloadAndLoadDepthAnythingV3Model",
       "pos": [
@@ -55,7 +16,7 @@
         82
       ],
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -327,6 +288,45 @@
         "Node name for S&R": "DepthAnythingV3_Advanced"
       },
       "widgets_values": []
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        13.60546875,
+        219.2109375
+      ],
+      "size": [
+        274.080078125,
+        314
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "bridge.jpg",
+        "image"
+      ]
     }
   ],
   "links": [
@@ -401,8 +401,8 @@
     "ds": {
       "scale": 0.7513148009015781,
       "offset": [
-        249.0524775869132,
-        258.35653458630685
+        547.3784502431631,
+        199.79253458630689
       ]
     },
     "frontendVersion": "1.28.8"
