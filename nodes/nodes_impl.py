@@ -25,6 +25,33 @@ except:
     is_accelerate_available = False
 
 
+class DA3ModelWrapper(torch.nn.Module):
+    """Wrapper to match checkpoint parameter naming (da3.backbone... etc)"""
+    def __init__(self, model):
+        super().__init__()
+        self.da3 = model
+
+    def forward(self, *args, **kwargs):
+        return self.da3(*args, **kwargs)
+
+    def to(self, *args, **kwargs):
+        self.da3 = self.da3.to(*args, **kwargs)
+        return self
+
+    # Pass-through properties to access inner model attributes
+    @property
+    def cam_enc(self):
+        return self.da3.cam_enc if hasattr(self.da3, 'cam_enc') else None
+
+    @property
+    def cam_dec(self):
+        return self.da3.cam_dec if hasattr(self.da3, 'cam_dec') else None
+
+    @property
+    def gs_head(self):
+        return self.da3.gs_head if hasattr(self.da3, 'gs_head') else None
+
+
 class DownloadAndLoadDepthAnythingV3Model:
     @classmethod
     def INPUT_TYPES(s):
@@ -167,7 +194,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                 )
 
             # Create the full model with camera encoder/decoder
-            self.model = DepthAnything3Net(
+            inner_model = DepthAnything3Net(
                 net=backbone,
                 head=head,
                 cam_dec=cam_dec,
@@ -176,28 +203,73 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                 gs_adapter=None,  # Not implemented
             )
 
+            # Wrap the model so parameter names match checkpoint (da3.backbone... etc)
+            self.model = DA3ModelWrapper(inner_model)
+
         # Load weights
         state_dict = load_torch_file(model_path)
 
-        # Strip 'model.' prefix from keys if present
+        # Strip 'model.' prefix from keys if present (but keep 'da3.' since that's the actual path)
         new_state_dict = {}
+        stripped_count = 0
         for key, value in state_dict.items():
-            if key.startswith('model.'):
-                new_key = key[6:]  # Remove 'model.' prefix
-                new_state_dict[new_key] = value
-            else:
-                new_state_dict[key] = value
+            new_key = key
+            # Strip model. prefix only (da3. is part of actual parameter path in wrapper)
+            if new_key.startswith('model.'):
+                new_key = new_key[6:]  # Remove 'model.' prefix
+                stripped_count += 1
+            new_state_dict[new_key] = value
+
+        if stripped_count > 0:
+            print(f"Stripped 'model.' prefix from {stripped_count} keys")
+        # Show example keys
+        sample_keys = list(new_state_dict.keys())[:3]
+        print(f"Sample checkpoint keys: {sample_keys}")
+        # Show head keys to understand structure
+        head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
+        print(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
 
         if use_empty_weights:
             # Used init_empty_weights, must use set_module_tensor_to_device
             failed_keys = []
+            loaded_keys = []
             for key in new_state_dict:
                 try:
                     set_module_tensor_to_device(self.model, key, device=device, dtype=dtype, value=new_state_dict[key])
+                    loaded_keys.append(key)
                 except Exception as e:
-                    failed_keys.append(key)
+                    failed_keys.append((key, str(e)))
             if failed_keys:
                 print(f"Warning: Could not load {len(failed_keys)} weights (this is normal for simplified models)")
+                # Debug: show first few failed keys to understand the pattern
+                print(f"First 10 failed keys: {[k for k, e in failed_keys[:10]]}")
+                # Show head-specific failures
+                head_failures = [(k, e) for k, e in failed_keys if k.startswith('head.')]
+                if head_failures:
+                    print(f"Head failures ({len(head_failures)}): {head_failures[:5]}")
+
+            # Materialize any remaining meta tensors (parameters not in checkpoint)
+            # This is critical - any params still on 'meta' device will cause runtime errors
+            meta_params = []
+            for name, param in self.model.named_parameters():
+                if param.device.type == 'meta':
+                    meta_params.append(name)
+                    # Check if this key exists in checkpoint but wasn't loaded (shape mismatch?)
+                    if name in new_state_dict:
+                        ckpt_shape = new_state_dict[name].shape
+                        model_shape = param.shape
+                        if ckpt_shape != model_shape:
+                            print(f"Shape mismatch for {name}: checkpoint {ckpt_shape} vs model {model_shape}")
+                    # Initialize with zeros and move to correct device
+                    set_module_tensor_to_device(
+                        self.model, name, device=device, dtype=dtype,
+                        value=torch.zeros(param.shape, dtype=dtype)
+                    )
+
+            if meta_params:
+                print(f"Warning: Initialized {len(meta_params)} missing parameters with zeros (not in checkpoint)")
+                # Debug: show first few meta params to understand the pattern
+                print(f"First 10 missing params: {meta_params[:10]}")
         else:
             # Standard model loading (CPU or no accelerate)
             try:
