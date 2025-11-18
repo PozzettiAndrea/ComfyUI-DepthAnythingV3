@@ -55,8 +55,8 @@ class DepthAnything_V3:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK")
+    RETURN_NAMES = ("depth", "confidence", "resized_rgb_image", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
@@ -239,12 +239,15 @@ Connect only the outputs you need - unused outputs are simply ignored.
             )
 
         B, H, W, C = images.shape
+        logger.info(f"Input image size: {H}x{W}")
 
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
         # Resize to patch size multiple
         images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
+        model_H, model_W = images_pt.shape[2], images_pt.shape[3]
+        logger.info(f"Model input size (after resize): {model_H}x{model_W}")
 
         # Normalize with ImageNet stats
         normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
@@ -387,7 +390,9 @@ Connect only the outputs you need - unused outputs are simply ignored.
                     intr = output['intrinsics']
 
                 if intr is not None and torch.is_tensor(intr):
-                    intrinsics_list.append(intr.cpu())
+                    intr_cpu = intr.cpu()
+                    logger.info(f"Model output intrinsics (batch {i}): shape={intr_cpu.shape}, values=\n{intr_cpu.squeeze()}")
+                    intrinsics_list.append(intr_cpu)
                 else:
                     intrinsics_list.append(None)
 
@@ -411,11 +416,49 @@ Connect only the outputs you need - unused outputs are simply ignored.
         ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W,
                                                     normalize=True, skip_resize=keep_model_size)
 
+        # Process resized RGB image to match depth output dimensions
+        rgb_resized = images_pt.permute(0, 2, 3, 1).float().cpu()  # [B, H, W, 3]
+        if not keep_model_size:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
+            if rgb_resized.shape[1] != final_H or rgb_resized.shape[2] != final_W:
+                rgb_resized = F.interpolate(
+                    rgb_resized.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
+        rgb_resized = torch.clamp(rgb_resized, 0, 1)
+
+        # Scale intrinsics if we resized back to original dimensions
+        if not keep_model_size:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
+            model_H, model_W = images_pt.shape[2], images_pt.shape[3]
+
+            # Only scale if dimensions actually changed
+            if final_H != model_H or final_W != model_W:
+                scale_h = final_H / model_H
+                scale_w = final_W / model_W
+                logger.info(f"Resizing from {model_H}x{model_W} to {final_H}x{final_W}, scale: h={scale_h:.4f}, w={scale_w:.4f}")
+
+                # Scale each intrinsics matrix
+                for i, intr in enumerate(intrinsics_list):
+                    if intr is not None and torch.is_tensor(intr):
+                        # Squeeze to ensure [3, 3] shape (remove batch dimensions)
+                        intr_scaled = intr.squeeze().clone()
+                        # Scale focal lengths and principal points
+                        intr_scaled[0, 0] *= scale_w  # fx
+                        intr_scaled[1, 1] *= scale_h  # fy
+                        intr_scaled[0, 2] *= scale_w  # cx
+                        intr_scaled[1, 2] *= scale_h  # cy
+                        logger.info(f"Scaled intrinsics (batch {i}):\n{intr_scaled}")
+                        intrinsics_list[i] = intr_scaled
+
         # Format camera parameters as strings
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_final, conf_final, ray_origin_final, ray_dir_final,
+        return (depth_final, conf_final, rgb_resized, ray_origin_final, ray_dir_final,
                 extrinsics_str, intrinsics_str, sky_final)
 
     def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True, skip_resize=False):

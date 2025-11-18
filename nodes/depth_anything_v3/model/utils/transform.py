@@ -46,8 +46,9 @@ def pose_encoding_to_extri_intri(
 
     T = pose_encoding[..., :3]
     quat = pose_encoding[..., 3:7]
-    fov_h = pose_encoding[..., 7]
-    fov_w = pose_encoding[..., 8]
+    # Model outputs fov_w and fov_h in swapped order
+    fov_w = pose_encoding[..., 7]  # Model outputs fov_w first (horizontal FOV)
+    fov_h = pose_encoding[..., 8]  # Model outputs fov_h second (vertical FOV)
 
     R = quat_to_mat(quat)
     extrinsics = torch.cat([R, T[..., None]], dim=-1)
