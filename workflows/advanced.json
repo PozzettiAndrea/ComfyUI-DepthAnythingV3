@@ -1,8 +1,8 @@
 {
   "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
   "revision": 0,
-  "last_node_id": 11,
-  "last_link_id": 12,
+  "last_node_id": 12,
+  "last_link_id": 23,
   "nodes": [
     {
       "id": 4,
@@ -22,7 +22,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 6
+          "link": 17
         }
       ],
       "outputs": [],
@@ -51,7 +51,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 7
+          "link": 18
         }
       ],
       "outputs": [],
@@ -80,7 +80,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 8
+          "link": 19
         }
       ],
       "outputs": [],
@@ -109,7 +109,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 9
+          "link": 20
         }
       ],
       "outputs": [],
@@ -121,24 +121,24 @@
       "widgets_values": []
     },
     {
-      "id": 10,
+      "id": 9,
       "type": "PreviewAny",
       "pos": [
-        634.8048661630866,
-        511.6940747886928
+        581.3809481943363,
+        715.1902036949425
       ],
       "size": [
         210,
         88
       ],
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
           "name": "source",
           "type": "*",
-          "link": 10
+          "link": 22
         }
       ],
       "outputs": [],
@@ -146,6 +146,35 @@
         "cnr_id": "comfy-core",
         "ver": "0.3.68",
         "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 11,
+      "type": "MaskPreview",
+      "pos": [
+        343.72604975683646,
+        627.8399029136929
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 23
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "MaskPreview"
       },
       "widgets_values": []
     },
@@ -169,7 +198,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            5
+            16
           ]
         },
         {
@@ -189,24 +218,24 @@
       ]
     },
     {
-      "id": 9,
+      "id": 10,
       "type": "PreviewAny",
       "pos": [
-        581.3809481943363,
-        715.1902036949425
+        642.7908661630867,
+        598.209074788693
       ],
       "size": [
         210,
         88
       ],
       "flags": {},
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
           "name": "source",
           "type": "*",
-          "link": 11
+          "link": 21
         }
       ],
       "outputs": [],
@@ -214,128 +243,6 @@
         "cnr_id": "comfy-core",
         "ver": "0.3.68",
         "Node name for S&R": "PreviewAny"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 5,
-      "type": "DepthAnythingV3_Advanced",
-      "pos": [
-        384.34002241308656,
-        366.8545318199429
-      ],
-      "size": [
-        232.1265625,
-        202
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "da3_model",
-          "type": "DA3MODEL",
-          "link": 4
-        },
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 5
-        },
-        {
-          "name": "camera_params",
-          "shape": 7,
-          "type": "CAMERA_PARAMS",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "depth",
-          "type": "IMAGE",
-          "links": [
-            6
-          ]
-        },
-        {
-          "name": "confidence",
-          "type": "IMAGE",
-          "links": [
-            7
-          ]
-        },
-        {
-          "name": "ray_origin",
-          "type": "IMAGE",
-          "links": [
-            8
-          ]
-        },
-        {
-          "name": "ray_direction",
-          "type": "IMAGE",
-          "links": [
-            9
-          ]
-        },
-        {
-          "name": "extrinsics",
-          "type": "STRING",
-          "links": [
-            10
-          ]
-        },
-        {
-          "name": "intrinsics",
-          "type": "STRING",
-          "links": [
-            11
-          ]
-        },
-        {
-          "name": "sky_mask",
-          "type": "MASK",
-          "links": [
-            12
-          ]
-        }
-      ],
-      "properties": {
-        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
-        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
-        "Node name for S&R": "DepthAnythingV3_Advanced"
-      },
-      "widgets_values": [
-        "resize",
-        false
-      ]
-    },
-    {
-      "id": 11,
-      "type": "MaskPreview",
-      "pos": [
-        343.72604975683646,
-        627.8399029136929
-      ],
-      "size": [
-        140,
-        246
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 12
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "comfy-core",
-        "ver": "0.3.68",
-        "Node name for S&R": "MaskPreview"
       },
       "widgets_values": []
     },
@@ -359,89 +266,185 @@
           "name": "da3_model",
           "type": "DA3MODEL",
           "links": [
-            4
+            15
           ]
         }
       ],
       "properties": {
-        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "cnr_id": "ComfyUI-DepthAnythingV3",
         "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
-        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model"
+        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model",
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
       },
       "widgets_values": [
-        "da3mono_large.safetensors",
+        "da3_large.safetensors",
         "auto"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "DepthAnything_V3",
+      "pos": [
+        335.0745497568367,
+        235.44446541369294
+      ],
+      "size": [
+        272.05859375,
+        250
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 15
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16
+        },
+        {
+          "name": "camera_params",
+          "shape": 7,
+          "type": "CAMERA_PARAMS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            17
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        },
+        {
+          "name": "ray_origin",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "ray_direction",
+          "type": "IMAGE",
+          "links": [
+            20
+          ]
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": [
+            22
+          ]
+        },
+        {
+          "name": "sky_mask",
+          "type": "MASK",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
+        "Node name for S&R": "DepthAnything_V3"
+      },
+      "widgets_values": [
+        "V2-Style",
+        "resize",
+        false,
+        false
       ]
     }
   ],
   "links": [
     [
-      4,
+      15,
       3,
       0,
-      5,
+      12,
       0,
       "DA3MODEL"
     ],
     [
-      5,
+      16,
       2,
       0,
-      5,
+      12,
       1,
       "IMAGE"
     ],
     [
-      6,
-      5,
+      17,
+      12,
       0,
       4,
       0,
       "IMAGE"
     ],
     [
-      7,
-      5,
+      18,
+      12,
       1,
       6,
       0,
       "IMAGE"
     ],
     [
-      8,
-      5,
+      19,
+      12,
       2,
       7,
       0,
       "IMAGE"
     ],
     [
-      9,
-      5,
+      20,
+      12,
       3,
       8,
       0,
       "IMAGE"
     ],
     [
-      10,
-      5,
+      21,
+      12,
       4,
       10,
       0,
       "*"
     ],
     [
-      11,
-      5,
+      22,
+      12,
       5,
       9,
       0,
       "*"
     ],
     [
+      23,
       12,
-      5,
       6,
       11,
       0,
@@ -452,10 +455,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7513148009015781,
+      "scale": 0.7513148009015778,
       "offset": [
-        547.3784502431631,
-        199.79253458630689
+        647.7241011522551,
+        249.1117491317616
       ]
     },
     "frontendVersion": "1.28.8",
