@@ -39,11 +39,15 @@ class DepthAnythingV3_MultiView:
                     "default": False,
                     "tooltip": "OFF (default): close=bright, far=dark. ON: far=bright, close=dark. Consistent across all normalization modes."
                 }),
+                "keep_model_size": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Keep model's native patch-aligned output size instead of resizing back to original dimensions"
+                }),
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK", "IMAGE")
+    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask", "resized_rgb_image")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
@@ -65,6 +69,11 @@ Use this for:
   - Contribution by Ltamann (TBG)
 - Raw: No normalization, outputs metric depth (for 3D reconstruction)
 
+**Optional Inputs:**
+- resize_method: How to handle patch size alignment (resize/crop/pad)
+- invert_depth: Toggle output convention. OFF (default): close=bright. ON: far=bright.
+- keep_model_size: Keep model's native output size instead of resizing back (intrinsics stay accurate)
+
 Input: Batch of images [N, H, W, 3]
 Outputs (all normalized across views together for consistency):
 - depth: Batch of consistent depth maps [N, H, W, 3]
@@ -72,8 +81,9 @@ Outputs (all normalized across views together for consistency):
 - ray_origin: Ray origin maps (for 3D, normalized for visualization)
 - ray_direction: Ray direction maps (for 3D, normalized for visualization)
 - extrinsics: Predicted camera poses for each view (JSON)
-- intrinsics: Camera intrinsics for each view (JSON)
+- intrinsics: Camera intrinsics for each view (JSON) - auto-scaled if resized
 - sky_mask: Sky segmentation [N, H, W] (Mono/Metric/Nested only)
+- resized_rgb_image: RGB images matching depth output dimensions
 
 Note: All images must have the same resolution.
 Higher N = more VRAM usage but better consistency.
@@ -207,7 +217,7 @@ Higher N = more VRAM usage but better consistency.
 
         return depth
 
-    def process(self, da3_model, images, normalization_mode="V2-Style", resize_method="resize", invert_depth=False):
+    def process(self, da3_model, images, normalization_mode="V2-Style", resize_method="resize", invert_depth=False, keep_model_size=False):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']
@@ -215,6 +225,7 @@ Higher N = more VRAM usage but better consistency.
         config = da3_model['config']
 
         N, H, W, C = images.shape
+        logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
 
         # Check model capabilities
         capabilities = check_model_capabilities(model)
@@ -241,6 +252,11 @@ Higher N = more VRAM usage but better consistency.
 
         # Resize to patch size multiple
         images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE, resize_method)
+        model_H, model_W = images_pt.shape[2], images_pt.shape[3]
+        logger.info(f"Model input size (after resize): {model_H}x{model_W}")
+
+        # Store resized RGB for output
+        resized_rgb = images_pt.clone()
 
         # Normalize with ImageNet stats
         normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
@@ -320,6 +336,9 @@ Higher N = more VRAM usage but better consistency.
             elif isinstance(output, dict) and 'intrinsics' in output:
                 intr = output['intrinsics']
 
+            if intr is not None and torch.is_tensor(intr):
+                logger.info(f"Model output intrinsics: shape={intr.shape}, values=\n{intr.squeeze()}")
+
             # Remove batch dimension: [1, N, H, W] -> [N, H, W]
             depth = depth.squeeze(0)
             conf = conf.squeeze(0)
@@ -380,36 +399,45 @@ Higher N = more VRAM usage but better consistency.
         ray_origin_out = ray_origin.permute(0, 2, 3, 1).cpu().float()  # [N, H, W, 3]
         ray_dir_out = ray_direction.permute(0, 2, 3, 1).cpu().float()  # [N, H, W, 3]
 
-        # Resize back to original dimensions
-        final_H = (orig_H // 2) * 2
-        final_W = (orig_W // 2) * 2
+        # Process resized RGB image
+        rgb_out = resized_rgb.permute(0, 2, 3, 1).cpu().float()  # [N, H, W, 3]
 
-        if depth_out.shape[1] != final_H or depth_out.shape[2] != final_W:
-            depth_out = F.interpolate(
-                depth_out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
-            conf_out = F.interpolate(
-                conf_out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
-            sky_out = F.interpolate(
-                sky_out.unsqueeze(1),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).squeeze(1)
-            ray_origin_out = F.interpolate(
-                ray_origin_out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
-            ray_dir_out = F.interpolate(
-                ray_dir_out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
+        # Resize back to original dimensions (unless keep_model_size is True)
+        if not keep_model_size:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
+
+            if depth_out.shape[1] != final_H or depth_out.shape[2] != final_W:
+                depth_out = F.interpolate(
+                    depth_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
+                conf_out = F.interpolate(
+                    conf_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
+                sky_out = F.interpolate(
+                    sky_out.unsqueeze(1),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).squeeze(1)
+                ray_origin_out = F.interpolate(
+                    ray_origin_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
+                ray_dir_out = F.interpolate(
+                    ray_dir_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
+                rgb_out = F.interpolate(
+                    rgb_out.permute(0, 3, 1, 2),
+                    size=(final_H, final_W),
+                    mode="bilinear"
+                ).permute(0, 2, 3, 1)
 
         # Clamp outputs (except depth if in Raw mode)
         if normalization_mode != "Raw":
@@ -418,6 +446,7 @@ Higher N = more VRAM usage but better consistency.
         sky_out = torch.clamp(sky_out, 0, 1)
         ray_origin_out = torch.clamp(ray_origin_out, 0, 1)
         ray_dir_out = torch.clamp(ray_dir_out, 0, 1)
+        rgb_out = torch.clamp(rgb_out, 0, 1)
 
         # Format camera parameters as JSON strings
         # Extrinsics: [1, N, 4, 4] -> per-view matrices
@@ -439,10 +468,34 @@ Higher N = more VRAM usage but better consistency.
         else:
             intrinsics_list = [None] * N
 
+        # Scale intrinsics if we resized back to original dimensions
+        if not keep_model_size:
+            final_H = (orig_H // 2) * 2
+            final_W = (orig_W // 2) * 2
+            model_H, model_W = images_pt.shape[2], images_pt.shape[3]
+
+            if final_H != model_H or final_W != model_W:
+                scale_h = final_H / model_H
+                scale_w = final_W / model_W
+                logger.info(f"Resizing from {model_H}x{model_W} to {final_H}x{final_W}, scale: h={scale_h:.4f}, w={scale_w:.4f}")
+
+                # Scale each intrinsics matrix
+                for i, intr_mat in enumerate(intrinsics_list):
+                    if intr_mat is not None and torch.is_tensor(intr_mat):
+                        # Squeeze to ensure [3, 3] shape (remove batch dimensions)
+                        intr_scaled = intr_mat.squeeze().clone()
+                        # Scale focal lengths and principal points
+                        intr_scaled[0, 0] *= scale_w  # fx
+                        intr_scaled[1, 1] *= scale_h  # fy
+                        intr_scaled[0, 2] *= scale_w  # cx
+                        intr_scaled[1, 2] *= scale_h  # cy
+                        logger.info(f"Scaled intrinsics (view {i}):\n{intr_scaled}")
+                        intrinsics_list[i] = intr_scaled
+
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out)
+        return (depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out, rgb_out)
 
 
 class DA3_MultiViewPointCloud:
@@ -462,6 +515,10 @@ class DA3_MultiViewPointCloud:
                 "confidence_threshold": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "downsample": ("INT", {"default": 4, "min": 1, "max": 32, "step": 1}),
                 "use_icp": ("BOOLEAN", {"default": False}),
+                "allow_around_1": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Allow images with max depth value around 1"
+                }),
             }
         }
 
@@ -488,6 +545,39 @@ Output: Single combined POINTCLOUD in world space.
 Note: Requires Main series or Nested model (with camera pose prediction).
 Mono/Metric models don't predict camera poses.
 """
+
+    def _check_consistency(self, depths, images, confidence):
+        """Validate that all views have matching spatial dimensions."""
+        def get_hw(tensor):
+            """Extract (height, width) from tensor of various shapes."""
+            if tensor is None:
+                return None
+            dims = tensor.dim()
+            if dims == 4:  # [N, H, W, C]
+                return tensor.shape[1], tensor.shape[2]
+            elif dims == 3:  # [N, H, W]
+                return tensor.shape[1], tensor.shape[2]
+            else:
+                raise ValueError(f"Unsupported tensor dimensions: {tensor.shape}")
+
+        # Get dimensions for all inputs
+        ref_hw = get_hw(depths)
+        inputs_to_check = [
+            ("images", images),
+            ("confidence", confidence),
+        ]
+
+        # Check each input against reference dimensions
+        for name, tensor in inputs_to_check:
+            if tensor is None:
+                continue
+            tensor_hw = get_hw(tensor)
+            if tensor_hw != ref_hw:
+                raise ValueError(
+                    f"Shape mismatch: depths is {ref_hw} but {name} is {tensor_hw}. "
+                    f"All inputs must have the same spatial resolution across all views. "
+                    f"Make sure to use the resized_rgb_image output from the multi-view depth node."
+                )
 
     def _parse_camera_params(self, param_str, param_name):
         """Parse camera parameters from JSON string."""
@@ -702,7 +792,7 @@ Mono/Metric models don't predict camera poses.
         return refined_points, refined_colors, refined_conf
 
     def fuse(self, depths, images, extrinsics, intrinsics, confidence=None,
-             confidence_threshold=0.3, downsample=4, use_icp=False):
+             confidence_threshold=0.3, downsample=4, use_icp=False, allow_around_1=False):
         """Fuse multi-view depth maps into world-space point cloud."""
         N = depths.shape[0]
         H, W = depths.shape[1], depths.shape[2]
@@ -711,13 +801,17 @@ Mono/Metric models don't predict camera poses.
 
         # Validate that depth is raw/metric, not normalized
         max_depth = depths.max().item()
-        if max_depth < 2.0:
+        if 0.95 < max_depth < 1.05 and not allow_around_1:
             raise ValueError(
                 f"Depth input appears to be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
                 f"Multi-view point cloud fusion requires raw metric depth values. "
                 f"Please use DepthAnythingV3_MultiView node with normalization_mode='Raw' "
-                f"and connect the depth output to this node's depths input."
+                f"and connect the depth output to this node's depths input. "
+                f"If you think this is a mistake, feel free to toggle allow_around_1."
             )
+
+        # Validate that all inputs have matching dimensions
+        self._check_consistency(depths, images, confidence)
 
         # Parse camera parameters
         extr_list = self._parse_camera_params(extrinsics, "extrinsics")

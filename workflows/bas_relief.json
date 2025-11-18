@@ -1,0 +1,422 @@
+{
+  "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
+  "revision": 0,
+  "last_node_id": 31,
+  "last_link_id": 69,
+  "nodes": [
+    {
+      "id": 27,
+      "type": "PreviewImage",
+      "pos": [
+        763.4839181490227,
+        361.639998038116
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 60
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.69",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        278.3350065976569,
+        295.69744834765646
+      ],
+      "size": [
+        274.080078125,
+        314
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            47
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "Bas_Relief .png",
+        "image"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DownloadAndLoadDepthAnythingV3Model",
+      "pos": [
+        -62.2109375,
+        -81.28984374999995
+      ],
+      "size": [
+        388.65,
+        82
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "links": [
+            46
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model",
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
+      },
+      "widgets_values": [
+        "da3_large.safetensors",
+        "auto"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "Preview3D",
+      "pos": [
+        1408.886176123935,
+        -44.2423263562733
+      ],
+      "size": [
+        400,
+        550
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "camera_info",
+          "shape": 7,
+          "type": "LOAD3D_CAMERA",
+          "link": null
+        },
+        {
+          "name": "model_file",
+          "type": "STRING",
+          "widget": {
+            "name": "model_file"
+          },
+          "link": 66
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.69",
+        "Node name for S&R": "Preview3D",
+        "Camera Info": {
+          "position": {
+            "x": 2.16639570322691,
+            "y": 3.8331185932596945,
+            "z": 6.104258098855287
+          },
+          "target": {
+            "x": 0,
+            "y": 2.5,
+            "z": 0
+          },
+          "zoom": 1,
+          "cameraType": "perspective"
+        },
+        "Last Time Model File": "/home/shadeform/depth_node/ComfyUI/output/mesh_0000.glb",
+        "Resource Folder": "shadeform/depth_node/ComfyUI/output"
+      },
+      "widgets_values": [
+        "/home/shadeform/depth_node/ComfyUI/output/mesh_0000.glb",
+        ""
+      ]
+    },
+    {
+      "id": 21,
+      "type": "DepthAnything_V3",
+      "pos": [
+        532.8398947345052,
+        -39.84776014041735
+      ],
+      "size": [
+        272.05859375,
+        270
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 46
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 47
+        },
+        {
+          "name": "camera_params",
+          "shape": 7,
+          "type": "CAMERA_PARAMS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            61
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": [
+            62
+          ]
+        },
+        {
+          "name": "resized_rgb_image",
+          "type": "IMAGE",
+          "links": [
+            60,
+            68
+          ]
+        },
+        {
+          "name": "ray_origin",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "ray_direction",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": [
+            67
+          ]
+        },
+        {
+          "name": "sky_mask",
+          "type": "MASK",
+          "links": [
+            64
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
+        "Node name for S&R": "DepthAnything_V3"
+      },
+      "widgets_values": [
+        "Raw",
+        "resize",
+        false,
+        true
+      ]
+    },
+    {
+      "id": 28,
+      "type": "DA3_ToMesh",
+      "pos": [
+        1017.4420371424168,
+        -28.731874158312
+      ],
+      "size": [
+        283.4375,
+        234
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "depth_raw",
+          "type": "IMAGE",
+          "link": 61
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "link": 62
+        },
+        {
+          "name": "intrinsics",
+          "shape": 7,
+          "type": "STRING",
+          "link": 67
+        },
+        {
+          "name": "sky_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 64
+        },
+        {
+          "name": "source_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 68
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [
+            66
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "86154285fc22cb7a791a8abf41beb15e6068954f",
+        "Node name for S&R": "DA3_ToMesh"
+      },
+      "widgets_values": [
+        0.01,
+        0.1,
+        1,
+        "mesh",
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      46,
+      3,
+      0,
+      21,
+      0,
+      "DA3MODEL"
+    ],
+    [
+      47,
+      2,
+      0,
+      21,
+      1,
+      "IMAGE"
+    ],
+    [
+      60,
+      21,
+      2,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      61,
+      21,
+      0,
+      28,
+      0,
+      "IMAGE"
+    ],
+    [
+      62,
+      21,
+      1,
+      28,
+      1,
+      "IMAGE"
+    ],
+    [
+      64,
+      21,
+      7,
+      28,
+      3,
+      "MASK"
+    ],
+    [
+      66,
+      28,
+      0,
+      30,
+      1,
+      "STRING"
+    ],
+    [
+      67,
+      21,
+      6,
+      28,
+      2,
+      "STRING"
+    ],
+    [
+      68,
+      21,
+      2,
+      28,
+      4,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.486436280241436,
+      "offset": [
+        -541.0925824156825,
+        126.6868019839306
+      ]
+    },
+    "frontendVersion": "1.28.8",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
