@@ -1,0 +1,377 @@
+{
+  "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
+  "revision": 0,
+  "last_node_id": 18,
+  "last_link_id": 31,
+  "nodes": [
+    {
+      "id": 13,
+      "type": "DepthAnythingV3_Advanced",
+      "pos": [
+        326.1750153108137,
+        82.03268203301106
+      ],
+      "size": [
+        232.1265625,
+        126
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 16
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 30
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            19
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": [
+            20
+          ]
+        },
+        {
+          "name": "ray_origin",
+          "type": "IMAGE",
+          "links": [
+            21
+          ]
+        },
+        {
+          "name": "ray_direction",
+          "type": "IMAGE",
+          "links": [
+            22
+          ]
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DepthAnythingV3_Advanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 12,
+      "type": "DA3_ToPointCloud",
+      "pos": [
+        659.9782823562683,
+        60.26421612392012
+      ],
+      "size": [
+        278.08203125,
+        162
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "link": 19
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "link": 20
+        },
+        {
+          "name": "ray_origin",
+          "type": "IMAGE",
+          "link": 21
+        },
+        {
+          "name": "ray_direction",
+          "type": "IMAGE",
+          "link": 22
+        },
+        {
+          "name": "source_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "links": [
+            23
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DA3_ToPointCloud"
+      },
+      "widgets_values": [
+        0.2,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DownloadAndLoadDepthAnythingV3Model",
+      "pos": [
+        -62.2109375,
+        -81.28984374999995
+      ],
+      "size": [
+        388.65,
+        82
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DownloadAndLoadDepthAnythingV3Model"
+      },
+      "widgets_values": [
+        "da3_large.safetensors",
+        "auto"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "DA3_SavePointCloud",
+      "pos": [
+        959.2090351971773,
+        62.93182976028383
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [
+            26
+          ]
+        }
+      ],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DA3_SavePointCloud"
+      },
+      "widgets_values": [
+        "pointcloud"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        13.60546875,
+        219.2109375
+      ],
+      "size": [
+        274.080078125,
+        314
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            30,
+            31
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.68",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "da3_example_bridge.jpeg",
+        "image"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "DA3_PreviewPointCloud",
+      "pos": [
+        1267.4834852554145,
+        62.13435196198827
+      ],
+      "size": [
+        334.8990234375,
+        542
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "widget": {
+            "name": "file_path"
+          },
+          "link": 26
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3",
+        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
+        "Node name for S&R": "DA3_PreviewPointCloud"
+      },
+      "widgets_values": [
+        "",
+        ""
+      ]
+    }
+  ],
+  "links": [
+    [
+      16,
+      3,
+      0,
+      13,
+      0,
+      "DA3MODEL"
+    ],
+    [
+      19,
+      13,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      13,
+      1,
+      12,
+      1,
+      "IMAGE"
+    ],
+    [
+      21,
+      13,
+      2,
+      12,
+      2,
+      "IMAGE"
+    ],
+    [
+      22,
+      13,
+      3,
+      12,
+      3,
+      "IMAGE"
+    ],
+    [
+      23,
+      12,
+      0,
+      15,
+      0,
+      "POINTCLOUD"
+    ],
+    [
+      26,
+      15,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      30,
+      2,
+      0,
+      13,
+      1,
+      "IMAGE"
+    ],
+    [
+      31,
+      2,
+      0,
+      12,
+      4,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.2281476757451895,
+      "offset": [
+        160.77454160251327,
+        -47.76780115669351
+      ]
+    },
+    "frontendVersion": "1.28.8"
+  },
+  "version": 0.4
+}

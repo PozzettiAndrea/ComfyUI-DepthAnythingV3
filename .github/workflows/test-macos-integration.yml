@@ -1,0 +1,72 @@
+name: macOS - Integration Tests
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master, dev]
+
+jobs:
+  macos-integration:
+    name: macOS / Integration / DA3 Small / Python ${{ matrix.python-version }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pillow
+        pip install -r .github/requirements-ci.txt
+        pip install -r requirements-dev.txt
+
+    - name: Create model cache directory
+      run: |
+        mkdir -p ~/.cache/huggingface
+
+    - name: Cache models
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/huggingface
+        key: ${{ runner.os }}-huggingface-da3-models-${{ hashFiles('tests/integration_real/*.py') }}
+        restore-keys: |
+          ${{ runner.os }}-huggingface-da3-models-
+
+    - name: Run integration tests on bridge image
+      run: |
+        pytest tests/integration_real/test_da3_small_real.py::test_da3_small_inference_bridge -v -s --tb=short
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        HF_HUB_DISABLE_TELEMETRY: 1
+
+    - name: Upload test outputs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-integration-outputs-py${{ matrix.python-version }}
+        path: tests/test_outputs/
+        retention-days: 7
+
+    - name: Test summary
+      if: always()
+      run: |
+        echo "## macOS Integration Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "Platform: macOS Latest" >> $GITHUB_STEP_SUMMARY
+        echo "Python: ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "Model: DA3 Small" >> $GITHUB_STEP_SUMMARY
+        echo "Test Image: Bridge (768x768)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Integration tests completed" >> $GITHUB_STEP_SUMMARY
+        echo "📊 Check artifacts for depth map outputs" >> $GITHUB_STEP_SUMMARY
