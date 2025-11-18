@@ -8,6 +8,10 @@ Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Any
 
 ![Advanced 3D Workflow](docs/advanced_3d_workflow.png)
 
+If the normal viewer doesn't work, try the VTK one!
+
+![Simple Workflow](docs/simple_workflow.png)
+
 ## Description
 
 Depth Anything V3 is the latest depth estimation model that predicts spatially consistent geometry from visual inputs.

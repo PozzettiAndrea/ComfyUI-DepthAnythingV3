@@ -75,7 +75,7 @@ class DepthAnything3Net(nn.Module):
                 cam_dec if isinstance(cam_dec, nn.Module) else create_object(_wrap_cfg(cam_dec))
             )
             self.cam_enc = (
-                cam_dec if isinstance(cam_enc, nn.Module) else create_object(_wrap_cfg(cam_enc))
+                cam_enc if isinstance(cam_enc, nn.Module) else create_object(_wrap_cfg(cam_enc))
             )
         self.gs_adapter, self.gs_head = None, None
         if gs_head is not None and gs_adapter is not None:

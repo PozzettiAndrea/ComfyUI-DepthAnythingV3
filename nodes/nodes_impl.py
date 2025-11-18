@@ -16,12 +16,17 @@ from .depth_anything_v3.model.dualdpt import DualDPT
 from .depth_anything_v3.model.dpt import DPT
 from .depth_anything_v3.model.cam_enc import CameraEnc
 from .depth_anything_v3.model.cam_dec import CameraDec
+from .utils import (
+    IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
+    format_camera_params, process_tensor_to_image,
+    resize_to_patch_multiple, safe_model_to_device, logger
+)
 
 try:
     from accelerate import init_empty_weights
     from accelerate.utils import set_module_tensor_to_device
     is_accelerate_available = True
-except:
+except (ImportError, ModuleNotFoundError):
     is_accelerate_available = False
 
 
@@ -112,7 +117,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
         model_path = os.path.join(download_path, model)
 
         if not os.path.exists(model_path):
-            print(f"Downloading model to: {model_path}")
+            logger.info(f"Downloading model to: {model_path}")
             from huggingface_hub import snapshot_download
             repo = MODEL_REPOS[model]
             snapshot_download(
@@ -128,7 +133,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             if os.path.exists(downloaded_file) and not os.path.exists(model_path):
                 os.rename(downloaded_file, model_path)
 
-        print(f"Loading model from: {model_path}")
+        logger.info(f"Loading model from: {model_path}")
 
         # Build the model architecture
         # For simplicity, we'll create a minimal DepthAnything3Net
@@ -218,24 +223,24 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             new_state_dict[new_key] = value
 
         if stripped_count > 0:
-            print(f"Stripped 'model.' prefix from {stripped_count} keys")
+            logger.debug(f"Stripped 'model.' prefix from {stripped_count} keys")
         # Show example keys
         sample_keys = list(new_state_dict.keys())[:3]
-        print(f"Sample checkpoint keys: {sample_keys}")
+        logger.debug(f"Sample checkpoint keys: {sample_keys}")
         # Show head keys to understand structure
         head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
-        print(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
+        logger.debug(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
 
         # Check if checkpoint uses da3. prefix (nested model format)
         has_da3_prefix = any(k.startswith('da3.') for k in new_state_dict.keys())
 
         if has_da3_prefix:
             # Wrap model to match nested checkpoint structure (da3.backbone... etc)
-            print("Detected nested model checkpoint format (da3. prefix)")
+            logger.debug("Detected nested model checkpoint format (da3. prefix)")
             self.model = DA3ModelWrapper(inner_model)
         else:
             # Use model directly (keys match backbone.*, head.*)
-            print("Detected standard model checkpoint format (no prefix)")
+            logger.debug("Detected standard model checkpoint format (no prefix)")
             self.model = inner_model
 
         if use_empty_weights:
@@ -249,13 +254,13 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                 except Exception as e:
                     failed_keys.append((key, str(e)))
             if failed_keys:
-                print(f"Warning: Could not load {len(failed_keys)} weights (this is normal for simplified models)")
+                logger.warning(f"Could not load {len(failed_keys)} weights (this is normal for simplified models)")
                 # Debug: show first few failed keys to understand the pattern
-                print(f"First 10 failed keys: {[k for k, e in failed_keys[:10]]}")
+                logger.debug(f"First 10 failed keys: {[k for k, e in failed_keys[:10]]}")
                 # Show head-specific failures
                 head_failures = [(k, e) for k, e in failed_keys if k.startswith('head.')]
                 if head_failures:
-                    print(f"Head failures ({len(head_failures)}): {head_failures[:5]}")
+                    logger.debug(f"Head failures ({len(head_failures)}): {head_failures[:5]}")
 
             # Materialize any remaining meta tensors (parameters not in checkpoint)
             # This is critical - any params still on 'meta' device will cause runtime errors
@@ -268,7 +273,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                         ckpt_shape = new_state_dict[name].shape
                         model_shape = param.shape
                         if ckpt_shape != model_shape:
-                            print(f"Shape mismatch for {name}: checkpoint {ckpt_shape} vs model {model_shape}")
+                            logger.debug(f"Shape mismatch for {name}: checkpoint {ckpt_shape} vs model {model_shape}")
                     # Initialize with zeros and move to correct device
                     set_module_tensor_to_device(
                         self.model, name, device=device, dtype=dtype,
@@ -276,15 +281,15 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                     )
 
             if meta_params:
-                print(f"Warning: Initialized {len(meta_params)} missing parameters with zeros (not in checkpoint)")
+                logger.warning(f"Initialized {len(meta_params)} missing parameters with zeros (not in checkpoint)")
                 # Debug: show first few meta params to understand the pattern
-                print(f"First 10 missing params: {meta_params[:10]}")
+                logger.debug(f"First 10 missing params: {meta_params[:10]}")
         else:
             # Standard model loading (CPU or no accelerate)
             try:
                 self.model.load_state_dict(new_state_dict, strict=False)
             except Exception as e:
-                print(f"Warning during model loading: {e}")
+                logger.warning(f"Exception during model loading: {e}")
                 # Try partial loading
                 model_dict = self.model.state_dict()
                 filtered_dict = {k: v for k, v in new_state_dict.items() if k in model_dict and model_dict[k].shape == v.shape}
@@ -343,17 +348,11 @@ Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
-        # DA3 uses patch size 14
-        orig_H, orig_W = H, W
-        if W % 14 != 0:
-            W = W - (W % 14)
-        if H % 14 != 0:
-            H = H - (H % 14)
-        if orig_H % 14 != 0 or orig_W % 14 != 0:
-            images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+        # Resize to patch size multiple
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
 
         # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
         normalized_images = normalize(images_pt)
 
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
@@ -373,19 +372,15 @@ Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
                 if extrinsics_input.shape[0] == 1 and B > 1:
                     extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
                     intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
-                print("[DepthAnything_V3] Using camera-conditioned depth estimation")
+                logger.info("Using camera-conditioned depth estimation")
             else:
-                print("[DepthAnything_V3] Warning: Model does not support camera conditioning. Camera params ignored.")
+                logger.warning("Model does not support camera conditioning. Camera params ignored.")
 
         pbar = ProgressBar(B)
         out = []
 
         # Move model to device if not already there
-        try:
-            model.to(device)
-        except NotImplementedError:
-            # Model might already be on device (via accelerate loading)
-            pass
+        safe_model_to_device(model, device)
 
         autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
 
@@ -401,12 +396,15 @@ Connect DA3_CreateCameraParams to improve depth accuracy with known camera pose.
                 output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth from output
+                # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
+                depth = None
                 if hasattr(output, 'depth'):
                     depth = output.depth
                 elif isinstance(output, dict) and 'depth' in output:
                     depth = output['depth']
-                else:
-                    raise ValueError("Model output does not contain depth")
+
+                if depth is None or not torch.is_tensor(depth):
+                    raise ValueError("Model output does not contain valid depth tensor")
 
                 # Normalize depth
                 depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
@@ -487,17 +485,11 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
-        # DA3 uses patch size 14
-        orig_H, orig_W = H, W
-        if W % 14 != 0:
-            W = W - (W % 14)
-        if H % 14 != 0:
-            H = H - (H % 14)
-        if orig_H % 14 != 0 or orig_W % 14 != 0:
-            images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+        # Resize to patch size multiple
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
 
         # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
         normalized_images = normalize(images_pt)
 
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
@@ -517,9 +509,9 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
                 if extrinsics_input.shape[0] == 1 and B > 1:
                     extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
                     intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
-                print("[DepthAnythingV3_3D] Using camera-conditioned depth estimation")
+                logger.info("Using camera-conditioned depth estimation")
             else:
-                print("[DepthAnythingV3_3D] Warning: Model does not support camera conditioning. Camera params ignored.")
+                logger.warning("Model does not support camera conditioning. Camera params ignored.")
 
         pbar = ProgressBar(B)
         depth_raw_out = []
@@ -527,11 +519,7 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         intrinsics_list = []
 
         # Move model to device if not already there
-        try:
-            model.to(device)
-        except NotImplementedError:
-            # Model might already be on device (via accelerate loading)
-            pass
+        safe_model_to_device(model, device)
 
         autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
 
@@ -547,27 +535,38 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
                 output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth
+                # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
+                depth = None
                 if hasattr(output, 'depth'):
                     depth = output.depth
                 elif isinstance(output, dict) and 'depth' in output:
                     depth = output['depth']
-                else:
-                    raise ValueError("Model output does not contain depth")
+
+                if depth is None or not torch.is_tensor(depth):
+                    raise ValueError("Model output does not contain valid depth tensor")
 
                 # Extract confidence
+                # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
+                conf = None
                 if hasattr(output, 'depth_conf'):
                     conf = output.depth_conf
                 elif isinstance(output, dict) and 'depth_conf' in output:
                     conf = output['depth_conf']
-                else:
-                    # If no confidence, create uniform confidence
+
+                # Verify it's a tensor, otherwise create uniform confidence
+                if conf is None or not torch.is_tensor(conf):
                     conf = torch.ones_like(depth)
 
                 # Store RAW depth (no normalization!)
                 depth_raw_out.append(depth.cpu())
 
-                # Normalize confidence only
-                conf = (conf - conf.min()) / (conf.max() - conf.min() + 1e-8)
+                # Normalize confidence only (but keep uniform confidence as 1.0)
+                conf_range = conf.max() - conf.min()
+                if conf_range > 1e-8:
+                    conf = (conf - conf.min()) / conf_range
+                else:
+                    # Uniform confidence - keep as 1.0 (high confidence)
+                    conf = torch.ones_like(conf)
                 conf_out.append(conf.cpu())
 
                 # Extract camera intrinsics (if available)
@@ -588,56 +587,13 @@ Works with all model types (Small/Base/Large/Giant/Mono/Metric).
         mm.soft_empty_cache()
 
         # Process outputs WITHOUT normalization
-        depth_raw_final = self._process_tensor_to_image(depth_raw_out, orig_H, orig_W)
-        conf_final = self._process_tensor_to_image(conf_out, orig_H, orig_W)
+        depth_raw_final = process_tensor_to_image(depth_raw_out, orig_H, orig_W, normalize_output=False)
+        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=False)
 
         # Format intrinsics as JSON string
-        intrinsics_str = self._format_camera_params(intrinsics_list, "intrinsics")
+        intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
         return (depth_raw_final, conf_final, intrinsics_str)
-
-    def _format_camera_params(self, param_list, param_name):
-        """Format camera parameters as JSON string."""
-        import json
-
-        if all(p is None for p in param_list):
-            return json.dumps({param_name: "Not available (mono/metric model)"})
-
-        formatted = []
-        for i, param in enumerate(param_list):
-            if param is not None:
-                # Convert tensor to list for JSON serialization
-                formatted.append({
-                    f"image_{i}": param.squeeze().tolist()
-                })
-            else:
-                formatted.append({
-                    f"image_{i}": None
-                })
-
-        return json.dumps({param_name: formatted}, indent=2)
-
-    def _process_tensor_to_image(self, tensor_list, orig_H, orig_W):
-        """Convert list of depth/conf tensors to ComfyUI IMAGE format (no normalization)."""
-        # Concatenate all tensors
-        out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W]
-
-        # Convert to 3-channel image [B, H, W, 3]
-        out = out.squeeze(1)  # [B, H, W]
-        out = out.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()  # [B, H, W, 3]
-
-        # Resize back to original dimensions (with even constraint)
-        final_H = (orig_H // 2) * 2
-        final_W = (orig_W // 2) * 2
-
-        if out.shape[1] != final_H or out.shape[2] != final_W:
-            out = F.interpolate(
-                out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
-
-        return out
 
 
 class DepthAnythingV3_Advanced:
@@ -687,17 +643,11 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
-        # DA3 uses patch size 14
-        orig_H, orig_W = H, W
-        if W % 14 != 0:
-            W = W - (W % 14)
-        if H % 14 != 0:
-            H = H - (H % 14)
-        if orig_H % 14 != 0 or orig_W % 14 != 0:
-            images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+        # Resize to patch size multiple
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
 
         # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
         normalized_images = normalize(images_pt)
 
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
@@ -717,9 +667,9 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
                 if extrinsics_input.shape[0] == 1 and B > 1:
                     extrinsics_input = extrinsics_input.expand(B, -1, -1, -1)
                     intrinsics_input = intrinsics_input.expand(B, -1, -1, -1)
-                print("[DepthAnythingV3_Advanced] Using camera-conditioned depth estimation")
+                logger.info("Using camera-conditioned depth estimation")
             else:
-                print("[DepthAnythingV3_Advanced] Warning: Model does not support camera conditioning. Camera params ignored.")
+                logger.warning("Model does not support camera conditioning. Camera params ignored.")
 
         pbar = ProgressBar(B)
         depth_out = []
@@ -730,11 +680,7 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         intrinsics_list = []
 
         # Move model to device if not already there
-        try:
-            model.to(device)
-        except NotImplementedError:
-            # Model might already be on device (via accelerate loading)
-            pass
+        safe_model_to_device(model, device)
 
         autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
 
@@ -750,25 +696,36 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
                 output = model(img, extrinsics=ext_i, intrinsics=int_i)
 
                 # Extract depth
+                # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
+                depth = None
                 if hasattr(output, 'depth'):
                     depth = output.depth
                 elif isinstance(output, dict) and 'depth' in output:
                     depth = output['depth']
-                else:
-                    raise ValueError("Model output does not contain depth")
+
+                if depth is None or not torch.is_tensor(depth):
+                    raise ValueError("Model output does not contain valid depth tensor")
 
                 # Extract confidence
+                # Note: addict.Dict returns empty Dict for non-existent keys, so check if it's a tensor
+                conf = None
                 if hasattr(output, 'depth_conf'):
                     conf = output.depth_conf
                 elif isinstance(output, dict) and 'depth_conf' in output:
                     conf = output['depth_conf']
-                else:
-                    # If no confidence, create uniform confidence
+
+                # Verify it's a tensor, otherwise create uniform confidence
+                if conf is None or not torch.is_tensor(conf):
                     conf = torch.ones_like(depth)
 
                 # Normalize depth and confidence for visualization
                 depth = (depth - depth.min()) / (depth.max() - depth.min() + 1e-8)
-                conf = (conf - conf.min()) / (conf.max() - conf.min() + 1e-8)
+                conf_range = conf.max() - conf.min()
+                if conf_range > 1e-8:
+                    conf = (conf - conf.min()) / conf_range
+                else:
+                    # Uniform confidence - keep as 1.0 (high confidence)
+                    conf = torch.ones_like(conf)
 
                 depth_out.append(depth.cpu())
                 conf_out.append(conf.cpu())
@@ -827,42 +784,16 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
         mm.soft_empty_cache()
 
         # Process outputs
-        depth_final = self._process_tensor_to_image(depth_out, orig_H, orig_W)
-        conf_final = self._process_tensor_to_image(conf_out, orig_H, orig_W)
+        depth_final = process_tensor_to_image(depth_out, orig_H, orig_W, normalize_output=True)
+        conf_final = process_tensor_to_image(conf_out, orig_H, orig_W, normalize_output=True)
         ray_origin_final = self._process_ray_to_image(ray_origin_out, orig_H, orig_W, normalize=True)
         ray_dir_final = self._process_ray_to_image(ray_dir_out, orig_H, orig_W, normalize=True)
 
         # Format camera parameters as strings
-        extrinsics_str = self._format_camera_params(extrinsics_list, "extrinsics")
-        intrinsics_str = self._format_camera_params(intrinsics_list, "intrinsics")
+        extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
+        intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
         return (depth_final, conf_final, ray_origin_final, ray_dir_final, extrinsics_str, intrinsics_str)
-
-    def _process_tensor_to_image(self, tensor_list, orig_H, orig_W):
-        """Convert list of depth/conf tensors to ComfyUI IMAGE format."""
-        # Concatenate all tensors
-        out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W] or [B, H, W]
-
-        # Ensure 4D: [B, 1, H, W]
-        if out.dim() == 3:
-            out = out.unsqueeze(1)
-
-        # Convert to 3-channel image [B, H, W, 3]
-        out = out.squeeze(1)  # [B, H, W]
-        out = out.unsqueeze(-1).repeat(1, 1, 1, 3).float()  # [B, H, W, 3]
-
-        # Resize back to original dimensions (with even constraint)
-        final_H = (orig_H // 2) * 2
-        final_W = (orig_W // 2) * 2
-
-        if out.shape[1] != final_H or out.shape[2] != final_W:
-            out = F.interpolate(
-                out.permute(0, 3, 1, 2),
-                size=(final_H, final_W),
-                mode="bilinear"
-            ).permute(0, 2, 3, 1)
-
-        return torch.clamp(out, 0, 1)
 
     def _process_ray_to_image(self, ray_list, orig_H, orig_W, normalize=True):
         """Convert list of ray tensors to ComfyUI IMAGE format.
@@ -905,27 +836,6 @@ For point cloud generation, use the DepthAnythingV3_3D node instead which output
             return torch.clamp(out, 0, 1)
         else:
             return out
-
-    def _format_camera_params(self, param_list, param_name):
-        """Format camera parameters as JSON string."""
-        import json
-
-        if all(p is None for p in param_list):
-            return json.dumps({param_name: "Not available (mono/metric model)"})
-
-        formatted = []
-        for i, param in enumerate(param_list):
-            if param is not None:
-                # Convert tensor to list for JSON serialization
-                formatted.append({
-                    f"image_{i}": param.squeeze().tolist()
-                })
-            else:
-                formatted.append({
-                    f"image_{i}": None
-                })
-
-        return json.dumps({param_name: formatted}, indent=2)
 
 
 class DA3_ToPointCloud:
@@ -997,7 +907,7 @@ Output POINTCLOUD contains:
             K = torch.tensor(intrinsics_data[img_key], dtype=torch.float32)
             return K
         except (json.JSONDecodeError, KeyError, ValueError) as e:
-            print(f"[DA3_ToPointCloud] Warning: Could not parse intrinsics: {e}")
+            logger.warning(f"Could not parse intrinsics: {e}")
             return None
 
     def _create_default_intrinsics(self, H, W):
@@ -1119,18 +1029,19 @@ Output POINTCLOUD contains:
             if colors_flat is not None:
                 colors_flat = colors_flat[mask]
 
-            # Debug prints
-            print(f"\n=== Point Cloud Debug (batch {b}) ===")
-            print(f"Intrinsics source: {intrinsics_source}")
-            print(f"Focal length: fx={K[0,0]:.2f}, fy={K[1,1]:.2f}")
-            print(f"Principal point: cx={K[0,2]:.2f}, cy={K[1,2]:.2f}")
-            print(f"Depth range: [{depth_map.min():.4f}, {depth_map.max():.4f}]")
-            print(f"Number of points after filtering: {points_3d.shape[0]}")
-            print(f"Points 3D range: X[{points_3d[:, 0].min():.4f}, {points_3d[:, 0].max():.4f}], "
-                  f"Y[{points_3d[:, 1].min():.4f}, {points_3d[:, 1].max():.4f}], "
-                  f"Z[{points_3d[:, 2].min():.4f}, {points_3d[:, 2].max():.4f}]")
-            print(f"Points 3D std: X={points_3d[:, 0].std():.4f}, Y={points_3d[:, 1].std():.4f}, Z={points_3d[:, 2].std():.4f}")
-            print(f"=================================\n")
+            # Debug logs
+            logger.debug(f"Point Cloud (batch {b}): intrinsics={intrinsics_source}, "
+                        f"fx={K[0,0]:.2f}, fy={K[1,1]:.2f}, cx={K[0,2]:.2f}, cy={K[1,2]:.2f}")
+            logger.debug(f"Depth range: [{depth_map.min():.4f}, {depth_map.max():.4f}], "
+                        f"points after filtering: {points_3d.shape[0]}")
+
+            # Check if we have any valid points
+            if points_3d.shape[0] == 0:
+                raise ValueError(f"No valid points after filtering (batch {b}). This may indicate the depth map is invalid or all depths were filtered out. Try adjusting min_depth/max_depth parameters or checking the input image.")
+
+            logger.debug(f"Points 3D range: X[{points_3d[:, 0].min():.4f}, {points_3d[:, 0].max():.4f}], "
+                        f"Y[{points_3d[:, 1].min():.4f}, {points_3d[:, 1].max():.4f}], "
+                        f"Z[{points_3d[:, 2].min():.4f}, {points_3d[:, 2].max():.4f}]")
 
             # Create point cloud dict
             pc = {
@@ -1196,7 +1107,7 @@ Returns file path for use with ComfyUI 3D viewer.
                 "type": "output"
             })
             file_paths.append(str(filepath))
-            print(f"Saved point cloud to: {filepath}")
+            logger.info(f"Saved point cloud to: {filepath}")
 
         # Return first file path (or all paths joined by newline if multiple)
         output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
@@ -1306,17 +1217,11 @@ Output is a GAUSSIANS type that can be saved to PLY format.
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
-        # DA3 uses patch size 14
-        orig_H, orig_W = H, W
-        if W % 14 != 0:
-            W = W - (W % 14)
-        if H % 14 != 0:
-            H = H - (H % 14)
-        if orig_H % 14 != 0 or orig_W % 14 != 0:
-            images_pt = F.interpolate(images_pt, size=(H, W), mode="bilinear")
+        # Resize to patch size multiple
+        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
 
         # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
         normalized_images = normalize(images_pt)
 
         # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
@@ -1326,10 +1231,7 @@ Output is a GAUSSIANS type that can be saved to PLY format.
         gaussians_list = []
 
         # Move model to device
-        try:
-            model.to(device)
-        except NotImplementedError:
-            pass
+        safe_model_to_device(model, device)
 
         autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
 
@@ -1429,7 +1331,7 @@ The saved PLY file can be viewed in:
                 "type": "output"
             })
             file_paths.append(str(filepath))
-            print(f"Saved Gaussians to: {filepath}")
+            logger.info(f"Saved Gaussians to: {filepath}")
 
         # Return first file path (or all paths joined by newline if multiple)
         output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
@@ -1704,7 +1606,7 @@ Outputs:
                         fy = float(intr[1, 1])
 
         except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
-            print(f"[DA3_ParseCameraPose] Error parsing camera params: {e}")
+            logger.error(f"Error parsing camera params: {e}")
 
         return (cam_x, cam_y, cam_z, rot_x, rot_y, rot_z, fx, fy)
 
