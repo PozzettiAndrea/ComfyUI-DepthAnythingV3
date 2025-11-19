@@ -46,14 +46,21 @@ def pose_encoding_to_extri_intri(
 
     T = pose_encoding[..., :3]
     quat = pose_encoding[..., 3:7]
-    # Model outputs fov_w and fov_h in swapped order
-    fov_w = pose_encoding[..., 7]  # Model outputs fov_w first (horizontal FOV)
-    fov_h = pose_encoding[..., 8]  # Model outputs fov_h second (vertical FOV)
+
+    H, W = image_size_hw
+
+    # Due to vision_transformer.py line 256 bug (B, S, nc, w, h = x.shape),
+    # the model processes portrait and landscape differently.
+    # For portrait images (H > W), the FOV values need to be swapped
+    if H > W:  # Portrait orientation
+        fov_w = pose_encoding[..., 7]  # Model outputs horizontal FOV at position 7 for portrait
+        fov_h = pose_encoding[..., 8]  # Model outputs vertical FOV at position 8 for portrait
+    else:  # Landscape orientation
+        fov_h = pose_encoding[..., 7]  # Model outputs vertical FOV at position 7 for landscape
+        fov_w = pose_encoding[..., 8]  # Model outputs horizontal FOV at position 8 for landscape
 
     R = quat_to_mat(quat)
     extrinsics = torch.cat([R, T[..., None]], dim=-1)
-
-    H, W = image_size_hw
     fy = (H / 2.0) / torch.clamp(torch.tan(fov_h / 2.0), 1e-6)
     fx = (W / 2.0) / torch.clamp(torch.tan(fov_w / 2.0), 1e-6)
     intrinsics = torch.zeros(pose_encoding.shape[:2] + (3, 3), device=pose_encoding.device)

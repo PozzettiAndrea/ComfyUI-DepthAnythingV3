@@ -1,15 +1,15 @@
 {
   "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
   "revision": 0,
-  "last_node_id": 30,
-  "last_link_id": 73,
+  "last_node_id": 41,
+  "last_link_id": 95,
   "nodes": [
     {
       "id": 27,
       "type": "PreviewImage",
       "pos": [
-        344.7579926297135,
-        336.7909807652015
+        498.6700074002213,
+        335.82306938824837
       ],
       "size": [
         140,
@@ -37,8 +37,8 @@
       "id": 3,
       "type": "DownloadAndLoadDepthAnythingV3Model",
       "pos": [
-        -104.0109375,
-        -61.48984374999994
+        75.0690625000001,
+        18.85414886474617
       ],
       "size": [
         388.65,
@@ -53,7 +53,7 @@
           "name": "da3_model",
           "type": "DA3MODEL",
           "links": [
-            65
+            84
           ]
         }
       ],
@@ -64,7 +64,7 @@
         "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
       },
       "widgets_values": [
-        "da3_giant.safetensors",
+        "da3nested_giant_large.safetensors",
         "auto"
       ]
     },
@@ -72,8 +72,8 @@
       "id": 21,
       "type": "LoadImageSetFromFolderNode",
       "pos": [
-        -54.76944391600907,
-        247.25927548255098
+        71.07055608399095,
+        231.77121640051973
       ],
       "size": [
         301.4439453125,
@@ -89,8 +89,7 @@
           "type": "IMAGE",
           "links": [
             62,
-            66,
-            69
+            85
           ]
         }
       ],
@@ -105,91 +104,15 @@
       ]
     },
     {
-      "id": 17,
-      "type": "DA3_PreviewPointCloud",
-      "pos": [
-        1463.283485255415,
-        64.33435196198828
-      ],
-      "size": [
-        334.8990234375,
-        602
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "file_path",
-          "type": "STRING",
-          "widget": {
-            "name": "file_path"
-          },
-          "link": 26
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
-        "Node name for S&R": "DA3_PreviewPointCloud",
-        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
-      },
-      "widgets_values": [
-        "",
-        ""
-      ]
-    },
-    {
-      "id": 15,
-      "type": "DA3_SavePointCloud",
-      "pos": [
-        1151.7090351971779,
-        46.43182976028379
-      ],
-      "size": [
-        270,
-        58
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "pointcloud",
-          "type": "POINTCLOUD",
-          "link": 73
-        }
-      ],
-      "outputs": [
-        {
-          "name": "file_path",
-          "type": "STRING",
-          "links": [
-            26
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
-        "Node name for S&R": "DA3_SavePointCloud",
-        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
-      },
-      "widgets_values": [
-        "pointcloud"
-      ]
-    },
-    {
-      "id": 29,
+      "id": 39,
       "type": "DepthAnythingV3_MultiView",
       "pos": [
-        497.5701004249272,
-        12.312662850573
+        550.4243461059448,
+        -12.265806198660083
       ],
       "size": [
         294.1705078125,
-        226
+        270
       ],
       "flags": {},
       "order": 3,
@@ -198,12 +121,12 @@
         {
           "name": "da3_model",
           "type": "DA3MODEL",
-          "link": 65
+          "link": 84
         },
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 66
+          "link": 85
         }
       ],
       "outputs": [
@@ -211,14 +134,14 @@
           "name": "depth",
           "type": "IMAGE",
           "links": [
-            67
+            86
           ]
         },
         {
           "name": "confidence",
           "type": "IMAGE",
           "links": [
-            68
+            87
           ]
         },
         {
@@ -235,43 +158,129 @@
           "name": "extrinsics",
           "type": "STRING",
           "links": [
-            71
+            89
           ]
         },
         {
           "name": "intrinsics",
           "type": "STRING",
           "links": [
-            72
+            90
           ]
         },
         {
           "name": "sky_mask",
           "type": "MASK",
-          "links": null
+          "links": [
+            91
+          ]
+        },
+        {
+          "name": "resized_rgb_image",
+          "type": "IMAGE",
+          "links": [
+            92
+          ]
         }
       ],
       "properties": {
         "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
+        "ver": "f34cbeb9d695e7a0c8877672e22c1373db85027b",
         "Node name for S&R": "DepthAnythingV3_MultiView"
       },
       "widgets_values": [
         "Raw",
         "resize",
+        false,
         false
       ]
     },
     {
-      "id": 30,
+      "id": 40,
+      "type": "DA3_PreviewPointCloud",
+      "pos": [
+        1575.8266567443725,
+        -23.978589951101483
+      ],
+      "size": [
+        512,
+        602
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file_path",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "file_path"
+          },
+          "link": 94
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "f34cbeb9d695e7a0c8877672e22c1373db85027b",
+        "Node name for S&R": "DA3_PreviewPointCloud"
+      },
+      "widgets_values": [
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 41,
+      "type": "DA3_SavePointCloud",
+      "pos": [
+        1270.2290892394897,
+        -11.201002136770427
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "link": 95
+        }
+      ],
+      "outputs": [
+        {
+          "name": "file_path",
+          "type": "STRING",
+          "links": [
+            94
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "f34cbeb9d695e7a0c8877672e22c1373db85027b",
+        "Node name for S&R": "DA3_SavePointCloud"
+      },
+      "widgets_values": [
+        "pointcloud",
+        "RGB"
+      ]
+    },
+    {
+      "id": 38,
       "type": "DA3_MultiViewPointCloud",
       "pos": [
-        833.070100424927,
-        6.8126628505729805
+        969.9556029723991,
+        -18.654589951101507
       ],
       "size": [
         278.08203125,
-        194
+        286
       ],
       "flags": {},
       "order": 4,
@@ -280,18 +289,24 @@
         {
           "name": "depths",
           "type": "IMAGE",
-          "link": 67
+          "link": 86
         },
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 69
+          "link": 92
         },
         {
           "name": "confidence",
           "shape": 7,
           "type": "IMAGE",
-          "link": 68
+          "link": 87
+        },
+        {
+          "name": "sky_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 91
         },
         {
           "name": "extrinsics",
@@ -299,7 +314,7 @@
           "widget": {
             "name": "extrinsics"
           },
-          "link": 71
+          "link": 89
         },
         {
           "name": "intrinsics",
@@ -307,7 +322,7 @@
           "widget": {
             "name": "intrinsics"
           },
-          "link": 72
+          "link": 90
         }
       ],
       "outputs": [
@@ -315,33 +330,28 @@
           "name": "pointcloud",
           "type": "POINTCLOUD",
           "links": [
-            73
+            95
           ]
         }
       ],
       "properties": {
         "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
+        "ver": "f34cbeb9d695e7a0c8877672e22c1373db85027b",
         "Node name for S&R": "DA3_MultiViewPointCloud"
       },
       "widgets_values": [
         "",
         "",
         0.3,
-        1,
-        false
+        4,
+        false,
+        false,
+        false,
+        5
       ]
     }
   ],
   "links": [
-    [
-      26,
-      15,
-      0,
-      17,
-      0,
-      "STRING"
-    ],
     [
       62,
       21,
@@ -351,66 +361,82 @@
       "IMAGE"
     ],
     [
-      65,
+      84,
       3,
       0,
-      29,
+      39,
       0,
       "DA3MODEL"
     ],
     [
-      66,
+      85,
       21,
       0,
-      29,
+      39,
       1,
       "IMAGE"
     ],
     [
-      67,
-      29,
+      86,
+      39,
       0,
-      30,
+      38,
       0,
       "IMAGE"
     ],
     [
-      68,
-      29,
+      87,
+      39,
       1,
-      30,
+      38,
       2,
       "IMAGE"
     ],
     [
-      69,
-      21,
-      0,
-      30,
+      89,
+      39,
+      4,
+      38,
+      4,
+      "STRING"
+    ],
+    [
+      90,
+      39,
+      5,
+      38,
+      5,
+      "STRING"
+    ],
+    [
+      91,
+      39,
+      6,
+      38,
+      3,
+      "MASK"
+    ],
+    [
+      92,
+      39,
+      7,
+      38,
       1,
       "IMAGE"
     ],
     [
-      71,
-      29,
-      4,
-      30,
-      3,
-      "STRING"
-    ],
-    [
-      72,
-      29,
-      5,
-      30,
-      4,
-      "STRING"
-    ],
-    [
-      73,
-      30,
+      94,
+      41,
       0,
-      15,
+      40,
+      0,
+      "STRING"
+    ],
+    [
+      95,
+      38,
+      0,
+      41,
       0,
       "POINTCLOUD"
     ]
@@ -419,10 +445,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.8264462809917354,
+      "scale": 0.7513148009015777,
       "offset": [
-        -1.2345901865475093,
-        197.68146214086346
+        78.87247826539321,
+        220.16800213677047
       ]
     },
     "frontendVersion": "1.28.8",

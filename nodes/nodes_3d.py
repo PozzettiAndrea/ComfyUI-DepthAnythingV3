@@ -44,6 +44,17 @@ class DA3_ToPointCloud:
                     "default": False,
                     "tooltip": "Allow images with max depth value around 1"
                 }),
+                "filter_outliers": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Remove points far from point cloud center (reduces noise)"
+                }),
+                "outlier_percentage": ("FLOAT", {
+                    "default": 5.0,
+                    "min": 0.0,
+                    "max": 50.0,
+                    "step": 0.5,
+                    "tooltip": "Percent of furthest points to remove from center"
+                }),
 
             }
         }
@@ -169,7 +180,7 @@ Output POINTCLOUD contains:
 
         return K
 
-    def convert(self, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.5, downsample=1):
+    def convert(self, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.5, downsample=1, filter_outliers=False, outlier_percentage=5.0):
         """Convert depth map to point cloud using geometric unprojection."""
         # Validate that depth is raw/metric, not normalized
         max_depth = depth_raw.max().item()
@@ -304,6 +315,15 @@ Output POINTCLOUD contains:
             if colors_flat is not None:
                 colors_flat = colors_flat[mask]
 
+            # Apply outlier filtering if requested
+            if filter_outliers and outlier_percentage > 0:
+                original_count = points_3d.shape[0]
+                points_3d, colors_flat, conf_flat = self._filter_outliers(
+                    points_3d, colors_flat, conf_flat, outlier_percentage
+                )
+                filtered_count = points_3d.shape[0]
+                logger.info(f"Outlier filtering: {original_count} → {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
+
             # Debug logs
             logger.debug(f"Point Cloud (batch {b}): intrinsics={intrinsics_source}, "
                         f"fx={K[0,0]:.2f}, fy={K[1,1]:.2f}, cx={K[0,2]:.2f}, cy={K[1,2]:.2f}")
@@ -330,6 +350,28 @@ Output POINTCLOUD contains:
         # Return as tuple containing list of point clouds
         return (point_clouds,)
 
+    def _filter_outliers(self, points, colors, confidence, percentage):
+        """Remove points furthest from the point cloud center."""
+        import torch
+
+        # Calculate centroid
+        centroid = points.mean(dim=0)
+
+        # Calculate distances from centroid
+        distances = torch.norm(points - centroid, dim=1)
+
+        # Find threshold distance (keep (100-percentage)% closest points)
+        threshold_idx = int(len(points) * (100 - percentage) / 100)
+        sorted_indices = torch.argsort(distances)
+        keep_indices = sorted_indices[:threshold_idx]
+
+        # Filter all arrays
+        filtered_points = points[keep_indices]
+        filtered_colors = colors[keep_indices] if colors is not None else None
+        filtered_confidence = confidence[keep_indices]
+
+        return filtered_points, filtered_colors, filtered_confidence
+
 
 class DA3_SavePointCloud:
     @classmethod
@@ -348,12 +390,20 @@ class DA3_SavePointCloud:
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
 Save point cloud to PLY file.
+
+Always saves:
+- Original RGB colors (if available)
+- view_id as custom property (if available from multi-view fusion)
+- Confidence values (if available)
+
+Use DA3 Preview Point Cloud to visualize with different color modes.
+
 Output directory: ComfyUI/output/
 Returns file path for use with ComfyUI 3D viewer.
 """
 
     def save(self, pointcloud, filename_prefix):
-        """Save point cloud(s) to PLY file."""
+        """Save point cloud(s) to PLY file. Always saves view_id if available."""
         import numpy as np
         from pathlib import Path
 
@@ -368,13 +418,14 @@ Returns file path for use with ComfyUI 3D viewer.
             points = pc['points']
             confidence = pc.get('confidence', None)
             colors = pc.get('colors', None)
+            view_id = pc.get('view_id', None)
 
             # Generate filename
             filename = f"{filename_prefix}_{idx:04d}.ply"
             filepath = output_path / filename
 
-            # Write PLY file
-            self._write_ply(filepath, points, colors, confidence)
+            # Write PLY file (saves original RGB + view_id as custom property)
+            self._write_ply(filepath, points, colors, confidence, view_id)
 
             results.append({
                 "filename": filename,
@@ -392,7 +443,7 @@ Returns file path for use with ComfyUI 3D viewer.
             "result": (output_file_path,)
         }
 
-    def _write_ply(self, filepath, points, colors=None, confidence=None):
+    def _write_ply(self, filepath, points, colors=None, confidence=None, view_id=None):
         """Write point cloud to PLY file."""
         import numpy as np
 
@@ -418,6 +469,9 @@ Returns file path for use with ComfyUI 3D viewer.
         if confidence is not None:
             header.append("property float confidence")
 
+        if view_id is not None:
+            header.append("property int view_id")
+
         header.append("end_header")
 
         # Write file
@@ -436,6 +490,9 @@ Returns file path for use with ComfyUI 3D viewer.
 
                 if confidence is not None:
                     line += f" {confidence[i]}"
+
+                if view_id is not None:
+                    line += f" {int(view_id[i])}"
 
                 f.write(line + '\n')
 
