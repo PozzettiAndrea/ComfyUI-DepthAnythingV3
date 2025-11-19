@@ -2,9 +2,17 @@
 
 Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Anything-3) integration with ComfyUI.
 
-![Simple Workflow](docs/simple_workflow.png)
+![simple](docs/simple.png)
 
-![Advanced Workflow](docs/advanced_workflow.png)
+![advanced](docs/advanced.png)
+
+![3d](docs/3d.png)
+
+![3d_multiview](docs/3d_multiview.png)
+
+![bas_relief_wf](docs/bas_relief_wf.png)
+
+![video](docs/video.png)
 
 ## Demo Videos
 
