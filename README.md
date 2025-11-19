@@ -10,9 +10,26 @@ Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Any
 
 You can use the multi-view node to use the cross attention feature of the main class of models. This is done to have a more consistent depth across frames of a video.
 
+
+
+https://github.com/user-attachments/assets/0ee6eab5-1640-4689-9545-20a4541a0aba
+
+
+
 You can reconstruct 3D point clouds!
 
+
+
+https://github.com/user-attachments/assets/0ff44819-4995-4393-aec3-f3b242e1a916
+
+
+
 Even from multiple views, with the option to either match them (with icp) or leave them to use the predicted camera positions.
+
+
+
+https://github.com/user-attachments/assets/fb490fc8-f0c8-48ec-8615-e44f5c48a3c4
+
 
 ## Description
 
