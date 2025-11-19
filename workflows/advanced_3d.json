@@ -2,7 +2,7 @@
   "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
   "revision": 0,
   "last_node_id": 23,
-  "last_link_id": 54,
+  "last_link_id": 56,
   "nodes": [
     {
       "id": 3,
@@ -37,95 +37,6 @@
       "widgets_values": [
         "da3_large.safetensors",
         "auto"
-      ]
-    },
-    {
-      "id": 21,
-      "type": "DepthAnything_V3",
-      "pos": [
-        499.5592903956627,
-        -23.325936793309907
-      ],
-      "size": [
-        272.05859375,
-        250
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "da3_model",
-          "type": "DA3MODEL",
-          "link": 46
-        },
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 47
-        },
-        {
-          "name": "camera_params",
-          "shape": 7,
-          "type": "CAMERA_PARAMS",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "depth",
-          "type": "IMAGE",
-          "links": [
-            45
-          ]
-        },
-        {
-          "name": "confidence",
-          "type": "IMAGE",
-          "links": [
-            48
-          ]
-        },
-        {
-          "name": "ray_origin",
-          "type": "IMAGE",
-          "links": null
-        },
-        {
-          "name": "ray_direction",
-          "type": "IMAGE",
-          "links": null
-        },
-        {
-          "name": "extrinsics",
-          "type": "STRING",
-          "links": []
-        },
-        {
-          "name": "intrinsics",
-          "type": "STRING",
-          "links": [
-            50
-          ]
-        },
-        {
-          "name": "sky_mask",
-          "type": "MASK",
-          "links": [
-            51
-          ]
-        }
-      ],
-      "properties": {
-        "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
-        "Node name for S&R": "DepthAnything_V3"
-      },
-      "widgets_values": [
-        "Raw",
-        "resize",
-        false,
-        false
       ]
     },
     {
@@ -244,6 +155,100 @@
       ]
     },
     {
+      "id": 21,
+      "type": "DepthAnything_V3",
+      "pos": [
+        499.5592903956627,
+        -23.325936793309907
+      ],
+      "size": [
+        272.05859375,
+        270
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "da3_model",
+          "type": "DA3MODEL",
+          "link": 46
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 47
+        },
+        {
+          "name": "camera_params",
+          "shape": 7,
+          "type": "CAMERA_PARAMS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "depth",
+          "type": "IMAGE",
+          "links": [
+            45
+          ]
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "links": [
+            48
+          ]
+        },
+        {
+          "name": "resized_rgb_image",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "ray_origin",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "ray_direction",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "name": "extrinsics",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "intrinsics",
+          "type": "STRING",
+          "links": [
+            56
+          ]
+        },
+        {
+          "name": "sky_mask",
+          "type": "MASK",
+          "links": [
+            55
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
+        "Node name for S&R": "DepthAnything_V3"
+      },
+      "widgets_values": [
+        "Raw",
+        "resize",
+        false,
+        false
+      ]
+    },
+    {
       "id": 22,
       "type": "DA3_ToPointCloud",
       "pos": [
@@ -252,7 +257,7 @@
       ],
       "size": [
         278.08203125,
-        166
+        186
       ],
       "flags": {},
       "order": 3,
@@ -269,25 +274,22 @@
           "link": 48
         },
         {
+          "name": "intrinsics",
+          "shape": 7,
+          "type": "STRING",
+          "link": 56
+        },
+        {
           "name": "sky_mask",
           "shape": 7,
           "type": "MASK",
-          "link": 51
+          "link": 55
         },
         {
           "name": "source_image",
           "shape": 7,
           "type": "IMAGE",
           "link": 52
-        },
-        {
-          "name": "intrinsics",
-          "shape": 7,
-          "type": "STRING",
-          "widget": {
-            "name": "intrinsics"
-          },
-          "link": 50
         }
       ],
       "outputs": [
@@ -305,8 +307,8 @@
         "Node name for S&R": "DA3_ToPointCloud"
       },
       "widgets_values": [
-        "",
-        0.5,
+        0.2,
+        1,
         1
       ]
     }
@@ -345,27 +347,11 @@
       "IMAGE"
     ],
     [
-      50,
-      21,
-      5,
-      22,
-      4,
-      "STRING"
-    ],
-    [
-      51,
-      21,
-      6,
-      22,
-      2,
-      "MASK"
-    ],
-    [
       52,
       2,
       0,
       22,
-      3,
+      4,
       "IMAGE"
     ],
     [
@@ -383,16 +369,32 @@
       17,
       0,
       "STRING"
+    ],
+    [
+      55,
+      21,
+      7,
+      22,
+      3,
+      "MASK"
+    ],
+    [
+      56,
+      21,
+      6,
+      22,
+      2,
+      "STRING"
     ]
   ],
   "groups": [],
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6830134553650705,
+      "scale": 0.620921323059155,
       "offset": [
-        685.3825885583433,
-        438.1377296077241
+        231.32725684913746,
+        197.33715244548978
       ]
     },
     "frontendVersion": "1.28.8"

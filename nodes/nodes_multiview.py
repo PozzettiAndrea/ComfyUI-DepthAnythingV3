@@ -512,12 +512,24 @@ class DA3_MultiViewPointCloud:
             },
             "optional": {
                 "confidence": ("IMAGE", ),
+                "sky_mask": ("MASK", ),
                 "confidence_threshold": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "downsample": ("INT", {"default": 4, "min": 1, "max": 32, "step": 1}),
                 "use_icp": ("BOOLEAN", {"default": False}),
                 "allow_around_1": ("BOOLEAN", {
                     "default": False,
                     "tooltip": "Allow images with max depth value around 1"
+                }),
+                "filter_outliers": ("BOOLEAN", {
+                    "default": False,
+                    "tooltip": "Remove points far from point cloud center BEFORE ICP (reduces noise and improves alignment)"
+                }),
+                "outlier_percentage": ("FLOAT", {
+                    "default": 5.0,
+                    "min": 0.0,
+                    "max": 50.0,
+                    "step": 0.5,
+                    "tooltip": "Percent of furthest points to remove from center of each view"
                 }),
             }
         }
@@ -537,7 +549,8 @@ Inputs:
 - images: Original images [N, H, W, 3] for RGB colors
 - extrinsics: Camera poses JSON from Multi-View node
 - intrinsics: Camera intrinsics JSON from Multi-View node
-- confidence: Optional confidence maps
+- confidence: Optional confidence maps to filter low-confidence points
+- sky_mask: Optional sky segmentation to exclude sky pixels from point cloud
 - use_icp: Refine alignment with ICP (slower but potentially more accurate)
 
 Output: Single combined POINTCLOUD in world space.
@@ -546,7 +559,7 @@ Note: Requires Main series or Nested model (with camera pose prediction).
 Mono/Metric models don't predict camera poses.
 """
 
-    def _check_consistency(self, depths, images, confidence):
+    def _check_consistency(self, depths, images, confidence, sky_mask):
         """Validate that all views have matching spatial dimensions."""
         def get_hw(tensor):
             """Extract (height, width) from tensor of various shapes."""
@@ -565,6 +578,7 @@ Mono/Metric models don't predict camera poses.
         inputs_to_check = [
             ("images", images),
             ("confidence", confidence),
+            ("sky_mask", sky_mask),
         ]
 
         # Check each input against reference dimensions
@@ -746,13 +760,13 @@ Mono/Metric models don't predict camera poses.
 
         return aligned_source, transform
 
-    def _refine_with_icp(self, points_list, colors_list, conf_list):
+    def _refine_with_icp(self, points_list, colors_list, conf_list, view_ids_list):
         """Refine multi-view point cloud alignment using ICP.
 
         Uses first view as reference and aligns all subsequent views to it.
         """
         if len(points_list) < 2:
-            return points_list, colors_list, conf_list
+            return points_list, colors_list, conf_list, view_ids_list
 
         logger.info(f"Refining alignment with ICP ({len(points_list)} views)")
 
@@ -762,6 +776,7 @@ Mono/Metric models don't predict camera poses.
         refined_points = [reference]
         refined_colors = [colors_list[0]]
         refined_conf = [conf_list[0]]
+        refined_view_ids = [view_ids_list[0]]
 
         # Align each subsequent view to accumulated reference
         accumulated_ref = reference
@@ -777,6 +792,7 @@ Mono/Metric models don't predict camera poses.
             refined_points.append(aligned)
             refined_colors.append(colors_list[i])
             refined_conf.append(conf_list[i])
+            refined_view_ids.append(view_ids_list[i])
 
             # Update accumulated reference (combine all aligned points so far)
             # Subsample to keep memory manageable
@@ -789,10 +805,11 @@ Mono/Metric models don't predict camera poses.
                 accumulated_ref = torch.cat([accumulated_ref, aligned], dim=0)
 
         logger.info("ICP refinement complete")
-        return refined_points, refined_colors, refined_conf
+        return refined_points, refined_colors, refined_conf, refined_view_ids
 
-    def fuse(self, depths, images, extrinsics, intrinsics, confidence=None,
-             confidence_threshold=0.3, downsample=4, use_icp=False, allow_around_1=False):
+    def fuse(self, depths, images, extrinsics, intrinsics, confidence=None, sky_mask=None,
+             confidence_threshold=0.3, downsample=4, use_icp=False, allow_around_1=False,
+             filter_outliers=False, outlier_percentage=5.0):
         """Fuse multi-view depth maps into world-space point cloud."""
         N = depths.shape[0]
         H, W = depths.shape[1], depths.shape[2]
@@ -811,7 +828,7 @@ Mono/Metric models don't predict camera poses.
             )
 
         # Validate that all inputs have matching dimensions
-        self._check_consistency(depths, images, confidence)
+        self._check_consistency(depths, images, confidence, sky_mask)
 
         # Parse camera parameters
         extr_list = self._parse_camera_params(extrinsics, "extrinsics")
@@ -827,6 +844,7 @@ Mono/Metric models don't predict camera poses.
         all_points = []
         all_colors = []
         all_confidences = []
+        all_view_ids = []
 
         pbar = ProgressBar(N)
 
@@ -842,11 +860,26 @@ Mono/Metric models don't predict camera poses.
                 conf = torch.ones_like(depth)
                 valid_mask = torch.ones_like(depth, dtype=torch.bool)
 
+            # Apply sky mask filtering
+            points_before_sky = valid_mask.sum().item()
+            if sky_mask is not None:
+                sky = sky_mask[i]  # [H, W]
+                # Filter out sky pixels (sky_mask < 0.5 means not sky)
+                valid_mask = valid_mask & (sky < 0.5)
+                points_after_sky = valid_mask.sum().item()
+                logger.info(f"  View {i}: {points_before_sky} points → {points_after_sky} after sky filtering (removed {points_before_sky - points_after_sky})")
+            else:
+                points_after_sky = points_before_sky
+
             # Downsample
             if downsample > 1:
                 valid_mask_ds = torch.zeros_like(valid_mask)
                 valid_mask_ds[::downsample, ::downsample] = valid_mask[::downsample, ::downsample]
                 valid_mask = valid_mask_ds
+                points_after_downsample = valid_mask.sum().item()
+                logger.info(f"  View {i}: {points_after_sky} points → {points_after_downsample} after {downsample}x downsampling")
+            else:
+                points_after_downsample = points_after_sky
 
             # Unproject to camera space
             K = intr_list[i]
@@ -864,37 +897,81 @@ Mono/Metric models don't predict camera poses.
             colors = colors[valid_flat]
             conf_flat = conf_flat[valid_flat]
 
+            # Create view ID array for this view
+            num_points = points_cam.shape[0]
+            view_id = torch.full((num_points,), i, dtype=torch.int32)
+
             # Transform to world space
             E = extr_list[i]
             points_world = self._transform_points(points_cam, E)
 
+            # Apply outlier filtering if requested (BEFORE ICP for cleaner alignment)
+            if filter_outliers and outlier_percentage > 0:
+                original_count = points_world.shape[0]
+                points_world, colors, conf_flat, view_id = self._filter_outliers(
+                    points_world, colors, conf_flat, view_id, outlier_percentage
+                )
+                filtered_count = points_world.shape[0]
+                logger.info(f"  View {i}: Outlier filtering: {original_count} → {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
+
             all_points.append(points_world)
             all_colors.append(colors)
             all_confidences.append(conf_flat)
+            all_view_ids.append(view_id)
+
+            logger.info(f"  View {i}: Contributing {points_world.shape[0]} points to combined cloud")
 
             pbar.update(1)
 
         # Optional: ICP refinement before combining
         if use_icp and N > 1:
-            all_points, all_colors, all_confidences = self._refine_with_icp(
-                all_points, all_colors, all_confidences
+            all_points, all_colors, all_confidences, all_view_ids = self._refine_with_icp(
+                all_points, all_colors, all_confidences, all_view_ids
             )
 
-        # Combine all views
+        # Combine all views by concatenating (no deduplication - overlapping regions will have duplicate points)
         combined_points = torch.cat(all_points, dim=0)
         combined_colors = torch.cat(all_colors, dim=0)
         combined_conf = torch.cat(all_confidences, dim=0)
+        combined_view_ids = torch.cat(all_view_ids, dim=0)
 
-        logger.info(f"Combined point cloud: {combined_points.shape[0]} points")
+        # Log breakdown
+        per_view_counts = [pts.shape[0] for pts in all_points]
+        breakdown = ", ".join([f"view{i}={count}" for i, count in enumerate(per_view_counts)])
+        logger.info(f"Combined point cloud: {combined_points.shape[0]} total points ({breakdown})")
 
-        # Package as POINTCLOUD
+        # Package as POINTCLOUD with view tracking
         pointcloud = {
             "points": combined_points.numpy(),
             "colors": combined_colors.numpy(),
             "confidence": combined_conf.numpy(),
+            "view_id": combined_view_ids.numpy(),
         }
 
         return ([pointcloud],)
+
+    def _filter_outliers(self, points, colors, confidence, view_id, percentage):
+        """Remove points furthest from the point cloud center."""
+        import torch
+
+        # Calculate centroid
+        centroid = points.mean(dim=0)
+
+        # Calculate distances from centroid
+        distances = torch.norm(points - centroid, dim=1)
+
+        # Find threshold distance (keep (100-percentage)% closest points)
+        threshold_idx = int(len(points) * (100 - percentage) / 100)
+        sorted_indices = torch.argsort(distances)
+        keep_indices = sorted_indices[:threshold_idx]
+
+        # Filter all arrays
+        filtered_points = points[keep_indices]
+        filtered_colors = colors[keep_indices]
+        filtered_confidence = confidence[keep_indices]
+        filtered_view_id = view_id[keep_indices]
+
+        return filtered_points, filtered_colors, filtered_confidence, filtered_view_id
 
 
 NODE_CLASS_MAPPINGS = {
