@@ -1,8 +1,8 @@
 {
   "id": "a792b853-e7f5-400c-9969-3bfef3f29e37",
   "revision": 0,
-  "last_node_id": 23,
-  "last_link_id": 56,
+  "last_node_id": 25,
+  "last_link_id": 58,
   "nodes": [
     {
       "id": 3,
@@ -59,8 +59,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            47,
-            52
+            47
           ]
         },
         {
@@ -80,78 +79,69 @@
       ]
     },
     {
-      "id": 23,
-      "type": "DA3_SavePointCloud",
+      "id": 22,
+      "type": "DA3_ToPointCloud",
       "pos": [
-        1204.705265987112,
-        -8.617502334996635
+        891.2052659871123,
+        -6.4175023349966995
       ],
       "size": [
-        270,
-        58
+        278.08203125,
+        234
       ],
       "flags": {},
-      "order": 4,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
-          "name": "pointcloud",
-          "type": "POINTCLOUD",
-          "link": 53
+          "name": "depth_raw",
+          "type": "IMAGE",
+          "link": 45
+        },
+        {
+          "name": "confidence",
+          "type": "IMAGE",
+          "link": 48
+        },
+        {
+          "name": "intrinsics",
+          "shape": 7,
+          "type": "STRING",
+          "link": 56
+        },
+        {
+          "name": "sky_mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 55
+        },
+        {
+          "name": "source_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 57
         }
       ],
       "outputs": [
         {
-          "name": "file_path",
-          "type": "STRING",
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
           "links": [
-            54
+            53
           ]
         }
       ],
       "properties": {
         "cnr_id": "ComfyUI-DepthAnythingV3",
         "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
-        "Node name for S&R": "DA3_SavePointCloud"
+        "Node name for S&R": "DA3_ToPointCloud"
       },
       "widgets_values": [
-        "pointcloud"
-      ]
-    },
-    {
-      "id": 17,
-      "type": "DA3_PreviewPointCloud",
-      "pos": [
-        1513.8834852554141,
-        -8.265648038011731
-      ],
-      "size": [
-        334.8990234375,
-        602
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "file_path",
-          "type": "STRING",
-          "widget": {
-            "name": "file_path"
-          },
-          "link": 54
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "cnr_id": "ComfyUI-DepthAnythingV3",
-        "ver": "f900962397f5dd3df02d3caba1e99b0cfe80c25a",
-        "Node name for S&R": "DA3_PreviewPointCloud",
-        "aux_id": "PozzettiAndrea/ComfyUI-DepthAnythingV3"
-      },
-      "widgets_values": [
-        "",
-        ""
+        0.2,
+        1,
+        1,
+        false,
+        5
       ]
     },
     {
@@ -204,7 +194,9 @@
         {
           "name": "resized_rgb_image",
           "type": "IMAGE",
-          "links": null
+          "links": [
+            57
+          ]
         },
         {
           "name": "ray_origin",
@@ -249,67 +241,79 @@
       ]
     },
     {
-      "id": 22,
-      "type": "DA3_ToPointCloud",
+      "id": 23,
+      "type": "DA3_SavePointCloud",
       "pos": [
-        891.2052659871123,
-        -6.4175023349966995
+        1204.705265987112,
+        -8.617502334996635
       ],
       "size": [
-        278.08203125,
-        186
+        270,
+        58
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
-          "name": "depth_raw",
-          "type": "IMAGE",
-          "link": 45
-        },
-        {
-          "name": "confidence",
-          "type": "IMAGE",
-          "link": 48
-        },
-        {
-          "name": "intrinsics",
-          "shape": 7,
-          "type": "STRING",
-          "link": 56
-        },
-        {
-          "name": "sky_mask",
-          "shape": 7,
-          "type": "MASK",
-          "link": 55
-        },
-        {
-          "name": "source_image",
-          "shape": 7,
-          "type": "IMAGE",
-          "link": 52
+          "name": "pointcloud",
+          "type": "POINTCLOUD",
+          "link": 53
         }
       ],
       "outputs": [
         {
-          "name": "pointcloud",
-          "type": "POINTCLOUD",
+          "name": "file_path",
+          "type": "STRING",
           "links": [
-            53
+            58
           ]
         }
       ],
       "properties": {
         "cnr_id": "ComfyUI-DepthAnythingV3",
         "ver": "0bb483bb0db9bf0fdae73117fec75ea96dc45b7c",
-        "Node name for S&R": "DA3_ToPointCloud"
+        "Node name for S&R": "DA3_SavePointCloud"
       },
       "widgets_values": [
-        0.2,
-        1,
-        1
+        "pointcloud"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "DA3_PreviewPointCloud",
+      "pos": [
+        1501.5816014485922,
+        -6.3307303390139475
+      ],
+      "size": [
+        512,
+        626
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "file_path",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "file_path"
+          },
+          "link": 58
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "ComfyUI-DepthAnythingV3",
+        "ver": "e6ccad9d2280017214fa9610ea17fef54df34459",
+        "Node name for S&R": "DA3_PreviewPointCloud"
+      },
+      "widgets_values": [
+        "",
+        "RGB",
+        ""
       ]
     }
   ],
@@ -347,28 +351,12 @@
       "IMAGE"
     ],
     [
-      52,
-      2,
-      0,
-      22,
-      4,
-      "IMAGE"
-    ],
-    [
       53,
       22,
       0,
       23,
       0,
       "POINTCLOUD"
-    ],
-    [
-      54,
-      23,
-      0,
-      17,
-      0,
-      "STRING"
     ],
     [
       55,
@@ -385,6 +373,22 @@
       22,
       2,
       "STRING"
+    ],
+    [
+      57,
+      21,
+      2,
+      22,
+      4,
+      "IMAGE"
+    ],
+    [
+      58,
+      23,
+      0,
+      25,
+      0,
+      "STRING"
     ]
   ],
   "groups": [],
@@ -393,8 +397,8 @@
     "ds": {
       "scale": 0.620921323059155,
       "offset": [
-        231.32725684913746,
-        197.33715244548978
+        25.181878551407948,
+        224.3937007859439
       ]
     },
     "frontendVersion": "1.28.8"

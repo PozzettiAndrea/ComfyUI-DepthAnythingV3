@@ -45,6 +45,14 @@ Controls:
 - Slider: Adjust point size
 """
 
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        """Force re-execution when color_mode or file_path changes."""
+        # Return deterministic value based on inputs for proper cache invalidation
+        file_path = kwargs.get('file_path', '')
+        color_mode = kwargs.get('color_mode', 'RGB')
+        return f"{file_path}_{color_mode}"
+
     def preview(self, file_path="", color_mode="RGB"):
         """
         Preview the point cloud using VTK.js.
@@ -57,12 +65,15 @@ Controls:
         import os
         from pathlib import Path
 
+        print(f"[DA3 Preview] preview() called with color_mode='{color_mode}', file_path='{file_path}'")
+
         if not file_path or file_path.strip() == "":
             # No input provided
             return {"ui": {"file_path": [""]}}
 
         # If RGB mode, just return the original file
         if color_mode == "RGB":
+            print(f"[DA3 Preview] Using RGB mode, returning original file: {file_path}")
             return {
                 "ui": {
                     "file_path": [file_path]
@@ -70,6 +81,7 @@ Controls:
             }
 
         # For View ID mode, we need to read PLY, recolor, and write temp file
+        print(f"[DA3 Preview] Attempting View ID mode for: {file_path}")
         try:
             points, colors, confidence, view_id = self._read_ply(file_path)
 
@@ -82,12 +94,15 @@ Controls:
                 }
 
             # Recolor by view_id
+            print(f"[DA3 Preview] Recoloring {len(view_id)} points by view_id")
             colors = self._color_by_view_id(view_id)
 
-            # Write temp file
-            temp_dir = tempfile.gettempdir()
-            temp_path = Path(temp_dir) / "comfyui_preview_pointcloud.ply"
+            # Write temp file to output directory (accessible via /view endpoint)
+            import folder_paths
+            output_dir = folder_paths.get_output_directory()
+            temp_path = Path(output_dir) / "comfyui_preview_pointcloud.ply"
             self._write_ply(temp_path, points, colors, confidence, view_id)
+            print(f"[DA3 Preview] View ID mode: wrote temp file to {temp_path}")
 
             return {
                 "ui": {
