@@ -439,7 +439,10 @@ Returns file path for use with ComfyUI 3D viewer.
         output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
 
         return {
-            "ui": {"pointclouds": results},
+            "ui": {
+                "pointclouds": results,
+                "file_path": [output_file_path]
+            },
             "result": (output_file_path,)
         }
 

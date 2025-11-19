@@ -61,15 +61,43 @@ app.registerExtension({
 
                 console.log("[DepthAnythingV3] VTK Widget created successfully");
 
+                // Monitor widget changes and trigger re-execution
+                if (this.widgets) {
+                    this.widgets.forEach(widget => {
+                        if (widget.name === 'color_mode') {
+                            const origCallback = widget.callback;
+                            widget.callback = function(value) {
+                                console.log('[DepthAnythingV3] color_mode widget changed to:', value);
+                                if (origCallback) origCallback.apply(this, arguments);
+
+                                // Trigger workflow re-execution using correct API
+                                console.log('[DepthAnythingV3] Triggering workflow re-execution...');
+                                (async () => {
+                                    try {
+                                        const prompt = await app.graphToPrompt();
+                                        await app.api.queuePrompt(0, prompt);
+                                        console.log('[DepthAnythingV3] Workflow queued successfully');
+                                    } catch (error) {
+                                        console.error('[DepthAnythingV3] Failed to queue workflow:', error);
+                                    }
+                                })();
+                            };
+                        }
+                    });
+                }
+
                 return r;
             };
 
             // Handle execution
             const onExecuted = nodeType.prototype.onExecuted;
             nodeType.prototype.onExecuted = function(message) {
+                console.log('[DepthAnythingV3] onExecuted called, checking for message content...');
                 onExecuted?.apply(this, arguments);
 
                 console.log('[DepthAnythingV3] VTK Preview node executed with message:', message);
+                console.log('[DepthAnythingV3] Message keys:', message ? Object.keys(message) : 'message is null/undefined');
+                console.log('[DepthAnythingV3] Has file_path:', !!message?.file_path);
 
                 if (message?.file_path && this._vtkIframe) {
                     console.log('[DepthAnythingV3] Loading point cloud in VTK viewer from:', message.file_path);
@@ -80,6 +108,8 @@ app.registerExtension({
                     // Construct URL to view the file
                     const url = `/view?filename=${encodeURIComponent(filePath.split('/').pop())}&type=output&subfolder=`;
 
+                    console.log('[DepthAnythingV3] Constructed URL:', url);
+                    console.log('[DepthAnythingV3] iframe ready state:', this._vtkIframe?.contentWindow ? 'ready' : 'not ready');
                     console.log('[DepthAnythingV3] Sending URL to VTK iframe:', url);
 
                     // Send message to iframe once it's loaded
