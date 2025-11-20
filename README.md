@@ -2,16 +2,22 @@
 
 Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Anything-3) integration with ComfyUI.
 
+Simple workflow:
 ![simple](docs/simple.png)
 
+Advanced workflow:
 ![advanced](docs/advanced.png)
 
+Single image to 3d:
 ![3d](docs/3d.png)
 
+Multiple image to 3d:
 ![3d_multiview](docs/3d_multiview.png)
 
+Single image to mesh:
 ![bas_relief_wf](docs/bas_relief_wf.png)
 
+Use multi attention node for smooth video depth!
 ![video](docs/video.png)
 
 ## Demo Videos
@@ -20,7 +26,7 @@ You can use the multi-view node to use the cross attention feature of the main c
 
 
 
-https://github.com/user-attachments/assets/0ee6eab5-1640-4689-9545-20a4541a0aba
+https://github.com/user-attachments/assets/058bd968-aae3-4759-887c-4c98132559f0
 
 
 
@@ -28,11 +34,19 @@ You can reconstruct 3D point clouds!
 
 
 
+https://github.com/user-attachments/assets/665fb417-a921-4d5c-99f1-a7ba48172130
+
+
+
 https://github.com/user-attachments/assets/0ff44819-4995-4393-aec3-f3b242e1a916
 
 
 
-Even from multiple views, with the option to either match them (with icp) or leave them to use the predicted camera positions.
+Even from multiple views, with the option to either match them (with icp) or leave them to use the predicted camera positions. You also have a field on the point cloud to show you which view each point came from.
+
+
+
+https://github.com/user-attachments/assets/e336f579-0b6c-44bd-bb96-06cc118c035e
 
 
 
