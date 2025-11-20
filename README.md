@@ -34,11 +34,7 @@ You can reconstruct 3D point clouds!
 
 
 
-https://github.com/user-attachments/assets/665fb417-a921-4d5c-99f1-a7ba48172130
-
-
-
-https://github.com/user-attachments/assets/0ff44819-4995-4393-aec3-f3b242e1a916
+https://github.com/user-attachments/assets/8ef6e74b-c7c7-41e7-b1c6-de44733e6c61
 
 
 
@@ -46,11 +42,8 @@ Even from multiple views, with the option to either match them (with icp) or lea
 
 
 
-https://github.com/user-attachments/assets/e336f579-0b6c-44bd-bb96-06cc118c035e
+https://github.com/user-attachments/assets/6892313d-bcd8-44ec-9038-7d4d8915f59e
 
-
-
-https://github.com/user-attachments/assets/fb490fc8-f0c8-48ec-8615-e44f5c48a3c4
 
 
 ## Description
