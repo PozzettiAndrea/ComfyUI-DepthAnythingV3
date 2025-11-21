@@ -657,7 +657,7 @@ Mono/Metric models don't predict camera poses.
         # extrinsics is typically world-to-camera (w2c)
         # We need camera-to-world (c2w) = inverse of w2c
         # Invert extrinsics (w2c -> c2w)
-        c2w = torch.inverse(extrinsics)
+        c2w = torch.linalg.inv(extrinsics)
 
         # Convert to homogeneous coordinates
         ones = torch.ones((points.shape[0], 1), dtype=points.dtype)
@@ -706,8 +706,10 @@ Mono/Metric models don't predict camera poses.
 
         for iteration in range(max_iterations):
             # Find nearest neighbors (brute force for simplicity)
-            # Compute pairwise distances
-            dists = torch.cdist(src_transformed, tgt_sample)  # [N, M]
+            # Compute pairwise distances (MPS-compatible implementation)
+            src_expanded = src_transformed.unsqueeze(1)  # [N, 1, 3]
+            tgt_expanded = tgt_sample.unsqueeze(0)  # [1, M, 3]
+            dists = torch.sqrt(((src_expanded - tgt_expanded) ** 2).sum(dim=-1))  # [N, M]
 
             # Find nearest target point for each source point
             min_dists, nearest_idx = dists.min(dim=1)
@@ -725,7 +727,13 @@ Mono/Metric models don't predict camera poses.
 
             # Compute optimal rotation using SVD
             H = src_centered.T @ tgt_centered  # [3, 3]
-            U, S, Vt = torch.linalg.svd(H)
+            # Use CPU fallback for SVD on MPS due to potential precision issues
+            if H.device.type == 'mps':
+                H_cpu = H.cpu()
+                U, S, Vt = torch.linalg.svd(H_cpu)
+                U, S, Vt = U.to(H.device), S.to(H.device), Vt.to(H.device)
+            else:
+                U, S, Vt = torch.linalg.svd(H)
             R = Vt.T @ U.T
 
             # Handle reflection case (ensure proper rotation)
