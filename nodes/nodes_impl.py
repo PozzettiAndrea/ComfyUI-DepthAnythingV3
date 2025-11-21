@@ -1092,7 +1092,7 @@ Output POINTCLOUD contains:
 
             # Unproject using camera intrinsics: K^(-1) @ [u, v, 1]^T
             K = K.to(depth_map.device)
-            K_inv = torch.inverse(K)
+            K_inv = torch.linalg.inv(K)
             rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)  # (H, W, 3)
 
             # Multiply by depth to get 3D points in camera space
@@ -2020,7 +2020,7 @@ Mono/Metric models don't predict camera poses.
         # So we need to invert it back
 
         # Invert extrinsics (w2c -> c2w)
-        c2w = torch.inverse(extrinsics)
+        c2w = torch.linalg.inv(extrinsics)
 
         # Convert to homogeneous coordinates
         ones = torch.ones((points.shape[0], 1), dtype=points.dtype)

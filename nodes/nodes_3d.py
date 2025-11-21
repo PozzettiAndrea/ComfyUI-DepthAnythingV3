@@ -279,7 +279,7 @@ Output POINTCLOUD contains:
 
             # Unproject using camera intrinsics: K^(-1) @ [u, v, 1]^T
             K = K.to(depth_map.device)
-            K_inv = torch.inverse(K)
+            K_inv = torch.linalg.inv(K)
             rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)  # (H, W, 3)
 
             # Multiply by depth to get 3D points in camera space
@@ -853,7 +853,7 @@ Output: GLB file path
 
         # Unproject using camera intrinsics
         K = K.to(depth_map.device)
-        K_inv = torch.inverse(K)
+        K_inv = torch.linalg.inv(K)
         rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)  # (H, W, 3)
 
         # Multiply by depth to get 3D points
