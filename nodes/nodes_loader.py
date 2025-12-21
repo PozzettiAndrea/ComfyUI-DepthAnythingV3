@@ -14,6 +14,8 @@ from .depth_anything_v3.model.dualdpt import DualDPT
 from .depth_anything_v3.model.dpt import DPT
 from .depth_anything_v3.model.cam_enc import CameraEnc
 from .depth_anything_v3.model.cam_dec import CameraDec
+from .depth_anything_v3.model.gsdpt import GSDPT
+from .depth_anything_v3.model.gs_adapter import GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger
 
 try:
@@ -22,6 +24,33 @@ try:
     is_accelerate_available = True
 except (ImportError, ModuleNotFoundError):
     is_accelerate_available = False
+
+
+def _build_gs_modules(config):
+    """Build GS head and adapter for Giant model.
+
+    Only Giant model has gs_head/gs_adapter in the checkpoint.
+    Config from da3-giant.yaml: gs_head output_dim=38, gs_adapter sh_degree=2.
+    """
+    # GS head: GSDPT with Giant config
+    gs_head = GSDPT(
+        dim_in=config['dim_in'],  # 3072 for Giant
+        output_dim=38,  # matches GaussianAdapter.d_in with sh_degree=2
+        features=config['features'],  # 256
+        out_channels=config['out_channels'],  # [256, 512, 1024, 1024]
+    )
+
+    # GS adapter: converts raw GS output to Gaussians
+    gs_adapter = GaussianAdapter(
+        sh_degree=2,
+        pred_color=False,  # predict SH coefficients
+        pred_offset_depth=True,
+        pred_offset_xy=True,
+        gaussian_scale_min=1e-5,
+        gaussian_scale_max=30.0,
+    )
+
+    return gs_head, gs_adapter
 
 
 class DA3ModelWrapper(torch.nn.Module):
@@ -49,6 +78,10 @@ class DA3ModelWrapper(torch.nn.Module):
     @property
     def gs_head(self):
         return self.da3.gs_head if hasattr(self.da3, 'gs_head') else None
+
+    @property
+    def gs_adapter(self):
+        return self.da3.gs_adapter if hasattr(self.da3, 'gs_adapter') else None
 
 
 class NestedModelWrapper(torch.nn.Module):
@@ -142,6 +175,10 @@ class NestedModelWrapper(torch.nn.Module):
     @property
     def gs_head(self):
         return self.da3.gs_head if hasattr(self.da3, 'gs_head') else None
+
+    @property
+    def gs_adapter(self):
+        return self.da3.gs_adapter if hasattr(self.da3, 'gs_adapter') else None
 
 
 class DownloadAndLoadDepthAnythingV3Model:
@@ -266,13 +303,17 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                     init_values=0.01,
                 )
                 cam_dec_main = CameraDec(dim_in=config['dim_in'])
+
+                # Build GS modules for Giant (nested model uses Giant as main branch)
+                gs_head_main, gs_adapter_main = _build_gs_modules(config)
+
                 da3_main = DepthAnything3Net(
                     net=backbone_main,
                     head=head_main,
                     cam_dec=cam_dec_main,
                     cam_enc=cam_enc_main,
-                    gs_head=None,
-                    gs_adapter=None,
+                    gs_head=gs_head_main,
+                    gs_adapter=gs_adapter_main,
                 )
 
                 # Metric branch: DA3Metric-Large (no camera support, DPT head)
@@ -356,14 +397,21 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
                         dim_in=config['dim_in'],  # Uses concatenated token dimension
                     )
 
+                # Build GS modules only for Giant model (it's the only one with gs_head in checkpoint)
+                gs_head = None
+                gs_adapter = None
+                if model_key == 'da3-giant':
+                    gs_head, gs_adapter = _build_gs_modules(config)
+                    logger.info("Built GS head and adapter for Giant model (Gaussian splatting enabled)")
+
                 # Create the full model with camera encoder/decoder
                 inner_model = DepthAnything3Net(
                     net=backbone,
                     head=head,
                     cam_dec=cam_dec,
                     cam_enc=cam_enc,
-                    gs_head=None,  # Not implemented (requires fine-tuned model)
-                    gs_adapter=None,  # Not implemented
+                    gs_head=gs_head,
+                    gs_adapter=gs_adapter,
                 )
 
         # Load weights
