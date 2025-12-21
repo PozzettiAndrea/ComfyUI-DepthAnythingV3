@@ -14,8 +14,8 @@ INIT_ERRORS = []
 WEB_DIRECTORY = os.path.join(os.path.dirname(__file__), "web")
 
 # Only run initialization and imports when loaded by ComfyUI, not during pytest
-# This prevents relative import errors when pytest collects test modules
-if 'pytest' not in sys.modules:
+# PYTEST_CURRENT_TEST is only set by pytest during actual test execution
+if not os.environ.get("PYTEST_CURRENT_TEST"):
     print("[ComfyUI-DepthAnythingV3] Initializing custom node...")
 
     # Import node classes
@@ -51,7 +51,6 @@ if 'pytest' not in sys.modules:
 
 else:
     # During testing, set dummy values to prevent import errors
-    print("[ComfyUI-DepthAnythingV3] Running in pytest mode - skipping initialization")
     DownloadAndLoadDepthAnythingV3Model = None
     DepthAnything_V3 = None
     NODE_CLASS_MAPPINGS = {}
