@@ -424,12 +424,17 @@ Returns file path for use with ComfyUI 3D viewer.
             filename = f"{filename_prefix}_{idx:04d}.ply"
             filepath = output_path / filename
 
+            # Ensure parent directory exists (for subfolder prefixes like "subfolder/pointcloud")
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+
             # Write PLY file (saves original RGB + view_id as custom property)
             self._write_ply(filepath, points, colors, confidence, view_id)
 
+            # Extract subfolder from filename if present
+            subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
             results.append({
-                "filename": filename,
-                "subfolder": "",
+                "filename": Path(filename).name,
+                "subfolder": subfolder,
                 "type": "output"
             })
             file_paths.append(str(filepath))
@@ -657,12 +662,17 @@ The saved PLY file can be viewed in:
             filename = f"{filename_prefix}_{idx:04d}.ply"
             filepath = output_path / filename
 
+            # Ensure parent directory exists (for subfolder prefixes like "subfolder/gaussians")
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+
             # Write PLY file
             self._write_gaussian_ply(filepath, means, scales, rotations, harmonics, opacities)
 
+            # Extract subfolder from filename if present
+            subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
             results.append({
-                "filename": filename,
-                "subfolder": "",
+                "filename": Path(filename).name,
+                "subfolder": subfolder,
                 "type": "output"
             })
             file_paths.append(str(filepath))
@@ -1141,6 +1151,9 @@ Output: GLB file path
         filename = f"{filename_prefix}_0000.glb"
         filepath = output_path / filename
 
+        # Ensure parent directory exists (for subfolder prefixes like "subfolder/mesh")
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
         # Export to GLB
         self._export_to_glb(
             str(filepath),
@@ -1155,8 +1168,10 @@ Output: GLB file path
 
         logger.info(f"Saved mesh to: {filepath}")
 
+        # Extract subfolder from filename if present
+        subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
         return {
-            "ui": {"meshes": [{"filename": filename, "subfolder": "", "type": "output"}]},
+            "ui": {"meshes": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]},
             "result": (str(filepath),)
         }
 

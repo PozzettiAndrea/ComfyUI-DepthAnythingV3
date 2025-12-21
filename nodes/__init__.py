@@ -3,10 +3,11 @@ ComfyUI-DepthAnythingV3: Depth Anything V3 nodes for ComfyUI
 """
 
 import sys
+import os
 
 # Only do imports when NOT running under pytest
-# This prevents relative import errors during test collection
-if 'pytest' not in sys.modules:
+# PYTEST_CURRENT_TEST is only set by pytest during actual test execution
+if not os.environ.get("PYTEST_CURRENT_TEST"):
     # Import from split modules
     from .nodes_loader import (
         DownloadAndLoadDepthAnythingV3Model,
