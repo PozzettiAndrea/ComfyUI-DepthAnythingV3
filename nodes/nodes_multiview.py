@@ -46,8 +46,8 @@ class DepthAnythingV3_MultiView:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK", "IMAGE")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask", "resized_rgb_image")
+    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK", "IMAGE", "STRING")
+    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask", "resized_rgb_image", "gaussian_ply_path")
     FUNCTION = "process"
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
@@ -84,6 +84,7 @@ Outputs (all normalized across views together for consistency):
 - intrinsics: Camera intrinsics for each view (JSON) - auto-scaled if resized
 - sky_mask: Sky segmentation [N, H, W] (Mono/Metric/Nested only)
 - resized_rgb_image: RGB images matching depth output dimensions
+- gaussian_ply_path: Path to raw 3D Gaussians PLY (Giant model only, empty string if not supported)
 
 Note: All images must have the same resolution.
 Higher N = more VRAM usage but better consistency.
@@ -247,6 +248,11 @@ Higher N = more VRAM usage but better consistency.
 
         logger.info(f"Processing {N} images with multi-view attention")
 
+        # Check if model supports 3D Gaussians
+        infer_gs = capabilities["has_3d_gaussians"]
+        if infer_gs:
+            logger.info("Model supports 3D Gaussians - will output raw Gaussians")
+
         # Convert from ComfyUI format [N, H, W, C] to PyTorch [N, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
@@ -273,7 +279,7 @@ Higher N = more VRAM usage but better consistency.
 
         with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
             # Single forward pass with all N views
-            output = model(normalized_images.to(device))
+            output = model(normalized_images.to(device), infer_gs=infer_gs)
 
             # Extract depth - shape should be [1, N, H, W]
             depth = None
@@ -338,6 +344,13 @@ Higher N = more VRAM usage but better consistency.
 
             if intr is not None and torch.is_tensor(intr):
                 logger.info(f"Model output intrinsics: shape={intr.shape}, values=\n{intr.squeeze()}")
+
+            # Extract 3D Gaussians (if available)
+            gaussians = None
+            if hasattr(output, 'gaussians'):
+                gaussians = output.gaussians
+            elif isinstance(output, dict) and 'gaussians' in output:
+                gaussians = output['gaussians']
 
             # Remove batch dimension: [1, N, H, W] -> [N, H, W]
             depth = depth.squeeze(0)
@@ -495,7 +508,105 @@ Higher N = more VRAM usage but better consistency.
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        return (depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out, rgb_out)
+        # Save Gaussians to PLY if available
+        gaussian_ply_path = ""
+        if gaussians is not None:
+            gaussian_ply_path = self._save_gaussians_to_ply(gaussians)
+
+        return (depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out, rgb_out, gaussian_ply_path)
+
+    def _save_gaussians_to_ply(self, gaussians):
+        """Save raw Gaussians to PLY file and return the path."""
+        import numpy as np
+        from pathlib import Path
+        import folder_paths
+
+        try:
+            from plyfile import PlyData, PlyElement
+        except ImportError:
+            logger.warning("plyfile not installed - cannot save Gaussians to PLY")
+            return ""
+
+        means = gaussians.means.cpu().numpy()
+        scales = gaussians.scales.cpu().numpy()
+        rotations = gaussians.rotations.cpu().numpy()
+        harmonics = gaussians.harmonics.cpu().numpy()
+        opacities = gaussians.opacities.cpu().numpy()
+
+        B = means.shape[0]
+        output_dir = Path(folder_paths.get_output_directory())
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        file_paths = []
+        for b in range(B):
+            xyz = means[b]
+            scale = scales[b]
+            rot = rotations[b]
+            sh = harmonics[b]
+            opacity = opacities[b] if opacities.ndim == 2 else opacities[b].squeeze()
+
+            # Normalize coordinates to [-1, 1] range (shift_and_scale from original DA3)
+            # This makes the PLY compatible with standard 3DGS viewers
+            xyz_median = np.median(xyz, axis=0)
+            xyz = xyz - xyz_median  # Center at origin
+            scale_factor = np.quantile(np.abs(xyz), 0.95, axis=0).max()
+            if scale_factor > 0:
+                xyz = xyz / scale_factor
+                scale = scale / scale_factor  # Scale Gaussian sizes proportionally
+            logger.info(f"Normalized coordinates: center offset={xyz_median}, scale_factor={scale_factor:.4f}")
+
+            N = xyz.shape[0]
+            d_sh = sh.shape[-1]
+
+            dtype_list = [
+                ('x', 'f4'), ('y', 'f4'), ('z', 'f4'),
+                ('nx', 'f4'), ('ny', 'f4'), ('nz', 'f4'),
+                ('f_dc_0', 'f4'), ('f_dc_1', 'f4'), ('f_dc_2', 'f4'),
+            ]
+            if d_sh > 1:
+                for i in range(1, d_sh):
+                    for c in range(3):
+                        dtype_list.append((f'f_rest_{(i-1)*3 + c}', 'f4'))
+            dtype_list.append(('opacity', 'f4'))
+            dtype_list.extend([('scale_0', 'f4'), ('scale_1', 'f4'), ('scale_2', 'f4')])
+            dtype_list.extend([('rot_0', 'f4'), ('rot_1', 'f4'), ('rot_2', 'f4'), ('rot_3', 'f4')])
+
+            vertices = np.zeros(N, dtype=dtype_list)
+            vertices['x'] = xyz[:, 0]
+            vertices['y'] = xyz[:, 1]
+            vertices['z'] = xyz[:, 2]
+            vertices['nx'] = 0
+            vertices['ny'] = 0
+            vertices['nz'] = 0
+            vertices['f_dc_0'] = sh[:, 0, 0]
+            vertices['f_dc_1'] = sh[:, 1, 0]
+            vertices['f_dc_2'] = sh[:, 2, 0]
+            if d_sh > 1:
+                for i in range(1, d_sh):
+                    for c in range(3):
+                        vertices[f'f_rest_{(i-1)*3 + c}'] = sh[:, c, i]
+            # 3DGS format: opacity in LOGIT space (viewers apply sigmoid)
+            opacity_flat = opacity if len(opacity.shape) == 1 else opacity.squeeze()
+            opacity_clamped = np.clip(opacity_flat, 1e-6, 1.0 - 1e-6)  # Avoid log(0) or log(inf)
+            vertices['opacity'] = np.log(opacity_clamped / (1.0 - opacity_clamped))  # inverse sigmoid
+
+            # 3DGS format: scales in LOG space (viewers apply exp)
+            scale_clamped = np.maximum(scale, 1e-6)  # Avoid log(0)
+            vertices['scale_0'] = np.log(scale_clamped[:, 0])
+            vertices['scale_1'] = np.log(scale_clamped[:, 1])
+            vertices['scale_2'] = np.log(scale_clamped[:, 2])
+            vertices['rot_0'] = rot[:, 0]
+            vertices['rot_1'] = rot[:, 1]
+            vertices['rot_2'] = rot[:, 2]
+            vertices['rot_3'] = rot[:, 3]
+
+            el = PlyElement.describe(vertices, 'vertex')
+            filepath = output_dir / f"gaussians_mv_raw_{b:04d}.ply"
+            PlyData([el]).write(str(filepath))
+            file_paths.append(str(filepath))
+            logger.info(f"Saved raw Gaussians ({N} points) to: {filepath}")
+
+        return file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
 
 
 class DA3_MultiViewPointCloud:
