@@ -505,245 +505,155 @@ Returns file path for use with ComfyUI 3D viewer.
                 f.write(line + '\n')
 
 
-class DA3_To3DGaussians:
+class DA3_FilterGaussians:
+    """Load raw Gaussians PLY, apply filters, and save filtered PLY."""
+
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "da3_model": ("DA3MODEL", ),
-                "images": ("IMAGE", ),
+                "gaussian_ply_path": ("STRING", {"forceInput": True}),
+                "filename_prefix": ("STRING", {"default": "gaussians_filtered"}),
             },
             "optional": {
-                "enable_gs": ("BOOLEAN", {"default": True}),
+                "sky_mask": ("MASK", ),
+                "filter_sky": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "Filter out Gaussians in sky regions using sky_mask"
+                }),
+                "depth_prune_percent": ("FLOAT", {
+                    "default": 0.9,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.01,
+                    "tooltip": "Prune Gaussians with depth above this percentile (0.9 = keep closest 90%)"
+                }),
+                "opacity_threshold": ("FLOAT", {
+                    "default": 0.0,
+                    "min": 0.0,
+                    "max": 1.0,
+                    "step": 0.01,
+                    "tooltip": "Remove Gaussians with opacity below this threshold"
+                }),
             }
         }
 
-    RETURN_TYPES = ("GAUSSIANS",)
-    RETURN_NAMES = ("gaussians",)
-    FUNCTION = "process"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-Extract 3D Gaussian Splats from DA3 model.
-
-NOTE: This requires a fine-tuned DA3 model with GS-DPT head.
-Base models (Small/Base/Large/Giant) do NOT include the GS head by default.
-
-If your model supports 3DGS, this will output:
-- Gaussian means (3D positions)
-- Gaussian scales
-- Gaussian rotations (quaternions)
-- Spherical harmonics (appearance)
-- Opacities
-
-Output is a GAUSSIANS type that can be saved to PLY format.
-"""
-
-    def process(self, da3_model, images, enable_gs=True):
-        device = mm.get_torch_device()
-        offload_device = mm.unet_offload_device()
-        model = da3_model['model']
-        dtype = da3_model['dtype']
-        config = da3_model['config']
-
-        B, H, W, C = images.shape
-
-        # Check if model has GS capability
-        if not hasattr(model, 'gs_head') or model.gs_head is None:
-            raise ValueError(
-                "This model does not have a 3D Gaussian Splatting head. "
-                "Please use a fine-tuned model with GS support (e.g., DA3-Giant with GS)."
-            )
-
-        # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
-        images_pt = images.permute(0, 3, 1, 2)
-
-        # Resize to patch size multiple
-        images_pt, orig_H, orig_W = resize_to_patch_multiple(images_pt, DEFAULT_PATCH_SIZE)
-
-        # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-        normalized_images = normalize(images_pt)
-
-        # Prepare for model: add view dimension [B, N, 3, H, W] where N=1
-        normalized_images = normalized_images.unsqueeze(1)
-
-        pbar = ProgressBar(B)
-        gaussians_list = []
-
-        # Move model to device
-        safe_model_to_device(model, device)
-
-        autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
-
-        with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
-            for i in range(B):
-                img = normalized_images[i:i+1].to(device)
-
-                # Run model forward with GS inference enabled
-                output = model(img, infer_gs=enable_gs)
-
-                # Extract Gaussians
-                if hasattr(output, 'gaussians'):
-                    gaussians = output.gaussians
-                elif isinstance(output, dict) and 'gaussians' in output:
-                    gaussians = output['gaussians']
-                else:
-                    raise ValueError(
-                        "Model output does not contain Gaussians. "
-                        "Make sure your model has GS support and enable_gs=True."
-                    )
-
-                # Convert to dict format for serialization
-                gs_dict = {
-                    'means': gaussians.means.cpu(),
-                    'scales': gaussians.scales.cpu(),
-                    'rotations': gaussians.rotations.cpu(),
-                    'harmonics': gaussians.harmonics.cpu(),
-                    'opacities': gaussians.opacities.cpu(),
-                }
-
-                gaussians_list.append(gs_dict)
-                pbar.update(1)
-
-        model.to(offload_device)
-        mm.soft_empty_cache()
-
-        # Return as tuple containing list of Gaussians
-        return (gaussians_list,)
-
-
-class DA3_Save3DGaussians:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "gaussians": ("GAUSSIANS", ),
-                "filename_prefix": ("STRING", {"default": "gaussians"}),
-            },
-        }
-
     RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("file_path",)
-    FUNCTION = "save"
+    RETURN_NAMES = ("ply_path",)
+    FUNCTION = "process"
     OUTPUT_NODE = True
     CATEGORY = "DepthAnythingV3"
     DESCRIPTION = """
-Save 3D Gaussian Splats to PLY file.
-Output directory: ComfyUI/output/
-Returns file path for use with ComfyUI 3D viewer.
+Filter 3D Gaussians from a PLY file and save filtered result.
 
-The saved PLY file can be viewed in:
-- ComfyUI 3D Viewer
-- SuperSplat (https://supersplat.io/)
-- 3D Gaussian Splatting viewers
-- Blender with appropriate plugins
+Connect 'gaussian_ply_path' from DepthAnything_V3 node.
+
+Filtering options:
+- filter_sky: Remove Gaussians in sky regions (requires sky_mask from DepthAnything_V3)
+- depth_prune_percent: Keep only closest X% of Gaussians by depth (0.9 = keep 90%)
+- opacity_threshold: Remove low-opacity Gaussians
+
+Output: Path to filtered PLY file (compatible with SuperSplat, gsplat.js, 3DGS viewers)
 """
 
-    def save(self, gaussians, filename_prefix):
-        """Save Gaussians to PLY file."""
+    def process(self, gaussian_ply_path, filename_prefix, sky_mask=None, filter_sky=True,
+                depth_prune_percent=0.9, opacity_threshold=0.0):
+        """Load, filter, and save Gaussians."""
         import numpy as np
         from pathlib import Path
 
-        # Get output directory
-        output_dir = folder_paths.get_output_directory()
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
+        if not gaussian_ply_path or gaussian_ply_path.strip() == "":
+            raise ValueError(
+                "No Gaussian PLY path provided. Make sure you're using the Giant model."
+            )
 
-        results = []
-        file_paths = []
-        for idx, gs in enumerate(gaussians):
-            means = gs['means'].numpy() if hasattr(gs['means'], 'numpy') else gs['means']
-            scales = gs['scales'].numpy() if hasattr(gs['scales'], 'numpy') else gs['scales']
-            rotations = gs['rotations'].numpy() if hasattr(gs['rotations'], 'numpy') else gs['rotations']
-            harmonics = gs['harmonics'].numpy() if hasattr(gs['harmonics'], 'numpy') else gs['harmonics']
-            opacities = gs['opacities'].numpy() if hasattr(gs['opacities'], 'numpy') else gs['opacities']
+        try:
+            from plyfile import PlyData, PlyElement
+        except ImportError:
+            raise ImportError(
+                "plyfile is required. Install with: pip install plyfile"
+            )
 
-            # Generate filename
-            filename = f"{filename_prefix}_{idx:04d}.ply"
-            filepath = output_path / filename
+        # Load the raw PLY
+        ply_path = Path(gaussian_ply_path)
+        if not ply_path.exists():
+            raise ValueError(f"PLY file not found: {ply_path}")
 
-            # Ensure parent directory exists (for subfolder prefixes like "subfolder/gaussians")
-            filepath.parent.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Loading Gaussians from: {ply_path}")
+        plydata = PlyData.read(str(ply_path))
+        vertices = plydata['vertex'].data
 
-            # Write PLY file
-            self._write_gaussian_ply(filepath, means, scales, rotations, harmonics, opacities)
+        N = len(vertices)
+        logger.info(f"Loaded {N} Gaussians")
 
-            # Extract subfolder from filename if present
-            subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
-            results.append({
-                "filename": Path(filename).name,
-                "subfolder": subfolder,
-                "type": "output"
-            })
-            file_paths.append(str(filepath))
-            logger.info(f"Saved Gaussians to: {filepath}")
+        # Extract data
+        xyz = np.stack([vertices['x'], vertices['y'], vertices['z']], axis=1)
+        opacity = vertices['opacity']
 
-        # Return first file path (or all paths joined by newline if multiple)
-        output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
+        # Create valid mask
+        valid_mask = np.ones(N, dtype=bool)
 
+        # Apply sky mask filtering
+        if filter_sky and sky_mask is not None:
+            sky_np = sky_mask.cpu().numpy() if hasattr(sky_mask, 'cpu') else sky_mask
+            sky_flat = sky_np.flatten()
+
+            # Match sizes
+            if len(sky_flat) >= N:
+                sky_flat = sky_flat[:N]
+            else:
+                # Repeat to match
+                repeats = (N // len(sky_flat)) + 1
+                sky_flat = np.tile(sky_flat, repeats)[:N]
+
+            sky_filter = sky_flat < 0.5
+            valid_mask = valid_mask & sky_filter
+            logger.info(f"After sky filtering: {valid_mask.sum()} / {N} Gaussians")
+
+        # Apply opacity threshold
+        # Note: PLY stores opacity in LOGIT space, convert back for comparison
+        if opacity_threshold > 0:
+            # Convert logit to actual opacity: sigmoid(x) = 1 / (1 + exp(-x))
+            actual_opacity = 1.0 / (1.0 + np.exp(-opacity))
+            opacity_filter = actual_opacity >= opacity_threshold
+            valid_mask = valid_mask & opacity_filter
+            logger.info(f"After opacity filtering: {valid_mask.sum()} / {N} Gaussians")
+
+        # Apply depth percentile pruning
+        if depth_prune_percent < 1.0:
+            valid_depths = xyz[valid_mask, 2]  # Z coordinate
+            if len(valid_depths) > 0:
+                threshold = np.percentile(valid_depths, depth_prune_percent * 100)
+                depth_filter = xyz[:, 2] <= threshold
+                valid_mask = valid_mask & depth_filter
+                logger.info(f"After depth pruning ({depth_prune_percent*100:.0f}%): {valid_mask.sum()} / {N} Gaussians")
+
+        # Filter vertices
+        filtered_vertices = vertices[valid_mask]
+        N_filtered = len(filtered_vertices)
+
+        if N_filtered == 0:
+            raise ValueError("No Gaussians remaining after filtering")
+
+        logger.info(f"Saving {N_filtered} filtered Gaussians")
+
+        # Save filtered PLY
+        output_dir = Path(folder_paths.get_output_directory())
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        el = PlyElement.describe(filtered_vertices, 'vertex')
+        filename = f"{filename_prefix}_0000.ply"
+        filepath = output_dir / filename
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        PlyData([el]).write(str(filepath))
+
+        logger.info(f"Saved filtered Gaussians to: {filepath}")
+
+        subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
         return {
-            "ui": {"gaussians": results},
-            "result": (output_file_path,)
+            "ui": {"gaussians": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]},
+            "result": (str(filepath),)
         }
-
-    def _write_gaussian_ply(self, filepath, means, scales, rotations, harmonics, opacities):
-        """Write Gaussians to PLY file in standard 3DGS format."""
-        import numpy as np
-
-        # Flatten batch dimension if present
-        if means.ndim == 3:  # [batch, N, 3]
-            means = means.reshape(-1, 3)
-            scales = scales.reshape(-1, 3)
-            rotations = rotations.reshape(-1, 4)
-            harmonics = harmonics.reshape(-1, harmonics.shape[-2], harmonics.shape[-1])
-            if opacities.ndim > 1:
-                opacities = opacities.reshape(-1)
-
-        N = len(means)
-
-        # Convert SH coefficients to RGB for DC component (first SH coefficient)
-        # SH DC component: C_0 = 0.28209479177387814 * sh[0]
-        sh_dc = harmonics[..., 0]  # [N, 3]
-        colors = sh_dc * 0.28209479177387814  # Convert from SH to RGB
-        colors = np.clip(colors * 255, 0, 255).astype(np.uint8)
-
-        # Prepare header
-        header = [
-            "ply",
-            "format ascii 1.0",
-            f"element vertex {N}",
-            "property float x",
-            "property float y",
-            "property float z",
-            "property float scale_0",
-            "property float scale_1",
-            "property float scale_2",
-            "property float rot_0",
-            "property float rot_1",
-            "property float rot_2",
-            "property float rot_3",
-            "property uchar red",
-            "property uchar green",
-            "property uchar blue",
-            "property float opacity",
-            "end_header"
-        ]
-
-        # Write file
-        with open(filepath, 'w') as f:
-            # Write header
-            f.write('\n'.join(header) + '\n')
-
-            # Write Gaussians
-            for i in range(N):
-                x, y, z = means[i]
-                sx, sy, sz = scales[i]
-                qw, qx, qy, qz = rotations[i]  # Note: rotations are in wxyz format
-                r, g, b = colors[i]
-                opacity = opacities[i] if opacities.ndim == 1 else opacities[i].mean()
-
-                line = f"{x} {y} {z} {sx} {sy} {sz} {qw} {qx} {qy} {qz} {r} {g} {b} {opacity}"
-                f.write(line + '\n')
 
 
 class DA3_ToMesh:
@@ -1179,15 +1089,13 @@ Output: GLB file path
 NODE_CLASS_MAPPINGS = {
     "DA3_ToPointCloud": DA3_ToPointCloud,
     "DA3_SavePointCloud": DA3_SavePointCloud,
-    "DA3_To3DGaussians": DA3_To3DGaussians,
-    "DA3_Save3DGaussians": DA3_Save3DGaussians,
+    "DA3_FilterGaussians": DA3_FilterGaussians,
     "DA3_ToMesh": DA3_ToMesh,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "DA3_ToPointCloud": "DA3 to Point Cloud",
     "DA3_SavePointCloud": "DA3 Save Point Cloud",
-    "DA3_To3DGaussians": "DA3 to 3D Gaussians",
-    "DA3_Save3DGaussians": "DA3 Save 3D Gaussians",
+    "DA3_FilterGaussians": "DA3 Filter Gaussians",
     "DA3_ToMesh": "DA3 to Mesh",
 }
