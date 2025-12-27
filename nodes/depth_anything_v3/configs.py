@@ -99,9 +99,9 @@ MODEL_CONFIGS = {
 MODEL_REPOS = {
     'da3_small.safetensors': 'depth-anything/DA3-SMALL',
     'da3_base.safetensors': 'depth-anything/DA3-BASE',
-    'da3_large.safetensors': 'depth-anything/DA3-LARGE',
-    'da3_giant.safetensors': 'depth-anything/DA3-GIANT',
+    'da3_large.safetensors': 'depth-anything/DA3-LARGE-1.1',
+    'da3_giant.safetensors': 'depth-anything/DA3-GIANT-1.1',
     'da3mono_large.safetensors': 'depth-anything/DA3MONO-LARGE',
     'da3metric_large.safetensors': 'depth-anything/DA3METRIC-LARGE',
-    'da3nested_giant_large.safetensors': 'depth-anything/DA3NESTED-GIANT-LARGE',
+    'da3nested_giant_large.safetensors': 'depth-anything/DA3NESTED-GIANT-LARGE-1.1',
 }

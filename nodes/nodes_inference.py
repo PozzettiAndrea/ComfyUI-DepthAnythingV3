@@ -403,15 +403,17 @@ Connect only the outputs you need - unused outputs are simply ignored.
                 else:
                     intrinsics_list.append(None)
 
-                # Extract 3D Gaussians (if available)
-                gs = None
-                if hasattr(output, 'gaussians'):
-                    gs = output.gaussians
-                elif isinstance(output, dict) and 'gaussians' in output:
-                    gs = output['gaussians']
+                # Extract 3D Gaussians (only if model supports them and we requested them)
+                if infer_gs:
+                    gs = None
+                    if hasattr(output, 'gaussians'):
+                        gs = output.gaussians
+                    elif isinstance(output, dict) and 'gaussians' in output:
+                        gs = output['gaussians']
 
-                if gs is not None:
-                    gaussians_list.append(gs)
+                    # Validate that gs is actually a Gaussians object, not an empty addict.Dict
+                    if gs is not None and hasattr(gs, 'means') and torch.is_tensor(gs.means):
+                        gaussians_list.append(gs)
 
                 pbar.update(1)
 
