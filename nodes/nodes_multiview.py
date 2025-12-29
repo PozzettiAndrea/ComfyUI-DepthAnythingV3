@@ -527,11 +527,30 @@ Higher N = more VRAM usage but better consistency.
             logger.warning("plyfile not installed - cannot save Gaussians to PLY")
             return ""
 
-        means = gaussians.means.cpu().numpy()
-        scales = gaussians.scales.cpu().numpy()
-        rotations = gaussians.rotations.cpu().numpy()
-        harmonics = gaussians.harmonics.cpu().numpy()
-        opacities = gaussians.opacities.cpu().numpy()
+        # Check if gaussians is empty (addict.Dict returns empty Dict for missing keys)
+        if not gaussians or (hasattr(gaussians, 'keys') and not gaussians.keys()):
+            logger.warning("Gaussians data is empty - model may not support gaussian output")
+            return ""
+
+        # Handle both dict and object access patterns
+        if isinstance(gaussians, dict):
+            # Check required keys exist
+            required_keys = ['means', 'scales', 'rotations', 'harmonics', 'opacities']
+            missing = [k for k in required_keys if k not in gaussians]
+            if missing:
+                logger.warning(f"Gaussians missing required keys: {missing}")
+                return ""
+            means = gaussians['means'].cpu().numpy()
+            scales = gaussians['scales'].cpu().numpy()
+            rotations = gaussians['rotations'].cpu().numpy()
+            harmonics = gaussians['harmonics'].cpu().numpy()
+            opacities = gaussians['opacities'].cpu().numpy()
+        else:
+            means = gaussians.means.cpu().numpy()
+            scales = gaussians.scales.cpu().numpy()
+            rotations = gaussians.rotations.cpu().numpy()
+            harmonics = gaussians.harmonics.cpu().numpy()
+            opacities = gaussians.opacities.cpu().numpy()
 
         B = means.shape[0]
         output_dir = Path(folder_paths.get_output_directory())
