@@ -162,6 +162,12 @@ Different models support different features:
 4. Sky pixels will be automatically excluded if sky_mask is connected
 5. **Important**: Point cloud nodes validate input and will raise an error if normalized depth is detected (prevents incorrect 3D output)
 
+## Community
+
+Questions or feature requests? Open a [Discussion](https://github.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/discussions) on GitHub.
+
+Join the [Comfy3D Discord](https://discord.gg/PN743tE5) for help, updates, and chat about 3D workflows in ComfyUI.
+
 ## Credits
 
 - **Original Paper**: Haotong Lin, Sili Chen, Jun Hao Liew, et al. (ByteDance Seed Team)
