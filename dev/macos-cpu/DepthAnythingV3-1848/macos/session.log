@@ -1,0 +1,24 @@
+[00:00] Crash dump logging enabled: /Users/runner/work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/comfy-test-logs/DepthAnythingV3-1848/macos/crash_dump.log
+[00:00] 
+[00:00] [1/4] SYNTAX
+[00:00] ----------------------------------------
+[00:00] Found pyproject.toml (modern format)
+[00:00] Found requirements.txt (legacy format)
+[00:00] 
+macos: FAILED
+[00:00] Error: Non-ASCII characters found that can't encode on Windows (cp1252)
+[00:00] Details: Replace with ASCII equivalents:
+
+nodes/nodes_3d.py:
+  Line 74, col 3: WARNING SIGN ('⚠') - not encodable in cp1252
+  Line 74, col 4: VARIATION SELECTOR-16 ('️') - not encodable in cp1252
+  Line 164, col 60: ALMOST EQUAL TO ('≈') - not encodable in cp1252
+  Line 325, col 67: RIGHTWARDS ARROW ('→') - not encodable in cp1252
+
+nodes/nodes_multiview.py:
+  Line 1008, col 70: RIGHTWARDS ARROW ('→') - not encodable in cp1252
+  Line 1018, col 69: RIGHTWARDS ARROW ('→') - not encodable in cp1252
+  Line 1053, col 79: RIGHTWARDS ARROW ('→') - not encodable in cp1252
+
+nodes/depth_anything_v3/utils/alignment.py:
+  Line 27, col 54: ALMOST EQUAL TO ('≈') - not encodable in cp1252
