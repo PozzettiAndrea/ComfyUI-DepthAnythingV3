@@ -1005,7 +1005,7 @@ Mono/Metric models don't predict camera poses.
                 # Filter out sky pixels (sky_mask < 0.5 means not sky)
                 valid_mask = valid_mask & (sky < 0.5)
                 points_after_sky = valid_mask.sum().item()
-                logger.info(f"  View {i}: {points_before_sky} points → {points_after_sky} after sky filtering (removed {points_before_sky - points_after_sky})")
+                logger.info(f"  View {i}: {points_before_sky} points -> {points_after_sky} after sky filtering (removed {points_before_sky - points_after_sky})")
             else:
                 points_after_sky = points_before_sky
 
@@ -1015,7 +1015,7 @@ Mono/Metric models don't predict camera poses.
                 valid_mask_ds[::downsample, ::downsample] = valid_mask[::downsample, ::downsample]
                 valid_mask = valid_mask_ds
                 points_after_downsample = valid_mask.sum().item()
-                logger.info(f"  View {i}: {points_after_sky} points → {points_after_downsample} after {downsample}x downsampling")
+                logger.info(f"  View {i}: {points_after_sky} points -> {points_after_downsample} after {downsample}x downsampling")
             else:
                 points_after_downsample = points_after_sky
 
@@ -1050,7 +1050,7 @@ Mono/Metric models don't predict camera poses.
                     points_world, colors, conf_flat, view_id, outlier_percentage
                 )
                 filtered_count = points_world.shape[0]
-                logger.info(f"  View {i}: Outlier filtering: {original_count} → {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
+                logger.info(f"  View {i}: Outlier filtering: {original_count} -> {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
 
             all_points.append(points_world)
             all_colors.append(colors)

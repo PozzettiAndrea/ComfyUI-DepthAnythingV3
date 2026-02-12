@@ -2,13 +2,7 @@
 ComfyUI-DepthAnythingV3: Depth Anything V3 nodes for ComfyUI
 """
 
-import sys
-import os
-
-# Only do imports when NOT running under pytest
-# PYTEST_CURRENT_TEST is only set by pytest during actual test execution
-if not os.environ.get("PYTEST_CURRENT_TEST"):
-    # Import from split modules
+try:
     from .nodes_loader import (
         DownloadAndLoadDepthAnythingV3Model,
         NODE_CLASS_MAPPINGS as LOADER_NODE_CLASS_MAPPINGS,
@@ -59,16 +53,12 @@ if not os.environ.get("PYTEST_CURRENT_TEST"):
         **MULTIVIEW_NODE_DISPLAY_NAME_MAPPINGS,
         **PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
     }
-else:
-    # Dummy values during pytest to prevent import errors
-    DownloadAndLoadDepthAnythingV3Model = None
-    DepthAnything_V3 = None
+except Exception as e:
+    print(f"[DA3] Could not load nodes: {e}")
     NODE_CLASS_MAPPINGS = {}
     NODE_DISPLAY_NAME_MAPPINGS = {}
 
 __all__ = [
-    'DownloadAndLoadDepthAnythingV3Model',
-    'DepthAnything_V3',
     'NODE_CLASS_MAPPINGS',
     'NODE_DISPLAY_NAME_MAPPINGS',
 ]
