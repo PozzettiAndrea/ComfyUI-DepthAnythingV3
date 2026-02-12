@@ -347,11 +347,11 @@ class DualDPT(nn.Module):
         """
         act = activation.lower() if isinstance(activation, str) else activation
         if act == "exp":
-            return torch.exp(x)
+            return torch.exp(x.float()).to(x.dtype)
         if act == "expm1":
-            return torch.expm1(x)
+            return torch.expm1(x.float()).to(x.dtype)
         if act == "expp1":
-            return torch.exp(x) + 1
+            return (torch.exp(x.float()) + 1).to(x.dtype)
         if act == "relu":
             return torch.relu(x)
         if act == "sigmoid":

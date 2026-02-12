@@ -17,6 +17,8 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
+from ..attention_dispatch import dispatch_attention
+
 
 class Attention(nn.Module):
     def __init__(
@@ -51,7 +53,7 @@ class Attention(nn.Module):
         q, k = self.q_norm(q), self.k_norm(k)
         q = self.rope(q, pos) if self.rope is not None else q
         k = self.rope(k, pos) if self.rope is not None else k
-        x = F.scaled_dot_product_attention(
+        x = dispatch_attention(
             q,
             k,
             v,

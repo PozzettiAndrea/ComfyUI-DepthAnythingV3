@@ -12,6 +12,8 @@ import logging
 import torch.nn.functional as F
 from torch import Tensor, nn
 
+from ...attention_dispatch import dispatch_attention
+
 logger = logging.getLogger("dinov2")
 
 
@@ -57,13 +59,13 @@ class Attention(nn.Module):
             q = self.rope(q, pos)
             k = self.rope(k, pos)
         if self.fused_attn:
-            x = F.scaled_dot_product_attention(
+            x = dispatch_attention(
                 q,
                 k,
                 v,
                 dropout_p=self.attn_drop.p if self.training else 0.0,
                 attn_mask=(
-                    (attn_mask)[:, None].repeat(1, self.num_heads, 1, 1)
+                    attn_mask[:, None].expand(-1, self.num_heads, -1, -1)
                     if attn_mask is not None
                     else None
                 ),
