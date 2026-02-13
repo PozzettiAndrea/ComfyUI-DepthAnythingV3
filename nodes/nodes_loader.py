@@ -7,6 +7,7 @@ import comfy.model_management as mm
 from comfy.utils import load_torch_file
 import folder_paths
 
+from .depth_anything_v3.model.attention_dispatch import set_backend, get_backend
 from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
 from .depth_anything_v3.model.da3 import DepthAnything3Net, NestedDepthAnything3Net
 from .depth_anything_v3.model.dinov2.dinov2 import DinoV2
@@ -203,6 +204,14 @@ class DownloadAndLoadDepthAnythingV3Model:
             },
             "optional": {
                 "precision": (["auto", "bf16", "fp16", "fp32"], {"default": "auto"}),
+                "attention_mode": (["sdpa", "sage2", "sage3"], {
+                    "default": "sdpa",
+                    "tooltip": "Attention backend. sdpa: PyTorch default (FlashAttention when available). sage2: SageAttention v2 (~2x faster, requires sageattention package). sage3: SageAttention v3 for Blackwell GPUs (~3x faster, requires sageattn3 package). Falls back to sdpa if package not installed."
+                }),
+                "torch_compile": (["off", "default", "max-autotune", "reduce-overhead"], {
+                    "default": "off",
+                    "tooltip": "torch.compile() mode. off: no compilation. default: balanced speed/compile time. max-autotune: slowest compile, fastest inference. reduce-overhead: minimizes framework overhead. First run will be slow due to compilation."
+                }),
             }
         }
 
@@ -214,9 +223,13 @@ class DownloadAndLoadDepthAnythingV3Model:
 Models autodownload to `ComfyUI/models/depthanything3` from HuggingFace.
 
 Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and Nested models.
+
+**Performance Options:**
+- attention_mode: Switch attention backend for faster inference (sage2/sage3 require separate packages)
+- torch_compile: Enable torch.compile() for fused operations (first run slower, subsequent runs faster)
 """
 
-    def loadmodel(self, model, precision="auto"):
+    def loadmodel(self, model, precision="auto", attention_mode="sdpa", torch_compile="off"):
         device = mm.get_torch_device()
 
         # Determine dtype
@@ -510,6 +523,33 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             self.model.to(device).to(dtype)
 
         self.model.eval()
+
+        # Set attention backend
+        set_backend(attention_mode)
+        logger.info(f"Attention backend: {get_backend()}")
+
+        # Apply torch.compile to individual ViT blocks for cleaner compilation
+        if torch_compile != "off":
+            try:
+                if isinstance(self.model, NestedModelWrapper):
+                    da3_nets = [self.model.da3, self.model.da3_metric]
+                elif isinstance(self.model, DA3ModelWrapper):
+                    da3_nets = [self.model.da3]
+                else:
+                    da3_nets = [self.model]
+
+                compiled_count = 0
+                for da3_net in da3_nets:
+                    vit = da3_net.backbone.pretrained
+                    for i, block in enumerate(vit.blocks):
+                        vit.blocks[i] = torch.compile(
+                            block, mode=torch_compile, fullgraph=False, dynamic=False
+                        )
+                        compiled_count += 1
+
+                logger.info(f"torch.compile enabled on {compiled_count} ViT blocks (mode={torch_compile})")
+            except Exception as e:
+                logger.warning(f"torch.compile failed, continuing without compilation: {e}")
 
         da3_model = {
             "model": self.model,

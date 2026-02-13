@@ -47,11 +47,11 @@ def activate_head_gs(out, activation="norm_exp", conf_activation="expp1", conf_d
     if activation == "norm_exp":
         d = xyz.norm(dim=-1, keepdim=True).clamp(min=1e-8)
         xyz_normed = xyz / d
-        pts3d = xyz_normed * torch.expm1(d)
+        pts3d = xyz_normed * torch.expm1(d.float()).to(xyz.dtype)
     elif activation == "norm":
         pts3d = xyz / xyz.norm(dim=-1, keepdim=True)
     elif activation == "exp":
-        pts3d = torch.exp(xyz)
+        pts3d = torch.exp(xyz.float()).to(xyz.dtype)
     elif activation == "relu":
         pts3d = F.relu(xyz)
     elif activation == "sigmoid":
@@ -62,9 +62,9 @@ def activate_head_gs(out, activation="norm_exp", conf_activation="expp1", conf_d
         raise ValueError(f"Unknown activation: {activation}")
 
     if conf_activation == "expp1":
-        conf_out = 1 + conf.exp()
+        conf_out = (1 + conf.float().exp()).to(conf.dtype)
     elif conf_activation == "expp0":
-        conf_out = conf.exp()
+        conf_out = conf.float().exp().to(conf.dtype)
     elif conf_activation == "sigmoid":
         conf_out = torch.sigmoid(conf)
     elif conf_activation == "linear":

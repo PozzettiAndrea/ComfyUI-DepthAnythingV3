@@ -147,6 +147,7 @@ class DinoVisionTransformer(nn.Module):
         self.num_register_tokens = num_register_tokens
         self.interpolate_antialias = interpolate_antialias
         self.interpolate_offset = interpolate_offset
+        self._pos_embed_cache = {}  # (w0, h0, dtype) -> cached tensor
 
         self.patch_embed = embed_layer(
             img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim
@@ -217,12 +218,15 @@ class DinoVisionTransformer(nn.Module):
         N = self.pos_embed.shape[1] - 1
         if npatch == N and w == h:
             return self.pos_embed
+        w0 = w // self.patch_size
+        h0 = h // self.patch_size
+        cache_key = (w0, h0, previous_dtype)
+        if cache_key in self._pos_embed_cache:
+            return self._pos_embed_cache[cache_key]
         pos_embed = self.pos_embed.float()
         class_pos_embed = pos_embed[:, 0]
         patch_pos_embed = pos_embed[:, 1:]
         dim = x.shape[-1]
-        w0 = w // self.patch_size
-        h0 = h // self.patch_size
         M = int(math.sqrt(N))  # Recover the number of patches in each dimension
         assert N == M * M
         kwargs = {}
@@ -245,7 +249,9 @@ class DinoVisionTransformer(nn.Module):
         )
         assert (w0, h0) == patch_pos_embed.shape[-2:]
         patch_pos_embed = patch_pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
-        return torch.cat((class_pos_embed.unsqueeze(0), patch_pos_embed), dim=1).to(previous_dtype)
+        result = torch.cat((class_pos_embed.unsqueeze(0), patch_pos_embed), dim=1).to(previous_dtype)
+        self._pos_embed_cache[cache_key] = result
+        return result
 
     def prepare_cls_token(self, B, S):
         cls_token = self.cls_token.expand(B, S, -1)
