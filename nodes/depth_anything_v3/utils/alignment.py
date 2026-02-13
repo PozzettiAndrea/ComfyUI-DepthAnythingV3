@@ -24,7 +24,7 @@ def least_squares_scale_scalar(
     a: torch.Tensor, b: torch.Tensor, eps: float = 1e-12
 ) -> torch.Tensor:
     """
-    Compute least squares scale factor s such that a ≈ s * b.
+    Compute least squares scale factor s such that a ~= s * b.
 
     Args:
         a: First tensor

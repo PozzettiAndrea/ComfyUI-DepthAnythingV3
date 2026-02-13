@@ -71,7 +71,7 @@ Inputs:
 - depth_raw: Metric depth map (from DepthAnything_V3 with normalization_mode="Raw")
 - confidence: Confidence map
 - intrinsics: (Optional) Camera intrinsics JSON from DepthAnything_V3
-  ⚠️ If not provided, uses estimated intrinsics (may cause warping)
+  WARNING: If not provided, uses estimated intrinsics (may cause warping)
 - sky_mask: (Optional but RECOMMENDED) Sky segmentation - excludes sky from point cloud
 - source_image: (Optional) Source image for point colors
 
@@ -161,7 +161,7 @@ Output POINTCLOUD contains:
 
         Assumes ~60 degree horizontal FOV (common for consumer cameras).
         """
-        # For ~60° horizontal FOV: fx = W / (2 * tan(30°)) ≈ 0.866 * W
+        # For ~60 deg horizontal FOV: fx = W / (2 * tan(30 deg)) ~= 0.866 * W
         # Using a slightly wider assumption for better general results
         fx = fy = float(W) * 0.7  # Assumes ~70° FOV
         cx = (W - 1) / 2.0  # Principal point at image center (0-indexed)
@@ -322,7 +322,7 @@ Output POINTCLOUD contains:
                     points_3d, colors_flat, conf_flat, outlier_percentage
                 )
                 filtered_count = points_3d.shape[0]
-                logger.info(f"Outlier filtering: {original_count} → {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
+                logger.info(f"Outlier filtering: {original_count} -> {filtered_count} points (removed {original_count - filtered_count}, {outlier_percentage}% furthest from center)")
 
             # Debug logs
             logger.debug(f"Point Cloud (batch {b}): intrinsics={intrinsics_source}, "
