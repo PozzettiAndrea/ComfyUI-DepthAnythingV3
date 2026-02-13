@@ -1,6 +1,12 @@
 # ComfyUI Depth Anything V3
 
-**[View Workflow Gallery](https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/)**
+<div align="center">
+<a href="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/">
+<img src="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/gallery-preview.png" alt="Workflow Test Gallery" width="800">
+</a>
+<br>
+<b><a href="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/">View Live Test Gallery →</a></b>
+</div>
 
 Custom nodes for [Depth Anything V3](https://github.com/ByteDance-Seed/Depth-Anything-3) integration with ComfyUI.
 
