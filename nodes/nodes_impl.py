@@ -320,7 +320,16 @@ class DepthAnything_V3:
                 "images": ("IMAGE", ),
             },
             "optional": {
-                "camera_params": ("CAMERA_PARAMS", ),
+                "camera_params": ("CAMERA_PARAMS", {
+                    "visible_when_connected": {
+                        "input": "da3_model",
+                        "source_widget": "model",
+                        "contains": [
+                            "da3_small", "da3_base", "da3_large", "da3_giant",
+                            "da3nested",
+                        ],
+                    },
+                }),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
             }
@@ -461,7 +470,16 @@ class DepthAnythingV3_3D:
                 "images": ("IMAGE", ),
             },
             "optional": {
-                "camera_params": ("CAMERA_PARAMS", ),
+                "camera_params": ("CAMERA_PARAMS", {
+                    "visible_when_connected": {
+                        "input": "da3_model",
+                        "source_widget": "model",
+                        "contains": [
+                            "da3_small", "da3_base", "da3_large", "da3_giant",
+                            "da3nested",
+                        ],
+                    },
+                }),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
             }
@@ -658,7 +676,16 @@ class DepthAnythingV3_Advanced:
                 "images": ("IMAGE", ),
             },
             "optional": {
-                "camera_params": ("CAMERA_PARAMS", ),
+                "camera_params": ("CAMERA_PARAMS", {
+                    "visible_when_connected": {
+                        "input": "da3_model",
+                        "source_widget": "model",
+                        "contains": [
+                            "da3_small", "da3_base", "da3_large", "da3_giant",
+                            "da3nested",
+                        ],
+                    },
+                }),
                 "resize_method": (["resize", "crop", "pad"], {"default": "resize"}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
             }
