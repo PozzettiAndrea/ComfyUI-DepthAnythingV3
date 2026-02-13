@@ -1,14 +1,15 @@
 [test]
-name = "ComfyUI-DepthAnythingV3"
-python_version = "3.11"
-cpu_only = false
-levels = ["syntax", "install", "registration", "instantiation", "validation", "execution"]
+levels = ["syntax", "install", "registration", "execution"]
 
 [test.workflows]
 run = "all"
 screenshot = "all"
+timeout = 300
+cpu = "all"
+gpu = "all"
 
 [test.platforms]
 linux = true
+macos = true
 windows = true
 windows_portable = true
