@@ -39,7 +39,16 @@ class DepthAnything_V3:
                 ], {"default": "V2-Style"}),
             },
             "optional": {
-                "camera_params": ("CAMERA_PARAMS", ),
+                "camera_params": ("CAMERA_PARAMS", {
+                    "visible_when_connected": {
+                        "input": "da3_model",
+                        "source_widget": "model",
+                        "contains": [
+                            "da3_small", "da3_base", "da3_large", "da3_giant",
+                            "da3nested",
+                        ],
+                    },
+                }),
                 "resize_method": (["resize", "crop", "pad"], {
                     "default": "resize",
                     "tooltip": "Model requires dimensions to be multiples of 14. resize: scale image (default), crop: center crop to multiple, pad: add black borders to multiple"
