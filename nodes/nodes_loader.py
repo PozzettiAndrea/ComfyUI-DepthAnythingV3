@@ -203,9 +203,9 @@ class DownloadAndLoadDepthAnythingV3Model:
             },
             "optional": {
                 "precision": (["auto", "bf16", "fp16", "fp32"], {"default": "auto"}),
-                "attention": (["sdpa", "flash_attn", "sage"], {
-                    "default": "sdpa",
-                    "tooltip": "Attention backend. sdpa: PyTorch native. flash_attn: Tri Dao's FlashAttention (FA2/FA3, requires flash-attn package). sage: SageAttention (auto-detects v3 for Blackwell or v2, requires sageattention/sageattn3 package)."
+                "attention": (["auto", "sdpa", "flash_attn", "sage"], {
+                    "default": "auto",
+                    "tooltip": "Attention backend. auto: best available (sage > flash_attn > sdpa). sdpa: PyTorch native. flash_attn: Tri Dao's FlashAttention (FA2/FA3, requires flash-attn package). sage: SageAttention (auto-detects v3 for Blackwell or v2, requires sageattention/sageattn3 package)."
                 }),
                 "memory_mode": (["cpu_offload", "cache_gpu", "unload"], {
                     "default": "cpu_offload",
@@ -224,7 +224,7 @@ Models autodownload to `ComfyUI/models/depthanything3` from HuggingFace.
 Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and Nested models.
 """
 
-    def loadmodel(self, model, precision="auto", attention="sdpa", memory_mode="cpu_offload"):
+    def loadmodel(self, model, precision="auto", attention="auto", memory_mode="cpu_offload"):
         device = mm.get_torch_device()
 
         # Determine dtype
