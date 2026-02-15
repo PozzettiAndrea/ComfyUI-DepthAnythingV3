@@ -243,3 +243,33 @@ def safe_model_to_device(model, device):
     except NotImplementedError:
         # Model might already be on device (via accelerate loading)
         pass
+
+
+def handle_post_inference_memory(model, da3_model, offload_device):
+    """Handle model memory after inference based on memory_mode setting.
+
+    Args:
+        model: The model instance
+        da3_model: The da3_model dict containing memory_mode
+        offload_device: CPU offload device from mm.unet_offload_device()
+    """
+    import comfy.model_management as mm
+
+    memory_mode = da3_model.get("memory_mode", "cpu_offload")
+
+    if memory_mode == "cache_gpu":
+        return
+
+    if memory_mode == "unload":
+        try:
+            model.to("cpu")
+        except Exception:
+            pass
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        mm.soft_empty_cache()
+        return
+
+    # cpu_offload (default)
+    model.to(offload_device)
+    mm.soft_empty_cache()

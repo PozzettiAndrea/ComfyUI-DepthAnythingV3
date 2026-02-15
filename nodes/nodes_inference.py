@@ -10,7 +10,8 @@ from comfy.utils import ProgressBar
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
     format_camera_params, process_tensor_to_image, process_tensor_to_mask,
-    resize_to_patch_multiple, safe_model_to_device, logger, check_model_capabilities
+    resize_to_patch_multiple, safe_model_to_device, handle_post_inference_memory,
+    logger, check_model_capabilities
 )
 
 
@@ -426,8 +427,7 @@ Connect only the outputs you need - unused outputs are simply ignored.
 
                 pbar.update(1)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Process outputs based on normalization mode
         normalize_depth_output = (normalization_mode != "Raw")
