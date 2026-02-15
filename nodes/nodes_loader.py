@@ -267,7 +267,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
 
         logger.info(f"Loading model from: {model_path}")
 
-        # Build the model architecture on meta device (no memory wasted on random init)
+        # Build model architecture on meta device (no memory wasted on random init)
         # Encoder embed dimensions for camera modules
         encoder_embed_dims = {
             'vits': 384,
@@ -276,10 +276,10 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             'vitg': 1536,
         }
 
-        with torch.device("meta"):
-            # Check if this is a nested model (requires two branches)
-            is_nested = config.get('is_nested', False)
+        # Check if this is a nested model (requires two branches)
+        is_nested = config.get('is_nested', False)
 
+        with torch.device("meta"):
             if is_nested:
                 logger.info("Creating nested model with main (Giant) and metric (Large) branches")
 

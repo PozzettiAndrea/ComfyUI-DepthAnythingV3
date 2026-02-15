@@ -166,8 +166,9 @@ class DinoVisionTransformer(nn.Module):
         if drop_path_uniform is True:
             dpr = [drop_path_rate] * depth
         else:
+            # Pure Python linspace to avoid .item() on meta tensors
             dpr = [
-                x.item() for x in torch.linspace(0, drop_path_rate, depth)
+                drop_path_rate * i / max(depth - 1, 1) for i in range(depth)
             ]  # stochastic depth decay rule
         if ffn_layer == "mlp":
             logger.info("using MLP layer as FFN")
