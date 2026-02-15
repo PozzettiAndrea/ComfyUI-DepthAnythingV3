@@ -17,17 +17,62 @@ logger = logging.getLogger("DepthAnythingV3")
 _active_backend = "sdpa"
 
 
+def _try_sage() -> str | None:
+    """Try to activate SageAttention. Returns resolved name or None."""
+    global _active_backend
+    try:
+        from sageattn3 import sageattn3  # noqa: F401
+        _active_backend = "sage3"
+        logger.info("Attention backend: sage3 (SageAttention v3, Blackwell FP4)")
+        return "sage3"
+    except ImportError:
+        pass
+    try:
+        from sageattention import sageattn  # noqa: F401
+        _active_backend = "sage2"
+        logger.info("Attention backend: sage2 (SageAttention v2, INT8)")
+        return "sage2"
+    except ImportError:
+        pass
+    return None
+
+
+def _try_flash_attn() -> str | None:
+    """Try to activate FlashAttention. Returns resolved name or None."""
+    global _active_backend
+    try:
+        from flash_attn import flash_attn_func  # noqa: F401
+        _active_backend = "flash_attn"
+        logger.info("Attention backend: flash_attn (Tri Dao's FlashAttention)")
+        return "flash_attn"
+    except ImportError:
+        pass
+    return None
+
+
 def set_backend(name: str) -> str:
     """Set the active attention backend.
 
     Args:
-        name: One of "sdpa", "flash_attn", "sage".
-              For "sage", auto-detects sage3 (Blackwell) then sage2.
+        name: One of "auto", "sdpa", "flash_attn", "sage".
+              "auto" tries sage → flash_attn → sdpa (best available).
+              "sage" auto-detects sage3 (Blackwell) then sage2.
 
     Returns:
         The resolved backend name actually set (may differ if fallback occurred).
     """
     global _active_backend
+
+    if name == "auto":
+        result = _try_sage()
+        if result:
+            return result
+        result = _try_flash_attn()
+        if result:
+            return result
+        _active_backend = "sdpa"
+        logger.info("Attention backend: sdpa (PyTorch native, auto-detected)")
+        return "sdpa"
 
     if name == "sdpa":
         _active_backend = "sdpa"
@@ -35,32 +80,17 @@ def set_backend(name: str) -> str:
         return "sdpa"
 
     if name == "flash_attn":
-        try:
-            from flash_attn import flash_attn_func  # noqa: F401
-            _active_backend = "flash_attn"
-            logger.info("Attention backend: flash_attn (Tri Dao's FlashAttention)")
-            return "flash_attn"
-        except ImportError:
-            logger.warning("flash-attn package not installed, falling back to sdpa")
-            _active_backend = "sdpa"
-            return "sdpa"
+        result = _try_flash_attn()
+        if result:
+            return result
+        logger.warning("flash-attn package not installed, falling back to sdpa")
+        _active_backend = "sdpa"
+        return "sdpa"
 
     if name == "sage":
-        # Try sage3 (Blackwell FP4) first, then sage2 (Ampere+ INT8)
-        try:
-            from sageattn3 import sageattn3  # noqa: F401
-            _active_backend = "sage3"
-            logger.info("Attention backend: sage3 (SageAttention v3, Blackwell FP4)")
-            return "sage3"
-        except ImportError:
-            pass
-        try:
-            from sageattention import sageattn  # noqa: F401
-            _active_backend = "sage2"
-            logger.info("Attention backend: sage2 (SageAttention v2, INT8)")
-            return "sage2"
-        except ImportError:
-            pass
+        result = _try_sage()
+        if result:
+            return result
         logger.warning("Neither sageattn3 nor sageattention installed, falling back to sdpa")
         _active_backend = "sdpa"
         return "sdpa"
