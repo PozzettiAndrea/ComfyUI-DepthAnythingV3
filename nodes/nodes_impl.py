@@ -19,7 +19,8 @@ from .depth_anything_v3.model.cam_dec import CameraDec
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
     format_camera_params, process_tensor_to_image, process_tensor_to_mask,
-    resize_to_patch_multiple, safe_model_to_device, logger, check_model_capabilities
+    resize_to_patch_multiple, safe_model_to_device, handle_post_inference_memory,
+    logger, check_model_capabilities
 )
 
 try:
@@ -434,8 +435,7 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
                 out.append(depth.cpu())
                 pbar.update(1)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Concatenate all depths
         depth_out = torch.cat(out, dim=0)
@@ -653,8 +653,7 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
 
                 pbar.update(1)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Process outputs WITHOUT normalization
         depth_raw_final = process_tensor_to_image(depth_raw_out, orig_H, orig_W, normalize_output=False)
@@ -898,8 +897,7 @@ invert_depth: If True, inverts depth output (closer = higher value, like dispari
 
                 pbar.update(1)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Process outputs
         depth_final = process_tensor_to_image(depth_out, orig_H, orig_W, normalize_output=True)
@@ -1384,8 +1382,7 @@ Output is a GAUSSIANS type that can be saved to PLY format.
                 gaussians_list.append(gs_dict)
                 pbar.update(1)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Return as tuple containing list of Gaussians
         return (gaussians_list,)
@@ -1873,8 +1870,7 @@ Camera parameters only available for Main series/Nested models.
             else:
                 conf = torch.ones_like(conf)
 
-        model.to(offload_device)
-        mm.soft_empty_cache()
+        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Convert to ComfyUI format [N, H, W, 3]
         depth_out = depth.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()

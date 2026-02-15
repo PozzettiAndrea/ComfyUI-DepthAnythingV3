@@ -1,7 +1,6 @@
 """Model loading and configuration nodes for DepthAnythingV3."""
 import torch
 import os
-from contextlib import nullcontext
 
 import comfy.model_management as mm
 from comfy.utils import load_torch_file
@@ -17,6 +16,7 @@ from .depth_anything_v3.model.cam_dec import CameraDec
 from .depth_anything_v3.model.gsdpt import GSDPT
 from .depth_anything_v3.model.gs_adapter import GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger
+from .depth_anything_v3.model.attention_dispatch import set_backend as set_attention_backend
 
 try:
     from accelerate import init_empty_weights
@@ -203,6 +203,14 @@ class DownloadAndLoadDepthAnythingV3Model:
             },
             "optional": {
                 "precision": (["auto", "bf16", "fp16", "fp32"], {"default": "auto"}),
+                "attention": (["sdpa", "flash_attn", "sage"], {
+                    "default": "sdpa",
+                    "tooltip": "Attention backend. sdpa: PyTorch native. flash_attn: Tri Dao's FlashAttention (FA2/FA3, requires flash-attn package). sage: SageAttention (auto-detects v3 for Blackwell or v2, requires sageattention/sageattn3 package)."
+                }),
+                "memory_mode": (["cpu_offload", "cache_gpu", "unload"], {
+                    "default": "cpu_offload",
+                    "tooltip": "Memory after inference. cpu_offload: move to CPU (default). cache_gpu: keep in VRAM (fastest repeated runs). unload: aggressively free all VRAM."
+                }),
             }
         }
 
@@ -216,7 +224,7 @@ Models autodownload to `ComfyUI/models/depthanything3` from HuggingFace.
 Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and Nested models.
 """
 
-    def loadmodel(self, model, precision="auto"):
+    def loadmodel(self, model, precision="auto", attention="sdpa", memory_mode="cpu_offload"):
         device = mm.get_torch_device()
 
         # Determine dtype
@@ -259,10 +267,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
 
         logger.info(f"Loading model from: {model_path}")
 
-        # Build the model architecture
-        # Only use init_empty_weights on CUDA devices to avoid meta device issues on CPU
-        use_empty_weights = is_accelerate_available and device.type == 'cuda'
-
+        # Build the model architecture on meta device (no memory wasted on random init)
         # Encoder embed dimensions for camera modules
         encoder_embed_dims = {
             'vits': 384,
@@ -271,7 +276,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             'vitg': 1536,
         }
 
-        with (init_empty_weights() if use_empty_weights else nullcontext()):
+        with torch.device("meta"):
             # Check if this is a nested model (requires two branches)
             is_nested = config.get('is_nested', False)
 
@@ -453,68 +458,40 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             logger.debug("Detected standard model checkpoint format (no prefix)")
             self.model = inner_model
 
-        if use_empty_weights:
-            # Used init_empty_weights, must use set_module_tensor_to_device
-            failed_keys = []
-            loaded_keys = []
-            for key in new_state_dict:
-                try:
-                    set_module_tensor_to_device(self.model, key, device=device, dtype=dtype, value=new_state_dict[key])
-                    loaded_keys.append(key)
-                except Exception as e:
-                    failed_keys.append((key, str(e)))
-            if failed_keys:
-                logger.warning(f"Could not load {len(failed_keys)} weights (this is normal for simplified models)")
-                # Debug: show first few failed keys to understand the pattern
-                logger.debug(f"First 10 failed keys: {[k for k, e in failed_keys[:10]]}")
-                # Show head-specific failures
-                head_failures = [(k, e) for k, e in failed_keys if k.startswith('head.')]
-                if head_failures:
-                    logger.debug(f"Head failures ({len(head_failures)}): {head_failures[:5]}")
-
-            # Materialize any remaining meta tensors (parameters not in checkpoint)
-            meta_params = []
-            for name, param in self.model.named_parameters():
-                if param.device.type == 'meta':
-                    meta_params.append(name)
-                    # Check if this key exists in checkpoint but wasn't loaded (shape mismatch?)
-                    if name in new_state_dict:
-                        ckpt_shape = new_state_dict[name].shape
-                        model_shape = param.shape
-                        if ckpt_shape != model_shape:
-                            logger.debug(f"Shape mismatch for {name}: checkpoint {ckpt_shape} vs model {model_shape}")
-                    # Initialize with zeros and move to correct device
-                    set_module_tensor_to_device(
-                        self.model, name, device=device, dtype=dtype,
-                        value=torch.zeros(param.shape, dtype=dtype)
-                    )
-
-            if meta_params:
-                logger.warning(f"Initialized {len(meta_params)} missing parameters with zeros (not in checkpoint)")
-                # Debug: show first few meta params to understand the pattern
-                logger.debug(f"First 10 missing params: {meta_params[:10]}")
-        else:
-            # Standard model loading (CPU or no accelerate)
-            try:
-                self.model.load_state_dict(new_state_dict, strict=False)
-            except Exception as e:
-                logger.warning(f"Exception during model loading: {e}")
-                # Try partial loading
-                model_dict = self.model.state_dict()
-                filtered_dict = {k: v for k, v in new_state_dict.items() if k in model_dict and model_dict[k].shape == v.shape}
-                model_dict.update(filtered_dict)
-                self.model.load_state_dict(model_dict)
-
-        # Move to device if we didn't use init_empty_weights
-        if not use_empty_weights:
-            self.model.to(device).to(dtype)
+        # Load weights — meta→real via assign=True (PyTorch 2.1+) or accelerate fallback
+        try:
+            self.model.load_state_dict(new_state_dict, strict=False, assign=True)
+            self.model.to(device=device, dtype=dtype)
+        except TypeError:
+            # assign=True not supported (PyTorch < 2.1), fallback to accelerate
+            if is_accelerate_available:
+                logger.info("Using accelerate fallback for weight loading (PyTorch < 2.1)")
+                for key in new_state_dict:
+                    try:
+                        set_module_tensor_to_device(self.model, key, device=device, dtype=dtype, value=new_state_dict[key])
+                    except Exception:
+                        pass
+                # Materialize remaining meta tensors
+                for name, param in self.model.named_parameters():
+                    if param.device.type == 'meta':
+                        set_module_tensor_to_device(
+                            self.model, name, device=device, dtype=dtype,
+                            value=torch.zeros(param.shape, dtype=dtype)
+                        )
+            else:
+                raise RuntimeError(
+                    "Model loading requires PyTorch >= 2.1 (for assign=True) or the accelerate package. "
+                    "Please upgrade PyTorch or install accelerate: pip install accelerate"
+                )
 
         self.model.eval()
+        set_attention_backend(attention)
 
         da3_model = {
             "model": self.model,
             "dtype": dtype,
             "config": config,
+            "memory_mode": memory_mode,
         }
 
         return (da3_model,)
@@ -571,6 +548,7 @@ but the overlap and blending minimize artifacts.
             "model": da3_model["model"],
             "dtype": da3_model["dtype"],
             "config": da3_model["config"],
+            "memory_mode": da3_model.get("memory_mode", "cpu_offload"),
             "tiled_config": {
                 "enabled": True,
                 "tile_size": tile_size,
