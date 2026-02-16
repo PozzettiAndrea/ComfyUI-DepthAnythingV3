@@ -48,6 +48,7 @@ def get_or_create_da3_patcher(node, da3_config):
     return node._patcher
 
 
+
 def format_camera_params(param_list, param_name):
     """Format camera parameters as JSON string.
 

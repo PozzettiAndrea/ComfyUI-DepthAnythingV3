@@ -237,7 +237,7 @@ class StreamingPipeline:
         Args:
             normalized_images: [1, N, C, H, W] preprocessed tensor (ImageNet normalized)
             pbar: Optional ComfyUI ProgressBar
-            salad_model: Optional loaded SALAD model dict {"model": nn.Module, "device": device}
+            salad_model: Optional loaded SALAD nn.Module (already on GPU via ModelPatcher)
             video_frames: Optional [N, H, W, C] raw video frames for SALAD descriptor extraction
 
         Returns:
@@ -431,7 +431,7 @@ class StreamingPipeline:
             sim3_list: List of pairwise (s, R, t) transforms
             chunk_results: List of ChunkResult objects
             chunks: List of (start, end) chunk index tuples
-            salad_model: Dict with "model" (nn.Module) and "device"
+            salad_model: SALAD nn.Module (already on GPU)
             video_frames: [N, H, W, C] raw video frames tensor
 
         Returns:
@@ -456,8 +456,8 @@ class StreamingPipeline:
             logger.warning("No video frames available for SALAD descriptor extraction")
             return sim3_list
 
-        model = salad_model["model"]
-        device = salad_model["device"]
+        model = salad_model
+        device = self.device
 
         # --- Extract SALAD descriptors from video frames ---
         import torchvision.transforms as T
