@@ -258,6 +258,10 @@ def _dispatch_sage3(q, k, v):
     """SageAttention v3 — Blackwell FP4. Hidden from torch.compile."""
     try:
         from sageattn3 import sageattn3
+        # SageAttention only accepts fp16/bf16; autocast may produce fp32 from LayerNorm
+        if q.dtype == torch.float32:
+            target = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            q, k, v = q.to(target), k.to(target), v.to(target)
         return sageattn3(q, k, v)
     except Exception as e:
         logger.warning(f"sage3 failed ({e}), falling back to sdpa")
@@ -269,6 +273,10 @@ def _dispatch_sage2(q, k, v):
     """SageAttention v2 — INT8. Hidden from torch.compile."""
     try:
         from sageattention import sageattn
+        # SageAttention only accepts fp16/bf16; autocast may produce fp32 from LayerNorm
+        if q.dtype == torch.float32:
+            target = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            q, k, v = q.to(target), k.to(target), v.to(target)
         return sageattn(q, k, v)
     except Exception as e:
         logger.warning(f"sage2 failed ({e}), falling back to sdpa")

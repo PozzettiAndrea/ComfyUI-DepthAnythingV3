@@ -26,7 +26,6 @@ class StreamingConfig:
     scale_compute_method: str = "auto"  # auto, ransac, weighted
     loop_enable: bool = False
     loop_chunk_size: int = 20
-    salad_model_path: str = ""
     depth_threshold: float = 15.0
     save_pointcloud: bool = False
     sample_ratio: float = 0.015
@@ -58,9 +57,7 @@ class StreamingConfig:
                 "ref_view_strategy": self.ref_view_strategy,
                 "ref_view_strategy_loop": self.ref_view_strategy,
             },
-            "Weights": {
-                "SALAD": self.salad_model_path,
-            },
+            "Weights": {},
             "Loop": {
                 "SALAD": {
                     "image_size": [336, 336],
@@ -234,12 +231,14 @@ class StreamingPipeline:
         self.dtype = dtype
         self.legacy_config = config.to_legacy_config()
 
-    def run(self, normalized_images, pbar=None):
+    def run(self, normalized_images, pbar=None, salad_model=None, video_frames=None):
         """Run the full streaming pipeline.
 
         Args:
             normalized_images: [1, N, C, H, W] preprocessed tensor (ImageNet normalized)
             pbar: Optional ComfyUI ProgressBar
+            salad_model: Optional loaded SALAD model dict {"model": nn.Module, "device": device}
+            video_frames: Optional [N, H, W, C] raw video frames for SALAD descriptor extraction
 
         Returns:
             StreamingResult with aligned depth, conf, camera params
@@ -282,9 +281,11 @@ class StreamingPipeline:
                 if pbar:
                     pbar.update_absolute(len(chunks) + i + 1)
 
-        # Phase 3: Loop closure (optional)
-        if self.config.loop_enable and len(sim3_list) > 0:
-            sim3_list = self._run_loop_closure(sim3_list, chunk_results, chunks)
+        # Phase 3: Loop closure (optional, requires SALAD model)
+        if self.config.loop_enable and len(sim3_list) > 0 and salad_model is not None:
+            sim3_list = self._run_loop_closure(
+                sim3_list, chunk_results, chunks, salad_model, video_frames
+            )
 
         # Phase 4: Accumulate transforms and blend
         result = self._apply_and_blend(chunk_results, chunks, sim3_list)
@@ -423,45 +424,135 @@ class StreamingPipeline:
         logger.info(f"Sim(3) alignment: scale={s:.4f}")
         return s, R, t
 
-    def _run_loop_closure(self, sim3_list, chunk_results, chunks):
-        """Run loop closure detection and optimization.
+    def _run_loop_closure(self, sim3_list, chunk_results, chunks, salad_model, video_frames):
+        """Run loop closure detection and optimization using SALAD model.
 
         Args:
             sim3_list: List of pairwise (s, R, t) transforms
             chunk_results: List of ChunkResult objects
             chunks: List of (start, end) chunk index tuples
+            salad_model: Dict with "model" (nn.Module) and "device"
+            video_frames: [N, H, W, C] raw video frames tensor
 
         Returns:
             Optimized sim3_list
         """
         try:
-            from .loop_utils.loop_detector import LoopDetector
+            import faiss
+        except ImportError:
+            logger.warning("faiss not installed, skipping loop closure. pip install faiss-cpu")
+            return sim3_list
+
+        try:
             from .loop_utils.sim3loop import Sim3LoopOptimizer
             from .loop_utils.sim3utils import (
                 compute_sim3_ab, process_loop_list, weighted_align_point_maps
             )
-        except ImportError as e:
+        except Exception as e:
             logger.warning(f"Loop closure dependencies not available: {e}")
             return sim3_list
 
-        # Save frames as temp images for SALAD descriptor extraction
-        temp_dir = tempfile.mkdtemp(prefix="da3_streaming_loop_")
-        try:
-            # Save chunk images to disk for loop detector
-            for i, result in enumerate(chunk_results):
-                # We don't have processed_images in our pipeline
-                # Loop closure requires image descriptors — skip if no images
-                pass
-
-            logger.warning(
-                "Loop closure requires image frames saved to disk for SALAD. "
-                "This feature is not yet fully integrated with the ComfyUI pipeline."
-            )
+        if video_frames is None:
+            logger.warning("No video frames available for SALAD descriptor extraction")
             return sim3_list
-        finally:
-            import shutil
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir, ignore_errors=True)
+
+        model = salad_model["model"]
+        device = salad_model["device"]
+
+        # --- Extract SALAD descriptors from video frames ---
+        import torchvision.transforms as T
+
+        transform = T.Compose([
+            T.Resize([336, 336], interpolation=T.InterpolationMode.BILINEAR),
+            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+
+        num_frames = video_frames.shape[0]
+        batch_size = 32
+        descriptors = []
+
+        logger.info(f"Extracting SALAD descriptors for {num_frames} frames...")
+        for i in range(0, num_frames, batch_size):
+            batch = video_frames[i:i+batch_size]  # [B, H, W, C]
+            batch = batch.permute(0, 3, 1, 2)  # [B, C, H, W]
+            batch = transform(batch).to(device)
+            with torch.no_grad():
+                with torch.autocast(device_type=device.type, dtype=torch.float16):
+                    desc = model(batch).cpu()
+            descriptors.append(desc)
+
+        descriptors = torch.cat(descriptors)  # [N, 8448]
+        logger.info(f"SALAD descriptors: {descriptors.shape}")
+
+        # --- Find loop closures via faiss ---
+        embed_size = descriptors.shape[1]
+        faiss_index = faiss.IndexFlatIP(embed_size)
+        desc_np = descriptors.numpy()
+        faiss_index.add(desc_np)
+
+        top_k = 5
+        similarity_threshold = 0.85
+        nms_threshold = 25
+
+        similarities, indices = faiss_index.search(desc_np, top_k + 1)
+
+        loop_closures = []
+        for i in range(num_frames):
+            for j in range(1, top_k + 1):
+                neighbor_idx = indices[i, j]
+                similarity = similarities[i, j]
+                if similarity > similarity_threshold and abs(i - neighbor_idx) > 10:
+                    pair = (min(i, neighbor_idx), max(i, neighbor_idx), similarity)
+                    loop_closures.append(pair)
+
+        loop_closures = list(set(loop_closures))
+        loop_closures.sort(key=lambda x: x[2], reverse=True)
+
+        # Simple NMS
+        filtered = []
+        suppressed = set()
+        for idx1, idx2, sim in loop_closures:
+            if idx1 not in suppressed and idx2 not in suppressed:
+                filtered.append((idx1, idx2, sim))
+                for k in range(max(0, idx1 - nms_threshold), min(idx1 + nms_threshold + 1, idx2)):
+                    suppressed.add(k)
+                for k in range(max(idx1 + 1, idx2 - nms_threshold), min(idx2 + nms_threshold + 1, num_frames)):
+                    suppressed.add(k)
+
+        if not filtered:
+            logger.info("No loop closures detected")
+            return sim3_list
+
+        loop_pairs = [(idx1, idx2) for idx1, idx2, _ in filtered]
+        logger.info(f"Found {len(loop_pairs)} loop closures")
+        for idx1, idx2, sim in filtered[:5]:
+            logger.info(f"  Loop: frame {idx1} <-> {idx2} (similarity={sim:.4f})")
+
+        # --- Compute loop constraint Sim(3) transforms ---
+        try:
+            loop_constraints = []
+            for frame_i, frame_j in loop_pairs:
+                # Find which chunks these frames belong to
+                chunk_i = next((c for c, (s, e) in enumerate(chunks) if s <= frame_i < e), None)
+                chunk_j = next((c for c, (s, e) in enumerate(chunks) if s <= frame_j < e), None)
+                if chunk_i is not None and chunk_j is not None and chunk_i != chunk_j:
+                    # Compute Sim(3) between these chunks using overlap point clouds
+                    s, R, t = compute_sim3_ab(
+                        chunk_results[chunk_i], chunk_results[chunk_j],
+                        self.legacy_config
+                    )
+                    loop_constraints.append((chunk_i, chunk_j, (s, R, t)))
+
+            if loop_constraints:
+                optimizer = Sim3LoopOptimizer(device=self.device)
+                sim3_list = optimizer.optimize(sim3_list, loop_constraints)
+                logger.info(f"Loop closure optimization applied with {len(loop_constraints)} constraints")
+            else:
+                logger.info("No cross-chunk loop constraints found")
+        except Exception as e:
+            logger.warning(f"Loop closure optimization failed: {e}")
+
+        return sim3_list
 
     def _apply_and_blend(self, chunk_results, chunks, sim3_list):
         """Apply cumulative Sim(3) transforms and blend overlap regions.
@@ -541,7 +632,8 @@ class StreamingPipeline:
                 weight_out[global_idx] += w
 
                 # For extrinsics/intrinsics, use whichever chunk has higher weight
-                if w >= 0.5 or weight_out[global_idx] == w:
+                # weight_out[global_idx] is (H, W); check if this is the first write
+                if w >= 0.5 or np.allclose(weight_out[global_idx], w):
                     extr_out[global_idx] = result.extrinsics[local_idx]
                     intr_out[global_idx] = result.intrinsics[local_idx]
 

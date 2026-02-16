@@ -34,6 +34,7 @@ try:
     )
 
     from .streaming import DepthAnythingV3_Streaming
+    from .load_salad import LoadSALADModel
 
     from .preview_nodes import (
         NODE_CLASS_MAPPINGS as PREVIEW_NODE_CLASS_MAPPINGS,
@@ -42,9 +43,11 @@ try:
 
     STREAMING_NODE_CLASS_MAPPINGS = {
         "DepthAnythingV3_Streaming": DepthAnythingV3_Streaming,
+        "LoadSALADModel": LoadSALADModel,
     }
     STREAMING_NODE_DISPLAY_NAME_MAPPINGS = {
         "DepthAnythingV3_Streaming": "Depth Anything V3 (Streaming)",
+        "LoadSALADModel": "Load SALAD Model",
     }
 
     # Merge all node mappings

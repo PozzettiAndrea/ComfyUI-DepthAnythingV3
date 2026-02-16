@@ -33,60 +33,8 @@ from tqdm import tqdm
 
 logger = logging.getLogger("DA3Streaming")
 
-# SALAD VPR model - requires external salad package
-# The salad model code is not included in the DA3 streaming repo.
-# Users need to provide a compatible checkpoint.
-_salad_helper = None
-try:
-    import sys
-    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-    SALAD_ROOT = os.path.join(CURRENT_DIR, "salad")
-    if os.path.exists(SALAD_ROOT) and SALAD_ROOT not in sys.path:
-        sys.path.insert(0, SALAD_ROOT)
-    from models import helper as _salad_helper
-except ImportError:
-    logger.warning("SALAD model code not found. Loop closure detection will not be available.")
-
-
-class VPRModel(nn.Module):
-    """This is the main model for Visual Place Recognition
-    we use Pytorch Lightning for modularity purposes.
-
-    Args:
-        pl (_type_): _description_
-    """
-
-    def __init__(
-        self,
-        # ---- Backbone
-        backbone_arch="resnet50",
-        backbone_config={},
-        # ---- Aggregator
-        agg_arch="ConvAP",
-        agg_config={},
-    ):
-        super().__init__()
-
-        # Backbone
-        self.encoder_arch = backbone_arch
-        self.backbone_config = backbone_config
-
-        # Aggregator
-        self.agg_arch = agg_arch
-        self.agg_config = agg_config
-
-        # ----------------------------------
-        # get the backbone and the aggregator
-        if _salad_helper is None:
-            raise ImportError("SALAD model code is required for loop closure. Place salad model code in the 'salad/' directory.")
-        self.backbone = _salad_helper.get_backbone(backbone_arch, backbone_config)
-        self.aggregator = _salad_helper.get_aggregator(agg_arch, agg_config)
-
-    # the forward pass of the lightning model
-    def forward(self, x):
-        x = self.backbone(x)
-        x = self.aggregator(x)
-        return x
+# Use inline SALAD model implementation
+from .salad_model import VPRModel
 
 
 class LoopDetector:

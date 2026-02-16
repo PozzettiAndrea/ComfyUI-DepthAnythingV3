@@ -211,7 +211,9 @@ Higher N = more VRAM usage but better consistency.
                 intr = output['intrinsics']
 
             if intr is not None and torch.is_tensor(intr):
-                logger.info(f"Model output intrinsics: shape={intr.shape}, values=\n{intr.squeeze()}")
+                n_views = intr.shape[1]
+                fx_vals = intr[0, :, 0, 0]
+                logger.info(f"Model output intrinsics: {n_views} views, fx range=[{fx_vals.min():.1f}, {fx_vals.max():.1f}]")
 
             # Extract 3D Gaussians (if available)
             gaussians = None
