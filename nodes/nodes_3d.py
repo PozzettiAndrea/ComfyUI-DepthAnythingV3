@@ -27,7 +27,7 @@ class DA3_ToPointCloud:
                 "sky_mask": ("MASK", ),
                 "source_image": ("IMAGE", ),
                 "confidence_threshold": ("FLOAT", {
-                    "default": 0.5,
+                    "default": 0.1,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.01,
@@ -42,7 +42,7 @@ class DA3_ToPointCloud:
                 }),
                 "allow_around_1": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "Allow images with max depth value around 1"
+                    "tooltip": "If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."
                 }),
                 "filter_outliers": ("BOOLEAN", {
                     "default": False,
@@ -180,7 +180,7 @@ Output POINTCLOUD contains:
 
         return K
 
-    def convert(self, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.5, downsample=1, filter_outliers=False, outlier_percentage=5.0):
+    def convert(self, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.1, downsample=1, filter_outliers=False, outlier_percentage=5.0):
         """Convert depth map to point cloud using geometric unprojection."""
         # Validate that depth is raw/metric, not normalized
         max_depth = depth_raw.max().item()
@@ -671,7 +671,7 @@ class DA3_ToMesh:
                 "sky_mask": ("MASK",),
                 "source_image": ("IMAGE",),
                 "confidence_threshold": ("FLOAT", {
-                    "default": 0.5,
+                    "default": 0.1,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.01,
@@ -685,20 +685,27 @@ class DA3_ToMesh:
                     "tooltip": "Skip triangles across depth discontinuities (relative threshold)"
                 }),
                 "downsample": ("INT", {
-                    "default": 2,
+                    "default": 1,
                     "min": 1,
                     "max": 16,
                     "step": 1,
-                    "tooltip": "Downsample factor for mesh density"
+                    "tooltip": "Downsample depth map before meshing (use 1 with target_faces for best quality)"
+                }),
+                "target_faces": ("INT", {
+                    "default": 500000,
+                    "min": 0,
+                    "max": 10000000,
+                    "step": 10000,
+                    "tooltip": "Target face count after decimation (0 = no decimation). Adaptive: keeps detail at edges, simplifies flat areas."
                 }),
                 "filename_prefix": ("STRING", {"default": "mesh"}),
                 "allow_around_1": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "Allow images with max depth value around 1"
+                    "tooltip": "If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."
                 }),
                 "use_draco_compression": ("BOOLEAN", {
-                    "default": True,
-                    "tooltip": "Use Draco compression for smaller file size and faster export"
+                    "default": False,
+                    "tooltip": "Use Draco compression for smaller file size (note: ComfyUI's built-in 3D viewer does not support Draco-compressed meshes)"
                 }),
             }
         }
@@ -760,132 +767,142 @@ Output: GLB file path
             return None
 
     def _unproject_grid(self, depth_map, K):
-        """Unproject depth map to 3D points while preserving grid structure."""
+        """Unproject depth map to 3D points on GPU."""
         H, W = depth_map.shape
+        device = depth_map.device
 
-        # Create pixel grid
-        u = torch.arange(W, dtype=torch.float32, device=depth_map.device)
-        v = torch.arange(H, dtype=torch.float32, device=depth_map.device)
+        u = torch.arange(W, dtype=torch.float32, device=device)
+        v = torch.arange(H, dtype=torch.float32, device=device)
         u, v = torch.meshgrid(u, v, indexing='xy')
 
-        # Create homogeneous pixel coordinates [u, v, 1]
-        pix_coords = torch.stack([u, v, torch.ones_like(u)], dim=-1)  # (H, W, 3)
+        pix_coords = torch.stack([u, v, torch.ones_like(u)], dim=-1)
 
-        # Unproject using camera intrinsics
-        K = K.to(depth_map.device)
-        K_inv = torch.linalg.inv(K)
-        rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)  # (H, W, 3)
+        K_inv = torch.linalg.inv(K.to(device))
+        rays = torch.einsum('ij,hwj->hwi', K_inv, pix_coords)
+        points_3d = rays * depth_map.unsqueeze(-1)
 
-        # Multiply by depth to get 3D points
-        points_3d = rays * depth_map.unsqueeze(-1)  # (H, W, 3)
-
-        # Transform from OpenCV to standard 3D convention
-        points_3d[..., 1] *= -1  # Flip Y
-        points_3d[..., 2] *= -1  # Flip Z
+        points_3d[..., 1] *= -1
+        points_3d[..., 2] *= -1
 
         return points_3d
 
     def _create_mesh_from_grid(self, points_3d, colors, valid_mask, depth_map, depth_edge_threshold):
-        """Create triangular mesh from grid of 3D points (vectorized)."""
-        import numpy as np
-
+        """Create triangular mesh from grid of 3D points (GPU-accelerated)."""
         H, W = points_3d.shape[:2]
+        device = points_3d.device
 
-        # Convert to numpy
-        points_np = points_3d.cpu().numpy()
-        colors_np = colors.cpu().numpy() if colors is not None else None
-        valid_np = valid_mask.cpu().numpy()
-        depth_np = depth_map.cpu().numpy()
+        # Build vertex map on GPU
+        vertex_map = torch.full((H, W), -1, dtype=torch.int32, device=device)
+        valid_indices = valid_mask.nonzero(as_tuple=False)  # (N_valid, 2)
+        n_valid_verts = valid_indices.shape[0]
+        vertex_map[valid_mask] = torch.arange(n_valid_verts, dtype=torch.int32, device=device)
 
-        # Build vertex list using vectorized boolean indexing
-        vertices = points_np[valid_np]
-        vertex_colors = colors_np[valid_np] if colors_np is not None else None
+        # Extract valid vertices
+        vertices = points_3d[valid_mask]  # (N_valid, 3)
 
-        # Create UV coordinates for valid vertices
-        i_coords, j_coords = np.where(valid_np)
-        uvs = np.stack([j_coords / (W - 1), 1.0 - i_coords / (H - 1)], axis=1)
+        # UVs for valid vertices
+        i_coords = valid_indices[:, 0].float()
+        j_coords = valid_indices[:, 1].float()
+        uvs = torch.stack([j_coords / (W - 1), 1.0 - i_coords / (H - 1)], dim=1)
 
-        # Create vertex index map (2D array: -1 for invalid, vertex index for valid)
-        vertex_map = np.full((H, W), -1, dtype=np.int32)
-        vertex_map[valid_np] = np.arange(len(vertices))
+        # Colors
+        vertex_colors = colors[valid_mask] if colors is not None else None
 
-        # Build faces using vectorized operations
-        # Create all potential quads
-        i_range = np.arange(H - 1)
-        j_range = np.arange(W - 1)
-        ii, jj = np.meshgrid(i_range, j_range, indexing='ij')
+        # Build faces: check all quads in the grid
+        v00 = vertex_map[:H-1, :W-1]
+        v10 = vertex_map[1:H,  :W-1]
+        v01 = vertex_map[:H-1, 1:W]
+        v11 = vertex_map[1:H,  1:W]
 
-        # Get vertex indices for all quad corners (vectorized)
-        v00 = vertex_map[ii, jj]
-        v10 = vertex_map[ii + 1, jj]
-        v01 = vertex_map[ii, jj + 1]
-        v11 = vertex_map[ii + 1, jj + 1]
-
-        # Check if all corners are valid
         all_valid = (v00 >= 0) & (v10 >= 0) & (v01 >= 0) & (v11 >= 0)
 
-        # Check for depth discontinuities (vectorized)
-        d00 = depth_np[ii, jj]
-        d10 = depth_np[ii + 1, jj]
-        d01 = depth_np[ii, jj + 1]
-        d11 = depth_np[ii + 1, jj + 1]
+        # Depth discontinuity check
+        d00 = depth_map[:H-1, :W-1]
+        d10 = depth_map[1:H,  :W-1]
+        d01 = depth_map[:H-1, 1:W]
+        d11 = depth_map[1:H,  1:W]
 
-        depths_quad = np.stack([d00, d10, d01, d11], axis=-1)
-        depth_range = depths_quad.max(axis=-1) - depths_quad.min(axis=-1)
-        avg_depth = depths_quad.mean(axis=-1)
-
-        # Skip quads with large depth discontinuities
+        depths_quad = torch.stack([d00, d10, d01, d11], dim=-1)
+        depth_range = depths_quad.max(dim=-1).values - depths_quad.min(dim=-1).values
+        avg_depth = depths_quad.mean(dim=-1)
         no_discontinuity = (depth_range / (avg_depth + 1e-6)) <= depth_edge_threshold
 
-        # Combine all validity checks
         valid_quads = all_valid & no_discontinuity
+        qi, qj = valid_quads.nonzero(as_tuple=True)
 
-        # Extract valid quad indices
-        valid_i, valid_j = np.where(valid_quads)
-
-        # Build faces for valid quads
-        n_valid = len(valid_i)
-        faces = np.empty((n_valid * 2, 3), dtype=np.int32)
-
-        # First triangle of each quad
-        faces[0::2, 0] = v00[valid_i, valid_j]
-        faces[0::2, 1] = v10[valid_i, valid_j]
-        faces[0::2, 2] = v01[valid_i, valid_j]
-
-        # Second triangle of each quad
-        faces[1::2, 0] = v10[valid_i, valid_j]
-        faces[1::2, 1] = v11[valid_i, valid_j]
-        faces[1::2, 2] = v01[valid_i, valid_j]
+        # Build two triangles per valid quad
+        n_quads = qi.shape[0]
+        faces = torch.empty((n_quads * 2, 3), dtype=torch.int32, device=device)
+        faces[0::2, 0] = v00[qi, qj]
+        faces[0::2, 1] = v10[qi, qj]
+        faces[0::2, 2] = v01[qi, qj]
+        faces[1::2, 0] = v10[qi, qj]
+        faces[1::2, 1] = v11[qi, qj]
+        faces[1::2, 2] = v01[qi, qj]
 
         return vertices, faces, vertex_colors, uvs
 
     def _compute_vertex_normals(self, vertices, faces):
-        """Compute smooth vertex normals (vectorized)."""
-        import numpy as np
+        """Compute smooth vertex normals on GPU using scatter_add."""
+        n_verts = vertices.shape[0]
+        device = vertices.device
 
-        normals = np.zeros_like(vertices)
+        v0 = vertices[faces[:, 0].long()]
+        v1 = vertices[faces[:, 1].long()]
+        v2 = vertices[faces[:, 2].long()]
 
-        # Get vertices for all faces at once (vectorized)
-        v0 = vertices[faces[:, 0]]
-        v1 = vertices[faces[:, 1]]
-        v2 = vertices[faces[:, 2]]
+        face_normals = torch.cross(v1 - v0, v2 - v0, dim=1)
 
-        # Compute all face normals at once
-        edge1 = v1 - v0
-        edge2 = v2 - v0
-        face_normals = np.cross(edge1, edge2)
+        normals = torch.zeros((n_verts, 3), dtype=vertices.dtype, device=device)
+        for i in range(3):
+            idx = faces[:, i].long().unsqueeze(1).expand_as(face_normals)
+            normals.scatter_add_(0, idx, face_normals)
 
-        # Accumulate face normals to vertices using np.add.at
-        # This efficiently handles duplicate indices
-        np.add.at(normals, faces[:, 0], face_normals)
-        np.add.at(normals, faces[:, 1], face_normals)
-        np.add.at(normals, faces[:, 2], face_normals)
-
-        # Normalize
-        norms = np.linalg.norm(normals, axis=1, keepdims=True)
-        normals = np.divide(normals, norms, where=norms > 1e-10)
+        norms = normals.norm(dim=1, keepdim=True).clamp(min=1e-10)
+        normals = normals / norms
 
         return normals
+
+    def _decimate_mesh(self, vertices, faces, vertex_colors, uvs, target_faces, K=None, H=None, W=None):
+        """Decimate mesh to target face count using fast quadric mesh reduction."""
+        import numpy as np
+
+        if target_faces <= 0 or faces.shape[0] <= target_faces:
+            return vertices, faces, vertex_colors, uvs
+
+        try:
+            import pyfqmr
+        except ImportError:
+            logger.warning("pyfqmr not installed, skipping decimation. Install with: pip install pyfqmr")
+            return vertices, faces, vertex_colors, uvs
+
+        # Move to CPU numpy for pyfqmr
+        verts_np = vertices.cpu().numpy().astype(np.float64)
+        faces_np = faces.cpu().numpy().astype(np.int32)
+
+        simplifier = pyfqmr.Simplify()
+        simplifier.setMesh(verts_np, faces_np)
+        simplifier.simplify_mesh(target_count=target_faces, aggressiveness=7, preserve_border=True)
+        new_verts, new_faces, _ = simplifier.getMesh()
+
+        new_verts = new_verts.astype(np.float32)
+        new_faces = new_faces.astype(np.int32)
+
+        # Recompute UVs by reprojecting decimated vertices to pixel coords (exact, O(n))
+        if K is not None and H is not None and W is not None:
+            K_np = K.cpu().numpy() if torch.is_tensor(K) else K
+            fx, fy = K_np[0, 0], K_np[1, 1]
+            cx, cy = K_np[0, 2], K_np[1, 2]
+            # Invert the OpenCV→GL convention flip: X unchanged, Y=-Y_gl, Z=-Z_gl
+            depth = -new_verts[:, 2]
+            u = new_verts[:, 0] * fx / depth + cx
+            v = -new_verts[:, 1] * fy / depth + cy
+            new_uvs = np.stack([u / (W - 1), 1.0 - v / (H - 1)], axis=1).astype(np.float32)
+        else:
+            new_uvs = None
+
+        # Skip vertex colors when texture is available (UVs + texture image handle it)
+        return new_verts, new_faces, None, new_uvs
 
     def _export_to_glb(self, filepath, vertices, faces, vertex_colors, uvs, normals, texture_image=None, use_draco_compression=True):
         """Export mesh to GLB format using trimesh."""
@@ -925,14 +942,11 @@ Output: GLB file path
             )
 
         # Export to GLB with optional Draco compression
-        # Note: Draco compression requires pygltflib
+        # Note: Draco compression requires DracoPy (pip install DracoPy)
         if use_draco_compression:
             try:
-                # Export with Draco compression using pygltflib backend
-                mesh.export(filepath, file_type='glb',
-                          extras={'compress': True, 'compressor': 'draco'})
+                mesh.export(filepath, file_type='glb', extension_draco=True)
             except Exception as e:
-                # Fall back to uncompressed if Draco is not available
                 logger.warning(f"Draco compression failed ({e}), exporting uncompressed")
                 mesh.export(filepath, file_type='glb')
         else:
@@ -978,7 +992,7 @@ Output: GLB file path
             logger.warning(f"Failed to set double-sided materials: {e}")
 
     def convert(self, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None,
-                confidence_threshold=0.5, depth_edge_threshold=0.1, downsample=2, filename_prefix="mesh", allow_around_1=False, use_draco_compression=True):
+                confidence_threshold=0.1, depth_edge_threshold=0.1, downsample=1, target_faces=500000, filename_prefix="mesh", allow_around_1=False, use_draco_compression=False):
         """Convert depth map to mesh and save as GLB."""
         from pathlib import Path
 
@@ -1039,18 +1053,54 @@ Output: GLB file path
         if sky_map is not None:
             valid_mask = valid_mask & (sky_map < 0.5)
 
-        # Unproject to 3D
+        # Move to GPU for fast mesh construction
+        import comfy.model_management as mm
+        device = mm.get_torch_device()
+        depth_map = depth_map.to(device)
+        valid_mask = valid_mask.to(device)
+        if colors is not None:
+            colors = colors.to(device)
+
+        # Unproject to 3D (GPU)
         points_3d = self._unproject_grid(depth_map, K)
 
-        # Create mesh
+        # Create mesh (GPU)
         vertices, faces, vertex_colors, uvs = self._create_mesh_from_grid(
             points_3d, colors, valid_mask, depth_map, depth_edge_threshold
         )
 
-        logger.info(f"Mesh: {len(vertices)} vertices, {len(faces)} faces")
+        logger.info(f"Grid mesh: {vertices.shape[0]} vertices, {faces.shape[0]} faces")
 
-        # Compute normals
+        # Compute normals (GPU)
         normals = self._compute_vertex_normals(vertices, faces)
+
+        # Decimate to target face count (CPU, pyfqmr)
+        if target_faces > 0 and faces.shape[0] > target_faces:
+            vertices, faces, vertex_colors, uvs = self._decimate_mesh(
+                vertices, faces, vertex_colors, uvs, target_faces, K=K, H=H, W=W
+            )
+            # Recompute normals after decimation (on CPU now)
+            import numpy as np
+            v0 = vertices[faces[:, 0]]
+            v1 = vertices[faces[:, 1]]
+            v2 = vertices[faces[:, 2]]
+            face_normals = np.cross(v1 - v0, v2 - v0)
+            normals = np.zeros_like(vertices)
+            np.add.at(normals, faces[:, 0], face_normals)
+            np.add.at(normals, faces[:, 1], face_normals)
+            np.add.at(normals, faces[:, 2], face_normals)
+            norms = np.linalg.norm(normals, axis=1, keepdims=True)
+            normals = np.divide(normals, norms, where=norms > 1e-10)
+            logger.info(f"Decimated mesh: {len(vertices)} vertices, {len(faces)} faces")
+        else:
+            # Move to CPU numpy for export
+            vertices = vertices.cpu().numpy()
+            faces = faces.cpu().numpy()
+            normals = normals.cpu().numpy()
+            if vertex_colors is not None and torch.is_tensor(vertex_colors):
+                vertex_colors = vertex_colors.cpu().numpy()
+            if uvs is not None and torch.is_tensor(uvs):
+                uvs = uvs.cpu().numpy()
 
         # Get output directory
         output_dir = folder_paths.get_output_directory()

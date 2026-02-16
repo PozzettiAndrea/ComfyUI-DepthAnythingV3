@@ -118,8 +118,7 @@ class DepthAnything3Net(nn.Module):
         """
         # Extract features using backbone
         if extrinsics is not None:
-            with torch.autocast(device_type=x.device.type, enabled=False):
-                cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
+            cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
         else:
             cam_token = None
 
@@ -130,11 +129,10 @@ class DepthAnything3Net(nn.Module):
         H, W = x.shape[-2], x.shape[-1]
 
         # Process features through depth head
-        with torch.autocast(device_type=x.device.type, enabled=False):
-            output = self._process_depth_head(feats, H, W)
-            output = self._process_camera_estimation(feats, H, W, output)
-            if infer_gs:
-                output = self._process_gs_head(feats, H, W, output, x, extrinsics, intrinsics)
+        output = self._process_depth_head(feats, H, W)
+        output = self._process_camera_estimation(feats, H, W, output)
+        if infer_gs:
+            output = self._process_gs_head(feats, H, W, output, x, extrinsics, intrinsics)
 
         # Extract auxiliary features if requested
         output.aux = self._extract_auxiliary_features(aux_feats, export_feat_layers, H, W)

@@ -49,20 +49,23 @@ def pose_encoding_to_extri_intri(
 
     H, W = image_size_hw
 
-    # Due to vision_transformer.py line 256 bug (B, S, nc, w, h = x.shape),
-    # the model processes portrait and landscape differently.
-    # For portrait images (H > W), the FOV values need to be swapped
-    if H > W:  # Portrait orientation
-        fov_w = pose_encoding[..., 7]  # Model outputs horizontal FOV at position 7 for portrait
-        fov_h = pose_encoding[..., 8]  # Model outputs vertical FOV at position 8 for portrait
-    else:  # Landscape orientation
-        fov_h = pose_encoding[..., 7]  # Model outputs vertical FOV at position 7 for landscape
-        fov_w = pose_encoding[..., 8]  # Model outputs horizontal FOV at position 8 for landscape
+    # The ViT backbone has a variable naming bug (B,S,nc,w,h = x.shape where w=H, h=W)
+    # that swaps spatial semantics for portrait images. Swap FOV indices to compensate.
+    if H > W:  # Portrait
+        fov_w = pose_encoding[..., 7]
+        fov_h = pose_encoding[..., 8]
+    else:  # Landscape
+        fov_h = pose_encoding[..., 7]
+        fov_w = pose_encoding[..., 8]
 
     R = quat_to_mat(quat)
     extrinsics = torch.cat([R, T[..., None]], dim=-1)
-    fy = (H / 2.0) / torch.clamp(torch.tan(fov_h / 2.0), 1e-6)
-    fx = (W / 2.0) / torch.clamp(torch.tan(fov_w / 2.0), 1e-6)
+    fy_raw = (H / 2.0) / torch.clamp(torch.tan(fov_h / 2.0), 1e-6)
+    fx_raw = (W / 2.0) / torch.clamp(torch.tan(fov_w / 2.0), 1e-6)
+    # Enforce square pixels: use geometric mean of predicted focal lengths
+    f = torch.sqrt(fx_raw * fy_raw)
+    fx = f
+    fy = f
     intrinsics = torch.zeros(pose_encoding.shape[:2] + (3, 3), device=pose_encoding.device)
     intrinsics[..., 0, 0] = fx
     intrinsics[..., 1, 1] = fy
