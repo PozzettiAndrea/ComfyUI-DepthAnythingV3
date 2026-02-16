@@ -357,7 +357,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
         logger.debug("Detected standard model checkpoint format (no prefix)")
         model = inner_model
 
-    # Load weights — meta→real via assign=True (PyTorch 2.1+) or accelerate fallback
+    # Load weights -- meta->real via assign=True (PyTorch 2.1+) or accelerate fallback
     try:
         model.load_state_dict(new_state_dict, strict=False, assign=True)
         model.to(dtype=dtype)  # set dtype, stay on CPU

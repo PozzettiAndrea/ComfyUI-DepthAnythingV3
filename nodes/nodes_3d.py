@@ -893,7 +893,7 @@ Output: GLB file path
             K_np = K.cpu().numpy() if torch.is_tensor(K) else K
             fx, fy = K_np[0, 0], K_np[1, 1]
             cx, cy = K_np[0, 2], K_np[1, 2]
-            # Invert the OpenCV→GL convention flip: X unchanged, Y=-Y_gl, Z=-Z_gl
+            # Invert the OpenCV->GL convention flip: X unchanged, Y=-Y_gl, Z=-Z_gl
             depth = -new_verts[:, 2]
             u = new_verts[:, 0] * fx / depth + cx
             v = -new_verts[:, 1] * fy / depth + cy
