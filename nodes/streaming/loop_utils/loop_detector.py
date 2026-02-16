@@ -17,6 +17,7 @@
 import logging
 import os
 from pathlib import Path
+import comfy.model_management
 
 try:
     import faiss
@@ -158,9 +159,9 @@ class LoopDetector:
             },
         )
 
-        model.load_state_dict(torch.load(self.ckpt_path))
+        model.load_state_dict(torch.load(self.ckpt_path, map_location="cpu", weights_only=True))
         model = model.eval()
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = comfy.model_management.get_torch_device()
         model = model.to(device)
         logger.info(f"Model loaded: {self.ckpt_path}")
 
@@ -216,7 +217,7 @@ class LoopDetector:
 
             with torch.no_grad():
                 with torch.autocast(
-                    device_type="cuda" if torch.cuda.is_available() else "cpu", dtype=torch.float16
+                    device_type=comfy.model_management.get_torch_device().type, dtype=torch.float16
                 ):
                     batch_descriptors = self.model(batch_tensor).cpu()
 

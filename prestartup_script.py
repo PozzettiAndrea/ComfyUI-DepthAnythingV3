@@ -1,6 +1,9 @@
+import logging
 from pathlib import Path
 from comfy_env import setup_env, copy_files
 from comfy_3d_viewers import copy_viewer
+
+log = logging.getLogger("depthanythingv3")
 
 setup_env()
 
@@ -28,4 +31,4 @@ src_dir = SCRIPT_DIR / "assets"
 dst_dir = COMFYUI_DIR / "input"
 copy_files(src_dir, dst_dir, "**/*")
 copied_files = [f.name for f in src_dir.glob("**/*") if f.is_file()]
-print(f"[DepthAnythingV3] Copied {len(copied_files)} asset(s) to {dst_dir}: {copied_files}")
+log.info(f"Copied {len(copied_files)} asset(s) to {dst_dir}: {copied_files}")

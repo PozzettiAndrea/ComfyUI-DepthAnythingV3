@@ -12,8 +12,8 @@ from comfy.utils import ProgressBar
 from ..utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
     format_camera_params, process_tensor_to_image, process_tensor_to_mask,
-    resize_to_patch_multiple, safe_model_to_device, handle_post_inference_memory,
-    logger as utils_logger, check_model_capabilities
+    resize_to_patch_multiple, logger as utils_logger, check_model_capabilities,
+    get_or_create_da3_patcher,
 )
 from .pipeline import StreamingConfig, StreamingPipeline
 
@@ -209,10 +209,11 @@ Ported from the official DA3 Streaming pipeline (VGGT-Long).
         logger.info(f"Streaming: {num_views} frames, {orig_H}x{orig_W}")
 
         # Get model and device
-        model = da3_model['model']
         device = mm.get_torch_device()
-        offload_device = mm.unet_offload_device()
-        dtype = da3_model.get('dtype', torch.float32)
+        patcher = get_or_create_da3_patcher(self, da3_model)
+        mm.load_models_gpu([patcher])
+        model = patcher.model
+        dtype = da3_model["dtype"]
 
         pbar = ProgressBar(num_views)
 
@@ -233,9 +234,6 @@ Ported from the official DA3 Streaming pipeline (VGGT-Long).
 
         # Add batch dim: [N, C, H, W] → [1, N, C, H, W]
         normalized_images = normalized_images.unsqueeze(0)
-
-        # Move model to device
-        safe_model_to_device(model, device)
 
         # Create streaming config
         config = StreamingConfig(
@@ -278,8 +276,6 @@ Ported from the official DA3 Streaming pipeline (VGGT-Long).
         sky_min, sky_max = sky.min(), sky.max()
         if sky_max > sky_min:
             sky = (sky - sky_min) / (sky_max - sky_min)
-
-        handle_post_inference_memory(model, da3_model, offload_device)
 
         # Convert to ComfyUI output format
         depth_out = depth.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()  # [N, H, W, 3]
