@@ -4,6 +4,9 @@ import torch
 import torch.nn.functional as F
 import logging
 
+import comfy.model_management as mm
+import comfy.model_patcher
+
 # Configure logger
 logger = logging.getLogger("DepthAnythingV3")
 if not logger.handlers:
@@ -17,6 +20,32 @@ if not logger.handlers:
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 DEFAULT_PATCH_SIZE = 14
+
+
+def get_or_create_da3_patcher(node, da3_config):
+    """Lazily load DA3 model and cache on node instance.
+
+    Args:
+        node: The inference node instance (self). ModelPatcher is cached here.
+        da3_config: Config dict from the loader node.
+
+    Returns:
+        comfy.model_patcher.ModelPatcher wrapping the loaded model.
+    """
+    key = (da3_config["model_path"], da3_config["dtype"])
+    if not hasattr(node, '_patcher') or getattr(node, '_config_key', None) != key:
+        from .load_model import _build_da3_model
+        model = _build_da3_model(
+            da3_config["model_path"], da3_config["model_key"],
+            da3_config["dtype"], da3_config["attention"],
+        )
+        node._patcher = comfy.model_patcher.ModelPatcher(
+            model,
+            load_device=mm.get_torch_device(),
+            offload_device=mm.unet_offload_device(),
+        )
+        node._config_key = key
+    return node._patcher
 
 
 def format_camera_params(param_list, param_name):
@@ -231,45 +260,3 @@ def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE, method="r
     return images_pt, orig_H, orig_W
 
 
-def safe_model_to_device(model, device):
-    """Safely move model to device, handling accelerate-loaded models.
-
-    Args:
-        model: The model to move
-        device: Target device
-    """
-    try:
-        model.to(device)
-    except NotImplementedError:
-        # Model might already be on device (via accelerate loading)
-        pass
-
-
-def handle_post_inference_memory(model, da3_model, offload_device):
-    """Handle model memory after inference based on memory_mode setting.
-
-    Args:
-        model: The model instance
-        da3_model: The da3_model dict containing memory_mode
-        offload_device: CPU offload device from mm.unet_offload_device()
-    """
-    import comfy.model_management as mm
-
-    memory_mode = da3_model.get("memory_mode", "cpu_offload")
-
-    if memory_mode == "cache_gpu":
-        return
-
-    if memory_mode == "unload":
-        try:
-            model.to("cpu")
-        except Exception:
-            pass
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        mm.soft_empty_cache()
-        return
-
-    # cpu_offload (default)
-    model.to(offload_device)
-    mm.soft_empty_cache()

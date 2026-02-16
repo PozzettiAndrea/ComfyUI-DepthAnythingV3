@@ -1,9 +1,12 @@
 """
 ComfyUI-DepthAnythingV3: Depth Anything V3 nodes for ComfyUI
 """
+import logging
+
+log = logging.getLogger("depthanythingv3")
 
 try:
-    from .nodes_loader import (
+    from .load_model import (
         DownloadAndLoadDepthAnythingV3Model,
         NODE_CLASS_MAPPINGS as LOADER_NODE_CLASS_MAPPINGS,
         NODE_DISPLAY_NAME_MAPPINGS as LOADER_NODE_DISPLAY_NAME_MAPPINGS,
@@ -65,7 +68,7 @@ try:
         **PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
     }
 except Exception as e:
-    print(f"[DA3] Could not load nodes: {e}")
+    log.error(f"Could not load nodes: {e}")
     NODE_CLASS_MAPPINGS = {}
     NODE_DISPLAY_NAME_MAPPINGS = {}
 

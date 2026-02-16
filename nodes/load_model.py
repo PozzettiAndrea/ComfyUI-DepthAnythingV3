@@ -181,6 +181,213 @@ class NestedModelWrapper(torch.nn.Module):
         return self.da3.gs_adapter if hasattr(self.da3, 'gs_adapter') else None
 
 
+def _build_da3_model(model_path, model_key, dtype, attention):
+    """Build and load the DA3 model from checkpoint.
+
+    Called lazily by inference nodes on first use.
+    Returns a loaded nn.Module on CPU with the given dtype.
+    """
+    config = MODEL_CONFIGS[model_key]
+
+    # Encoder embed dimensions for camera modules
+    encoder_embed_dims = {
+        'vits': 384,
+        'vitb': 768,
+        'vitl': 1024,
+        'vitg': 1536,
+    }
+
+    is_nested = config.get('is_nested', False)
+
+    with torch.device("meta"):
+        if is_nested:
+            logger.info("Creating nested model with main (Giant) and metric (Large) branches")
+
+            backbone_main = DinoV2(
+                name=config['encoder'],
+                out_layers=config.get('out_layers', [19, 27, 33, 39]),
+                alt_start=config.get('alt_start', 13),
+                qknorm_start=config.get('qknorm_start', 13),
+                rope_start=config.get('rope_start', 13),
+                cat_token=config.get('cat_token', True),
+            )
+            head_main = DualDPT(
+                dim_in=config['dim_in'],
+                output_dim=2,
+                features=config['features'],
+                out_channels=config['out_channels'],
+            )
+            embed_dim = encoder_embed_dims.get(config['encoder'], 1536)
+            cam_enc_main = CameraEnc(
+                dim_out=embed_dim,
+                dim_in=9,
+                trunk_depth=4,
+                num_heads=embed_dim // 64,
+                mlp_ratio=4,
+                init_values=0.01,
+            )
+            cam_dec_main = CameraDec(dim_in=config['dim_in'])
+            gs_head_main, gs_adapter_main = _build_gs_modules(config)
+
+            da3_main = DepthAnything3Net(
+                net=backbone_main,
+                head=head_main,
+                cam_dec=cam_dec_main,
+                cam_enc=cam_enc_main,
+                gs_head=gs_head_main,
+                gs_adapter=gs_adapter_main,
+            )
+
+            metric_config = MODEL_CONFIGS.get('da3metric-large', {
+                'encoder': 'vitl',
+                'features': 256,
+                'out_channels': [256, 512, 1024, 1024],
+                'dim_in': 1024,
+                'out_layers': [4, 11, 17, 23],
+            })
+            backbone_metric = DinoV2(
+                name=metric_config.get('encoder', 'vitl'),
+                out_layers=metric_config.get('out_layers', [4, 11, 17, 23]),
+                alt_start=-1,
+                qknorm_start=-1,
+                rope_start=-1,
+                cat_token=False,
+            )
+            head_metric = DPT(
+                dim_in=metric_config.get('dim_in', 1024),
+                output_dim=1,
+                features=metric_config.get('features', 256),
+                out_channels=metric_config.get('out_channels', [256, 512, 1024, 1024]),
+            )
+            da3_metric = DepthAnything3Net(
+                net=backbone_metric,
+                head=head_metric,
+                cam_dec=None,
+                cam_enc=None,
+                gs_head=None,
+                gs_adapter=None,
+            )
+
+            inner_model = NestedModelWrapper(da3_main, da3_metric)
+        else:
+            backbone = DinoV2(
+                name=config['encoder'],
+                out_layers=config.get('out_layers', [4, 11, 17, 23]),
+                alt_start=config.get('alt_start', -1),
+                qknorm_start=config.get('qknorm_start', -1),
+                rope_start=config.get('rope_start', -1),
+                cat_token=config.get('cat_token', False),
+            )
+
+            if config.get('is_mono', False) or config.get('is_metric', False):
+                head = DPT(
+                    dim_in=config['dim_in'],
+                    output_dim=1,
+                    features=config['features'],
+                    out_channels=config['out_channels'],
+                )
+            else:
+                head = DualDPT(
+                    dim_in=config['dim_in'],
+                    output_dim=2,
+                    features=config['features'],
+                    out_channels=config['out_channels'],
+                )
+
+            cam_enc = None
+            cam_dec = None
+            if config.get('has_cam', False) and config.get('alt_start', -1) != -1:
+                embed_dim = encoder_embed_dims.get(config['encoder'], 1024)
+                cam_enc = CameraEnc(
+                    dim_out=embed_dim,
+                    dim_in=9,
+                    trunk_depth=4,
+                    num_heads=embed_dim // 64,
+                    mlp_ratio=4,
+                    init_values=0.01,
+                )
+                cam_dec = CameraDec(dim_in=config['dim_in'])
+
+            gs_head = None
+            gs_adapter = None
+            if model_key == 'da3-giant':
+                gs_head, gs_adapter = _build_gs_modules(config)
+                logger.info("Built GS head and adapter for Giant model (Gaussian splatting enabled)")
+
+            inner_model = DepthAnything3Net(
+                net=backbone,
+                head=head,
+                cam_dec=cam_dec,
+                cam_enc=cam_enc,
+                gs_head=gs_head,
+                gs_adapter=gs_adapter,
+            )
+
+    # Load weights
+    logger.info(f"Loading model from: {model_path}")
+    state_dict = load_torch_file(model_path)
+
+    # Strip 'model.' prefix from keys if present
+    new_state_dict = {}
+    stripped_count = 0
+    for key, value in state_dict.items():
+        new_key = key
+        if new_key.startswith('model.'):
+            new_key = new_key[6:]
+            stripped_count += 1
+        new_state_dict[new_key] = value
+
+    if stripped_count > 0:
+        logger.debug(f"Stripped 'model.' prefix from {stripped_count} keys")
+    sample_keys = list(new_state_dict.keys())[:3]
+    logger.debug(f"Sample checkpoint keys: {sample_keys}")
+    head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
+    logger.debug(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
+
+    # Check if checkpoint uses da3. prefix (nested model format)
+    has_da3_prefix = any(k.startswith('da3.') for k in new_state_dict.keys())
+
+    if is_nested:
+        logger.debug("Using nested model wrapper (da3 + da3_metric branches)")
+        model = inner_model
+    elif has_da3_prefix:
+        logger.debug("Detected nested model checkpoint format (da3. prefix)")
+        model = DA3ModelWrapper(inner_model)
+    else:
+        logger.debug("Detected standard model checkpoint format (no prefix)")
+        model = inner_model
+
+    # Load weights — meta→real via assign=True (PyTorch 2.1+) or accelerate fallback
+    try:
+        model.load_state_dict(new_state_dict, strict=False, assign=True)
+        model.to(dtype=dtype)  # set dtype, stay on CPU
+    except TypeError:
+        if is_accelerate_available:
+            logger.info("Using accelerate fallback for weight loading (PyTorch < 2.1)")
+            offload_device = mm.unet_offload_device()
+            for key in new_state_dict:
+                try:
+                    set_module_tensor_to_device(model, key, device=offload_device, dtype=dtype, value=new_state_dict[key])
+                except Exception:
+                    pass
+            for name, param in model.named_parameters():
+                if param.device.type == 'meta':
+                    set_module_tensor_to_device(
+                        model, name, device=offload_device, dtype=dtype,
+                        value=torch.zeros(param.shape, dtype=dtype)
+                    )
+        else:
+            raise RuntimeError(
+                "Model loading requires PyTorch >= 2.1 (for assign=True) or the accelerate package. "
+                "Please upgrade PyTorch or install accelerate: pip install accelerate"
+            )
+
+    model.eval()
+    set_attention_backend(attention)
+    logger.info(f"Model ready ({dtype})")
+    return model
+
+
 class DownloadAndLoadDepthAnythingV3Model:
     @classmethod
     def INPUT_TYPES(s):
@@ -207,10 +414,6 @@ class DownloadAndLoadDepthAnythingV3Model:
                     "default": "auto",
                     "tooltip": "Attention backend. auto: best available (sage > flash_attn > sdpa). sdpa: PyTorch native. flash_attn: Tri Dao's FlashAttention (FA2/FA3, requires flash-attn package). sage: SageAttention (auto-detects v3 for Blackwell or v2, requires sageattention/sageattn3 package)."
                 }),
-                "memory_mode": (["cpu_offload", "cache_gpu", "unload"], {
-                    "default": "cpu_offload",
-                    "tooltip": "Memory after inference. cpu_offload: move to CPU (default). cache_gpu: keep in VRAM (fastest repeated runs). unload: aggressively free all VRAM."
-                }),
             }
         }
 
@@ -224,12 +427,18 @@ Models autodownload to `ComfyUI/models/depthanything3` from HuggingFace.
 Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and Nested models.
 """
 
-    def loadmodel(self, model, precision="auto", attention="auto", memory_mode="cpu_offload"):
+    def loadmodel(self, model, precision="auto", attention="auto"):
+        """Resolve config and download model if needed. No weight loading."""
         device = mm.get_torch_device()
 
         # Determine dtype
         if precision == "auto":
-            dtype = auto_detect_precision()
+            if mm.should_use_bf16(device):
+                dtype = torch.bfloat16
+            elif mm.should_use_fp16(device):
+                dtype = torch.float16
+            else:
+                dtype = torch.float32
         elif precision == "bf16":
             dtype = torch.bfloat16
         elif precision == "fp16":
@@ -260,241 +469,17 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
             )
             # The downloaded file might be named differently (model.safetensors)
             # Try to find and rename it
-            repo_name = repo.split('/')[-1]
             downloaded_file = os.path.join(download_path, "model.safetensors")
             if os.path.exists(downloaded_file) and not os.path.exists(model_path):
                 os.rename(downloaded_file, model_path)
 
-        logger.info(f"Loading model from: {model_path}")
-
-        # Build model architecture on meta device (no memory wasted on random init)
-        # Encoder embed dimensions for camera modules
-        encoder_embed_dims = {
-            'vits': 384,
-            'vitb': 768,
-            'vitl': 1024,
-            'vitg': 1536,
-        }
-
-        # Check if this is a nested model (requires two branches)
-        is_nested = config.get('is_nested', False)
-
-        with torch.device("meta"):
-            if is_nested:
-                logger.info("Creating nested model with main (Giant) and metric (Large) branches")
-
-                # Main branch: DA3-Giant with camera support
-                backbone_main = DinoV2(
-                    name=config['encoder'],  # vitg
-                    out_layers=config.get('out_layers', [19, 27, 33, 39]),
-                    alt_start=config.get('alt_start', 13),
-                    qknorm_start=config.get('qknorm_start', 13),
-                    rope_start=config.get('rope_start', 13),
-                    cat_token=config.get('cat_token', True),
-                )
-                head_main = DualDPT(
-                    dim_in=config['dim_in'],  # 3072 (vitg with cat_token)
-                    output_dim=2,
-                    features=config['features'],
-                    out_channels=config['out_channels'],
-                )
-                embed_dim = encoder_embed_dims.get(config['encoder'], 1536)
-                cam_enc_main = CameraEnc(
-                    dim_out=embed_dim,
-                    dim_in=9,
-                    trunk_depth=4,
-                    num_heads=embed_dim // 64,
-                    mlp_ratio=4,
-                    init_values=0.01,
-                )
-                cam_dec_main = CameraDec(dim_in=config['dim_in'])
-
-                # Build GS modules for Giant (nested model uses Giant as main branch)
-                gs_head_main, gs_adapter_main = _build_gs_modules(config)
-
-                da3_main = DepthAnything3Net(
-                    net=backbone_main,
-                    head=head_main,
-                    cam_dec=cam_dec_main,
-                    cam_enc=cam_enc_main,
-                    gs_head=gs_head_main,
-                    gs_adapter=gs_adapter_main,
-                )
-
-                # Metric branch: DA3Metric-Large (no camera support, DPT head)
-                metric_config = MODEL_CONFIGS.get('da3metric-large', {
-                    'encoder': 'vitl',
-                    'features': 256,
-                    'out_channels': [256, 512, 1024, 1024],
-                    'dim_in': 1024,
-                    'out_layers': [4, 11, 17, 23],
-                })
-                backbone_metric = DinoV2(
-                    name=metric_config.get('encoder', 'vitl'),
-                    out_layers=metric_config.get('out_layers', [4, 11, 17, 23]),
-                    alt_start=-1,
-                    qknorm_start=-1,
-                    rope_start=-1,
-                    cat_token=False,
-                )
-                head_metric = DPT(
-                    dim_in=metric_config.get('dim_in', 1024),
-                    output_dim=1,
-                    features=metric_config.get('features', 256),
-                    out_channels=metric_config.get('out_channels', [256, 512, 1024, 1024]),
-                )
-                da3_metric = DepthAnything3Net(
-                    net=backbone_metric,
-                    head=head_metric,
-                    cam_dec=None,
-                    cam_enc=None,
-                    gs_head=None,
-                    gs_adapter=None,
-                )
-
-                inner_model = NestedModelWrapper(da3_main, da3_metric)
-            else:
-                # Standard single-branch model
-                # Create backbone (DinoV2)
-                backbone = DinoV2(
-                    name=config['encoder'],
-                    out_layers=config.get('out_layers', [4, 11, 17, 23]),
-                    alt_start=config.get('alt_start', -1),
-                    qknorm_start=config.get('qknorm_start', -1),
-                    rope_start=config.get('rope_start', -1),
-                    cat_token=config.get('cat_token', False),
-                )
-
-                # Create head
-                if config.get('is_mono', False) or config.get('is_metric', False):
-                    # Use DPT head for mono/metric models
-                    head = DPT(
-                        dim_in=config['dim_in'],
-                        output_dim=1,
-                        features=config['features'],
-                        out_channels=config['out_channels'],
-                    )
-                else:
-                    # Use DualDPT for main series models
-                    head = DualDPT(
-                        dim_in=config['dim_in'],
-                        output_dim=2,
-                        features=config['features'],
-                        out_channels=config['out_channels'],
-                    )
-
-                # Create camera encoder/decoder if model has camera support
-                cam_enc = None
-                cam_dec = None
-                if config.get('has_cam', False) and config.get('alt_start', -1) != -1:
-                    embed_dim = encoder_embed_dims.get(config['encoder'], 1024)
-                    # Camera encoder: encodes known camera params to tokens
-                    cam_enc = CameraEnc(
-                        dim_out=embed_dim,
-                        dim_in=9,  # 9D pose encoding: [T(3), quat(4), fov(2)]
-                        trunk_depth=4,
-                        num_heads=embed_dim // 64,  # Match head dim = 64
-                        mlp_ratio=4,
-                        init_values=0.01,
-                    )
-                    # Camera decoder: decodes features to camera pose
-                    cam_dec = CameraDec(
-                        dim_in=config['dim_in'],  # Uses concatenated token dimension
-                    )
-
-                # Build GS modules only for Giant model (it's the only one with gs_head in checkpoint)
-                gs_head = None
-                gs_adapter = None
-                if model_key == 'da3-giant':
-                    gs_head, gs_adapter = _build_gs_modules(config)
-                    logger.info("Built GS head and adapter for Giant model (Gaussian splatting enabled)")
-
-                # Create the full model with camera encoder/decoder
-                inner_model = DepthAnything3Net(
-                    net=backbone,
-                    head=head,
-                    cam_dec=cam_dec,
-                    cam_enc=cam_enc,
-                    gs_head=gs_head,
-                    gs_adapter=gs_adapter,
-                )
-
-        # Load weights
-        state_dict = load_torch_file(model_path)
-
-        # Strip 'model.' prefix from keys if present
-        new_state_dict = {}
-        stripped_count = 0
-        for key, value in state_dict.items():
-            new_key = key
-            # Strip model. prefix only
-            if new_key.startswith('model.'):
-                new_key = new_key[6:]  # Remove 'model.' prefix
-                stripped_count += 1
-            new_state_dict[new_key] = value
-
-        if stripped_count > 0:
-            logger.debug(f"Stripped 'model.' prefix from {stripped_count} keys")
-        # Show example keys
-        sample_keys = list(new_state_dict.keys())[:3]
-        logger.debug(f"Sample checkpoint keys: {sample_keys}")
-        # Show head keys to understand structure
-        head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
-        logger.debug(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
-
-        # Check if checkpoint uses da3. prefix (nested model format)
-        has_da3_prefix = any(k.startswith('da3.') for k in new_state_dict.keys())
-
-        if is_nested:
-            # Nested model already has da3. and da3_metric. structure
-            logger.debug("Using nested model wrapper (da3 + da3_metric branches)")
-            self.model = inner_model
-        elif has_da3_prefix:
-            # Wrap model to match nested checkpoint structure (da3.backbone... etc)
-            logger.debug("Detected nested model checkpoint format (da3. prefix)")
-            self.model = DA3ModelWrapper(inner_model)
-        else:
-            # Use model directly (keys match backbone.*, head.*)
-            logger.debug("Detected standard model checkpoint format (no prefix)")
-            self.model = inner_model
-
-        # Load weights — meta→real via assign=True (PyTorch 2.1+) or accelerate fallback
-        try:
-            self.model.load_state_dict(new_state_dict, strict=False, assign=True)
-            self.model.to(device=device, dtype=dtype)
-        except TypeError:
-            # assign=True not supported (PyTorch < 2.1), fallback to accelerate
-            if is_accelerate_available:
-                logger.info("Using accelerate fallback for weight loading (PyTorch < 2.1)")
-                for key in new_state_dict:
-                    try:
-                        set_module_tensor_to_device(self.model, key, device=device, dtype=dtype, value=new_state_dict[key])
-                    except Exception:
-                        pass
-                # Materialize remaining meta tensors
-                for name, param in self.model.named_parameters():
-                    if param.device.type == 'meta':
-                        set_module_tensor_to_device(
-                            self.model, name, device=device, dtype=dtype,
-                            value=torch.zeros(param.shape, dtype=dtype)
-                        )
-            else:
-                raise RuntimeError(
-                    "Model loading requires PyTorch >= 2.1 (for assign=True) or the accelerate package. "
-                    "Please upgrade PyTorch or install accelerate: pip install accelerate"
-                )
-
-        self.model.eval()
-        set_attention_backend(attention)
-
-        da3_model = {
-            "model": self.model,
+        return ({
+            "model_path": model_path,
+            "model_key": model_key,
             "dtype": dtype,
+            "attention": attention,
             "config": config,
-            "memory_mode": memory_mode,
-        }
-
-        return (da3_model,)
+        },)
 
 
 class DA3_EnableTiledProcessing:
@@ -543,22 +528,17 @@ but the overlap and blending minimize artifacts.
         # Ensure overlap is multiple of patch size
         overlap = (overlap // patch_size) * patch_size
 
-        # Create a copy of the model dict with tiled config
-        tiled_model = {
-            "model": da3_model["model"],
-            "dtype": da3_model["dtype"],
-            "config": da3_model["config"],
-            "memory_mode": da3_model.get("memory_mode", "cpu_offload"),
-            "tiled_config": {
-                "enabled": True,
-                "tile_size": tile_size,
-                "overlap": overlap,
-            }
+        # Shallow copy config dict so tiled config doesn't affect original
+        tiled = dict(da3_model)
+        tiled["tiled_config"] = {
+            "enabled": True,
+            "tile_size": tile_size,
+            "overlap": overlap,
         }
 
         logger.info(f"Enabled tiled processing: tile_size={tile_size}, overlap={overlap}")
 
-        return (tiled_model,)
+        return (tiled,)
 
 
 NODE_CLASS_MAPPINGS = {

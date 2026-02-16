@@ -17,15 +17,18 @@ Configuration utility functions
 """
 
 import importlib
+import logging
 from pathlib import Path
 from typing import Any, Callable, List, Union
 from omegaconf import DictConfig, ListConfig, OmegaConf
+
+log = logging.getLogger("depthanythingv3")
 
 try:
     OmegaConf.register_new_resolver("eval", eval)
 except Exception as e:
     # if eval is not available, we can just pass
-    print(f"Error registering eval resolver: {e}")
+    log.error(f"Error registering eval resolver: {e}")
 
 
 def load_config(path: str, argv: List[str] = None) -> Union[DictConfig, ListConfig]:

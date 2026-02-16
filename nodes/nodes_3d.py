@@ -10,7 +10,7 @@ import folder_paths
 
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
-    resize_to_patch_multiple, safe_model_to_device, logger
+    resize_to_patch_multiple, logger
 )
 
 
