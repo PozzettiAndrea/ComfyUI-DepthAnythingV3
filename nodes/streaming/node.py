@@ -210,6 +210,23 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
         model = patcher.model
         dtype = da3_model["dtype"]
 
+        # Load SALAD model on-demand for loop closure (via ModelPatcher)
+        salad_nn_model = None
+        if salad_model is not None:
+            from ..load_model import _build_salad_model
+            import comfy.model_patcher
+            key = salad_model["model_path"]
+            if not hasattr(self, '_salad_patcher') or getattr(self, '_salad_key', None) != key:
+                salad_nn = _build_salad_model(key)
+                self._salad_patcher = comfy.model_patcher.ModelPatcher(
+                    salad_nn,
+                    load_device=device,
+                    offload_device=mm.unet_offload_device(),
+                )
+                self._salad_key = key
+            mm.load_models_gpu([self._salad_patcher])
+            salad_nn_model = self._salad_patcher.model
+
         pbar = ProgressBar(num_views)
 
         # Preprocessing
@@ -245,7 +262,7 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
         # Run streaming pipeline
         pipeline = StreamingPipeline(model, config, device, dtype)
         result = pipeline.run(normalized_images, pbar=pbar,
-                              salad_model=salad_model, video_frames=images)
+                              salad_model=salad_nn_model, video_frames=images)
 
         # --- Save per-frame NPZ files ---
         output_dir = Path(folder_paths.get_output_directory())

@@ -34,7 +34,7 @@ try:
     )
 
     from .streaming import DepthAnythingV3_Streaming
-    from .load_salad import LoadSALADModel
+    from .load_model import LoadSALADModel
 
     from .preview_nodes import (
         NODE_CLASS_MAPPINGS as PREVIEW_NODE_CLASS_MAPPINGS,
