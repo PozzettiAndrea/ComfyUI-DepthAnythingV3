@@ -30,10 +30,19 @@ try:
         NODE_DISPLAY_NAME_MAPPINGS as MULTIVIEW_NODE_DISPLAY_NAME_MAPPINGS,
     )
 
+    from .streaming import DepthAnythingV3_Streaming
+
     from .preview_nodes import (
         NODE_CLASS_MAPPINGS as PREVIEW_NODE_CLASS_MAPPINGS,
         NODE_DISPLAY_NAME_MAPPINGS as PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
     )
+
+    STREAMING_NODE_CLASS_MAPPINGS = {
+        "DepthAnythingV3_Streaming": DepthAnythingV3_Streaming,
+    }
+    STREAMING_NODE_DISPLAY_NAME_MAPPINGS = {
+        "DepthAnythingV3_Streaming": "Depth Anything V3 (Streaming)",
+    }
 
     # Merge all node mappings
     NODE_CLASS_MAPPINGS = {
@@ -42,6 +51,7 @@ try:
         **THREED_NODE_CLASS_MAPPINGS,
         **CAMERA_NODE_CLASS_MAPPINGS,
         **MULTIVIEW_NODE_CLASS_MAPPINGS,
+        **STREAMING_NODE_CLASS_MAPPINGS,
         **PREVIEW_NODE_CLASS_MAPPINGS,
     }
 
@@ -51,6 +61,7 @@ try:
         **THREED_NODE_DISPLAY_NAME_MAPPINGS,
         **CAMERA_NODE_DISPLAY_NAME_MAPPINGS,
         **MULTIVIEW_NODE_DISPLAY_NAME_MAPPINGS,
+        **STREAMING_NODE_DISPLAY_NAME_MAPPINGS,
         **PREVIEW_NODE_DISPLAY_NAME_MAPPINGS,
     }
 except Exception as e:

@@ -1,11 +1,20 @@
-"""Centralized attention dispatch with configurable backends.
+"""Centralized attention dispatch with GPU auto-detection.
 
-Provides a unified dispatch_attention() function that routes to the active backend.
+User-facing backends:
+- auto: Auto-detect fastest backend for current GPU + installed packages (recommended)
+- sdpa: PyTorch's F.scaled_dot_product_attention (always available, any GPU)
+- flash_attn: FlashAttention (FA4 on Blackwell, FA3 on Hopper, FA2 on Ampere+)
+- sage: SageAttention (v3 FP4 on Blackwell, v2 INT8 on Ampere+)
 
-Backends:
-- sdpa: PyTorch's F.scaled_dot_product_attention (always available)
-- flash_attn: Tri Dao's FlashAttention (FA2/FA3, requires flash-attn package)
-- sage: SageAttention (auto-detects v3 for Blackwell or v2 for Ampere+)
+Internal resolved backends:
+- sdpa, flash_attn (FA2), flash_attn_fp8 (FA3/FA4), sage2, sage3
+
+Speed tiers by GPU generation:
+- Blackwell (SM 10.x): sage3 > FA4 > sage2 > FA2 > sdpa
+- Hopper   (SM 9.0):   FA3  > sage2 > FA2 > sdpa
+- Ada      (SM 8.9):   sage2 > FA2 > sdpa
+- Ampere   (SM 8.x):   sage2 ≈ FA2 > sdpa
+- Older:                sdpa only
 """
 
 import logging
@@ -15,39 +24,94 @@ import torch.nn.functional as F
 logger = logging.getLogger("DepthAnythingV3")
 
 _active_backend = "sdpa"
+_gpu_arch = None  # cached (major, minor) tuple
 
 
-def _try_sage() -> str | None:
-    """Try to activate SageAttention. Returns resolved name or None."""
-    global _active_backend
+# ---------------------------------------------------------------------------
+# GPU detection helpers
+# ---------------------------------------------------------------------------
+
+def _get_gpu_arch():
+    """Return (major, minor) compute capability, cached after first call."""
+    global _gpu_arch
+    if _gpu_arch is None:
+        if torch.cuda.is_available():
+            _gpu_arch = torch.cuda.get_device_capability()
+        else:
+            _gpu_arch = (0, 0)
+    return _gpu_arch
+
+
+def _can_import(module_name):
+    """Check if a Python module can be imported."""
     try:
-        from sageattn3 import sageattn3  # noqa: F401
-        _active_backend = "sage3"
-        logger.info("Attention backend: sage3 (SageAttention v3, Blackwell FP4)")
-        return "sage3"
+        __import__(module_name)
+        return True
     except ImportError:
-        pass
-    try:
-        from sageattention import sageattn  # noqa: F401
-        _active_backend = "sage2"
-        logger.info("Attention backend: sage2 (SageAttention v2, INT8)")
-        return "sage2"
-    except ImportError:
-        pass
-    return None
+        return False
 
 
-def _try_flash_attn() -> str | None:
-    """Try to activate FlashAttention. Returns resolved name or None."""
-    global _active_backend
-    try:
-        from flash_attn import flash_attn_func  # noqa: F401
-        _active_backend = "flash_attn"
-        logger.info("Attention backend: flash_attn (Tri Dao's FlashAttention)")
-        return "flash_attn"
-    except ImportError:
-        pass
-    return None
+def auto_detect_precision():
+    """Return the best inference dtype for the current GPU.
+
+    Returns:
+        torch.bfloat16 on Ampere+ (SM 8.0+)
+        torch.float16  on Volta/Turing (SM 7.x)
+        torch.float32  on older / CPU
+    """
+    major, _ = _get_gpu_arch()
+    if major >= 8:
+        return torch.bfloat16
+    if major >= 7:
+        return torch.float16
+    return torch.float32
+
+
+# ---------------------------------------------------------------------------
+# Backend selection
+# ---------------------------------------------------------------------------
+
+_BACKEND_LABELS = {
+    "sdpa": "sdpa (PyTorch native)",
+    "flash_attn": "FlashAttention 2 (fp16/bf16)",
+    "flash_attn_fp8": "FlashAttention 3/4 (FP8)",
+    "sage2": "SageAttention v2 (INT8)",
+    "sage3": "SageAttention v3 (Blackwell FP4)",
+}
+
+
+def _auto_select():
+    """Pick the fastest available backend for the current GPU."""
+    major, _ = _get_gpu_arch()
+
+    if major >= 10:  # Blackwell (SM 10.0+)
+        for backend, module in [
+            ("sage3", "sageattn3"),
+            ("flash_attn_fp8", "flash_attn_interface"),
+            ("sage2", "sageattention"),
+            ("flash_attn", "flash_attn"),
+        ]:
+            if _can_import(module):
+                return backend
+
+    elif major == 9:  # Hopper (SM 9.0)
+        for backend, module in [
+            ("flash_attn_fp8", "flash_attn_interface"),
+            ("sage2", "sageattention"),
+            ("flash_attn", "flash_attn"),
+        ]:
+            if _can_import(module):
+                return backend
+
+    elif major == 8:  # Ampere / Ada (SM 8.0-8.9)
+        for backend, module in [
+            ("sage2", "sageattention"),
+            ("flash_attn", "flash_attn"),
+        ]:
+            if _can_import(module):
+                return backend
+
+    return "sdpa"
 
 
 def set_backend(name: str) -> str:
@@ -55,24 +119,17 @@ def set_backend(name: str) -> str:
 
     Args:
         name: One of "auto", "sdpa", "flash_attn", "sage".
-              "auto" tries sage → flash_attn → sdpa (best available).
-              "sage" auto-detects sage3 (Blackwell) then sage2.
 
     Returns:
-        The resolved backend name actually set (may differ if fallback occurred).
+        The resolved internal backend name.
     """
     global _active_backend
 
     if name == "auto":
-        result = _try_sage()
-        if result:
-            return result
-        result = _try_flash_attn()
-        if result:
-            return result
-        _active_backend = "sdpa"
-        logger.info("Attention backend: sdpa (PyTorch native, auto-detected)")
-        return "sdpa"
+        resolved = _auto_select()
+        _active_backend = resolved
+        logger.info(f"Attention backend (auto): {_BACKEND_LABELS.get(resolved, resolved)}")
+        return resolved
 
     if name == "sdpa":
         _active_backend = "sdpa"
@@ -80,18 +137,35 @@ def set_backend(name: str) -> str:
         return "sdpa"
 
     if name == "flash_attn":
-        result = _try_flash_attn()
-        if result:
-            return result
+        major, _ = _get_gpu_arch()
+        # Try FA3/FA4 on Hopper+
+        if major >= 9 and _can_import("flash_attn_interface"):
+            _active_backend = "flash_attn_fp8"
+            label = "FlashAttention 4 (FP8)" if major >= 10 else "FlashAttention 3 (FP8)"
+            logger.info(f"Attention backend: {label}")
+            return "flash_attn_fp8"
+        # Fall back to FA2
+        if _can_import("flash_attn"):
+            _active_backend = "flash_attn"
+            logger.info("Attention backend: FlashAttention 2 (fp16/bf16)")
+            return "flash_attn"
         logger.warning("flash-attn package not installed, falling back to sdpa")
         _active_backend = "sdpa"
         return "sdpa"
 
     if name == "sage":
-        result = _try_sage()
-        if result:
-            return result
-        logger.warning("Neither sageattn3 nor sageattention installed, falling back to sdpa")
+        major, _ = _get_gpu_arch()
+        # Try sage3 on Blackwell
+        if major >= 10 and _can_import("sageattn3"):
+            _active_backend = "sage3"
+            logger.info("Attention backend: SageAttention v3 (Blackwell FP4)")
+            return "sage3"
+        # Fall back to sage2
+        if _can_import("sageattention"):
+            _active_backend = "sage2"
+            logger.info("Attention backend: SageAttention v2 (INT8)")
+            return "sage2"
+        logger.warning("sageattention package not installed, falling back to sdpa")
         _active_backend = "sdpa"
         return "sdpa"
 
@@ -101,18 +175,20 @@ def set_backend(name: str) -> str:
 
 
 def get_backend() -> str:
-    """Return the currently active attention backend name."""
+    """Return the currently active internal backend name."""
     return _active_backend
 
+
+# ---------------------------------------------------------------------------
+# Dispatch
+# ---------------------------------------------------------------------------
 
 def dispatch_attention(q, k, v, attn_mask=None, dropout_p=0.0):
     """Route attention to the active backend.
 
     Args:
-        q: Query tensor (B, H, N, D)
-        k: Key tensor (B, H, N, D)
-        v: Value tensor (B, H, N, D)
-        attn_mask: Optional attention mask. Forces SDPA when present.
+        q, k, v: Tensors of shape (B, H, N, D)
+        attn_mask: Optional mask — forces SDPA when present.
         dropout_p: Dropout probability.
 
     Returns:
@@ -124,7 +200,10 @@ def dispatch_attention(q, k, v, attn_mask=None, dropout_p=0.0):
         )
 
     if _active_backend == "flash_attn":
-        return _dispatch_flash_attn(q, k, v, dropout_p)
+        return _dispatch_flash_attn_fa2(q, k, v, dropout_p)
+
+    if _active_backend == "flash_attn_fp8":
+        return _dispatch_flash_attn_fp8(q, k, v)
 
     if _active_backend == "sage3":
         return _dispatch_sage3(q, k, v)
@@ -135,10 +214,14 @@ def dispatch_attention(q, k, v, attn_mask=None, dropout_p=0.0):
     return F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
 
 
-def _dispatch_flash_attn(q, k, v, dropout_p):
-    """FlashAttention expects (B, N, H, D); we receive (B, H, N, D)."""
+# ---------------------------------------------------------------------------
+# Backend implementations
+# ---------------------------------------------------------------------------
+
+def _dispatch_flash_attn_fa2(q, k, v, dropout_p):
+    """FlashAttention 2 — fp16/bf16, Ampere+. Layout: (B,H,N,D) → (B,N,H,D)."""
     if q.dtype == torch.float32:
-        logger.debug("flash_attn requires fp16/bf16, falling back to sdpa for this call")
+        logger.debug("FA2 requires fp16/bf16, falling back to sdpa for this call")
         return F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
     try:
         from flash_attn import flash_attn_func
@@ -148,16 +231,30 @@ def _dispatch_flash_attn(q, k, v, dropout_p):
         out = flash_attn_func(q, k, v, dropout_p=dropout_p)
         return out.transpose(1, 2)
     except Exception as e:
-        logger.warning(f"flash_attn failed ({e}), falling back to sdpa")
-        return F.scaled_dot_product_attention(
-            q.transpose(1, 2).transpose(1, 2), k.transpose(1, 2).transpose(1, 2),
-            v.transpose(1, 2).transpose(1, 2), dropout_p=dropout_p
-        )
+        logger.warning(f"FA2 failed ({e}), falling back to sdpa")
+        return F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
+
+
+@torch.compiler.disable
+def _dispatch_flash_attn_fp8(q, k, v):
+    """FlashAttention 3/4 — FP8, Hopper/Blackwell. Layout: (B,H,N,D) → (B,N,H,D)."""
+    try:
+        from flash_attn_interface import flash_attn_func as fa_func
+        orig_dtype = q.dtype
+        fp8 = torch.float8_e4m3fn
+        q = q.transpose(1, 2).contiguous().to(fp8)
+        k = k.transpose(1, 2).contiguous().to(fp8)
+        v = v.transpose(1, 2).contiguous().to(fp8)
+        out = fa_func(q, k, v)
+        return out.to(orig_dtype).transpose(1, 2)
+    except Exception as e:
+        logger.warning(f"FA3/FA4 FP8 failed ({e}), falling back to sdpa")
+        return F.scaled_dot_product_attention(q, k, v)
 
 
 @torch.compiler.disable
 def _dispatch_sage3(q, k, v):
-    """SageAttention v3 (Blackwell FP4). Hidden from torch.compile."""
+    """SageAttention v3 — Blackwell FP4. Hidden from torch.compile."""
     try:
         from sageattn3 import sageattn3
         return sageattn3(q, k, v)
@@ -168,7 +265,7 @@ def _dispatch_sage3(q, k, v):
 
 @torch.compiler.disable
 def _dispatch_sage2(q, k, v):
-    """SageAttention v2 (INT8). Hidden from torch.compile."""
+    """SageAttention v2 — INT8. Hidden from torch.compile."""
     try:
         from sageattention import sageattn
         return sageattn(q, k, v)

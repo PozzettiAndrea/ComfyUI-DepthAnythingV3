@@ -24,7 +24,6 @@ class DepthAnythingV3_MultiView:
         return {
             "required": {
                 "da3_model": ("DA3MODEL", ),
-                "images": ("IMAGE", ),
                 "normalization_mode": ([
                     "Standard",
                     "V2-Style",
@@ -32,6 +31,9 @@ class DepthAnythingV3_MultiView:
                 ], {"default": "V2-Style"}),
             },
             "optional": {
+                "images": ("IMAGE", {
+                    "tooltip": "Batch of images [N, H, W, 3]. Connect LoadImage, VHS_LoadVideo IMAGE output, etc."
+                }),
                 "resize_method": (["resize", "crop", "pad"], {
                     "default": "resize",
                     "tooltip": "Model requires dimensions to be multiples of 14. resize: scale image (default), crop: center crop to multiple, pad: add black borders to multiple"
@@ -63,29 +65,15 @@ Use this for:
 - Multiple angles of same scene (SfM/reconstruction)
 - Stereo pairs (left/right cameras)
 
+**Input:** Batch of images [N, H, W, 3] from LoadImage, VHS_LoadVideo IMAGE output, etc.
+
+**For video:** Use the Streaming node (DepthAnythingV3_Streaming) which processes in chunks
+with Sim(3) alignment for globally consistent depth and accepts VIDEO input directly.
+
 **Normalization Modes:**
 - Standard: Original V3 min-max normalization (0-1 range)
 - V2-Style: Disparity-based with content-aware contrast (default, best for ControlNet)
-  - Sky appears BLACK, content-only normalization
-  - Contribution by Ltamann (TBG)
 - Raw: No normalization, outputs metric depth (for 3D reconstruction)
-
-**Optional Inputs:**
-- resize_method: How to handle patch size alignment (resize/crop/pad)
-- invert_depth: Toggle output convention. OFF (default): close=bright. ON: far=bright.
-- keep_model_size: Keep model's native output size instead of resizing back (intrinsics stay accurate)
-
-Input: Batch of images [N, H, W, 3]
-Outputs (all normalized across views together for consistency):
-- depth: Batch of consistent depth maps [N, H, W, 3]
-- confidence: Confidence maps [N, H, W, 3]
-- ray_origin: Ray origin maps (for 3D, normalized for visualization)
-- ray_direction: Ray direction maps (for 3D, normalized for visualization)
-- extrinsics: Predicted camera poses for each view (JSON)
-- intrinsics: Camera intrinsics for each view (JSON) - auto-scaled if resized
-- sky_mask: Sky segmentation [N, H, W] (Mono/Metric/Nested only)
-- resized_rgb_image: RGB images matching depth output dimensions
-- gaussian_ply_path: Path to raw 3D Gaussians PLY (Giant model only, empty string if not supported)
 
 Note: All images must have the same resolution.
 Higher N = more VRAM usage but better consistency.
@@ -219,7 +207,11 @@ Higher N = more VRAM usage but better consistency.
 
         return depth
 
-    def process(self, da3_model, images, normalization_mode="V2-Style", resize_method="resize", invert_depth=False, keep_model_size=False):
+    def process(self, da3_model, normalization_mode="V2-Style", images=None,
+                resize_method="resize", invert_depth=False, keep_model_size=False):
+        if images is None or images.shape[0] == 0:
+            raise ValueError("No input provided. Connect 'images' input.")
+
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         model = da3_model['model']

@@ -16,7 +16,7 @@ from .depth_anything_v3.model.cam_dec import CameraDec
 from .depth_anything_v3.model.gsdpt import GSDPT
 from .depth_anything_v3.model.gs_adapter import GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger
-from .depth_anything_v3.model.attention_dispatch import set_backend as set_attention_backend
+from .depth_anything_v3.model.attention_dispatch import set_backend as set_attention_backend, auto_detect_precision
 
 try:
     from accelerate import init_empty_weights
@@ -229,7 +229,7 @@ Supports all DA3 variants including Small, Base, Large, Giant, Mono, Metric, and
 
         # Determine dtype
         if precision == "auto":
-            dtype = torch.float16 if "fp16" in model else torch.float32
+            dtype = auto_detect_precision()
         elif precision == "bf16":
             dtype = torch.bfloat16
         elif precision == "fp16":
