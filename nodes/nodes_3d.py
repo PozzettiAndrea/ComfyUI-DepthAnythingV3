@@ -692,7 +692,7 @@ class DA3_ToMesh:
                     "tooltip": "Downsample depth map before meshing (use 1 with target_faces for best quality)"
                 }),
                 "target_faces": ("INT", {
-                    "default": 500000,
+                    "default": 100000,
                     "min": 0,
                     "max": 10000000,
                     "step": 10000,
@@ -935,10 +935,20 @@ Output: GLB file path
             texture_np = (texture_image.cpu().numpy() * 255).astype(np.uint8)
             texture_pil = Image.fromarray(texture_np)
 
-            # Create textured visual
+            # Create PBR material with explicit non-metallic settings
+            # Without this, glTF spec defaults metallicFactor to 1.0 which
+            # zeroes out diffuse color and makes the mesh look black
+            material = trimesh.visual.material.PBRMaterial(
+                baseColorFactor=[1.0, 1.0, 1.0, 1.0],
+                baseColorTexture=texture_pil,
+                metallicFactor=0.0,
+                roughnessFactor=1.0,
+            )
+
+            # Create textured visual with explicit material
             mesh.visual = trimesh.visual.TextureVisuals(
                 uv=uvs,
-                image=texture_pil
+                material=material,
             )
 
         # Export to GLB with optional Draco compression
@@ -952,47 +962,59 @@ Output: GLB file path
         else:
             mesh.export(filepath, file_type='glb')
 
-        # Post-process GLB to enable double-sided rendering
-        self._make_glb_double_sided(filepath)
+        # Post-process GLB to enable double-sided + unlit rendering
+        self._postprocess_glb_materials(filepath)
 
-    def _make_glb_double_sided(self, filepath):
-        """Modify GLB file to make all materials double-sided."""
+    def _postprocess_glb_materials(self, filepath):
+        """Modify GLB materials: double-sided + unlit (true texture colors, no lighting)."""
         try:
             import pygltflib
         except ImportError:
             logger.warning(
-                "pygltflib is required for double-sided materials. "
+                "pygltflib is required for material post-processing. "
                 "Install with: pip install pygltflib. "
-                "Meshes will only be visible from front face."
+                "Mesh may appear dark or single-sided."
             )
             return
 
         try:
-            # Load the GLB file
             gltf = pygltflib.GLTF2().load(filepath)
 
-            # Set doubleSided = True for all materials
+            # Ensure extensionsUsed list exists
+            if gltf.extensionsUsed is None:
+                gltf.extensionsUsed = []
+            if "KHR_materials_unlit" not in gltf.extensionsUsed:
+                gltf.extensionsUsed.append("KHR_materials_unlit")
+
             if gltf.materials:
                 for material in gltf.materials:
                     material.doubleSided = True
+                    # Make unlit so texture shows at true colors without lighting
+                    if material.extensions is None:
+                        material.extensions = {}
+                    material.extensions["KHR_materials_unlit"] = {}
+                    # Ensure non-metallic fallback for viewers that ignore unlit
+                    if material.pbrMetallicRoughness is not None:
+                        material.pbrMetallicRoughness.metallicFactor = 0.0
+                        material.pbrMetallicRoughness.roughnessFactor = 1.0
             else:
-                # If no materials exist, create a default double-sided material
-                gltf.materials = [pygltflib.Material(doubleSided=True)]
-                # Link all meshes to this material
+                gltf.materials = [pygltflib.Material(
+                    doubleSided=True,
+                    extensions={"KHR_materials_unlit": {}},
+                )]
                 if gltf.meshes:
                     for mesh in gltf.meshes:
                         for primitive in mesh.primitives:
                             primitive.material = 0
 
-            # Save the modified GLB
             gltf.save(filepath)
-            logger.debug(f"Set double-sided materials in {filepath}")
+            logger.debug(f"Post-processed materials in {filepath}")
 
         except Exception as e:
-            logger.warning(f"Failed to set double-sided materials: {e}")
+            logger.warning(f"Failed to post-process materials: {e}")
 
     def convert(self, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None,
-                confidence_threshold=0.1, depth_edge_threshold=0.1, downsample=1, target_faces=500000, filename_prefix="mesh", allow_around_1=False, use_draco_compression=False):
+                confidence_threshold=0.1, depth_edge_threshold=0.1, downsample=1, target_faces=100000, filename_prefix="mesh", allow_around_1=False, use_draco_compression=False):
         """Convert depth map to mesh and save as GLB."""
         from pathlib import Path
 
@@ -1075,11 +1097,25 @@ Output: GLB file path
         normals = self._compute_vertex_normals(vertices, faces)
 
         # Decimate to target face count (CPU, pyfqmr)
+        decimated = False
         if target_faces > 0 and faces.shape[0] > target_faces:
             vertices, faces, vertex_colors, uvs = self._decimate_mesh(
                 vertices, faces, vertex_colors, uvs, target_faces, K=K, H=H, W=W
             )
-            # Recompute normals after decimation (on CPU now)
+            decimated = not torch.is_tensor(vertices)  # pyfqmr returns numpy
+
+        # Move GPU tensors to CPU numpy
+        if torch.is_tensor(vertices):
+            vertices = vertices.cpu().numpy()
+            faces = faces.cpu().numpy()
+            normals = normals.cpu().numpy()
+            if vertex_colors is not None and torch.is_tensor(vertex_colors):
+                vertex_colors = vertex_colors.cpu().numpy()
+            if uvs is not None and torch.is_tensor(uvs):
+                uvs = uvs.cpu().numpy()
+
+        if decimated:
+            # Recompute normals after decimation
             import numpy as np
             v0 = vertices[faces[:, 0]]
             v1 = vertices[faces[:, 1]]
@@ -1092,15 +1128,6 @@ Output: GLB file path
             norms = np.linalg.norm(normals, axis=1, keepdims=True)
             normals = np.divide(normals, norms, where=norms > 1e-10)
             logger.info(f"Decimated mesh: {len(vertices)} vertices, {len(faces)} faces")
-        else:
-            # Move to CPU numpy for export
-            vertices = vertices.cpu().numpy()
-            faces = faces.cpu().numpy()
-            normals = normals.cpu().numpy()
-            if vertex_colors is not None and torch.is_tensor(vertex_colors):
-                vertex_colors = vertex_colors.cpu().numpy()
-            if uvs is not None and torch.is_tensor(uvs):
-                uvs = uvs.cpu().numpy()
 
         # Get output directory
         output_dir = folder_paths.get_output_directory()

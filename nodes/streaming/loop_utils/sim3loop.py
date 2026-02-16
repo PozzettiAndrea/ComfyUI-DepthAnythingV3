@@ -14,6 +14,8 @@
 #
 # Adapted from [VGGT-Long](https://github.com/DengKaiCQ/VGGT-Long)
 
+from __future__ import annotations
+
 import logging
 import time
 from typing import List, Tuple
