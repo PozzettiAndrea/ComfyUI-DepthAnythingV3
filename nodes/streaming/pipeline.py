@@ -275,7 +275,7 @@ class StreamingPipeline:
         sim3_list = []
         if len(chunk_results) > 1:
             for i in range(len(chunk_results) - 1):
-                logger.info(f"Aligning chunk {i} → {i+1}")
+                logger.info(f"Aligning chunk {i} -> {i+1}")
                 s, R, t = self._align_chunks(chunk_results[i], chunk_results[i + 1])
                 sim3_list.append((s, R, t))
                 if pbar:
@@ -328,7 +328,7 @@ class StreamingPipeline:
         if depth is None:
             raise ValueError("Model output does not contain depth tensor")
 
-        # Squeeze batch dim: [1, C, H, W] → [C, H, W]
+        # Squeeze batch dim: [1, C, H, W] -> [C, H, W]
         depth = depth.squeeze(0).cpu().numpy()
         conf = conf.squeeze(0).cpu().numpy() if conf is not None else np.ones_like(depth)
         sky = sky.squeeze(0).cpu().numpy() if sky is not None else np.zeros_like(depth)
