@@ -17,7 +17,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
-from ..attention_dispatch import dispatch_attention
+from comfy_attn import dispatch_attention
 
 
 class Attention(nn.Module):

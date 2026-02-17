@@ -16,7 +16,7 @@ from .depth_anything_v3.model.cam_dec import CameraDec
 from .depth_anything_v3.model.gsdpt import GSDPT
 from .depth_anything_v3.model.gs_adapter import GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger
-from .depth_anything_v3.model.attention_dispatch import set_backend as set_attention_backend, auto_detect_precision
+from comfy_attn import set_backend as set_attention_backend, auto_detect_precision
 
 try:
     from accelerate import init_empty_weights
@@ -383,7 +383,8 @@ def _build_da3_model(model_path, model_key, dtype, attention):
             )
 
     model.eval()
-    set_attention_backend(attention)
+    attn_label = set_attention_backend(attention)
+    logger.info(f"Attention: {attn_label}")
     logger.info(f"Model ready ({dtype})")
     return model
 
