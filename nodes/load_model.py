@@ -554,7 +554,7 @@ def _build_salad_model(ckpt_path):
     from .streaming.loop_utils.salad_model import VPRModel
 
     model = VPRModel()
-    state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=True)
+    state_dict = load_torch_file(str(ckpt_path))
     model.load_state_dict(state_dict)
     model.eval()
     logger.info(f"SALAD model loaded from: {ckpt_path}")

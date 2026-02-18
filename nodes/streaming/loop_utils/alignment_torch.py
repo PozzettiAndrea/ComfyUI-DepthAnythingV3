@@ -20,14 +20,17 @@ import logging
 
 import numpy as np
 import torch
+import comfy.model_management
 
 logger = logging.getLogger("DA3Streaming")
 
 
-def weighted_estimate_se3_torch(source_points, target_points, weights):
-    source_points = torch.from_numpy(source_points).cuda().float()
-    target_points = torch.from_numpy(target_points).cuda().float()
-    weights = torch.from_numpy(weights).cuda().float()
+def weighted_estimate_se3_torch(source_points, target_points, weights, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
+    source_points = torch.from_numpy(source_points).to(device).float()
+    target_points = torch.from_numpy(target_points).to(device).float()
+    weights = torch.from_numpy(weights).to(device).float()
 
     total_weight = torch.sum(weights)
     if total_weight < 1e-6:
@@ -54,11 +57,13 @@ def weighted_estimate_se3_torch(source_points, target_points, weights):
     return 1.0, mu_src.cpu().numpy(), mu_tgt.cpu().numpy(), H.cpu().numpy()
 
 
-def weighted_estimate_sim3_torch(source_points, target_points, weights):
+def weighted_estimate_sim3_torch(source_points, target_points, weights, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    source_points = torch.from_numpy(source_points).cuda().float()
-    target_points = torch.from_numpy(target_points).cuda().float()
-    weights = torch.from_numpy(weights).cuda().float()
+    source_points = torch.from_numpy(source_points).to(device).float()
+    target_points = torch.from_numpy(target_points).to(device).float()
+    weights = torch.from_numpy(weights).to(device).float()
 
     total_weight = torch.sum(weights)
     if total_weight < 1e-6:
@@ -89,17 +94,19 @@ def weighted_estimate_sim3_torch(source_points, target_points, weights):
     return s.cpu().numpy(), mu_src.cpu().numpy(), mu_tgt.cpu().numpy(), H.cpu().numpy()
 
 
-def weighted_estimate_sim3_numba_torch(source_points, target_points, weights, align_method="sim3"):
+def weighted_estimate_sim3_numba_torch(source_points, target_points, weights, align_method="sim3", device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
     if align_method == "sim3":
-        s, mu_src, mu_tgt, H = weighted_estimate_sim3_torch(source_points, target_points, weights)
+        s, mu_src, mu_tgt, H = weighted_estimate_sim3_torch(source_points, target_points, weights, device=device)
     elif align_method == "se3" or align_method == "scale+se3":
-        s, mu_src, mu_tgt, H = weighted_estimate_se3_torch(source_points, target_points, weights)
+        s, mu_src, mu_tgt, H = weighted_estimate_se3_torch(source_points, target_points, weights, device=device)
 
     if s < 0:
         raise ValueError("Total weight too small for meaningful estimation")
 
-    H_torch = torch.from_numpy(H).cuda().float()
+    H_torch = torch.from_numpy(H).to(device).float()
     U, _, Vt = torch.linalg.svd(H_torch)
 
     U = U.cpu().numpy()
@@ -122,10 +129,12 @@ def weighted_estimate_sim3_numba_torch(source_points, target_points, weights, al
     return s, R, t.astype(np.float32)
 
 
-def huber_loss_torch(r, delta):
+def huber_loss_torch(r, delta, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    r_torch = torch.from_numpy(r).cuda().float()
-    delta_torch = torch.tensor(delta, device="cuda", dtype=torch.float32)
+    r_torch = torch.from_numpy(r).to(device).float()
+    delta_torch = torch.tensor(delta, device=device, dtype=torch.float32)
 
     abs_r = torch.abs(r_torch)
     result = torch.where(
@@ -135,19 +144,23 @@ def huber_loss_torch(r, delta):
     return result.cpu().numpy()
 
 
-def compute_residuals_torch(tgt, transformed):
+def compute_residuals_torch(tgt, transformed, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    tgt_torch = torch.from_numpy(tgt).cuda().float()
-    transformed_torch = torch.from_numpy(transformed).cuda().float()
+    tgt_torch = torch.from_numpy(tgt).to(device).float()
+    transformed_torch = torch.from_numpy(transformed).to(device).float()
 
     residuals = torch.sqrt(torch.sum((tgt_torch - transformed_torch) ** 2, dim=1))
     return residuals.cpu().numpy()
 
 
-def compute_huber_weights_torch(residuals, delta):
+def compute_huber_weights_torch(residuals, delta, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    residuals_torch = torch.from_numpy(residuals).cuda().float()
-    delta_torch = torch.tensor(delta, device="cuda", dtype=torch.float32)
+    residuals_torch = torch.from_numpy(residuals).to(device).float()
+    delta_torch = torch.tensor(delta, device=device, dtype=torch.float32)
 
     weights = torch.ones_like(residuals_torch)
     mask = residuals_torch > delta_torch
@@ -156,12 +169,14 @@ def compute_huber_weights_torch(residuals, delta):
     return weights.cpu().numpy()
 
 
-def apply_transformation_torch(src, s, R, t):
+def apply_transformation_torch(src, s, R, t, device=None):
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    src_torch = torch.from_numpy(src).cuda().float()
-    R_torch = torch.from_numpy(R).cuda().float()
-    t_torch = torch.from_numpy(t).cuda().float()
-    s_torch = torch.tensor(s, device="cuda", dtype=torch.float32)
+    src_torch = torch.from_numpy(src).to(device).float()
+    R_torch = torch.from_numpy(R).to(device).float()
+    t_torch = torch.from_numpy(t).to(device).float()
+    s_torch = torch.tensor(s, device=device, dtype=torch.float32)
 
     transformed = s_torch * (src_torch @ R_torch.T) + t_torch
     return transformed.cpu().numpy()
@@ -170,33 +185,34 @@ def apply_transformation_torch(src, s, R, t):
 def robust_weighted_estimate_sim3_torch(
     src, tgt, init_weights, delta=0.1, max_iters=20, tol=1e-9, align_method="sim3"
 ):
+    device = comfy.model_management.get_torch_device()
 
     src = src.astype(np.float32)
     tgt = tgt.astype(np.float32)
     init_weights = init_weights.astype(np.float32)
 
-    s, R, t = weighted_estimate_sim3_numba_torch(src, tgt, init_weights, align_method=align_method)
+    s, R, t = weighted_estimate_sim3_numba_torch(src, tgt, init_weights, align_method=align_method, device=device)
 
     prev_error = float("inf")
 
     for iter in range(max_iters):
-        transformed = apply_transformation_torch(src, s, R, t)
-        residuals = compute_residuals_torch(tgt, transformed)
+        transformed = apply_transformation_torch(src, s, R, t, device=device)
+        residuals = compute_residuals_torch(tgt, transformed, device=device)
 
         logger.debug(f"Iter {iter}: Mean residual = {np.mean(residuals):.6f}")
 
-        huber_weights = compute_huber_weights_torch(residuals, delta)
+        huber_weights = compute_huber_weights_torch(residuals, delta, device=device)
         combined_weights = init_weights * huber_weights
         combined_weights /= np.sum(combined_weights) + 1e-12
 
         s_new, R_new, t_new = weighted_estimate_sim3_numba_torch(
-            src, tgt, combined_weights, align_method=align_method
+            src, tgt, combined_weights, align_method=align_method, device=device
         )
 
         param_change = np.abs(s_new - s) + np.linalg.norm(t_new - t)
         rot_angle = np.arccos(min(1.0, max(-1.0, (np.trace(R_new @ R.T) - 1) / 2)))
 
-        current_error = np.sum(huber_loss_torch(residuals, delta) * init_weights)
+        current_error = np.sum(huber_loss_torch(residuals, delta, device=device) * init_weights)
 
         if (param_change < tol and rot_angle < np.radians(0.1)) or (
             abs(prev_error - current_error) < tol * prev_error
