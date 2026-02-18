@@ -18,6 +18,7 @@ import logging
 import os
 from pathlib import Path
 import comfy.model_management
+import comfy.utils
 
 try:
     import faiss
@@ -107,7 +108,7 @@ class LoopDetector:
             },
         )
 
-        model.load_state_dict(torch.load(self.ckpt_path, map_location="cpu", weights_only=True))
+        model.load_state_dict(comfy.utils.load_torch_file(str(self.ckpt_path)))
         model = model.eval()
         device = comfy.model_management.get_torch_device()
         model = model.to(device)

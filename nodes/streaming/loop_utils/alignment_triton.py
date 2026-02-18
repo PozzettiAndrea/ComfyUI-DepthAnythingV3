@@ -20,6 +20,7 @@ import logging
 
 import numpy as np
 import torch
+import comfy.model_management
 
 try:
     import triton
@@ -310,12 +311,14 @@ def compute_huber_weights_triton(residuals, delta):
     return weights
 
 
-def weighted_estimate_se3_triton(source_points, target_points, weights):
+def weighted_estimate_se3_triton(source_points, target_points, weights, device=None):
     _check_triton()
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    source_points = torch.from_numpy(source_points).cuda().float()
-    target_points = torch.from_numpy(target_points).cuda().float()
-    weights = torch.from_numpy(weights).cuda().float()
+    source_points = torch.from_numpy(source_points).to(device).float()
+    target_points = torch.from_numpy(target_points).to(device).float()
+    weights = torch.from_numpy(weights).to(device).float()
 
     total_weight = torch.sum(weights)
     if total_weight < 1e-6:
@@ -338,12 +341,14 @@ def weighted_estimate_se3_triton(source_points, target_points, weights):
     return 1.0, mu_src.cpu().numpy(), mu_tgt.cpu().numpy(), H.cpu().numpy()
 
 
-def weighted_estimate_sim3_triton(source_points, target_points, weights):
+def weighted_estimate_sim3_triton(source_points, target_points, weights, device=None):
     _check_triton()
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
-    source_points = torch.from_numpy(source_points).cuda().float()
-    target_points = torch.from_numpy(target_points).cuda().float()
-    weights = torch.from_numpy(weights).cuda().float()
+    source_points = torch.from_numpy(source_points).to(device).float()
+    target_points = torch.from_numpy(target_points).to(device).float()
+    weights = torch.from_numpy(weights).to(device).float()
 
     total_weight = torch.sum(weights)
     if total_weight < 1e-6:
@@ -379,19 +384,21 @@ def weighted_estimate_sim3_triton(source_points, target_points, weights):
 
 
 def weighted_estimate_sim3_numba_triton(
-    source_points, target_points, weights, align_method="sim3"
+    source_points, target_points, weights, align_method="sim3", device=None
 ):
     _check_triton()
+    if device is None:
+        device = comfy.model_management.get_torch_device()
 
     if align_method == "sim3":
-        s, mu_src, mu_tgt, H = weighted_estimate_sim3_triton(source_points, target_points, weights)
+        s, mu_src, mu_tgt, H = weighted_estimate_sim3_triton(source_points, target_points, weights, device=device)
     elif align_method == "se3" or align_method == "scale+se3":
-        s, mu_src, mu_tgt, H = weighted_estimate_se3_triton(source_points, target_points, weights)
+        s, mu_src, mu_tgt, H = weighted_estimate_se3_triton(source_points, target_points, weights, device=device)
 
     if s < 0:
         raise ValueError("Total weight too small for meaningful estimation")
 
-    H_torch = torch.from_numpy(H).cuda().float()
+    H_torch = torch.from_numpy(H).to(device).float()
     U, _, Vt = torch.linalg.svd(H_torch)
 
     U = U.cpu().numpy()
@@ -418,22 +425,23 @@ def robust_weighted_estimate_sim3_triton(
     src, tgt, init_weights, delta=0.1, max_iters=20, tol=1e-9, align_method="sim3"
 ):
     _check_triton()
+    device = comfy.model_management.get_torch_device()
 
     src = src.astype(np.float32)
     tgt = tgt.astype(np.float32)
     init_weights = init_weights.astype(np.float32)
 
-    src_torch = torch.from_numpy(src).cuda().float()
-    tgt_torch = torch.from_numpy(tgt).cuda().float()
-    init_weights_torch = torch.from_numpy(init_weights).cuda().float()
+    src_torch = torch.from_numpy(src).to(device).float()
+    tgt_torch = torch.from_numpy(tgt).to(device).float()
+    init_weights_torch = torch.from_numpy(init_weights).to(device).float()
 
     s, R, t = weighted_estimate_sim3_numba_triton(
-        src, tgt, init_weights, align_method=align_method
+        src, tgt, init_weights, align_method=align_method, device=device
     )
 
-    R_torch = torch.from_numpy(R).cuda().float()
-    t_torch = torch.from_numpy(t).cuda().float()
-    s_torch = torch.tensor(s, device="cuda", dtype=torch.float32)
+    R_torch = torch.from_numpy(R).to(device).float()
+    t_torch = torch.from_numpy(t).to(device).float()
+    s_torch = torch.tensor(s, device=device, dtype=torch.float32)
 
     prev_error = float("inf")
 
@@ -456,7 +464,7 @@ def robust_weighted_estimate_sim3_triton(
 
         combined_weights_np = combined_weights.cpu().numpy()
         s_new, R_new, t_new = weighted_estimate_sim3_numba_triton(
-            src, tgt, combined_weights_np, align_method=align_method
+            src, tgt, combined_weights_np, align_method=align_method, device=device
         )
 
         param_change = np.abs(s_new - s) + np.linalg.norm(t_new - t)
@@ -475,9 +483,9 @@ def robust_weighted_estimate_sim3_triton(
             break
 
         s, R, t = s_new, R_new, t_new
-        s_torch = torch.tensor(s, device="cuda", dtype=torch.float32)
-        R_torch = torch.from_numpy(R).cuda().float()
-        t_torch = torch.from_numpy(t).cuda().float()
+        s_torch = torch.tensor(s, device=device, dtype=torch.float32)
+        R_torch = torch.from_numpy(R).to(device).float()
+        t_torch = torch.from_numpy(t).to(device).float()
         prev_error = current_error
 
     return s, R, t
