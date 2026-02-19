@@ -306,17 +306,8 @@ class StreamingPipeline:
         Returns:
             ChunkResult with outputs on CPU
         """
-        from contextlib import nullcontext
-        import comfy.model_management as mm
-
-        chunk_input = normalized_images[:, start:end, ...].to(self.device)
-
-        autocast_condition = (self.dtype != torch.float32) and not mm.is_device_mps(self.device)
-
-        with torch.autocast(
-            mm.get_autocast_device(self.device), dtype=self.dtype
-        ) if autocast_condition else nullcontext():
-            output = self.model(chunk_input)
+        chunk_input = normalized_images[:, start:end, ...].to(self.device, dtype=self.dtype)
+        output = self.model(chunk_input)
 
         # Extract outputs and move to CPU/numpy
         depth = extract_output_field(output, 'depth')
