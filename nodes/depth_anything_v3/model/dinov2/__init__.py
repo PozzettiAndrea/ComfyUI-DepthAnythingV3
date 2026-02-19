@@ -1,1 +1,0 @@
-# DinoV2 model

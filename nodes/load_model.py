@@ -7,16 +7,13 @@ from comfy.utils import load_torch_file
 import folder_paths
 
 from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
-from .depth_anything_v3.model.da3 import DepthAnything3Net, NestedDepthAnything3Net
-from .depth_anything_v3.model.dinov2.dinov2 import DinoV2
-from .depth_anything_v3.model.dualdpt import DualDPT
-from .depth_anything_v3.model.dpt import DPT
-from .depth_anything_v3.model.cam_enc import CameraEnc
-from .depth_anything_v3.model.cam_dec import CameraDec
-from .depth_anything_v3.model.gsdpt import GSDPT
-from .depth_anything_v3.model.gs_adapter import GaussianAdapter
+from .depth_anything_v3.model import (
+    DepthAnything3Net, NestedDepthAnything3Net,
+    DinoV2, DualDPT, DPT,
+)
+from .depth_anything_v3.camera import CameraEnc, CameraDec
+from .depth_anything_v3.gs import GSDPT, GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger
-from comfy_attn import set_backend as set_attention_backend, auto_detect_precision
 
 try:
     from accelerate import init_empty_weights
@@ -187,7 +184,10 @@ def _build_da3_model(model_path, model_key, dtype, attention):
     Called lazily by inference nodes on first use.
     Returns a loaded nn.Module on CPU with the given dtype.
     """
+    logger.info(f"[build] model_key={model_key}, dtype={dtype}, attention={attention}")
     config = MODEL_CONFIGS[model_key]
+    logger.info(f"[build] config: encoder={config.get('encoder')}, dim_in={config.get('dim_in')}, "
+                f"features={config.get('features')}, out_channels={config.get('out_channels')}")
 
     # Encoder embed dimensions for camera modules
     encoder_embed_dims = {
@@ -324,8 +324,14 @@ def _build_da3_model(model_path, model_key, dtype, attention):
             )
 
     # Load weights
-    logger.info(f"Loading model from: {model_path}")
+    logger.info(f"[build] Loading model from: {model_path}")
     state_dict = load_torch_file(model_path)
+    logger.info(f"[build] Checkpoint: {len(state_dict)} keys loaded")
+
+    # Log sample weight dtypes from checkpoint
+    for i, (k, v) in enumerate(state_dict.items()):
+        if i < 3:
+            logger.info(f"[build] ckpt sample: {k} shape={list(v.shape)} dtype={v.dtype}")
 
     # Strip 'model.' prefix from keys if present
     new_state_dict = {}
@@ -338,29 +344,80 @@ def _build_da3_model(model_path, model_key, dtype, attention):
         new_state_dict[new_key] = value
 
     if stripped_count > 0:
-        logger.debug(f"Stripped 'model.' prefix from {stripped_count} keys")
-    sample_keys = list(new_state_dict.keys())[:3]
-    logger.debug(f"Sample checkpoint keys: {sample_keys}")
+        logger.info(f"[build] Stripped 'model.' prefix from {stripped_count} keys")
+    sample_keys = list(new_state_dict.keys())[:5]
+    logger.info(f"[build] Sample state_dict keys: {sample_keys}")
     head_keys = [k for k in new_state_dict.keys() if 'head.' in k]
-    logger.debug(f"Checkpoint head keys ({len(head_keys)} total): {head_keys[:10]}")
+    logger.info(f"[build] Head keys: {len(head_keys)} total, first 5: {head_keys[:5]}")
 
     # Check if checkpoint uses da3. prefix (nested model format)
     has_da3_prefix = any(k.startswith('da3.') for k in new_state_dict.keys())
 
     if is_nested:
-        logger.debug("Using nested model wrapper (da3 + da3_metric branches)")
+        logger.info("[build] Using nested model wrapper (da3 + da3_metric branches)")
         model = inner_model
     elif has_da3_prefix:
-        logger.debug("Detected nested model checkpoint format (da3. prefix)")
+        logger.info("[build] Detected nested model checkpoint format (da3. prefix)")
         model = DA3ModelWrapper(inner_model)
     else:
-        logger.debug("Detected standard model checkpoint format (no prefix)")
+        logger.info("[build] Detected standard model checkpoint format (no prefix)")
         model = inner_model
+
+    # Log model parameter count
+    total_params = sum(p.numel() for p in model.parameters())
+    logger.info(f"[build] Model total params: {total_params / 1e6:.1f}M")
+
+    # Expand shared-weight checkpoint keys (e.g. output_conv2_aux.0.2 → 1.2, 2.2, 3.2)
+    # The original model shared a single LayerNorm across aux levels, so the checkpoint
+    # only stores index 0. We duplicate to all indices so each gets real weights.
+    expanded = {}
+    for key in list(new_state_dict.keys()):
+        if 'output_conv2_aux.0.' in key:
+            # Find how many aux levels exist by checking the model structure
+            prefix, suffix = key.split('output_conv2_aux.0.')
+            for idx in range(1, 4):  # aux_levels is typically 4
+                clone_key = f"{prefix}output_conv2_aux.{idx}.{suffix}"
+                if clone_key not in new_state_dict:
+                    expanded[clone_key] = new_state_dict[key].clone()
+    if expanded:
+        logger.info(f"[build] Expanded {len(expanded)} shared-weight keys for output_conv2_aux")
+        new_state_dict.update(expanded)
 
     # Load weights -- meta->real via assign=True (PyTorch 2.1+) or accelerate fallback
     try:
-        model.load_state_dict(new_state_dict, strict=False, assign=True)
+        result = model.load_state_dict(new_state_dict, strict=False, assign=True)
+        if result.missing_keys:
+            logger.info(f"[build] Missing keys ({len(result.missing_keys)}): {result.missing_keys[:10]}")
+        if result.unexpected_keys:
+            logger.info(f"[build] Unexpected keys ({len(result.unexpected_keys)}): {result.unexpected_keys[:10]}")
+        logger.info(f"[build] Converting model to dtype={dtype}")
         model.to(dtype=dtype)  # set dtype, stay on CPU
+
+        # Safety: replace any remaining meta parameters with zeros
+        for name, param in list(model.named_parameters()):
+            if param.device.type == 'meta':
+                logger.warning(f"[build] Meta param remaining: {name}, initializing with zeros")
+                parts = name.split('.')
+                parent = model
+                for part in parts[:-1]:
+                    parent = getattr(parent, part)
+                setattr(parent, parts[-1], torch.nn.Parameter(
+                    torch.zeros(param.shape, dtype=dtype), requires_grad=False
+                ))
+
+        # Safety: replace any remaining meta buffers with zeros
+        for name, buf in list(model.named_buffers()):
+            if buf.device.type == 'meta':
+                logger.warning(f"[build] Meta buffer remaining: {name}, initializing with zeros")
+                parts = name.split('.')
+                parent = model
+                for part in parts[:-1]:
+                    parent = getattr(parent, part)
+                parent.register_buffer(parts[-1], torch.zeros(buf.shape, dtype=buf.dtype))
+
+        # Log final weight dtypes
+        for name, param in list(model.named_parameters())[:3]:
+            logger.info(f"[build] After load: {name} dtype={param.dtype}, device={param.device}")
     except TypeError:
         if is_accelerate_available:
             logger.info("Using accelerate fallback for weight loading (PyTorch < 2.1)")
@@ -383,8 +440,6 @@ def _build_da3_model(model_path, model_key, dtype, attention):
             )
 
     model.eval()
-    attn_label = set_attention_backend(attention)
-    logger.info(f"Attention: {attn_label}")
     logger.info(f"Model ready ({dtype})")
     return model
 

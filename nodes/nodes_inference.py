@@ -2,8 +2,6 @@
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
-from contextlib import nullcontext
-
 import comfy.model_management as mm
 from comfy.utils import ProgressBar
 
@@ -175,133 +173,130 @@ Connect only the outputs you need - unused outputs are simply ignored.
         if infer_gs:
             logger.info("Model supports 3D Gaussians - will output raw Gaussians")
 
-        autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
+        for i in range(B):
+            img = normalized_images[i:i+1].to(device, dtype=dtype)
 
-        with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
-            for i in range(B):
-                img = normalized_images[i:i+1].to(device)
+            # Get camera params for this batch item
+            ext_i = extrinsics_input[i:i+1] if extrinsics_input is not None else None
+            int_i = intrinsics_input[i:i+1] if intrinsics_input is not None else None
 
-                # Get camera params for this batch item
-                ext_i = extrinsics_input[i:i+1] if extrinsics_input is not None else None
-                int_i = intrinsics_input[i:i+1] if intrinsics_input is not None else None
+            # Run model forward with optional camera conditioning and Gaussians
+            output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)
 
-                # Run model forward with optional camera conditioning and Gaussians
-                output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)
+            # Extract depth
+            depth = None
+            if hasattr(output, 'depth'):
+                depth = output.depth
+            elif isinstance(output, dict) and 'depth' in output:
+                depth = output['depth']
 
-                # Extract depth
-                depth = None
-                if hasattr(output, 'depth'):
-                    depth = output.depth
-                elif isinstance(output, dict) and 'depth' in output:
-                    depth = output['depth']
+            if depth is None or not torch.is_tensor(depth):
+                raise ValueError("Model output does not contain valid depth tensor")
 
-                if depth is None or not torch.is_tensor(depth):
-                    raise ValueError("Model output does not contain valid depth tensor")
+            # Extract confidence
+            conf = None
+            if hasattr(output, 'depth_conf'):
+                conf = output.depth_conf
+            elif isinstance(output, dict) and 'depth_conf' in output:
+                conf = output['depth_conf']
 
-                # Extract confidence
-                conf = None
-                if hasattr(output, 'depth_conf'):
-                    conf = output.depth_conf
-                elif isinstance(output, dict) and 'depth_conf' in output:
-                    conf = output['depth_conf']
+            if conf is None or not torch.is_tensor(conf):
+                conf = torch.ones_like(depth)
 
-                if conf is None or not torch.is_tensor(conf):
-                    conf = torch.ones_like(depth)
+            # Extract sky mask
+            sky = None
+            if hasattr(output, 'sky'):
+                sky = output.sky
+            elif isinstance(output, dict) and 'sky' in output:
+                sky = output['sky']
 
-                # Extract sky mask
-                sky = None
-                if hasattr(output, 'sky'):
-                    sky = output.sky
-                elif isinstance(output, dict) and 'sky' in output:
-                    sky = output['sky']
+            if sky is None or not torch.is_tensor(sky):
+                sky = torch.zeros_like(depth)
+            else:
+                # Normalize sky mask to 0-1 range
+                sky_min, sky_max = sky.min(), sky.max()
+                if sky_max > sky_min:
+                    sky = (sky - sky_min) / (sky_max - sky_min)
 
-                if sky is None or not torch.is_tensor(sky):
-                    sky = torch.zeros_like(depth)
-                else:
-                    # Normalize sky mask to 0-1 range
-                    sky_min, sky_max = sky.min(), sky.max()
-                    if sky_max > sky_min:
-                        sky = (sky - sky_min) / (sky_max - sky_min)
+            # ===== NORMALIZATION DISPATCH =====
+            if normalization_mode == "Raw":
+                depth_processed = apply_raw_normalization(depth, invert_depth)
+            elif normalization_mode == "V2-Style":
+                depth_processed = apply_v2_style_normalization(depth, sky, device, invert_depth)
+            else:  # "Standard"
+                depth_processed = apply_standard_normalization(depth, invert_depth)
 
-                # ===== NORMALIZATION DISPATCH =====
-                if normalization_mode == "Raw":
-                    depth_processed = apply_raw_normalization(depth, invert_depth)
-                elif normalization_mode == "V2-Style":
-                    depth_processed = apply_v2_style_normalization(depth, sky, device, invert_depth)
-                else:  # "Standard"
-                    depth_processed = apply_standard_normalization(depth, invert_depth)
+            # Normalize confidence
+            conf_range = conf.max() - conf.min()
+            if conf_range > 1e-8:
+                conf = (conf - conf.min()) / conf_range
+            else:
+                conf = torch.ones_like(conf)
 
-                # Normalize confidence
-                conf_range = conf.max() - conf.min()
-                if conf_range > 1e-8:
-                    conf = (conf - conf.min()) / conf_range
-                else:
-                    conf = torch.ones_like(conf)
+            depth_out.append(depth_processed.cpu())
+            conf_out.append(conf.cpu())
+            sky_out.append(sky.cpu())
 
-                depth_out.append(depth_processed.cpu())
-                conf_out.append(conf.cpu())
-                sky_out.append(sky.cpu())
+            # Extract ray maps (if available)
+            ray = None
+            if hasattr(output, 'ray'):
+                ray = output.ray
+            elif isinstance(output, dict) and 'ray' in output:
+                ray = output['ray']
 
-                # Extract ray maps (if available)
-                ray = None
-                if hasattr(output, 'ray'):
-                    ray = output.ray
-                elif isinstance(output, dict) and 'ray' in output:
-                    ray = output['ray']
+            if ray is not None and torch.is_tensor(ray):
+                # ray shape: [B, S, 6, H, W] - first 3 channels are origin, last 3 are direction
+                ray = ray.squeeze(0)  # Remove batch dimension: [S, 6, H, W]
+                ray = ray.squeeze(0)  # Remove view dimension: [6, H, W]
 
-                if ray is not None and torch.is_tensor(ray):
-                    # ray shape: [B, S, 6, H, W] - first 3 channels are origin, last 3 are direction
-                    ray = ray.squeeze(0)  # Remove batch dimension: [S, 6, H, W]
-                    ray = ray.squeeze(0)  # Remove view dimension: [6, H, W]
+                ray_origin = ray[:3]  # [3, H, W]
+                ray_dir = ray[3:6]    # [3, H, W]
 
-                    ray_origin = ray[:3]  # [3, H, W]
-                    ray_dir = ray[3:6]    # [3, H, W]
+                ray_origin_out.append(ray_origin.cpu())
+                ray_dir_out.append(ray_dir.cpu())
+            else:
+                # Create dummy ray maps if not available
+                ray_origin_out.append(torch.zeros(3, depth.shape[-2], depth.shape[-1]))
+                ray_dir_out.append(torch.zeros(3, depth.shape[-2], depth.shape[-1]))
 
-                    ray_origin_out.append(ray_origin.cpu())
-                    ray_dir_out.append(ray_dir.cpu())
-                else:
-                    # Create dummy ray maps if not available
-                    ray_origin_out.append(torch.zeros(3, depth.shape[-2], depth.shape[-1]))
-                    ray_dir_out.append(torch.zeros(3, depth.shape[-2], depth.shape[-1]))
+            # Extract camera parameters (if available)
+            extr = None
+            if hasattr(output, 'extrinsics'):
+                extr = output.extrinsics
+            elif isinstance(output, dict) and 'extrinsics' in output:
+                extr = output['extrinsics']
 
-                # Extract camera parameters (if available)
-                extr = None
-                if hasattr(output, 'extrinsics'):
-                    extr = output.extrinsics
-                elif isinstance(output, dict) and 'extrinsics' in output:
-                    extr = output['extrinsics']
+            if extr is not None and torch.is_tensor(extr):
+                extrinsics_list.append(extr.cpu())
+            else:
+                extrinsics_list.append(None)
 
-                if extr is not None and torch.is_tensor(extr):
-                    extrinsics_list.append(extr.cpu())
-                else:
-                    extrinsics_list.append(None)
+            intr = None
+            if hasattr(output, 'intrinsics'):
+                intr = output.intrinsics
+            elif isinstance(output, dict) and 'intrinsics' in output:
+                intr = output['intrinsics']
 
-                intr = None
-                if hasattr(output, 'intrinsics'):
-                    intr = output.intrinsics
-                elif isinstance(output, dict) and 'intrinsics' in output:
-                    intr = output['intrinsics']
+            if intr is not None and torch.is_tensor(intr):
+                intr_cpu = intr.cpu()
+                logger.info(f"Model output intrinsics (batch {i}): shape={intr_cpu.shape}, values=\n{intr_cpu.squeeze()}")
+                intrinsics_list.append(intr_cpu)
+            else:
+                intrinsics_list.append(None)
 
-                if intr is not None and torch.is_tensor(intr):
-                    intr_cpu = intr.cpu()
-                    logger.info(f"Model output intrinsics (batch {i}): shape={intr_cpu.shape}, values=\n{intr_cpu.squeeze()}")
-                    intrinsics_list.append(intr_cpu)
-                else:
-                    intrinsics_list.append(None)
+            # Extract 3D Gaussians (only if model supports them and we requested them)
+            if infer_gs:
+                gs = None
+                if hasattr(output, 'gaussians'):
+                    gs = output.gaussians
+                elif isinstance(output, dict) and 'gaussians' in output:
+                    gs = output['gaussians']
 
-                # Extract 3D Gaussians (only if model supports them and we requested them)
-                if infer_gs:
-                    gs = None
-                    if hasattr(output, 'gaussians'):
-                        gs = output.gaussians
-                    elif isinstance(output, dict) and 'gaussians' in output:
-                        gs = output['gaussians']
+                # Validate that gs is actually a Gaussians object, not an empty addict.Dict
+                if gs is not None and hasattr(gs, 'means') and torch.is_tensor(gs.means):
+                    gaussians_list.append(gs)
 
-                    # Validate that gs is actually a Gaussians object, not an empty addict.Dict
-                    if gs is not None and hasattr(gs, 'means') and torch.is_tensor(gs.means):
-                        gaussians_list.append(gs)
-
-                pbar.update(1)
+            pbar.update(1)
 
         # Process outputs based on normalization mode
         normalize_depth_output = (normalization_mode != "Raw")

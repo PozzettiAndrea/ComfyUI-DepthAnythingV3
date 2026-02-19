@@ -3,8 +3,6 @@ import json
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
-from contextlib import nullcontext
-
 import comfy.model_management as mm
 from comfy.utils import ProgressBar
 
@@ -143,132 +141,129 @@ Higher N = more VRAM usage but better consistency.
         # This is the key difference - we process all N images together
         normalized_images = normalized_images.unsqueeze(0)  # [1, N, C, H, W]
 
-        autocast_condition = (dtype != torch.float32) and not mm.is_device_mps(device)
+        # Single forward pass with all N views
+        output = model(normalized_images.to(device, dtype=dtype), infer_gs=infer_gs)
 
-        with torch.autocast(mm.get_autocast_device(device), dtype=dtype) if autocast_condition else nullcontext():
-            # Single forward pass with all N views
-            output = model(normalized_images.to(device), infer_gs=infer_gs)
+        # Extract depth - shape should be [1, N, H, W]
+        depth = None
+        if hasattr(output, 'depth'):
+            depth = output.depth
+        elif isinstance(output, dict) and 'depth' in output:
+            depth = output['depth']
 
-            # Extract depth - shape should be [1, N, H, W]
-            depth = None
-            if hasattr(output, 'depth'):
-                depth = output.depth
-            elif isinstance(output, dict) and 'depth' in output:
-                depth = output['depth']
+        if depth is None or not torch.is_tensor(depth):
+            raise ValueError("Model output does not contain valid depth tensor")
 
-            if depth is None or not torch.is_tensor(depth):
-                raise ValueError("Model output does not contain valid depth tensor")
+        # Extract confidence
+        conf = None
+        if hasattr(output, 'depth_conf'):
+            conf = output.depth_conf
+        elif isinstance(output, dict) and 'depth_conf' in output:
+            conf = output['depth_conf']
 
-            # Extract confidence
-            conf = None
-            if hasattr(output, 'depth_conf'):
-                conf = output.depth_conf
-            elif isinstance(output, dict) and 'depth_conf' in output:
-                conf = output['depth_conf']
+        if conf is None or not torch.is_tensor(conf):
+            conf = torch.ones_like(depth)
 
-            if conf is None or not torch.is_tensor(conf):
-                conf = torch.ones_like(depth)
+        # Extract sky mask
+        sky = None
+        if hasattr(output, 'sky'):
+            sky = output.sky
+        elif isinstance(output, dict) and 'sky' in output:
+            sky = output['sky']
 
-            # Extract sky mask
-            sky = None
-            if hasattr(output, 'sky'):
-                sky = output.sky
-            elif isinstance(output, dict) and 'sky' in output:
-                sky = output['sky']
+        if sky is None or not torch.is_tensor(sky):
+            sky = torch.zeros_like(depth)
+        else:
+            # Normalize sky mask to 0-1 range
+            sky_min, sky_max = sky.min(), sky.max()
+            if sky_max > sky_min:
+                sky = (sky - sky_min) / (sky_max - sky_min)
 
-            if sky is None or not torch.is_tensor(sky):
-                sky = torch.zeros_like(depth)
-            else:
-                # Normalize sky mask to 0-1 range
-                sky_min, sky_max = sky.min(), sky.max()
-                if sky_max > sky_min:
-                    sky = (sky - sky_min) / (sky_max - sky_min)
+        # Extract ray maps
+        ray_origin = None
+        ray_direction = None
+        if hasattr(output, 'ray_origin'):
+            ray_origin = output.ray_origin
+        elif isinstance(output, dict) and 'ray_origin' in output:
+            ray_origin = output['ray_origin']
 
-            # Extract ray maps
-            ray_origin = None
-            ray_direction = None
-            if hasattr(output, 'ray_origin'):
-                ray_origin = output.ray_origin
-            elif isinstance(output, dict) and 'ray_origin' in output:
-                ray_origin = output['ray_origin']
+        if hasattr(output, 'ray_direction'):
+            ray_direction = output.ray_direction
+        elif isinstance(output, dict) and 'ray_direction' in output:
+            ray_direction = output['ray_direction']
 
-            if hasattr(output, 'ray_direction'):
-                ray_direction = output.ray_direction
-            elif isinstance(output, dict) and 'ray_direction' in output:
-                ray_direction = output['ray_direction']
+        # Extract camera parameters (extrinsics and intrinsics)
+        extr = None
+        intr = None
+        if hasattr(output, 'extrinsics'):
+            extr = output.extrinsics
+        elif isinstance(output, dict) and 'extrinsics' in output:
+            extr = output['extrinsics']
 
-            # Extract camera parameters (extrinsics and intrinsics)
-            extr = None
-            intr = None
-            if hasattr(output, 'extrinsics'):
-                extr = output.extrinsics
-            elif isinstance(output, dict) and 'extrinsics' in output:
-                extr = output['extrinsics']
+        if hasattr(output, 'intrinsics'):
+            intr = output.intrinsics
+        elif isinstance(output, dict) and 'intrinsics' in output:
+            intr = output['intrinsics']
 
-            if hasattr(output, 'intrinsics'):
-                intr = output.intrinsics
-            elif isinstance(output, dict) and 'intrinsics' in output:
-                intr = output['intrinsics']
+        if intr is not None and torch.is_tensor(intr):
+            n_views = intr.shape[1]
+            fx_vals = intr[0, :, 0, 0]
+            logger.info(f"Model output intrinsics: {n_views} views, fx range=[{fx_vals.min():.1f}, {fx_vals.max():.1f}]")
 
-            if intr is not None and torch.is_tensor(intr):
-                n_views = intr.shape[1]
-                fx_vals = intr[0, :, 0, 0]
-                logger.info(f"Model output intrinsics: {n_views} views, fx range=[{fx_vals.min():.1f}, {fx_vals.max():.1f}]")
+        # Extract 3D Gaussians (if available)
+        gaussians = None
+        if hasattr(output, 'gaussians'):
+            gaussians = output.gaussians
+        elif isinstance(output, dict) and 'gaussians' in output:
+            gaussians = output['gaussians']
 
-            # Extract 3D Gaussians (if available)
-            gaussians = None
-            if hasattr(output, 'gaussians'):
-                gaussians = output.gaussians
-            elif isinstance(output, dict) and 'gaussians' in output:
-                gaussians = output['gaussians']
+        # Remove batch dimension: [1, N, H, W] -> [N, H, W]
+        depth = depth.squeeze(0)
+        conf = conf.squeeze(0)
+        sky = sky.squeeze(0)
 
-            # Remove batch dimension: [1, N, H, W] -> [N, H, W]
-            depth = depth.squeeze(0)
-            conf = conf.squeeze(0)
-            sky = sky.squeeze(0)
+        # Apply normalization mode (normalize across all views together for consistency)
+        if normalization_mode == "Standard":
+            depth = apply_standard_normalization(depth, invert_depth)
+        elif normalization_mode == "V2-Style":
+            depth = apply_v2_style_normalization(depth, sky, device, invert_depth)
+        elif normalization_mode == "Raw":
+            depth = apply_raw_normalization(depth, invert_depth)
+        else:
+            # Fallback to V2-Style
+            depth = apply_v2_style_normalization(depth, sky, device, invert_depth)
 
-            # Apply normalization mode (normalize across all views together for consistency)
-            if normalization_mode == "Standard":
-                depth = apply_standard_normalization(depth, invert_depth)
-            elif normalization_mode == "V2-Style":
-                depth = apply_v2_style_normalization(depth, sky, device, invert_depth)
-            elif normalization_mode == "Raw":
-                depth = apply_raw_normalization(depth, invert_depth)
-            else:
-                # Fallback to V2-Style
-                depth = apply_v2_style_normalization(depth, sky, device, invert_depth)
+        # Normalize confidence
+        conf_range = conf.max() - conf.min()
+        if conf_range > 1e-8:
+            conf = (conf - conf.min()) / conf_range
+        else:
+            conf = torch.ones_like(conf)
 
-            # Normalize confidence
-            conf_range = conf.max() - conf.min()
-            if conf_range > 1e-8:
-                conf = (conf - conf.min()) / conf_range
-            else:
-                conf = torch.ones_like(conf)
+        # Process ray maps (normalize for visualization)
+        if ray_origin is not None and torch.is_tensor(ray_origin):
+            ray_origin = ray_origin.squeeze(0)  # [N, 3, H, W]
+            # Normalize each channel independently for visualization
+            for c in range(ray_origin.shape[1]):
+                channel = ray_origin[:, c]
+                c_min, c_max = channel.min(), channel.max()
+                if c_max > c_min:
+                    ray_origin[:, c] = (channel - c_min) / (c_max - c_min)
+        else:
+            # Create zeros with shape [N, 3, H, W]
+            ray_origin = torch.zeros((depth.shape[0], 3, depth.shape[1], depth.shape[2]), device=device)
 
-            # Process ray maps (normalize for visualization)
-            if ray_origin is not None and torch.is_tensor(ray_origin):
-                ray_origin = ray_origin.squeeze(0)  # [N, 3, H, W]
-                # Normalize each channel independently for visualization
-                for c in range(ray_origin.shape[1]):
-                    channel = ray_origin[:, c]
-                    c_min, c_max = channel.min(), channel.max()
-                    if c_max > c_min:
-                        ray_origin[:, c] = (channel - c_min) / (c_max - c_min)
-            else:
-                # Create zeros with shape [N, 3, H, W]
-                ray_origin = torch.zeros((depth.shape[0], 3, depth.shape[1], depth.shape[2]), device=device)
-
-            if ray_direction is not None and torch.is_tensor(ray_direction):
-                ray_direction = ray_direction.squeeze(0)  # [N, 3, H, W]
-                # Normalize each channel independently for visualization
-                for c in range(ray_direction.shape[1]):
-                    channel = ray_direction[:, c]
-                    c_min, c_max = channel.min(), channel.max()
-                    if c_max > c_min:
-                        ray_direction[:, c] = (channel - c_min) / (c_max - c_min)
-            else:
-                # Create zeros with shape [N, 3, H, W]
-                ray_direction = torch.zeros((depth.shape[0], 3, depth.shape[1], depth.shape[2]), device=device)
+        if ray_direction is not None and torch.is_tensor(ray_direction):
+            ray_direction = ray_direction.squeeze(0)  # [N, 3, H, W]
+            # Normalize each channel independently for visualization
+            for c in range(ray_direction.shape[1]):
+                channel = ray_direction[:, c]
+                c_min, c_max = channel.min(), channel.max()
+                if c_max > c_min:
+                    ray_direction[:, c] = (channel - c_min) / (c_max - c_min)
+        else:
+            # Create zeros with shape [N, 3, H, W]
+            ray_direction = torch.zeros((depth.shape[0], 3, depth.shape[1], depth.shape[2]), device=device)
 
         # Convert to ComfyUI format [N, H, W, 3]
         depth_out = depth.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()
