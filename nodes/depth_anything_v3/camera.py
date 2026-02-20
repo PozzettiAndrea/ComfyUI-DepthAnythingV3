@@ -20,10 +20,7 @@ from torch import Tensor
 import comfy.ops
 from comfy.ldm.modules.attention import optimized_attention
 
-from .utils.geometry import affine_inverse
-from .utils.logger import logger
-
-ops = comfy.ops.manual_cast
+from .geometry import affine_inverse
 
 
 # =============================================================================
@@ -183,7 +180,7 @@ class CameraMlp(nn.Module):
         act_layer: Callable[..., nn.Module] = nn.GELU,
         drop: float = 0.0,
         bias: bool = True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         out_features = out_features or in_features
@@ -213,7 +210,7 @@ class CameraAttention(nn.Module):
         proj_drop: float = 0.0,
         qk_norm: bool = False,
         rope=None,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
@@ -266,7 +263,7 @@ class CameraBlock(nn.Module):
         ffn_layer: Callable[..., nn.Module] = CameraMlp,
         qk_norm: bool = False,
         rope=None,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         self.norm1 = operations.LayerNorm(dim, dtype=dtype, device=device)
@@ -317,7 +314,7 @@ class CameraEnc(nn.Module):
         num_heads: int = 16,
         mlp_ratio: int = 4,
         init_values: float = 0.01,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
         **kwargs,
     ):
         super().__init__()
@@ -346,23 +343,19 @@ class CameraEnc(nn.Module):
         )
 
     def forward(self, ext, ixt, image_size):
-        logger.info(f"[CameraEnc] forward: ext shape={list(ext.shape)} dtype={ext.dtype}, ixt shape={list(ixt.shape)} dtype={ixt.dtype}, image_size={image_size}")
         c2ws = affine_inverse(ext)
         pose_encoding = extri_intri_to_pose_encoding(c2ws, ixt, image_size)
-        logger.info(f"[CameraEnc] pose_encoding: shape={list(pose_encoding.shape)}, dtype={pose_encoding.dtype}")
         pose_tokens = self.pose_branch(pose_encoding)
-        logger.info(f"[CameraEnc] after pose_branch: shape={list(pose_tokens.shape)}, dtype={pose_tokens.dtype}")
         pose_tokens = self.token_norm(pose_tokens)
         pose_tokens = self.trunk(pose_tokens)
         pose_tokens = self.trunk_norm(pose_tokens)
-        logger.info(f"[CameraEnc] output: shape={list(pose_tokens.shape)}, dtype={pose_tokens.dtype}")
         return pose_tokens
 
 
 class CameraDec(nn.Module):
     """Decodes visual features from backbone into camera pose parameters (9D)."""
 
-    def __init__(self, dim_in=1536, dtype=None, device=None, operations=ops):
+    def __init__(self, dim_in=1536, dtype=None, device=None, operations=None):
         super().__init__()
         output_dim = dim_in
         self.backbone = nn.Sequential(
@@ -380,10 +373,8 @@ class CameraDec(nn.Module):
 
     def forward(self, feat, camera_encoding=None, *args, **kwargs):
         B, N = feat.shape[:2]
-        logger.info(f"[CameraDec] forward: feat shape={list(feat.shape)}, dtype={feat.dtype}")
         feat = feat.reshape(B * N, -1)
         feat = self.backbone(feat)
-        logger.info(f"[CameraDec] after backbone: shape={list(feat.shape)}, dtype={feat.dtype}")
         out_t = self.fc_t(feat.float()).reshape(B, N, 3)
         if camera_encoding is None:
             out_qvec = self.fc_qvec(feat.float()).reshape(B, N, 4)
@@ -392,5 +383,4 @@ class CameraDec(nn.Module):
             out_qvec = camera_encoding[..., 3:7]
             out_fov = camera_encoding[..., -2:]
         pose_enc = torch.cat([out_t, out_qvec, out_fov], dim=-1)
-        logger.info(f"[CameraDec] output pose_enc: shape={list(pose_enc.shape)}, dtype={pose_enc.dtype}")
         return pose_enc

@@ -29,7 +29,7 @@ try:
 except ImportError:
     HAS_PYPOSE = False
 
-from ..fastloop.solve_python import solve_system_py
+from .solve_python import solve_system_py
 
 cpp_version = False
 try:

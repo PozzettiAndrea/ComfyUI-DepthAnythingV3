@@ -2,6 +2,7 @@
 import torch
 import os
 
+import comfy.ops
 import comfy.model_management as mm
 from comfy.utils import load_torch_file
 import folder_paths
@@ -23,7 +24,7 @@ except (ImportError, ModuleNotFoundError):
     is_accelerate_available = False
 
 
-def _build_gs_modules(config):
+def _build_gs_modules(config, operations):
     """Build GS head and adapter for Giant model.
 
     Only Giant model has gs_head/gs_adapter in the checkpoint.
@@ -35,6 +36,7 @@ def _build_gs_modules(config):
         output_dim=38,  # matches GaussianAdapter.d_in with sh_degree=2
         features=config['features'],  # 256
         out_channels=config['out_channels'],  # [256, 512, 1024, 1024]
+        operations=operations,
     )
 
     # GS adapter: converts raw GS output to Gaussians
@@ -94,7 +96,7 @@ class NestedModelWrapper(torch.nn.Module):
 
     def forward(self, *args, **kwargs):
         # Import alignment utilities lazily to avoid circular imports
-        from .depth_anything_v3.utils.alignment import (
+        from .depth_anything_v3.alignment import (
             apply_metric_scaling, compute_sky_mask, compute_alignment_mask,
             sample_tensor_for_quantile, least_squares_scale_scalar
         )
@@ -198,6 +200,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
     }
 
     is_nested = config.get('is_nested', False)
+    operations = comfy.ops.manual_cast
 
     with torch.device("meta"):
         if is_nested:
@@ -210,12 +213,14 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                 qknorm_start=config.get('qknorm_start', 13),
                 rope_start=config.get('rope_start', 13),
                 cat_token=config.get('cat_token', True),
+                operations=operations,
             )
             head_main = DualDPT(
                 dim_in=config['dim_in'],
                 output_dim=2,
                 features=config['features'],
                 out_channels=config['out_channels'],
+                operations=operations,
             )
             embed_dim = encoder_embed_dims.get(config['encoder'], 1536)
             cam_enc_main = CameraEnc(
@@ -225,9 +230,10 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                 num_heads=embed_dim // 64,
                 mlp_ratio=4,
                 init_values=0.01,
+                operations=operations,
             )
-            cam_dec_main = CameraDec(dim_in=config['dim_in'])
-            gs_head_main, gs_adapter_main = _build_gs_modules(config)
+            cam_dec_main = CameraDec(dim_in=config['dim_in'], operations=operations)
+            gs_head_main, gs_adapter_main = _build_gs_modules(config, operations)
 
             da3_main = DepthAnything3Net(
                 net=backbone_main,
@@ -252,12 +258,14 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                 qknorm_start=-1,
                 rope_start=-1,
                 cat_token=False,
+                operations=operations,
             )
             head_metric = DPT(
                 dim_in=metric_config.get('dim_in', 1024),
                 output_dim=1,
                 features=metric_config.get('features', 256),
                 out_channels=metric_config.get('out_channels', [256, 512, 1024, 1024]),
+                operations=operations,
             )
             da3_metric = DepthAnything3Net(
                 net=backbone_metric,
@@ -277,6 +285,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                 qknorm_start=config.get('qknorm_start', -1),
                 rope_start=config.get('rope_start', -1),
                 cat_token=config.get('cat_token', False),
+                operations=operations,
             )
 
             if config.get('is_mono', False) or config.get('is_metric', False):
@@ -285,6 +294,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                     output_dim=1,
                     features=config['features'],
                     out_channels=config['out_channels'],
+                    operations=operations,
                 )
             else:
                 head = DualDPT(
@@ -292,6 +302,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                     output_dim=2,
                     features=config['features'],
                     out_channels=config['out_channels'],
+                    operations=operations,
                 )
 
             cam_enc = None
@@ -305,13 +316,14 @@ def _build_da3_model(model_path, model_key, dtype, attention):
                     num_heads=embed_dim // 64,
                     mlp_ratio=4,
                     init_values=0.01,
+                    operations=operations,
                 )
-                cam_dec = CameraDec(dim_in=config['dim_in'])
+                cam_dec = CameraDec(dim_in=config['dim_in'], operations=operations)
 
             gs_head = None
             gs_adapter = None
             if model_key == 'da3-giant':
-                gs_head, gs_adapter = _build_gs_modules(config)
+                gs_head, gs_adapter = _build_gs_modules(config, operations)
                 logger.info("Built GS head and adapter for Giant model (Gaussian splatting enabled)")
 
             inner_model = DepthAnything3Net(
@@ -606,7 +618,7 @@ def _build_salad_model(ckpt_path):
 
     Returns a loaded nn.Module on CPU in eval mode.
     """
-    from .streaming.loop_utils.salad_model import VPRModel
+    from .salad.model import VPRModel
 
     model = VPRModel()
     state_dict = load_torch_file(str(ckpt_path))
