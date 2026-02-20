@@ -13,7 +13,6 @@
 from __future__ import annotations
 
 import math
-import logging
 from typing import Callable, Dict as TyDict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -22,15 +21,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from einops import rearrange
-from addict import Dict
-from omegaconf import OmegaConf
 
 import comfy.ops
 from comfy.ldm.modules.attention import optimized_attention
 
-from .cfg import create_object
-from .utils.logger import logger
-from .utils.alignment import (
+from .alignment import (
     apply_metric_scaling,
     compute_alignment_mask,
     compute_sky_mask,
@@ -38,13 +33,26 @@ from .utils.alignment import (
     sample_tensor_for_quantile,
     set_sky_regions_to_max_depth,
 )
-from .utils.geometry import affine_inverse, as_homogeneous
+from .geometry import affine_inverse, as_homogeneous
 
-ops = comfy.ops.manual_cast
 
-# Flag to log attention/forward details only on the first call (avoids spam)
-_first_attn_call = True
-_first_forward_call = True
+class ModelOutput(dict):
+    """Dict subclass with attribute access, replacing addict.Dict dependency."""
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(key)
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, key):
+        try:
+            del self[key]
+        except KeyError:
+            raise AttributeError(key)
 
 
 # =============================================================================
@@ -219,7 +227,7 @@ class Mlp(nn.Module):
         act_layer: Callable[..., nn.Module] = nn.GELU,
         drop: float = 0.0,
         bias: bool = True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         out_features = out_features or in_features
@@ -248,7 +256,7 @@ class SwiGLUFFN(nn.Module):
         act_layer: Callable[..., nn.Module] = None,
         drop: float = 0.0,
         bias: bool = True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         out_features = out_features or in_features
@@ -360,7 +368,7 @@ class PatchEmbed(nn.Module):
         embed_dim: int = 768,
         norm_layer: Optional[Callable] = None,
         flatten_embedding: bool = True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         image_HW = _make_2tuple(img_size)
@@ -384,9 +392,7 @@ class PatchEmbed(nn.Module):
         patch_H, patch_W = self.patch_size
         assert H % patch_H == 0, f"Input image height {H} is not a multiple of patch height {patch_H}"
         assert W % patch_W == 0, f"Input image width {W} is not a multiple of patch width: {patch_W}"
-        logger.info(f"[PatchEmbed] input: shape={list(x.shape)}, dtype={x.dtype}, proj.weight dtype={self.proj.weight.dtype}")
         x = self.proj(x)
-        logger.info(f"[PatchEmbed] after proj: shape={list(x.shape)}, dtype={x.dtype}")
         H, W = x.size(2), x.size(3)
         x = x.flatten(2).transpose(1, 2)
         x = self.norm(x)
@@ -411,7 +417,7 @@ class Attention(nn.Module):
         proj_drop: float = 0.0,
         qk_norm: bool = False,
         rope=None,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
@@ -426,7 +432,6 @@ class Attention(nn.Module):
         self.rope = rope
 
     def forward(self, x: Tensor, pos=None, attn_mask=None) -> Tensor:
-        global _first_attn_call
         B, N, C = x.shape
         qkv = (
             self.qkv(x)
@@ -440,12 +445,6 @@ class Attention(nn.Module):
             q = self.rope(q, pos)
             k = self.rope(k, pos)
 
-        if _first_attn_call:
-            logger.info(f"[Attention] input x: shape={list(x.shape)}, dtype={x.dtype}, device={x.device}")
-            logger.info(f"[Attention] after qkv: q={list(q.shape)} dtype={q.dtype}, k dtype={k.dtype}, v dtype={v.dtype}")
-            logger.info(f"[Attention] heads={self.num_heads}, head_dim={self.head_dim}, has_rope={self.rope is not None}, has_mask={attn_mask is not None}")
-            logger.info(f"[Attention] backend={'sdpa (masked)' if attn_mask is not None else 'optimized_attention'}")
-
         if attn_mask is not None:
             attn_mask = attn_mask[:, None].expand(-1, self.num_heads, -1, -1)
             x = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
@@ -454,11 +453,6 @@ class Attention(nn.Module):
             x = optimized_attention(q, k, v, heads=self.num_heads, skip_reshape=True)
 
         x = self.proj(x)
-
-        if _first_attn_call:
-            logger.info(f"[Attention] output: shape={list(x.shape)}, dtype={x.dtype}")
-            _first_attn_call = False
-
         return x
 
 
@@ -486,7 +480,7 @@ class Block(nn.Module):
         qk_norm: bool = False,
         rope=None,
         ln_eps: float = 1e-6,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         self.norm1 = operations.LayerNorm(dim, eps=ln_eps, dtype=dtype, device=device)
@@ -564,7 +558,7 @@ class DinoVisionTransformer(nn.Module):
         rope_freq=100,
         plus_cam_token=False,
         cat_token=True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ):
         super().__init__()
         self.patch_start_idx = 1
@@ -677,10 +671,8 @@ class DinoVisionTransformer(nn.Module):
 
     def prepare_tokens_with_masks(self, x, masks=None, cls_token=None, **kwargs):
         B, S, nc, w, h = x.shape
-        logger.info(f"[ViT] prepare_tokens: input shape=({B},{S},{nc},{w},{h}), dtype={x.dtype}, device={x.device}")
         x = rearrange(x, "b s c h w -> (b s) c h w")
         x = self.patch_embed(x)
-        logger.info(f"[ViT] after patch_embed: shape={list(x.shape)}, dtype={x.dtype}")
         if masks is not None:
             x = torch.where(masks.unsqueeze(-1), self.mask_token.to(x.dtype).unsqueeze(0), x)
         cls_token = self.prepare_cls_token(B, S)
@@ -731,7 +723,6 @@ class DinoVisionTransformer(nn.Module):
                 l_pos = pos
             if self.alt_start != -1 and i == self.alt_start:
                 if kwargs.get("cam_token", None) is not None:
-                    logger.info("Using camera conditions provided by the user")
                     cam_token = kwargs.get("cam_token")
                 else:
                     ref_token = self.camera_token[:, :1].expand(B, -1, -1)
@@ -776,7 +767,6 @@ class DinoVisionTransformer(nn.Module):
         return x
 
     def get_intermediate_layers(self, x, n=1, export_feat_layers=[], **kwargs):
-        logger.info(f"[ViT] get_intermediate_layers: input shape={list(x.shape)}, dtype={x.dtype}, n={n}")
         outputs, aux_outputs = self._get_intermediate_layers_not_chunked(
             x, n, export_feat_layers=export_feat_layers, **kwargs
         )
@@ -837,7 +827,7 @@ class DinoV2(nn.Module):
         qknorm_start: int = -1,
         rope_start: int = -1,
         cat_token: bool = True,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
         **kwargs,
     ):
         super().__init__()
@@ -883,7 +873,7 @@ class DinoV2(nn.Module):
 class ResidualConvUnit(nn.Module):
     """Lightweight residual convolution block for fusion."""
     def __init__(self, features: int, activation: nn.Module, bn: bool, groups: int = 1,
-                 dtype=None, device=None, operations=ops) -> None:
+                 dtype=None, device=None, operations=None) -> None:
         super().__init__()
         self.bn = bn
         self.groups = groups
@@ -920,7 +910,7 @@ class FeatureFusionBlock(nn.Module):
         size: Tuple[int, int] = None,
         has_residual: bool = True,
         groups: int = 1,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
         self.align_corners = align_corners
@@ -960,7 +950,7 @@ def _make_fusion_block(
     has_residual: bool = True,
     groups: int = 1,
     inplace: bool = False,
-    dtype=None, device=None, operations=ops,
+    dtype=None, device=None, operations=None,
 ) -> nn.Module:
     return FeatureFusionBlock(
         features=features,
@@ -973,7 +963,7 @@ def _make_fusion_block(
 
 def _make_scratch(
     in_shape: List[int], out_shape: int, groups: int = 1, expand: bool = False,
-    dtype=None, device=None, operations=ops,
+    dtype=None, device=None, operations=None,
 ) -> nn.Module:
     scratch = nn.Module()
     c1 = out_shape
@@ -1013,7 +1003,7 @@ class DPT(nn.Module):
         use_ln_for_heads: bool = False,
         norm_type: str = "idt",
         fusion_block_inplace: bool = False,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
 
@@ -1105,7 +1095,6 @@ class DPT(nn.Module):
 
     def forward(self, feats, H, W, patch_start_idx, chunk_size=8, **kwargs):
         B, S, N, C = feats[0][0].shape
-        logger.info(f"[DPT] forward: B={B}, S={S}, N={N}, C={C}, H={H}, W={W}, feats[0] dtype={feats[0][0].dtype}")
         feats = [feat[0].reshape(B * S, N, C) for feat in feats]
         extra_kwargs = {}
         if "images" in kwargs:
@@ -1113,7 +1102,7 @@ class DPT(nn.Module):
         if chunk_size is None or chunk_size >= S:
             out_dict = self._forward_impl(feats, H, W, patch_start_idx, **extra_kwargs)
             out_dict = {k: v.view(B, S, *v.shape[1:]) for k, v in out_dict.items()}
-            return Dict(out_dict)
+            return ModelOutput(out_dict)
         out_dicts = []
         for s0 in range(0, S, chunk_size):
             s1 = min(s0 + chunk_size, S)
@@ -1125,12 +1114,11 @@ class DPT(nn.Module):
             )
         out_dict = {k: torch.cat([od[k] for od in out_dicts], dim=0) for k in out_dicts[0].keys()}
         out_dict = {k: v.view(B, S, *v.shape[1:]) for k, v in out_dict.items()}
-        return Dict(out_dict)
+        return ModelOutput(out_dict)
 
     def _forward_impl(self, feats, H, W, patch_start_idx, **kwargs):
         B, _, C = feats[0].shape
         ph, pw = H // self.patch_size, W // self.patch_size
-        logger.info(f"[DPT] _forward_impl: B={B}, C={C}, ph={ph}, pw={pw}, feats dtype={feats[0].dtype}")
         resized_feats = []
         for stage_idx, take_idx in enumerate(self.intermediate_layer_idx):
             x = feats[take_idx][:, patch_start_idx:]
@@ -1240,7 +1228,7 @@ class DualDPT(nn.Module):
         aux_pyramid_levels: int = 4,
         aux_out1_conv_num: int = 5,
         head_names: Tuple[str, str] = ("depth", "ray"),
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__()
 
@@ -1325,12 +1313,11 @@ class DualDPT(nn.Module):
 
     def forward(self, feats, H, W, patch_start_idx, chunk_size=8):
         B, S, N, C = feats[0][0].shape
-        logger.info(f"[DualDPT] forward: B={B}, S={S}, N={N}, C={C}, H={H}, W={W}, feats[0] dtype={feats[0][0].dtype}")
         feats = [feat[0].reshape(B * S, N, C) for feat in feats]
         if chunk_size is None or chunk_size >= S:
             out_dict = self._forward_impl(feats, H, W, patch_start_idx)
             out_dict = {k: v.reshape(B, S, *v.shape[1:]) for k, v in out_dict.items()}
-            return Dict(out_dict)
+            return ModelOutput(out_dict)
         out_dicts = []
         for s0 in range(0, S, chunk_size):
             s1 = min(s0 + chunk_size, S)
@@ -1342,11 +1329,10 @@ class DualDPT(nn.Module):
             for k in out_dicts[0].keys()
         }
         out_dict = {k: v.view(B, S, *v.shape[1:]) for k, v in out_dict.items()}
-        return Dict(out_dict)
+        return ModelOutput(out_dict)
 
     def _forward_impl(self, feats, H, W, patch_start_idx):
         B, _, C = feats[0].shape
-        logger.info(f"[DualDPT] _forward_impl: B={B}, C={C}, feats dtype={feats[0].dtype}")
         ph, pw = H // self.patch_size, W // self.patch_size
         resized_feats = []
         for stage_idx, take_idx in enumerate(self.intermediate_layer_idx):
@@ -1427,7 +1413,7 @@ class DualDPT(nn.Module):
         pe = pe.permute(2, 0, 1)[None].expand(x.shape[0], -1, -1, -1)
         return x + pe
 
-    def _make_aux_out1_block(self, in_ch, dtype=None, device=None, operations=ops):
+    def _make_aux_out1_block(self, in_ch, dtype=None, device=None, operations=None):
         if self.aux_out1_conv_num == 5:
             return nn.Sequential(
                 operations.Conv2d(in_ch, in_ch // 2, 3, 1, 1, dtype=dtype, device=device),
@@ -1472,57 +1458,22 @@ class DualDPT(nn.Module):
 # =============================================================================
 
 
-def _wrap_cfg(cfg_obj):
-    return OmegaConf.create(cfg_obj)
-
-
 class DepthAnything3Net(nn.Module):
     """Depth Anything 3 network for depth estimation and camera pose estimation."""
 
     PATCH_SIZE = 14
 
     def __init__(self, net, head, cam_dec=None, cam_enc=None, gs_head=None, gs_adapter=None,
-                 dtype=None, device=None, operations=ops):
+                 dtype=None, device=None, operations=None):
         super().__init__()
-        self.backbone = net if isinstance(net, nn.Module) else create_object(_wrap_cfg(net))
-        self.head = head if isinstance(head, nn.Module) else create_object(_wrap_cfg(head))
-        self.cam_dec, self.cam_enc = None, None
-        if cam_dec is not None:
-            self.cam_dec = (
-                cam_dec if isinstance(cam_dec, nn.Module) else create_object(_wrap_cfg(cam_dec))
-            )
-            self.cam_enc = (
-                cam_enc if isinstance(cam_enc, nn.Module) else create_object(_wrap_cfg(cam_enc))
-            )
-        self.gs_adapter, self.gs_head = None, None
-        if gs_head is not None and gs_adapter is not None:
-            self.gs_adapter = (
-                gs_adapter
-                if isinstance(gs_adapter, nn.Module)
-                else create_object(_wrap_cfg(gs_adapter))
-            )
-            gs_out_dim = self.gs_adapter.d_in + 1
-            if isinstance(gs_head, nn.Module):
-                assert gs_head.out_dim == gs_out_dim, \
-                    f"gs_head.out_dim should be {gs_out_dim}, got {gs_head.out_dim}"
-                self.gs_head = gs_head
-            else:
-                assert gs_head["output_dim"] == gs_out_dim, \
-                    f"gs_head output_dim should set to {gs_out_dim}, got {gs_head['output_dim']}"
-                self.gs_head = create_object(_wrap_cfg(gs_head))
+        self.backbone = net
+        self.head = head
+        self.cam_dec = cam_dec
+        self.cam_enc = cam_enc
+        self.gs_adapter = gs_adapter
+        self.gs_head = gs_head
 
     def forward(self, x, extrinsics=None, intrinsics=None, export_feat_layers=[], infer_gs=False):
-        global _first_forward_call
-        if _first_forward_call:
-            logger.info(f"[DA3] forward: input shape={list(x.shape)}, dtype={x.dtype}, device={x.device}")
-            logger.info(f"[DA3] has_cam_enc={self.cam_enc is not None}, has_cam_dec={self.cam_dec is not None}")
-            logger.info(f"[DA3] has_gs_head={self.gs_head is not None}, infer_gs={infer_gs}")
-            logger.info(f"[DA3] extrinsics={'provided' if extrinsics is not None else 'None'}")
-            # Log weight dtypes from a sample layer
-            for name, param in list(self.backbone.named_parameters())[:3]:
-                logger.info(f"[DA3] backbone weight sample: {name} dtype={param.dtype}, device={param.device}")
-            _first_forward_call = False
-
         if extrinsics is not None:
             cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
         else:
@@ -1532,21 +1483,9 @@ class DepthAnything3Net(nn.Module):
             x, cam_token=cam_token, export_feat_layers=export_feat_layers
         )
         H, W = x.shape[-2], x.shape[-1]
-        logger.info(f"[DA3] backbone output: {len(feats)} feat layers, H={H}, W={W}")
-        if feats:
-            logger.info(f"[DA3] feats[0] shape={list(feats[0][0].shape)}, dtype={feats[0][0].dtype}")
 
         output = self._process_depth_head(feats, H, W)
-        if hasattr(output, 'depth'):
-            logger.info(f"[DA3] depth head output: depth shape={list(output.depth.shape)}, dtype={output.depth.dtype}")
-        if hasattr(output, 'depth_conf') and output.depth_conf is not None:
-            logger.info(f"[DA3] depth_conf: shape={list(output.depth_conf.shape)}, dtype={output.depth_conf.dtype}")
-
         output = self._process_camera_estimation(feats, H, W, output)
-        if hasattr(output, 'intrinsics') and output.intrinsics is not None:
-            logger.info(f"[DA3] camera estimation: intrinsics shape={list(output.intrinsics.shape)}, dtype={output.intrinsics.dtype}")
-        if hasattr(output, 'extrinsics') and output.extrinsics is not None:
-            logger.info(f"[DA3] camera estimation: extrinsics shape={list(output.extrinsics.shape)}, dtype={output.extrinsics.dtype}")
 
         if infer_gs:
             output = self._process_gs_head(feats, H, W, output, x, extrinsics, intrinsics)
@@ -1588,7 +1527,7 @@ class DepthAnything3Net(nn.Module):
         raw_gaussians = gs_outs.raw_gs
         densities = gs_outs.raw_gs_conf
 
-        from .utils.geometry import map_pdf_to_opacity
+        from .geometry import map_pdf_to_opacity
         gs_world = self.gs_adapter(
             extrinsics=ctx_extr, intrinsics=ctx_intr, depths=output.depth,
             opacities=map_pdf_to_opacity(densities), raw_gaussians=raw_gaussians,
@@ -1598,7 +1537,7 @@ class DepthAnything3Net(nn.Module):
         return output
 
     def _extract_auxiliary_features(self, feats, feat_layers, H, W):
-        aux_features = Dict()
+        aux_features = ModelOutput()
         assert len(feats) == len(feat_layers)
         for feat, feat_layer in zip(feats, feat_layers):
             feat_reshaped = feat.reshape([
@@ -1613,10 +1552,10 @@ class DepthAnything3Net(nn.Module):
 class NestedDepthAnything3Net(nn.Module):
     """Nested DA3 with metric scaling: combines two DepthAnything3Net branches."""
 
-    def __init__(self, anyview, metric, dtype=None, device=None, operations=ops):
+    def __init__(self, da3_main, da3_metric, dtype=None, device=None, operations=None):
         super().__init__()
-        self.da3 = create_object(anyview)
-        self.da3_metric = create_object(metric)
+        self.da3 = da3_main
+        self.da3_metric = da3_metric
 
     def forward(self, x, extrinsics=None, intrinsics=None, export_feat_layers=[], infer_gs=False):
         output = self.da3(x, extrinsics, intrinsics,

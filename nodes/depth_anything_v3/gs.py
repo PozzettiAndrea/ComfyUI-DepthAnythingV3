@@ -18,10 +18,8 @@ import comfy.ops
 
 from .camera import cam_quat_xyzw_to_world_quat_wxyz
 from .model import DPT, activate_head_gs, custom_interpolate
-from .utils.geometry import affine_inverse, get_world_rays, sample_image_grid
-from .utils.sh_helpers import rotate_sh
-
-ops = comfy.ops.manual_cast
+from .geometry import affine_inverse, get_world_rays, sample_image_grid
+from .sh_helpers import rotate_sh
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +104,7 @@ class GaussianAdapter(nn.Module):
         # 1.2) align predicted poses with GT if needed
         if gt_extrinsics is not None and not torch.equal(extrinsics, gt_extrinsics):
             try:
-                from .utils.pose_align import batch_align_poses_umeyama
+                from .pose_align import batch_align_poses_umeyama
                 _, _, pose_scales = batch_align_poses_umeyama(
                     gt_extrinsics.detach().float(),
                     extrinsics.detach().float(),
@@ -238,7 +236,7 @@ class GSDPT(DPT):
         conf_dim: int = 1,
         norm_type: str = "idt",
         fusion_block_inplace: bool = False,
-        dtype=None, device=None, operations=ops,
+        dtype=None, device=None, operations=None,
     ) -> None:
         super().__init__(
             dim_in=dim_in,

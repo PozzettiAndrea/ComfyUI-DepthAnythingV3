@@ -82,7 +82,7 @@ class StreamingConfig:
 
         # Try triton first (fastest GPU)
         try:
-            from .loop_utils.alignment_triton import HAS_TRITON
+            from .alignment_triton import HAS_TRITON
             if HAS_TRITON:
                 return "triton"
         except ImportError:
@@ -94,7 +94,7 @@ class StreamingConfig:
 
         # Then numba (JIT CPU)
         try:
-            from .loop_utils.sim3utils import HAS_NUMBA
+            from .sim3utils import HAS_NUMBA
             if HAS_NUMBA:
                 return "numba"
         except ImportError:
@@ -373,7 +373,7 @@ class StreamingPipeline:
         Returns:
             (s, R, t) tuple: scale, rotation [3,3], translation [3,]
         """
-        from .loop_utils.sim3utils import weighted_align_point_maps
+        from .sim3utils import weighted_align_point_maps
 
         overlap = self.config.overlap
 
@@ -398,7 +398,7 @@ class StreamingPipeline:
         # Precompute scale if using scale+se3
         precompute_scale = None
         if self.config.align_method == "scale+se3":
-            from .loop_utils.sim3utils import precompute_scale_chunks_with_depth
+            from .sim3utils import precompute_scale_chunks_with_depth
             scale_factor, _, _ = precompute_scale_chunks_with_depth(
                 prev_depth, prev_conf, curr_depth, curr_conf,
                 method=self.config.scale_compute_method,
@@ -435,8 +435,8 @@ class StreamingPipeline:
             return sim3_list
 
         try:
-            from .loop_utils.sim3loop import Sim3LoopOptimizer
-            from .loop_utils.sim3utils import (
+            from .sim3loop import Sim3LoopOptimizer
+            from .sim3utils import (
                 compute_sim3_ab, process_loop_list, weighted_align_point_maps
             )
         except Exception as e:
@@ -556,7 +556,7 @@ class StreamingPipeline:
         Returns:
             StreamingResult with aligned outputs
         """
-        from .loop_utils.sim3utils import accumulate_sim3_transforms
+        from .sim3utils import accumulate_sim3_transforms
 
         num_chunks = len(chunk_results)
         overlap = self.config.overlap
@@ -692,7 +692,7 @@ class StreamingPipeline:
             Path to the saved PLY file
         """
         try:
-            from .loop_utils.sim3utils import save_confident_pointcloud_batch
+            from .sim3utils import save_confident_pointcloud_batch
         except ImportError:
             logger.warning("Cannot save point cloud: missing dependencies")
             return ""

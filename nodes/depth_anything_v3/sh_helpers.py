@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from math import isqrt
 import torch
 from einops import einsum
@@ -19,8 +20,9 @@ from einops import einsum
 try:
     from e3nn.o3 import matrix_to_angles, wigner_D
 except ImportError:
-    from .logger import logger
-    logger.warning("Dependency 'e3nn' not found. Required for rotating the camera space SH coeff")
+    logging.getLogger("DepthAnythingV3").warning(
+        "Dependency 'e3nn' not found. Required for rotating the camera space SH coeff"
+    )
     matrix_to_angles = None
     wigner_D = None
 
