@@ -21,7 +21,10 @@ import time
 from typing import List, Tuple
 import numpy as np
 import torch
-from scipy.spatial.transform import Rotation as R
+try:
+    from scipy.spatial.transform import Rotation as R
+except ImportError:
+    R = None
 
 try:
     import pypose as pp
@@ -208,9 +211,8 @@ class Sim3LoopOptimizer:
                     return func(*x).sum(dim=0)
 
                 _, b, c = torch.autograd.functional.jacobian(_func_sum, x, vectorize=True)
-                from einops import rearrange
 
-                return rearrange(torch.stack((b, c)), "N O B I -> N B O I", N=2)
+                return torch.stack((b, c)).transpose(1, 2)
 
             J_Ginv_i, J_Ginv_j = batch_jacobian(_residual, (constants, Ginv[iii], Ginv[jjj]))
         else:

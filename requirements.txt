@@ -1,25 +1,28 @@
+# Core — required for basic depth inference
 comfy-env==0.2.9
-comfy-dynamic-widgets==0.1.5
-comfy-attn
+safetensors>=0.4.0,<1.0.0
+
+# 3D preview viewer (used by prestartup_script.py)
 comfy-3d-viewers==0.2.28
 
-huggingface_hub
-accelerate>=0.25.0
-einops>=0.7.0,<1.0.0
-omegaconf>=2.3.0,<3.0.0
-safetensors>=0.4.0,<1.0.0
-addict>=2.4.0,<3.0.0
-trimesh
-plyfile>=1.0.0
-e3nn>=0.5.0
-# DA3 Streaming alignment
-scipy>=1.10.0
-scikit-learn>=1.3.0
-DracoPy
-pygltflib
-pyfqmr
+# Optional — auto-download models from HuggingFace
+# huggingface_hub
 
-# DA3 Streaming loop closure
-pypose>=0.6.0
-faiss-cpu
-numba>=0.58.0
+# Optional — Gaussian Splatting SH rotation (giant model)
+# e3nn>=0.5.0
+
+# Optional — 3D export (point cloud, mesh)
+# trimesh
+# plyfile>=1.0.0
+# DracoPy
+# pygltflib
+# pyfqmr
+
+# Optional — streaming mode alignment
+# scipy>=1.10.0
+# scikit-learn>=1.3.0
+
+# Optional — streaming loop closure
+# pypose>=0.6.0
+# faiss-cpu
+# numba>=0.58.0

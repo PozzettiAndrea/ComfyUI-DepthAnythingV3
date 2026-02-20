@@ -451,12 +451,8 @@ class StreamingPipeline:
         device = self.device
 
         # --- Extract SALAD descriptors from video frames ---
-        import torchvision.transforms as T
-
-        transform = T.Compose([
-            T.Resize([336, 336], interpolation=T.InterpolationMode.BILINEAR),
-            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+        _mean = torch.tensor([0.485, 0.456, 0.406], device=device).view(1, 3, 1, 1)
+        _std = torch.tensor([0.229, 0.224, 0.225], device=device).view(1, 3, 1, 1)
 
         num_frames = video_frames.shape[0]
         batch_size = 32
@@ -466,7 +462,8 @@ class StreamingPipeline:
         for i in range(0, num_frames, batch_size):
             batch = video_frames[i:i+batch_size]  # [B, H, W, C]
             batch = batch.permute(0, 3, 1, 2)  # [B, C, H, W]
-            batch = transform(batch).to(device)
+            batch = torch.nn.functional.interpolate(batch, size=[336, 336], mode="bilinear", align_corners=False)
+            batch = ((batch.to(device) - _mean) / _std)
             with torch.no_grad():
                 with torch.autocast(device_type=device.type, dtype=torch.float16):
                     desc = model(batch).cpu()

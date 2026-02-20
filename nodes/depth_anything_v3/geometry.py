@@ -17,7 +17,6 @@ from typing import Optional
 import numpy as np
 import torch
 import torch.nn.functional as F
-from einops import einsum
 
 
 def as_homogeneous(ext):
@@ -253,10 +252,10 @@ def transform_rigid(
     transformation: torch.Tensor,  # "*#batch dim dim"
 ) -> torch.Tensor:  # "*batch dim"
     """Apply a rigid-body transformation to points or vectors."""
-    return einsum(
+    return torch.einsum(
+        "...ij,...j->...i",
         transformation,
         homogeneous_coordinates.to(transformation.dtype),
-        "... i j, ... j -> ... i",
     )
 
 
@@ -277,10 +276,10 @@ def unproject(
 
     # Apply the inverse intrinsics to the coordinates.
     coordinates = homogenize_points(coordinates)
-    ray_directions = einsum(
+    ray_directions = torch.einsum(
+        "...ij,...j->...i",
         intrinsics.float().inverse().to(intrinsics),
         coordinates.to(intrinsics.dtype),
-        "... i j, ... j -> ... i",
     )
 
     # Apply the supplied depth values.
@@ -318,7 +317,7 @@ def get_fov(intrinsics: torch.Tensor) -> torch.Tensor:  # "batch 3 3" -> "batch 
 
     def process_vector(vector):
         vector = torch.tensor(vector, dtype=intrinsics.dtype, device=intrinsics.device)
-        vector = einsum(intrinsics_inv, vector, "b i j, j -> b i")
+        vector = torch.einsum("bij,j->bi", intrinsics_inv, vector)
         return vector / vector.norm(dim=-1, keepdim=True)
 
     left = process_vector([0, 0.5, 1])

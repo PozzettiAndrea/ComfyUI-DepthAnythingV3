@@ -12,7 +12,6 @@ from typing import Dict as TyDict, List, Optional, Sequence
 
 import torch
 import torch.nn as nn
-from einops import einsum, rearrange, repeat
 
 import comfy.ops
 
@@ -110,10 +109,8 @@ class GaussianAdapter(nn.Module):
                     extrinsics.detach().float(),
                 )
                 pose_scales = torch.clamp(pose_scales, min=1 / 3.0, max=3.0)
-                cam2worlds[:, :, :3, 3] = cam2worlds[:, :, :3, 3] * rearrange(
-                    pose_scales, "b -> b () ()"
-                )
-                gs_depths = gs_depths * rearrange(pose_scales, "b -> b () () ()")
+                cam2worlds[:, :, :3, 3] = cam2worlds[:, :, :3, 3] * pose_scales[:, None, None]
+                gs_depths = gs_depths * pose_scales[:, None, None, None]
             except ImportError:
                 pass
 
@@ -129,11 +126,11 @@ class GaussianAdapter(nn.Module):
         # 1.4) unproject depth + xy to world ray
         origins, directions = get_world_rays(
             xy_ray,
-            repeat(cam2worlds, "b v i j -> b v h w i j", h=H, w=W),
-            repeat(intr_normed, "b v i j -> b v h w i j", h=H, w=W),
+            cam2worlds[:, :, None, None, :, :].expand(-1, -1, H, W, -1, -1),
+            intr_normed[:, :, None, None, :, :].expand(-1, -1, H, W, -1, -1),
         )
         gs_means_world = origins + directions * gs_depths[..., None]
-        gs_means_world = rearrange(gs_means_world, "b v h w d -> b (v h w) d")
+        gs_means_world = gs_means_world.flatten(1, 3)  # [B, V*H*W, D]
 
         # 2. compute other GS attributes
         scales, rotations, sh = raw_gaussians.split((3, 4, 3 * self.d_sh), dim=-1)
@@ -145,22 +142,17 @@ class GaussianAdapter(nn.Module):
         pixel_size = 1 / torch.tensor((W, H), dtype=dtype, device=device)
         multiplier = self.get_scale_multiplier(intr_normed, pixel_size)
         gs_scales = scales * gs_depths[..., None] * multiplier[..., None, None, None]
-        gs_scales = rearrange(gs_scales, "b v h w d -> b (v h w) d")
+        gs_scales = gs_scales.flatten(1, 3)  # [B, V*H*W, D]
 
         # 2.2) 3DGS quaternion (world space)
         rotations = rotations / (rotations.norm(dim=-1, keepdim=True) + eps)
-        cam_quat_xyzw = rearrange(rotations, "b v h w c -> b (v h w) c")
-        c2w_mat = repeat(
-            cam2worlds,
-            "b v i j -> b (v h w) i j",
-            h=H,
-            w=W,
-        )
+        cam_quat_xyzw = rotations.flatten(1, 3)  # [B, V*H*W, C]
+        c2w_mat = cam2worlds[:, :, None, None, :, :].expand(-1, -1, H, W, -1, -1).flatten(1, 3)  # [B, V*H*W, I, J]
         world_quat_wxyz = cam_quat_xyzw_to_world_quat_wxyz(cam_quat_xyzw, c2w_mat)
         gs_rotations_world = world_quat_wxyz
 
         # 2.3) 3DGS color / SH coefficient (world space)
-        sh = rearrange(sh, "... (xyz d_sh) -> ... xyz d_sh", xyz=3)
+        sh = sh.unflatten(-1, (3, -1))  # [..., 3*d_sh] -> [..., 3, d_sh]
         if not self.pred_color:
             sh = sh * self.sh_mask
 
@@ -168,10 +160,10 @@ class GaussianAdapter(nn.Module):
             gs_sh_world = sh
         else:
             gs_sh_world = rotate_sh(sh, cam2worlds[:, :, None, None, None, :3, :3])
-        gs_sh_world = rearrange(gs_sh_world, "b v h w xyz d_sh -> b (v h w) xyz d_sh")
+        gs_sh_world = gs_sh_world.flatten(1, 3)  # [B, V*H*W, XYZ, D_SH]
 
         # 2.4) 3DGS opacity
-        gs_opacities = rearrange(opacities, "b v h w ... -> b (v h w) ...")
+        gs_opacities = opacities.flatten(1, 3)  # [B, V*H*W, ...]
 
         return Gaussians(
             means=gs_means_world,
@@ -187,10 +179,10 @@ class GaussianAdapter(nn.Module):
         pixel_size: torch.Tensor,
         multiplier: float = 0.1,
     ) -> torch.Tensor:
-        xy_multipliers = multiplier * einsum(
+        xy_multipliers = multiplier * torch.einsum(
+            "...ij,j->...i",
             intrinsics[..., :2, :2].float().inverse().to(intrinsics),
             pixel_size,
-            "... i j, j -> ... i",
         )
         return xy_multipliers.sum(dim=-1)
 

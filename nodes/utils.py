@@ -5,16 +5,8 @@ import torch.nn.functional as F
 import logging
 
 import comfy.model_management as mm
-import comfy.model_patcher
 
-# Configure logger
 logger = logging.getLogger("DepthAnythingV3")
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter('[%(name)s] %(levelname)s: %(message)s'))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False  # Prevent duplicate output to root logger
 
 # Constants
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
@@ -22,31 +14,18 @@ IMAGENET_STD = [0.229, 0.224, 0.225]
 DEFAULT_PATCH_SIZE = 14
 
 
-def get_or_create_da3_patcher(node, da3_config):
-    """Lazily load DA3 model and cache on node instance.
+def imagenet_normalize(images_pt):
+    """Apply ImageNet normalization without torchvision dependency.
 
     Args:
-        node: The inference node instance (self). ModelPatcher is cached here.
-        da3_config: Config dict from the loader node.
+        images_pt: Tensor with shape [B, C, H, W] in [0, 1] range
 
     Returns:
-        comfy.model_patcher.ModelPatcher wrapping the loaded model.
+        Normalized tensor
     """
-    key = (da3_config["model_path"], da3_config["dtype"])
-    if not hasattr(node, '_patcher') or getattr(node, '_config_key', None) != key:
-        from .load_model import _build_da3_model
-        model = _build_da3_model(
-            da3_config["model_path"], da3_config["model_key"],
-            da3_config["dtype"], da3_config["attention"],
-        )
-        node._patcher = comfy.model_patcher.ModelPatcher(
-            model,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
-        )
-        node._config_key = key
-    return node._patcher
-
+    mean = torch.tensor(IMAGENET_MEAN, device=images_pt.device, dtype=images_pt.dtype).view(1, 3, 1, 1)
+    std = torch.tensor(IMAGENET_STD, device=images_pt.device, dtype=images_pt.dtype).view(1, 3, 1, 1)
+    return (images_pt - mean) / std
 
 
 def format_camera_params(param_list, param_name):
@@ -261,3 +240,169 @@ def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE, method="r
     return images_pt, orig_H, orig_W
 
 
+def save_gaussians_to_ply(gaussians, save_path, depth=None,
+                           shift_and_scale=False, save_sh_dc_only=True,
+                           prune_border=True, prune_depth_percent=0.9):
+    """Save Gaussians to PLY file in standard 3DGS format.
+
+    Ported from original DA3 gsply_helpers.export_ply + save_gaussian_ply.
+
+    Args:
+        gaussians: Object with .means, .scales, .rotations, .harmonics, .opacities
+                   All tensors shape (B, N, ...) where B=1, N = V*H*W
+        save_path: Output PLY file path (str or Path)
+        depth: Optional depth tensor (V, H, W) or (V, H, W, 1) for spatial pruning.
+               Provides shape info for border pruning + depth values for far pruning.
+        shift_and_scale: If True, normalize positions to ~[-1, 1] (default: False)
+        save_sh_dc_only: If True, save only DC band SH coefficients (default: True)
+        prune_border: If True, remove border Gaussians (requires depth for spatial shape)
+        prune_depth_percent: Keep closest N% by depth (0.9 = keep 90%). Set 1.0 to skip.
+    """
+    import numpy as np
+    from pathlib import Path
+
+    try:
+        from plyfile import PlyData, PlyElement
+    except ImportError:
+        logger.warning("plyfile not installed - cannot save Gaussians to PLY. "
+                       "Install with: pip install plyfile")
+        return ""
+
+    # Extract tensors from Gaussians object (handle both object and dict access)
+    if isinstance(gaussians, dict):
+        means = gaussians['means']
+        scales = gaussians['scales']
+        rotations = gaussians['rotations']
+        harmonics = gaussians['harmonics']
+        opacities = gaussians['opacities']
+    else:
+        means = gaussians.means
+        scales = gaussians.scales
+        rotations = gaussians.rotations
+        harmonics = gaussians.harmonics
+        opacities = gaussians.opacities
+
+    # Ensure batch dim exists, then take batch 0
+    if means.dim() == 2:
+        means = means.unsqueeze(0)
+        scales = scales.unsqueeze(0)
+        rotations = rotations.unsqueeze(0)
+        harmonics = harmonics.unsqueeze(0)
+        opacities = opacities.unsqueeze(0)
+
+    # Work with batch=0: shapes are (N, 3), (N, 3), (N, 4), (N, 3, d_sh), (N,)
+    world_means = means[0]
+    gs_scales = scales[0]
+    world_rotations = rotations[0]
+    world_shs = harmonics[0]
+    raw_opacities = opacities[0]
+    if raw_opacities.dim() > 1:
+        raw_opacities = raw_opacities.squeeze(-1)
+
+    # Convert opacity to logit space: inverse_sigmoid(opacity)
+    raw_opacities = raw_opacities.clamp(1e-6, 1.0 - 1e-6)
+    gs_opacities = torch.log(raw_opacities / (1.0 - raw_opacities))
+
+    # --- Pruning (requires depth for spatial layout) ---
+    if depth is not None:
+        depth_t = depth
+        if depth_t.dim() == 4:
+            depth_t = depth_t.squeeze(-1)  # (V, H, W)
+        if depth_t.dim() == 2:
+            depth_t = depth_t.unsqueeze(0)  # (1, H, W)
+        src_v, out_h, out_w = depth_t.shape
+
+        N = world_means.shape[0]
+        expected_N = src_v * out_h * out_w
+        if N == expected_N:
+            # Reshape from flat (V*H*W, ...) to spatial (V, H, W, ...)
+            spatial_means = world_means.reshape(src_v, out_h, out_w, -1)
+            spatial_scales = gs_scales.reshape(src_v, out_h, out_w, -1)
+            spatial_rots = world_rotations.reshape(src_v, out_h, out_w, -1)
+            spatial_shs = world_shs.reshape(src_v, out_h, out_w, *world_shs.shape[1:])
+            spatial_opac = gs_opacities.reshape(src_v, out_h, out_w)
+
+            # Build mask
+            if prune_border:
+                mask = torch.zeros(src_v, out_h, out_w, dtype=torch.bool,
+                                   device=world_means.device)
+                gstrim_h = max(int(8 / 256 * out_h), 1)
+                gstrim_w = max(int(8 / 256 * out_w), 1)
+                mask[:, gstrim_h:-gstrim_h, gstrim_w:-gstrim_w] = True
+            else:
+                mask = torch.ones(src_v, out_h, out_w, dtype=torch.bool,
+                                  device=world_means.device)
+
+            # Depth pruning
+            if prune_depth_percent < 1.0:
+                d_percentile = torch.quantile(
+                    depth_t.reshape(src_v, -1).float(),
+                    q=prune_depth_percent, dim=1
+                ).reshape(-1, 1, 1)
+                d_mask = depth_t <= d_percentile
+                mask = mask & d_mask
+
+            # Apply mask
+            world_means = spatial_means[mask]
+            gs_scales = spatial_scales[mask]
+            world_rotations = spatial_rots[mask]
+            world_shs = spatial_shs[mask]
+            gs_opacities = spatial_opac[mask]
+
+            logger.info(f"Pruned Gaussians: {N} -> {world_means.shape[0]} "
+                        f"(border={prune_border}, depth_pct={prune_depth_percent})")
+        else:
+            logger.warning(f"Cannot prune: N={N} != V*H*W={expected_N}. Saving all.")
+
+    # --- Optional shift and scale ---
+    if shift_and_scale:
+        median = world_means.median(dim=0).values
+        world_means = world_means - median
+        scale_factor = world_means.abs().quantile(0.95, dim=0).max()
+        if scale_factor > 0:
+            world_means = world_means / scale_factor
+            gs_scales = gs_scales / scale_factor
+
+    # --- Build PLY attributes (matching original DA3 format) ---
+    f_dc = world_shs[..., 0]  # (N, 3) — DC band
+    f_rest = world_shs[..., 1:].flatten(start_dim=1) if world_shs.shape[-1] > 1 else None
+
+    # Build property list
+    attr_names = ["x", "y", "z"]
+    if save_sh_dc_only:
+        attr_names += ["f_dc_0", "f_dc_1", "f_dc_2"]
+    else:
+        attr_names += ["f_dc_0", "f_dc_1", "f_dc_2"]
+        if f_rest is not None:
+            for i in range(f_rest.shape[1]):
+                attr_names.append(f"f_rest_{i}")
+    attr_names.append("opacity")
+    attr_names += ["scale_0", "scale_1", "scale_2"]
+    attr_names += ["rot_0", "rot_1", "rot_2", "rot_3"]
+
+    dtype_full = [(name, "f4") for name in attr_names]
+
+    # Concatenate all attribute arrays
+    attr_arrays = [
+        world_means.detach().cpu().numpy(),                          # x, y, z
+        f_dc.detach().cpu().contiguous().numpy(),                    # f_dc_0, f_dc_1, f_dc_2
+    ]
+    if not save_sh_dc_only and f_rest is not None:
+        attr_arrays.append(f_rest.detach().cpu().contiguous().numpy())
+    attr_arrays += [
+        gs_opacities[..., None].detach().cpu().numpy(),              # opacity (logit)
+        gs_scales.log().detach().cpu().numpy(),                      # scale_0,1,2 (log)
+        world_rotations.detach().cpu().numpy(),                      # rot_0,1,2,3
+    ]
+
+    attributes = np.concatenate(attr_arrays, axis=1)
+
+    N = world_means.shape[0]
+    elements = np.empty(N, dtype=dtype_full)
+    elements[:] = list(map(tuple, attributes))
+
+    save_path = Path(save_path)
+    save_path.parent.mkdir(exist_ok=True, parents=True)
+    PlyData([PlyElement.describe(elements, "vertex")]).write(str(save_path))
+    logger.info(f"Saved Gaussians ({N} splats, {len(attr_names)} properties) to: {save_path}")
+    return str(save_path)

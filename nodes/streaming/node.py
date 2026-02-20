@@ -7,22 +7,21 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torchvision import transforms
-
 import comfy.model_management as mm
 import folder_paths
 from comfy.utils import ProgressBar
+from comfy_api.latest import io
 
 from ..utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
-    resize_to_patch_multiple, get_or_create_da3_patcher,
+    resize_to_patch_multiple, imagenet_normalize, check_model_capabilities,
 )
 from .pipeline import StreamingConfig, StreamingPipeline
 
 logger = logging.getLogger("DA3Streaming")
 
 
-class DepthAnythingV3_Streaming:
+class DepthAnythingV3_Streaming(io.ComfyNode):
     """Process long video sequences with chunked DA3 inference and Sim(3) alignment.
 
     Accepts VIDEO input, saves per-frame NPZ data to disk, and returns a
@@ -30,99 +29,58 @@ class DepthAnythingV3_Streaming:
     """
 
     @classmethod
-    def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "da3_model": ("DA3MODEL", ),
-                "video": ("VIDEO", {
-                    "tooltip": "Video input from LoadVideo node"
-                }),
-                "normalization_mode": ([
-                    "Standard",
-                    "V2-Style",
-                    "Raw"
-                ], {"default": "V2-Style"}),
-            },
-            "optional": {
-                "salad_model": ("SALAD_MODEL", {
-                    "tooltip": "SALAD model for loop closure detection. Connect a Load SALAD Model node to enable loop closure."
-                }),
-                "chunk_size": ("INT", {
-                    "default": 30,
-                    "min": 4,
-                    "max": 256,
-                    "step": 1,
-                    "tooltip": "Frames per chunk. Lower = less VRAM. 30 for 24GB, 15 for 12GB VRAM."
-                }),
-                "overlap": ("INT", {
-                    "default": 8,
-                    "min": 2,
-                    "max": 64,
-                    "step": 1,
-                    "tooltip": "Overlap frames between chunks for Sim(3) alignment. 4-12 typical."
-                }),
-                "align_lib": (["auto", "torch", "triton", "numba", "numpy"], {
-                    "default": "auto",
-                    "tooltip": "Alignment backend. auto selects fastest available (triton > torch > numba > numpy)."
-                }),
-                "align_method": (["sim3", "se3", "scale+se3"], {
-                    "default": "sim3",
-                    "tooltip": "Alignment method. sim3: full 7-DOF. se3: 6-DOF (no scale). scale+se3: precompute scale then SE(3)."
-                }),
-                "resize_method": (["resize", "crop", "pad"], {
-                    "default": "resize",
-                    "tooltip": "How to handle non-patch-aligned dimensions."
-                }),
-                "invert_depth": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Invert depth output (far=bright)."
-                }),
-                "save_pointcloud": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Export aligned point cloud as PLY file."
-                }),
-                "sample_ratio": ("FLOAT", {
-                    "default": 0.015,
-                    "min": 0.001,
-                    "max": 1.0,
-                    "step": 0.005,
-                    "tooltip": "Point cloud downsampling ratio (lower = fewer points)."
-                }),
-                "conf_threshold_coef": ("FLOAT", {
-                    "default": 0.75,
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": 0.05,
-                    "tooltip": "Confidence threshold coefficient for point cloud filtering."
-                }),
-            }
-        }
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DepthAnythingV3_Streaming",
+            display_name="DA3 Streaming",
+            category="DepthAnythingV3",
+            description="DA3 Streaming \u2014 Process long videos with chunked inference and Sim(3) alignment.\n\n"
+                "**How it works:**\n"
+                "1. Splits video into overlapping chunks (e.g., 30 frames, 8 overlap)\n"
+                "2. Runs DA3 multi-view inference on each chunk\n"
+                "3. Estimates Sim(3) alignment between chunks using overlap-region point clouds\n"
+                "4. Blends overlap regions with linear interpolation\n"
+                "5. If SALAD model is connected: runs loop closure for drift correction\n\n"
+                "**Memory:** VRAM bounded to ~1 chunk at a time. Per-frame results saved to NPZ files on disk.\n\n"
+                "**Outputs:**\n"
+                "- depth_video: Grayscale depth visualization (connect to SaveVideo)\n"
+                "- npz_folder: Path to folder with per-frame .npz files (depth, conf, intrinsics, extrinsics)\n"
+                "- pointcloud_path: PLY file path (if save_pointcloud enabled)\n\n"
+                "**Loop closure:** Connect a \"Load SALAD Model\" node to the salad_model input to enable automatic loop closure detection.",
+            inputs=[
+                io.Custom("DA3MODEL").Input("da3_model"),
+                io.Video.Input("video", tooltip="Video input from LoadVideo node"),
+                io.Combo.Input("normalization_mode", options=["Standard", "V2-Style", "Raw"], default="V2-Style"),
+                io.Custom("SALAD_MODEL").Input("salad_model", optional=True,
+                    tooltip="SALAD model for loop closure detection. Connect a Load SALAD Model node to enable loop closure."),
+                io.Int.Input("chunk_size", default=30, min=4, max=256, step=1, optional=True,
+                    tooltip="Frames per chunk. Lower = less VRAM. 30 for 24GB, 15 for 12GB VRAM."),
+                io.Int.Input("overlap", default=8, min=2, max=64, step=1, optional=True,
+                    tooltip="Overlap frames between chunks for Sim(3) alignment. 4-12 typical."),
+                io.Combo.Input("align_lib", options=["auto", "torch", "triton", "numba", "numpy"], default="auto", optional=True,
+                    tooltip="Alignment backend. auto selects fastest available (triton > torch > numba > numpy)."),
+                io.Combo.Input("align_method", options=["sim3", "se3", "scale+se3"], default="sim3", optional=True,
+                    tooltip="Alignment method. sim3: full 7-DOF. se3: 6-DOF (no scale). scale+se3: precompute scale then SE(3)."),
+                io.Combo.Input("resize_method", options=["resize", "crop", "pad"], default="resize", optional=True,
+                    tooltip="How to handle non-patch-aligned dimensions."),
+                io.Boolean.Input("invert_depth", default=False, optional=True,
+                    tooltip="Invert depth output (far=bright)."),
+                io.Boolean.Input("save_pointcloud", default=False, optional=True,
+                    tooltip="Export aligned point cloud as PLY file."),
+                io.Float.Input("sample_ratio", default=0.015, min=0.001, max=1.0, step=0.005, optional=True,
+                    tooltip="Point cloud downsampling ratio (lower = fewer points)."),
+                io.Float.Input("conf_threshold_coef", default=0.75, min=0.0, max=1.0, step=0.05, optional=True,
+                    tooltip="Confidence threshold coefficient for point cloud filtering."),
+            ],
+            outputs=[
+                io.Video.Output(display_name="depth_video"),
+                io.String.Output(display_name="npz_folder"),
+                io.String.Output(display_name="pointcloud_path"),
+            ],
+        )
 
-    RETURN_TYPES = ("VIDEO", "STRING", "STRING")
-    RETURN_NAMES = ("depth_video", "npz_folder", "pointcloud_path")
-    FUNCTION = "process"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-DA3 Streaming — Process long videos with chunked inference and Sim(3) alignment.
-
-**How it works:**
-1. Splits video into overlapping chunks (e.g., 30 frames, 8 overlap)
-2. Runs DA3 multi-view inference on each chunk
-3. Estimates Sim(3) alignment between chunks using overlap-region point clouds
-4. Blends overlap regions with linear interpolation
-5. If SALAD model is connected: runs loop closure for drift correction
-
-**Memory:** VRAM bounded to ~1 chunk at a time. Per-frame results saved to NPZ files on disk.
-
-**Outputs:**
-- depth_video: Grayscale depth visualization (connect to SaveVideo)
-- npz_folder: Path to folder with per-frame .npz files (depth, conf, intrinsics, extrinsics)
-- pointcloud_path: PLY file path (if save_pointcloud enabled)
-
-**Loop closure:** Connect a "Load SALAD Model" node to the salad_model input to enable automatic loop closure detection.
-"""
-
-    def _apply_standard_normalization(self, depth, invert_depth):
+    @staticmethod
+    def _apply_standard_normalization(depth, invert_depth):
         d_min = depth.min()
         d_max = depth.max()
         d_range = d_max - d_min
@@ -134,7 +92,8 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
             depth = 1.0 - depth
         return depth
 
-    def _apply_v2_style_normalization(self, depth, sky, device, invert_depth):
+    @staticmethod
+    def _apply_v2_style_normalization(depth, sky, device, invert_depth):
         d_min = depth.min()
         d_max = depth.max()
         d_range = d_max - d_min
@@ -173,7 +132,8 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
 
         return depth
 
-    def _apply_raw_normalization(self, depth, invert_depth):
+    @staticmethod
+    def _apply_raw_normalization(depth, invert_depth):
         if invert_depth:
             d_min = depth.min()
             d_max = depth.max()
@@ -182,7 +142,8 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
                 depth = d_max - depth + d_min
         return depth
 
-    def process(self, da3_model, video, normalization_mode="V2-Style",
+    @classmethod
+    def execute(cls, da3_model, video, normalization_mode="V2-Style",
                 salad_model=None,
                 chunk_size=30, overlap=8,
                 align_lib="auto", align_method="sim3",
@@ -205,27 +166,20 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
 
         # Get model and device
         device = mm.get_torch_device()
-        patcher = get_or_create_da3_patcher(self, da3_model)
-        mm.load_models_gpu([patcher])
-        model = patcher.model
-        dtype = da3_model["dtype"]
+        mm.load_models_gpu([da3_model])
+        model = da3_model.model
+        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
 
-        # Load SALAD model on-demand for loop closure (via ModelPatcher)
+        # Memory estimation
+        memory_required = mm.module_size(model)
+        memory_required += images.nelement() * images.element_size() * 4
+        mm.free_memory(memory_required, device)
+
+        # Load SALAD model for loop closure (already a ModelPatcher from loader)
         salad_nn_model = None
         if salad_model is not None:
-            from ..load_model import _build_salad_model
-            import comfy.model_patcher
-            key = salad_model["model_path"]
-            if not hasattr(self, '_salad_patcher') or getattr(self, '_salad_key', None) != key:
-                salad_nn = _build_salad_model(key)
-                self._salad_patcher = comfy.model_patcher.ModelPatcher(
-                    salad_nn,
-                    load_device=device,
-                    offload_device=mm.unet_offload_device(),
-                )
-                self._salad_key = key
-            mm.load_models_gpu([self._salad_patcher])
-            salad_nn_model = self._salad_patcher.model
+            mm.load_models_gpu([salad_model])
+            salad_nn_model = salad_model.model
 
         pbar = ProgressBar(num_views)
 
@@ -238,8 +192,7 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
         logger.info(f"Model input size: {model_H}x{model_W}")
 
         # Normalize
-        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-        normalized_images = normalize(images_pt)
+        normalized_images = imagenet_normalize(images_pt)
 
         # Add batch dim: [N, C, H, W] -> [1, N, C, H, W]
         normalized_images = normalized_images.unsqueeze(0)
@@ -292,11 +245,11 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
 
         # Apply normalization for visualization
         if normalization_mode == "Standard":
-            depth = self._apply_standard_normalization(depth, invert_depth)
+            depth = cls._apply_standard_normalization(depth, invert_depth)
         elif normalization_mode == "V2-Style":
-            depth = self._apply_v2_style_normalization(depth, sky, "cpu", invert_depth)
+            depth = cls._apply_v2_style_normalization(depth, sky, "cpu", invert_depth)
         elif normalization_mode == "Raw":
-            depth = self._apply_raw_normalization(depth, invert_depth)
+            depth = cls._apply_raw_normalization(depth, invert_depth)
 
         # Grayscale -> RGB: [N, H, W] -> [N, H, W, 3]
         depth_frames = depth.unsqueeze(-1).repeat(1, 1, 1, 3).cpu().float()
@@ -324,4 +277,4 @@ DA3 Streaming — Process long videos with chunked inference and Sim(3) alignmen
 
         pointcloud_path = result.pointcloud_path or ""
 
-        return (depth_video, str(npz_dir), pointcloud_path)
+        return io.NodeOutput(depth_video, str(npz_dir), pointcloud_path)
