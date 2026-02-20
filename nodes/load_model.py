@@ -379,7 +379,7 @@ def _build_da3_model(model_path, model_key, dtype, attention):
     total_params = sum(p.numel() for p in model.parameters())
     logger.info(f"[build] Model total params: {total_params / 1e6:.1f}M")
 
-    # Expand shared-weight checkpoint keys (e.g. output_conv2_aux.0.2 → 1.2, 2.2, 3.2)
+    # Expand shared-weight checkpoint keys (e.g. output_conv2_aux.0.2 -> 1.2, 2.2, 3.2)
     # The original model shared a single LayerNorm across aux levels, so the checkpoint
     # only stores index 0. We duplicate to all indices so each gets real weights.
     expanded = {}
