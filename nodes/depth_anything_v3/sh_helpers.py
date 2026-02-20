@@ -15,7 +15,6 @@
 import logging
 from math import isqrt
 import torch
-from einops import einsum
 
 try:
     from e3nn.o3 import matrix_to_angles, wigner_D
@@ -89,10 +88,10 @@ def rotate_sh(
         for degree in range(isqrt(n)):
             with torch.device(device):
                 sh_rotations = wigner_D(degree, alpha, -beta, gamma).type(dtype)
-            sh_rotated = einsum(
+            sh_rotated = torch.einsum(
+                "...ij,...j->...i",
                 sh_rotations,
                 sh_coefficients[..., degree**2 : (degree + 1) ** 2],
-                "... i j, ... j -> ... i",
             )
             result.append(sh_rotated)
 

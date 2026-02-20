@@ -1,39 +1,19 @@
 """Camera utility nodes for DepthAnythingV3."""
 import torch
+from comfy_api.latest import io
 from .utils import logger
 
 
-class DA3_CreateCameraParams:
+class DA3_CreateCameraParams(io.ComfyNode):
     """Create camera parameters (extrinsics and intrinsics) for conditioning depth estimation."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "image_width": ("INT", {"default": 512, "min": 1, "max": 8192}),
-                "image_height": ("INT", {"default": 512, "min": 1, "max": 8192}),
-            },
-            "optional": {
-                # Camera position (translation)
-                "cam_x": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
-                "cam_y": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
-                "cam_z": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01}),
-                # Camera rotation (Euler angles in degrees)
-                "rot_x": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
-                "rot_y": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
-                "rot_z": ("FLOAT", {"default": 0.0, "min": -180.0, "max": 180.0, "step": 0.1}),
-                # Intrinsics
-                "focal_length": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 1.0}),
-                "fov_degrees": ("FLOAT", {"default": 60.0, "min": 1.0, "max": 180.0, "step": 1.0}),
-            }
-        }
-
-    RETURN_TYPES = ("CAMERA_PARAMS",)
-    RETURN_NAMES = ("camera_params",)
-    FUNCTION = "create_params"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-Create camera parameters for conditioning DA3 depth estimation.
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_CreateCameraParams",
+            display_name="DA3 Create Camera Parameters",
+            category="DepthAnythingV3",
+            description="""Create camera parameters for conditioning DA3 depth estimation.
 
 Provides known camera pose to improve depth estimation accuracy.
 
@@ -44,11 +24,27 @@ Parameters:
 - fov_degrees: Field of view in degrees (used if focal_length is 0)
 
 Output:
-- CAMERA_PARAMS: Dictionary with extrinsics (4x4) and intrinsics (3x3) matrices
-"""
+- CAMERA_PARAMS: Dictionary with extrinsics (4x4) and intrinsics (3x3) matrices""",
+            inputs=[
+                io.Int.Input("image_width", default=512, min=1, max=8192),
+                io.Int.Input("image_height", default=512, min=1, max=8192),
+                io.Float.Input("cam_x", default=0.0, min=-100.0, max=100.0, step=0.01, optional=True),
+                io.Float.Input("cam_y", default=0.0, min=-100.0, max=100.0, step=0.01, optional=True),
+                io.Float.Input("cam_z", default=0.0, min=-100.0, max=100.0, step=0.01, optional=True),
+                io.Float.Input("rot_x", default=0.0, min=-180.0, max=180.0, step=0.1, optional=True),
+                io.Float.Input("rot_y", default=0.0, min=-180.0, max=180.0, step=0.1, optional=True),
+                io.Float.Input("rot_z", default=0.0, min=-180.0, max=180.0, step=0.1, optional=True),
+                io.Float.Input("focal_length", default=0.0, min=0.0, max=10000.0, step=1.0, optional=True),
+                io.Float.Input("fov_degrees", default=60.0, min=1.0, max=180.0, step=1.0, optional=True),
+            ],
+            outputs=[
+                io.Custom("CAMERA_PARAMS").Output(display_name="camera_params"),
+            ],
+        )
 
-    def create_params(self, image_width, image_height, cam_x=0.0, cam_y=0.0, cam_z=0.0,
-                     rot_x=0.0, rot_y=0.0, rot_z=0.0, focal_length=0.0, fov_degrees=60.0):
+    @classmethod
+    def execute(cls, image_width, image_height, cam_x=0.0, cam_y=0.0, cam_z=0.0,
+                rot_x=0.0, rot_y=0.0, rot_z=0.0, focal_length=0.0, fov_degrees=60.0):
         import numpy as np
 
         # Create rotation matrix from Euler angles (XYZ order)
@@ -56,7 +52,6 @@ Output:
         ry = np.radians(rot_y)
         rz = np.radians(rot_z)
 
-        # Rotation matrices
         Rx = np.array([
             [1, 0, 0],
             [0, np.cos(rx), -np.sin(rx)],
@@ -73,19 +68,18 @@ Output:
             [0, 0, 1]
         ])
 
-        R = Rz @ Ry @ Rx  # Rotation matrix
-        t = np.array([cam_x, cam_y, cam_z])  # Translation
+        R = Rz @ Ry @ Rx
+        t = np.array([cam_x, cam_y, cam_z])
 
         # Create extrinsics (world-to-camera, 4x4)
         extrinsics = np.eye(4, dtype=np.float32)
-        extrinsics[:3, :3] = R.T  # Inverse rotation
-        extrinsics[:3, 3] = -R.T @ t  # Inverse translation
+        extrinsics[:3, :3] = R.T
+        extrinsics[:3, 3] = -R.T @ t
 
         # Create intrinsics (3x3)
         if focal_length > 0:
             fx = fy = focal_length
         else:
-            # Calculate from FOV
             fov_rad = np.radians(fov_degrees)
             fx = fy = (image_width / 2.0) / np.tan(fov_rad / 2.0)
 
@@ -108,30 +102,19 @@ Output:
             "image_size": (image_height, image_width),
         }
 
-        return (camera_params,)
+        return io.NodeOutput(camera_params)
 
 
-class DA3_ParseCameraPose:
+class DA3_ParseCameraPose(io.ComfyNode):
     """Parse camera pose from DA3 output strings into usable format."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "extrinsics_json": ("STRING", {"multiline": True}),
-                "intrinsics_json": ("STRING", {"multiline": True}),
-            },
-            "optional": {
-                "batch_index": ("INT", {"default": 0, "min": 0, "max": 100}),
-            }
-        }
-
-    RETURN_TYPES = ("FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT", "FLOAT")
-    RETURN_NAMES = ("cam_x", "cam_y", "cam_z", "rot_x", "rot_y", "rot_z", "fx", "fy")
-    FUNCTION = "parse"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-Parse camera pose from DA3 JSON output.
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_ParseCameraPose",
+            display_name="DA3 Parse Camera Pose",
+            category="DepthAnythingV3",
+            description="""Parse camera pose from DA3 JSON output.
 
 Extracts camera position and rotation from extrinsics matrix,
 and focal lengths from intrinsics matrix.
@@ -144,10 +127,26 @@ Inputs:
 Outputs:
 - cam_x/y/z: Camera position in world space
 - rot_x/y/z: Camera rotation (Euler angles in degrees)
-- fx/fy: Focal lengths
-"""
+- fx/fy: Focal lengths""",
+            inputs=[
+                io.String.Input("extrinsics_json", multiline=True),
+                io.String.Input("intrinsics_json", multiline=True),
+                io.Int.Input("batch_index", default=0, min=0, max=100, optional=True),
+            ],
+            outputs=[
+                io.Float.Output(display_name="cam_x"),
+                io.Float.Output(display_name="cam_y"),
+                io.Float.Output(display_name="cam_z"),
+                io.Float.Output(display_name="rot_x"),
+                io.Float.Output(display_name="rot_y"),
+                io.Float.Output(display_name="rot_z"),
+                io.Float.Output(display_name="fx"),
+                io.Float.Output(display_name="fy"),
+            ],
+        )
 
-    def parse(self, extrinsics_json, intrinsics_json, batch_index=0):
+    @classmethod
+    def execute(cls, extrinsics_json, intrinsics_json, batch_index=0):
         import json
         import numpy as np
 
@@ -166,20 +165,15 @@ Outputs:
 
                     if ext_matrix is not None:
                         ext = np.array(ext_matrix)
-                        if ext.ndim == 3:  # [N, 4, 4] or [N, 3, 4]
-                            ext = ext[0]  # Take first view
+                        if ext.ndim == 3:
+                            ext = ext[0]
 
-                        # Extract rotation and translation
                         R = ext[:3, :3]
                         t = ext[:3, 3]
 
-                        # Convert world-to-camera to camera position in world
-                        # cam_pos = -R^T @ t
                         cam_pos = -R.T @ t
                         cam_x, cam_y, cam_z = float(cam_pos[0]), float(cam_pos[1]), float(cam_pos[2])
 
-                        # Extract Euler angles from rotation matrix (XYZ order)
-                        # R = Rz @ Ry @ Rx, so we extract in reverse
                         sy = np.sqrt(R[0, 0]**2 + R[1, 0]**2)
                         singular = sy < 1e-6
 
@@ -201,8 +195,8 @@ Outputs:
 
                     if int_matrix is not None:
                         intr = np.array(int_matrix)
-                        if intr.ndim == 3:  # [N, 3, 3]
-                            intr = intr[0]  # Take first view
+                        if intr.ndim == 3:
+                            intr = intr[0]
 
                         fx = float(intr[0, 0])
                         fy = float(intr[1, 1])
@@ -210,15 +204,4 @@ Outputs:
         except (json.JSONDecodeError, KeyError, IndexError, TypeError) as e:
             logger.error(f"Error parsing camera params: {e}")
 
-        return (cam_x, cam_y, cam_z, rot_x, rot_y, rot_z, fx, fy)
-
-
-NODE_CLASS_MAPPINGS = {
-    "DA3_CreateCameraParams": DA3_CreateCameraParams,
-    "DA3_ParseCameraPose": DA3_ParseCameraPose,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "DA3_CreateCameraParams": "DA3 Create Camera Parameters",
-    "DA3_ParseCameraPose": "DA3 Parse Camera Pose",
-}
+        return io.NodeOutput(cam_x, cam_y, cam_z, rot_x, rot_y, rot_z, fx, fy)

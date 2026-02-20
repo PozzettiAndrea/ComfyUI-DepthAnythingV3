@@ -20,7 +20,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-from einops import rearrange
 
 import comfy.ops
 from comfy.ldm.modules.attention import optimized_attention
@@ -671,7 +670,7 @@ class DinoVisionTransformer(nn.Module):
 
     def prepare_tokens_with_masks(self, x, masks=None, cls_token=None, **kwargs):
         B, S, nc, w, h = x.shape
-        x = rearrange(x, "b s c h w -> (b s) c h w")
+        x = x.flatten(0, 1)  # [B*S, C, H, W]
         x = self.patch_embed(x)
         if masks is not None:
             x = torch.where(masks.unsqueeze(-1), self.mask_token.to(x.dtype).unsqueeze(0), x)
@@ -687,7 +686,7 @@ class DinoVisionTransformer(nn.Module):
                 ),
                 dim=1,
             )
-        x = rearrange(x, "(b s) n c -> b s n c", b=B, s=S)
+        x = x.reshape(B, S, *x.shape[1:])  # [B, S, N, C]
         return x
 
     def _prepare_rope(self, B, S, H, W, device):
@@ -697,12 +696,12 @@ class DinoVisionTransformer(nn.Module):
             pos = self.position_getter(
                 B * S, H // self.patch_size, W // self.patch_size, device=device
             )
-            pos = rearrange(pos, "(b s) n c -> b s n c", b=B)
+            pos = pos.reshape(B, S, *pos.shape[1:])  # [B, S, N, C]
             pos_nodiff = torch.zeros_like(pos).to(pos.dtype)
             if self.patch_start_idx > 0:
                 pos = pos + 1
                 pos_special = torch.zeros(B * S, self.patch_start_idx, 2).to(device).to(pos.dtype)
-                pos_special = rearrange(pos_special, "(b s) n c -> b s n c", b=B)
+                pos_special = pos_special.reshape(B, S, *pos_special.shape[1:])  # [B, S, N, C]
                 pos = torch.cat([pos_special, pos], dim=2)
                 pos_nodiff = pos_nodiff + 1
                 pos_nodiff = torch.cat([pos_special, pos_nodiff], dim=2)
@@ -748,22 +747,22 @@ class DinoVisionTransformer(nn.Module):
     def process_attention(self, x, block, attn_type="global", pos=None, attn_mask=None):
         b, s, n = x.shape[:3]
         if attn_type == "local":
-            x = rearrange(x, "b s n c -> (b s) n c")
+            x = x.flatten(0, 1)  # [B*S, N, C]
             if pos is not None:
-                pos = rearrange(pos, "b s n c -> (b s) n c")
+                pos = pos.flatten(0, 1)
         elif attn_type == "global":
-            x = rearrange(x, "b s n c -> b (s n) c")
+            x = x.reshape(b, s * n, x.shape[-1])  # [B, S*N, C]
             if pos is not None:
-                pos = rearrange(pos, "b s n c -> b (s n) c")
+                pos = pos.reshape(b, s * n, pos.shape[-1])
         else:
             raise ValueError(f"Invalid attention type: {attn_type}")
 
         x = block(x, pos=pos, attn_mask=attn_mask)
 
         if attn_type == "local":
-            x = rearrange(x, "(b s) n c -> b s n c", b=b, s=s)
+            x = x.reshape(b, s, *x.shape[1:])  # [B, S, N, C]
         elif attn_type == "global":
-            x = rearrange(x, "b (s n) c -> b s n c", b=b, s=s)
+            x = x.reshape(b, s, -1, x.shape[-1])  # [B, S, N, C]
         return x
 
     def get_intermediate_layers(self, x, n=1, export_feat_layers=[], **kwargs):
@@ -1098,7 +1097,8 @@ class DPT(nn.Module):
         feats = [feat[0].reshape(B * S, N, C) for feat in feats]
         extra_kwargs = {}
         if "images" in kwargs:
-            extra_kwargs.update({"images": rearrange(kwargs["images"], "B S ... -> (B S) ...")})
+            images = kwargs["images"]
+            extra_kwargs.update({"images": images.flatten(0, 1)})
         if chunk_size is None or chunk_size >= S:
             out_dict = self._forward_impl(feats, H, W, patch_start_idx, **extra_kwargs)
             out_dict = {k: v.view(B, S, *v.shape[1:]) for k, v in out_dict.items()}

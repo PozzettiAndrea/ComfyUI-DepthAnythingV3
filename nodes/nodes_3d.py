@@ -1,12 +1,12 @@
 """3D processing nodes (point clouds, Gaussians) for DepthAnythingV3."""
 import torch
 import torch.nn.functional as F
-from torchvision import transforms
 from contextlib import nullcontext
 
 import comfy.model_management as mm
 from comfy.utils import ProgressBar
 import folder_paths
+from comfy_api.latest import io
 
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
@@ -14,56 +14,14 @@ from .utils import (
 )
 
 
-class DA3_ToPointCloud:
+class DA3_ToPointCloud(io.ComfyNode):
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "depth_raw": ("IMAGE", ),
-                "confidence": ("IMAGE", ),
-            },
-            "optional": {
-                "intrinsics": ("STRING", {"forceInput": True}),
-                "sky_mask": ("MASK", ),
-                "source_image": ("IMAGE", ),
-                "confidence_threshold": ("FLOAT", {
-                    "default": 0.1,
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": 0.01,
-                    "tooltip": "Filter out points with confidence below this threshold (0-1)"
-                }),
-                "downsample": ("INT", {
-                    "default": 5,
-                    "min": 1,
-                    "max": 16,
-                    "step": 1,
-                    "tooltip": "Take every Nth pixel to reduce point cloud density. Higher = fewer points, faster processing. 1 = no downsampling (slowest, most detail)"
-                }),
-                "allow_around_1": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."
-                }),
-                "filter_outliers": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Remove points far from point cloud center (reduces noise)"
-                }),
-                "outlier_percentage": ("FLOAT", {
-                    "default": 5.0,
-                    "min": 0.0,
-                    "max": 50.0,
-                    "step": 0.5,
-                    "tooltip": "Percent of furthest points to remove from center"
-                }),
-
-            }
-        }
-
-    RETURN_TYPES = ("POINTCLOUD",)
-    RETURN_NAMES = ("pointcloud",)
-    FUNCTION = "convert"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_ToPointCloud",
+            display_name="DA3 to Point Cloud",
+            category="DepthAnythingV3",
+            description="""
 Convert DA3 depth map to 3D point cloud using proper camera geometry.
 Uses geometric unprojection: P = K^(-1) * [u, v, 1]^T * depth
 
@@ -83,9 +41,31 @@ Output POINTCLOUD contains:
 - points: Nx3 array of 3D coordinates
 - colors: Nx3 array of RGB colors (if source_image provided)
 - confidence: Nx1 array of confidence values
-"""
+""",
+            inputs=[
+                io.Image.Input("depth_raw"),
+                io.Image.Input("confidence"),
+                io.String.Input("intrinsics", optional=True, force_input=True),
+                io.Mask.Input("sky_mask", optional=True),
+                io.Image.Input("source_image", optional=True),
+                io.Float.Input("confidence_threshold", optional=True, default=0.1, min=0.0, max=1.0, step=0.01,
+                               tooltip="Filter out points with confidence below this threshold (0-1)"),
+                io.Int.Input("downsample", optional=True, default=5, min=1, max=16, step=1,
+                             tooltip="Take every Nth pixel to reduce point cloud density. Higher = fewer points, faster processing. 1 = no downsampling (slowest, most detail)"),
+                io.Boolean.Input("allow_around_1", optional=True, default=False,
+                                 tooltip="If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."),
+                io.Boolean.Input("filter_outliers", optional=True, default=False,
+                                 tooltip="Remove points far from point cloud center (reduces noise)"),
+                io.Float.Input("outlier_percentage", optional=True, default=5.0, min=0.0, max=50.0, step=0.5,
+                               tooltip="Percent of furthest points to remove from center"),
+            ],
+            outputs=[
+                io.Custom("POINTCLOUD").Output(display_name="pointcloud"),
+            ],
+        )
 
-    def _parse_intrinsics(self, intrinsics_str, batch_idx=0):
+    @staticmethod
+    def _parse_intrinsics(intrinsics_str, batch_idx=0):
         """Parse camera intrinsics from JSON string."""
         import json
         import numpy as np
@@ -115,7 +95,8 @@ Output POINTCLOUD contains:
             logger.warning(f"Could not parse intrinsics: {e}")
             return None
 
-    def _check_consistency(self, depth, conf, sky, img):
+    @staticmethod
+    def _check_consistency(depth, conf, sky, img):
         """Validate that all inputs have matching spatial dimensions."""
         def get_hw(tensor):
             """Extract (height, width) from tensor of various shapes."""
@@ -152,7 +133,8 @@ Output POINTCLOUD contains:
                 )
 
 
-    def _create_default_intrinsics(self, H, W):
+    @staticmethod
+    def _create_default_intrinsics(H, W):
         """
         Create default pinhole camera intrinsics.
 
@@ -180,7 +162,31 @@ Output POINTCLOUD contains:
 
         return K
 
-    def convert(self, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.1, downsample=1, filter_outliers=False, outlier_percentage=5.0):
+    @staticmethod
+    def _filter_outliers(points, colors, confidence, percentage):
+        """Remove points furthest from the point cloud center."""
+        import torch
+
+        # Calculate centroid
+        centroid = points.mean(dim=0)
+
+        # Calculate distances from centroid
+        distances = torch.norm(points - centroid, dim=1)
+
+        # Find threshold distance (keep (100-percentage)% closest points)
+        threshold_idx = int(len(points) * (100 - percentage) / 100)
+        sorted_indices = torch.argsort(distances)
+        keep_indices = sorted_indices[:threshold_idx]
+
+        # Filter all arrays
+        filtered_points = points[keep_indices]
+        filtered_colors = colors[keep_indices] if colors is not None else None
+        filtered_confidence = confidence[keep_indices]
+
+        return filtered_points, filtered_colors, filtered_confidence
+
+    @classmethod
+    def execute(cls, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.1, downsample=1, filter_outliers=False, outlier_percentage=5.0):
         """Convert depth map to point cloud using geometric unprojection."""
         # Validate that depth is raw/metric, not normalized
         max_depth = depth_raw.max().item()
@@ -192,12 +198,12 @@ Output POINTCLOUD contains:
                 f"and connect the depth output to this node's depth_raw input. "
                 f"If you think this is a mistake, feel free to toggle allow_around_1."
             )
-        
+
         B = depth_raw.shape[0]
         point_clouds = []
-        
+
         for b in range(B):
-            self._check_consistency(
+            cls._check_consistency(
                 depth_raw[b],
                 confidence[b],
                 sky_mask[b] if sky_mask is not None else None,
@@ -211,7 +217,7 @@ Output POINTCLOUD contains:
             H, W = depth_map.shape
 
             # Get camera intrinsics - REQUIRED for accurate 3D reconstruction
-            K = self._parse_intrinsics(intrinsics, b)
+            K = cls._parse_intrinsics(intrinsics, b)
             if K is None:
                 raise ValueError(
                     f"Camera intrinsics are required for point cloud generation.\n\n"
@@ -318,7 +324,7 @@ Output POINTCLOUD contains:
             # Apply outlier filtering if requested
             if filter_outliers and outlier_percentage > 0:
                 original_count = points_3d.shape[0]
-                points_3d, colors_flat, conf_flat = self._filter_outliers(
+                points_3d, colors_flat, conf_flat = cls._filter_outliers(
                     points_3d, colors_flat, conf_flat, outlier_percentage
                 )
                 filtered_count = points_3d.shape[0]
@@ -347,48 +353,19 @@ Output POINTCLOUD contains:
 
             point_clouds.append(pc)
 
-        # Return as tuple containing list of point clouds
-        return (point_clouds,)
-
-    def _filter_outliers(self, points, colors, confidence, percentage):
-        """Remove points furthest from the point cloud center."""
-        import torch
-
-        # Calculate centroid
-        centroid = points.mean(dim=0)
-
-        # Calculate distances from centroid
-        distances = torch.norm(points - centroid, dim=1)
-
-        # Find threshold distance (keep (100-percentage)% closest points)
-        threshold_idx = int(len(points) * (100 - percentage) / 100)
-        sorted_indices = torch.argsort(distances)
-        keep_indices = sorted_indices[:threshold_idx]
-
-        # Filter all arrays
-        filtered_points = points[keep_indices]
-        filtered_colors = colors[keep_indices] if colors is not None else None
-        filtered_confidence = confidence[keep_indices]
-
-        return filtered_points, filtered_colors, filtered_confidence
+        # Return as NodeOutput containing list of point clouds
+        return io.NodeOutput(point_clouds)
 
 
-class DA3_SavePointCloud:
+class DA3_SavePointCloud(io.ComfyNode):
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "pointcloud": ("POINTCLOUD", ),
-                "filename_prefix": ("STRING", {"default": "pointcloud"}),
-            },
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("file_path",)
-    FUNCTION = "save"
-    OUTPUT_NODE = True
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_SavePointCloud",
+            display_name="DA3 Save Point Cloud",
+            category="DepthAnythingV3",
+            is_output_node=True,
+            description="""
 Save point cloud to PLY file.
 
 Always saves:
@@ -400,58 +377,18 @@ Use DA3 Preview Point Cloud to visualize with different color modes.
 
 Output directory: ComfyUI/output/
 Returns file path for use with ComfyUI 3D viewer.
-"""
+""",
+            inputs=[
+                io.Custom("POINTCLOUD").Input("pointcloud"),
+                io.String.Input("filename_prefix", default="pointcloud"),
+            ],
+            outputs=[
+                io.String.Output(display_name="file_path"),
+            ],
+        )
 
-    def save(self, pointcloud, filename_prefix):
-        """Save point cloud(s) to PLY file. Always saves view_id if available."""
-        import numpy as np
-        from pathlib import Path
-
-        # Get output directory
-        output_dir = folder_paths.get_output_directory()
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        results = []
-        file_paths = []
-        for idx, pc in enumerate(pointcloud):
-            points = pc['points']
-            confidence = pc.get('confidence', None)
-            colors = pc.get('colors', None)
-            view_id = pc.get('view_id', None)
-
-            # Generate filename
-            filename = f"{filename_prefix}_{idx:04d}.ply"
-            filepath = output_path / filename
-
-            # Ensure parent directory exists (for subfolder prefixes like "subfolder/pointcloud")
-            filepath.parent.mkdir(parents=True, exist_ok=True)
-
-            # Write PLY file (saves original RGB + view_id as custom property)
-            self._write_ply(filepath, points, colors, confidence, view_id)
-
-            # Extract subfolder from filename if present
-            subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
-            results.append({
-                "filename": Path(filename).name,
-                "subfolder": subfolder,
-                "type": "output"
-            })
-            file_paths.append(str(filepath))
-            logger.info(f"Saved point cloud to: {filepath}")
-
-        # Return first file path (or all paths joined by newline if multiple)
-        output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
-
-        return {
-            "ui": {
-                "pointclouds": results,
-                "file_path": [output_file_path]
-            },
-            "result": (output_file_path,)
-        }
-
-    def _write_ply(self, filepath, points, colors=None, confidence=None, view_id=None):
+    @staticmethod
+    def _write_ply(filepath, points, colors=None, confidence=None, view_id=None):
         """Write point cloud to PLY file."""
         import numpy as np
 
@@ -504,46 +441,65 @@ Returns file path for use with ComfyUI 3D viewer.
 
                 f.write(line + '\n')
 
+    @classmethod
+    def execute(cls, pointcloud, filename_prefix):
+        """Save point cloud(s) to PLY file. Always saves view_id if available."""
+        import numpy as np
+        from pathlib import Path
 
-class DA3_FilterGaussians:
+        # Get output directory
+        output_dir = folder_paths.get_output_directory()
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        results = []
+        file_paths = []
+        for idx, pc in enumerate(pointcloud):
+            points = pc['points']
+            confidence = pc.get('confidence', None)
+            colors = pc.get('colors', None)
+            view_id = pc.get('view_id', None)
+
+            # Generate filename
+            filename = f"{filename_prefix}_{idx:04d}.ply"
+            filepath = output_path / filename
+
+            # Ensure parent directory exists (for subfolder prefixes like "subfolder/pointcloud")
+            filepath.parent.mkdir(parents=True, exist_ok=True)
+
+            # Write PLY file (saves original RGB + view_id as custom property)
+            cls._write_ply(filepath, points, colors, confidence, view_id)
+
+            # Extract subfolder from filename if present
+            subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
+            results.append({
+                "filename": Path(filename).name,
+                "subfolder": subfolder,
+                "type": "output"
+            })
+            file_paths.append(str(filepath))
+            logger.info(f"Saved point cloud to: {filepath}")
+
+        # Return first file path (or all paths joined by newline if multiple)
+        output_file_path = file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
+
+        return io.NodeOutput(output_file_path, ui={
+            "pointclouds": results,
+            "file_path": [output_file_path]
+        })
+
+
+class DA3_FilterGaussians(io.ComfyNode):
     """Load raw Gaussians PLY, apply filters, and save filtered PLY."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "gaussian_ply_path": ("STRING", {"forceInput": True}),
-                "filename_prefix": ("STRING", {"default": "gaussians_filtered"}),
-            },
-            "optional": {
-                "sky_mask": ("MASK", ),
-                "filter_sky": ("BOOLEAN", {
-                    "default": True,
-                    "tooltip": "Filter out Gaussians in sky regions using sky_mask"
-                }),
-                "depth_prune_percent": ("FLOAT", {
-                    "default": 0.9,
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": 0.01,
-                    "tooltip": "Prune Gaussians with depth above this percentile (0.9 = keep closest 90%)"
-                }),
-                "opacity_threshold": ("FLOAT", {
-                    "default": 0.0,
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": 0.01,
-                    "tooltip": "Remove Gaussians with opacity below this threshold"
-                }),
-            }
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("ply_path",)
-    FUNCTION = "process"
-    OUTPUT_NODE = True
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_FilterGaussians",
+            display_name="DA3 Filter Gaussians",
+            category="DepthAnythingV3",
+            is_output_node=True,
+            description="""
 Filter 3D Gaussians from a PLY file and save filtered result.
 
 Connect 'gaussian_ply_path' from DepthAnything_V3 node.
@@ -554,9 +510,25 @@ Filtering options:
 - opacity_threshold: Remove low-opacity Gaussians
 
 Output: Path to filtered PLY file (compatible with SuperSplat, gsplat.js, 3DGS viewers)
-"""
+""",
+            inputs=[
+                io.String.Input("gaussian_ply_path", force_input=True),
+                io.String.Input("filename_prefix", default="gaussians_filtered"),
+                io.Mask.Input("sky_mask", optional=True),
+                io.Boolean.Input("filter_sky", optional=True, default=True,
+                                 tooltip="Filter out Gaussians in sky regions using sky_mask"),
+                io.Float.Input("depth_prune_percent", optional=True, default=0.9, min=0.0, max=1.0, step=0.01,
+                               tooltip="Prune Gaussians with depth above this percentile (0.9 = keep closest 90%)"),
+                io.Float.Input("opacity_threshold", optional=True, default=0.0, min=0.0, max=1.0, step=0.01,
+                               tooltip="Remove Gaussians with opacity below this threshold"),
+            ],
+            outputs=[
+                io.String.Output(display_name="ply_path"),
+            ],
+        )
 
-    def process(self, gaussian_ply_path, filename_prefix, sky_mask=None, filter_sky=True,
+    @classmethod
+    def execute(cls, gaussian_ply_path, filename_prefix, sky_mask=None, filter_sky=True,
                 depth_prune_percent=0.9, opacity_threshold=0.0):
         """Load, filter, and save Gaussians."""
         import numpy as np
@@ -650,72 +622,22 @@ Output: Path to filtered PLY file (compatible with SuperSplat, gsplat.js, 3DGS v
         logger.info(f"Saved filtered Gaussians to: {filepath}")
 
         subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
-        return {
-            "ui": {"gaussians": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]},
-            "result": (str(filepath),)
-        }
+        return io.NodeOutput(str(filepath), ui={
+            "gaussians": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]
+        })
 
 
-class DA3_ToMesh:
+class DA3_ToMesh(io.ComfyNode):
     """Convert depth map to textured 3D mesh using grid-based triangulation."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "depth_raw": ("IMAGE",),
-                "confidence": ("IMAGE",),
-            },
-            "optional": {
-                "intrinsics": ("STRING", {"forceInput": True}),
-                "sky_mask": ("MASK",),
-                "source_image": ("IMAGE",),
-                "confidence_threshold": ("FLOAT", {
-                    "default": 0.1,
-                    "min": 0.0,
-                    "max": 1.0,
-                    "step": 0.01,
-                    "tooltip": "Filter out vertices with confidence below this threshold"
-                }),
-                "depth_edge_threshold": ("FLOAT", {
-                    "default": 0.1,
-                    "min": 0.01,
-                    "max": 1.0,
-                    "step": 0.01,
-                    "tooltip": "Skip triangles across depth discontinuities (relative threshold)"
-                }),
-                "downsample": ("INT", {
-                    "default": 1,
-                    "min": 1,
-                    "max": 16,
-                    "step": 1,
-                    "tooltip": "Downsample depth map before meshing (use 1 with target_faces for best quality)"
-                }),
-                "target_faces": ("INT", {
-                    "default": 100000,
-                    "min": 0,
-                    "max": 10000000,
-                    "step": 10000,
-                    "tooltip": "Target face count after decimation (0 = no decimation). Adaptive: keeps detail at edges, simplifies flat areas."
-                }),
-                "filename_prefix": ("STRING", {"default": "mesh"}),
-                "allow_around_1": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."
-                }),
-                "use_draco_compression": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Use Draco compression for smaller file size (note: ComfyUI's built-in 3D viewer does not support Draco-compressed meshes)"
-                }),
-            }
-        }
-
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("file_path",)
-    FUNCTION = "convert"
-    OUTPUT_NODE = True
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_ToMesh",
+            display_name="DA3 to Mesh",
+            category="DepthAnythingV3",
+            is_output_node=True,
+            description="""
 Convert DA3 depth map to textured 3D mesh (GLB format).
 
 Uses grid-based triangulation to create a clean mesh from the depth map.
@@ -735,9 +657,34 @@ Parameters:
 - filename_prefix: Output filename prefix
 
 Output: GLB file path
-"""
+""",
+            inputs=[
+                io.Image.Input("depth_raw"),
+                io.Image.Input("confidence"),
+                io.String.Input("intrinsics", optional=True, force_input=True),
+                io.Mask.Input("sky_mask", optional=True),
+                io.Image.Input("source_image", optional=True),
+                io.Float.Input("confidence_threshold", optional=True, default=0.1, min=0.0, max=1.0, step=0.01,
+                               tooltip="Filter out vertices with confidence below this threshold"),
+                io.Float.Input("depth_edge_threshold", optional=True, default=0.1, min=0.01, max=1.0, step=0.01,
+                               tooltip="Skip triangles across depth discontinuities (relative threshold)"),
+                io.Int.Input("downsample", optional=True, default=1, min=1, max=16, step=1,
+                             tooltip="Downsample depth map before meshing (use 1 with target_faces for best quality)"),
+                io.Int.Input("target_faces", optional=True, default=100000, min=0, max=10000000, step=10000,
+                             tooltip="Target face count after decimation (0 = no decimation). Adaptive: keeps detail at edges, simplifies flat areas."),
+                io.String.Input("filename_prefix", optional=True, default="mesh"),
+                io.Boolean.Input("allow_around_1", optional=True, default=False,
+                                 tooltip="If your depth values have a max close to 1, you are likely feeding normalized depth instead of real/metric depth. This node requires raw metric depth (typical values 0.1–200+). Disable this check only if your scene truly has max depth ~1 meter."),
+                io.Boolean.Input("use_draco_compression", optional=True, default=False,
+                                 tooltip="Use Draco compression for smaller file size (note: ComfyUI's built-in 3D viewer does not support Draco-compressed meshes)"),
+            ],
+            outputs=[
+                io.String.Output(display_name="file_path"),
+            ],
+        )
 
-    def _parse_intrinsics(self, intrinsics_str, batch_idx=0):
+    @staticmethod
+    def _parse_intrinsics(intrinsics_str, batch_idx=0):
         """Parse camera intrinsics from JSON string."""
         import json
 
@@ -766,7 +713,8 @@ Output: GLB file path
             logger.warning(f"Could not parse intrinsics: {e}")
             return None
 
-    def _unproject_grid(self, depth_map, K):
+    @staticmethod
+    def _unproject_grid(depth_map, K):
         """Unproject depth map to 3D points on GPU."""
         H, W = depth_map.shape
         device = depth_map.device
@@ -786,7 +734,8 @@ Output: GLB file path
 
         return points_3d
 
-    def _create_mesh_from_grid(self, points_3d, colors, valid_mask, depth_map, depth_edge_threshold):
+    @staticmethod
+    def _create_mesh_from_grid(points_3d, colors, valid_mask, depth_map, depth_edge_threshold):
         """Create triangular mesh from grid of 3D points (GPU-accelerated)."""
         H, W = points_3d.shape[:2]
         device = points_3d.device
@@ -842,7 +791,8 @@ Output: GLB file path
 
         return vertices, faces, vertex_colors, uvs
 
-    def _compute_vertex_normals(self, vertices, faces):
+    @staticmethod
+    def _compute_vertex_normals(vertices, faces):
         """Compute smooth vertex normals on GPU using scatter_add."""
         n_verts = vertices.shape[0]
         device = vertices.device
@@ -863,7 +813,8 @@ Output: GLB file path
 
         return normals
 
-    def _decimate_mesh(self, vertices, faces, vertex_colors, uvs, target_faces, K=None, H=None, W=None):
+    @staticmethod
+    def _decimate_mesh(vertices, faces, vertex_colors, uvs, target_faces, K=None, H=None, W=None):
         """Decimate mesh to target face count using fast quadric mesh reduction."""
         import numpy as np
 
@@ -904,7 +855,8 @@ Output: GLB file path
         # Skip vertex colors when texture is available (UVs + texture image handle it)
         return new_verts, new_faces, None, new_uvs
 
-    def _export_to_glb(self, filepath, vertices, faces, vertex_colors, uvs, normals, texture_image=None, use_draco_compression=True):
+    @classmethod
+    def _export_to_glb(cls, filepath, vertices, faces, vertex_colors, uvs, normals, texture_image=None, use_draco_compression=True):
         """Export mesh to GLB format using trimesh."""
         try:
             import trimesh
@@ -963,9 +915,10 @@ Output: GLB file path
             mesh.export(filepath, file_type='glb')
 
         # Post-process GLB to enable double-sided + unlit rendering
-        self._postprocess_glb_materials(filepath)
+        cls._postprocess_glb_materials(filepath)
 
-    def _postprocess_glb_materials(self, filepath):
+    @staticmethod
+    def _postprocess_glb_materials(filepath):
         """Modify GLB materials: double-sided + unlit (true texture colors, no lighting)."""
         try:
             import pygltflib
@@ -1013,7 +966,8 @@ Output: GLB file path
         except Exception as e:
             logger.warning(f"Failed to post-process materials: {e}")
 
-    def convert(self, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None,
+    @classmethod
+    def execute(cls, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None,
                 confidence_threshold=0.1, depth_edge_threshold=0.1, downsample=1, target_faces=100000, filename_prefix="mesh", allow_around_1=False, use_draco_compression=False):
         """Convert depth map to mesh and save as GLB."""
         from pathlib import Path
@@ -1037,7 +991,7 @@ Output: GLB file path
         conf_map = confidence[0, :, :, 0]  # [H, W]
 
         # Get camera intrinsics
-        K = self._parse_intrinsics(intrinsics, 0)
+        K = cls._parse_intrinsics(intrinsics, 0)
         if K is None:
             raise ValueError(
                 f"Camera intrinsics are required for mesh generation.\n\n"
@@ -1084,22 +1038,22 @@ Output: GLB file path
             colors = colors.to(device)
 
         # Unproject to 3D (GPU)
-        points_3d = self._unproject_grid(depth_map, K)
+        points_3d = cls._unproject_grid(depth_map, K)
 
         # Create mesh (GPU)
-        vertices, faces, vertex_colors, uvs = self._create_mesh_from_grid(
+        vertices, faces, vertex_colors, uvs = cls._create_mesh_from_grid(
             points_3d, colors, valid_mask, depth_map, depth_edge_threshold
         )
 
         logger.info(f"Grid mesh: {vertices.shape[0]} vertices, {faces.shape[0]} faces")
 
         # Compute normals (GPU)
-        normals = self._compute_vertex_normals(vertices, faces)
+        normals = cls._compute_vertex_normals(vertices, faces)
 
         # Decimate to target face count (CPU, pyfqmr)
         decimated = False
         if target_faces > 0 and faces.shape[0] > target_faces:
-            vertices, faces, vertex_colors, uvs = self._decimate_mesh(
+            vertices, faces, vertex_colors, uvs = cls._decimate_mesh(
                 vertices, faces, vertex_colors, uvs, target_faces, K=K, H=H, W=W
             )
             decimated = not torch.is_tensor(vertices)  # pyfqmr returns numpy
@@ -1142,7 +1096,7 @@ Output: GLB file path
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         # Export to GLB
-        self._export_to_glb(
+        cls._export_to_glb(
             str(filepath),
             vertices,
             faces,
@@ -1157,22 +1111,6 @@ Output: GLB file path
 
         # Extract subfolder from filename if present
         subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
-        return {
-            "ui": {"meshes": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]},
-            "result": (str(filepath),)
-        }
-
-
-NODE_CLASS_MAPPINGS = {
-    "DA3_ToPointCloud": DA3_ToPointCloud,
-    "DA3_SavePointCloud": DA3_SavePointCloud,
-    "DA3_FilterGaussians": DA3_FilterGaussians,
-    "DA3_ToMesh": DA3_ToMesh,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "DA3_ToPointCloud": "DA3 to Point Cloud",
-    "DA3_SavePointCloud": "DA3 Save Point Cloud",
-    "DA3_FilterGaussians": "DA3 Filter Gaussians",
-    "DA3_ToMesh": "DA3 to Mesh",
-}
+        return io.NodeOutput(str(filepath), ui={
+            "meshes": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]
+        })

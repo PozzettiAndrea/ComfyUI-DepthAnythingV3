@@ -2,15 +2,15 @@
 import json
 import torch
 import torch.nn.functional as F
-from torchvision import transforms
 import comfy.model_management as mm
 from comfy.utils import ProgressBar
+from comfy_api.latest import io
 
 from .utils import (
     IMAGENET_MEAN, IMAGENET_STD, DEFAULT_PATCH_SIZE,
     format_camera_params, process_tensor_to_image, process_tensor_to_mask,
     resize_to_patch_multiple, logger, check_model_capabilities,
-    get_or_create_da3_patcher,
+    imagenet_normalize, save_gaussians_to_ply,
 )
 from .normalization import (
     apply_standard_normalization,
@@ -19,80 +19,62 @@ from .normalization import (
 )
 
 
-class DepthAnythingV3_MultiView:
+class DepthAnythingV3_MultiView(io.ComfyNode):
     """Process multiple images together with cross-view attention for geometric consistency."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "da3_model": ("DA3MODEL", ),
-                "normalization_mode": ([
-                    "Standard",
-                    "V2-Style",
-                    "Raw"
-                ], {"default": "V2-Style"}),
-            },
-            "optional": {
-                "images": ("IMAGE", {
-                    "tooltip": "Batch of images [N, H, W, 3]. Connect LoadImage, VHS_LoadVideo IMAGE output, etc."
-                }),
-                "resize_method": (["resize", "crop", "pad"], {
-                    "default": "resize",
-                    "tooltip": "Model requires dimensions to be multiples of 14. resize: scale image (default), crop: center crop to multiple, pad: add black borders to multiple"
-                }),
-                "invert_depth": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "OFF (default): close=bright, far=dark. ON: far=bright, close=dark. Consistent across all normalization modes."
-                }),
-                "keep_model_size": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Keep model's native patch-aligned output size instead of resizing back to original dimensions"
-                }),
-            }
-        }
-
-    RETURN_TYPES = ("IMAGE", "IMAGE", "IMAGE", "IMAGE", "STRING", "STRING", "MASK", "IMAGE", "STRING")
-    RETURN_NAMES = ("depth", "confidence", "ray_origin", "ray_direction", "extrinsics", "intrinsics", "sky_mask", "resized_rgb_image", "gaussian_ply_path")
-    FUNCTION = "process"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-Multi-view Depth Anything V3 - processes multiple images TOGETHER with cross-view attention.
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DepthAnythingV3_MultiView",
+            display_name="Depth Anything V3 (Multi-View)",
+            category="DepthAnythingV3",
+            description="""Multi-view Depth Anything V3 - processes multiple images TOGETHER with cross-view attention.
 
 Key difference from standard nodes:
 - Standard: Processes images one-by-one (sequential, independent)
 - Multi-view: Processes all images together (cross-attention, geometrically consistent)
 
-Use this for:
-- Video frames (temporal consistency)
-- Multiple angles of same scene (SfM/reconstruction)
-- Stereo pairs (left/right cameras)
+Use this for video frames, multiple angles, or stereo pairs.
+All images must have the same resolution. Higher N = more VRAM but better consistency.""",
+            inputs=[
+                io.Custom("DA3MODEL").Input("da3_model"),
+                io.Combo.Input("normalization_mode", options=["Standard", "V2-Style", "Raw"], default="V2-Style"),
+                io.Image.Input("images", optional=True, tooltip="Batch of images [N, H, W, 3]"),
+                io.Combo.Input("resize_method", options=["resize", "crop", "pad"], default="resize", optional=True,
+                               tooltip="Model requires dimensions to be multiples of 14."),
+                io.Boolean.Input("invert_depth", default=False, optional=True,
+                                 tooltip="OFF (default): close=bright, far=dark. ON: far=bright, close=dark."),
+                io.Boolean.Input("keep_model_size", default=False, optional=True,
+                                 tooltip="Keep model's native patch-aligned output size instead of resizing back to original dimensions"),
+            ],
+            outputs=[
+                io.Image.Output(display_name="depth"),
+                io.Image.Output(display_name="confidence"),
+                io.Image.Output(display_name="ray_origin"),
+                io.Image.Output(display_name="ray_direction"),
+                io.String.Output(display_name="extrinsics"),
+                io.String.Output(display_name="intrinsics"),
+                io.Mask.Output(display_name="sky_mask"),
+                io.Image.Output(display_name="resized_rgb_image"),
+                io.String.Output(display_name="gaussian_ply_path"),
+            ],
+        )
 
-**Input:** Batch of images [N, H, W, 3] from LoadImage, VHS_LoadVideo IMAGE output, etc.
-
-**For video:** Use the Streaming node (DepthAnythingV3_Streaming) which processes in chunks
-with Sim(3) alignment for globally consistent depth and accepts VIDEO input directly.
-
-**Normalization Modes:**
-- Standard: Original V3 min-max normalization (0-1 range)
-- V2-Style: Disparity-based with content-aware contrast (default, best for ControlNet)
-- Raw: No normalization, outputs metric depth (for 3D reconstruction)
-
-Note: All images must have the same resolution.
-Higher N = more VRAM usage but better consistency.
-"""
-
-    def process(self, da3_model, normalization_mode="V2-Style", images=None,
+    @classmethod
+    def execute(cls, da3_model, normalization_mode="V2-Style", images=None,
                 resize_method="resize", invert_depth=False, keep_model_size=False):
         if images is None or images.shape[0] == 0:
             raise ValueError("No input provided. Connect 'images' input.")
 
         device = mm.get_torch_device()
-        patcher = get_or_create_da3_patcher(self, da3_model)
-        mm.load_models_gpu([patcher])
-        model = patcher.model
-        dtype = da3_model["dtype"]
-        config = da3_model["config"]
+        mm.load_models_gpu([da3_model])
+        model = da3_model.model
+        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+
+        # Memory estimation
+        memory_required = mm.module_size(model)
+        memory_required += images.nelement() * images.element_size() * 4
+        mm.free_memory(memory_required, device)
 
         N, H, W, C = images.shape
         logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
@@ -134,8 +116,7 @@ Higher N = more VRAM usage but better consistency.
         resized_rgb = images_pt.clone()
 
         # Normalize with ImageNet stats
-        normalize = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-        normalized_images = normalize(images_pt)
+        normalized_images = imagenet_normalize(images_pt)
 
         # Prepare for model: shape [B, N, 3, H, W] where B=1 (single batch of N views)
         # This is the key difference - we process all N images together
@@ -216,6 +197,9 @@ Higher N = more VRAM usage but better consistency.
             gaussians = output.gaussians
         elif isinstance(output, dict) and 'gaussians' in output:
             gaussians = output['gaussians']
+
+        # Save raw depth for Gaussian pruning (before squeeze/normalization)
+        raw_depth_for_gs = depth.squeeze(0).clone() if gaussians is not None else None
 
         # Remove batch dimension: [1, N, H, W] -> [N, H, W]
         depth = depth.squeeze(0)
@@ -370,188 +354,61 @@ Higher N = more VRAM usage but better consistency.
         extrinsics_str = format_camera_params(extrinsics_list, "extrinsics")
         intrinsics_str = format_camera_params(intrinsics_list, "intrinsics")
 
-        # Save Gaussians to PLY if available
+        # Save Gaussians to PLY if available (Giant model only)
         gaussian_ply_path = ""
         if gaussians is not None:
-            gaussian_ply_path = self._save_gaussians_to_ply(gaussians)
+            import folder_paths
+            from pathlib import Path
+            output_dir = Path(folder_paths.get_output_directory())
+            filepath = output_dir / "gaussians_mv_raw_0000.ply"
+            gaussian_ply_path = save_gaussians_to_ply(
+                gaussians, filepath, depth=raw_depth_for_gs,
+                shift_and_scale=False, save_sh_dc_only=True,
+                prune_border=True, prune_depth_percent=0.9,
+            )
 
-        return (depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out, rgb_out, gaussian_ply_path)
-
-    def _save_gaussians_to_ply(self, gaussians):
-        """Save raw Gaussians to PLY file and return the path."""
-        import numpy as np
-        from pathlib import Path
-        import folder_paths
-
-        try:
-            from plyfile import PlyData, PlyElement
-        except ImportError:
-            logger.warning("plyfile not installed - cannot save Gaussians to PLY")
-            return ""
-
-        # Check if gaussians is empty (addict.Dict returns empty Dict for missing keys)
-        if not gaussians or (hasattr(gaussians, 'keys') and not gaussians.keys()):
-            logger.warning("Gaussians data is empty - model may not support gaussian output")
-            return ""
-
-        # Handle both dict and object access patterns
-        if isinstance(gaussians, dict):
-            # Check required keys exist
-            required_keys = ['means', 'scales', 'rotations', 'harmonics', 'opacities']
-            missing = [k for k in required_keys if k not in gaussians]
-            if missing:
-                logger.warning(f"Gaussians missing required keys: {missing}")
-                return ""
-            means = gaussians['means'].cpu().numpy()
-            scales = gaussians['scales'].cpu().numpy()
-            rotations = gaussians['rotations'].cpu().numpy()
-            harmonics = gaussians['harmonics'].cpu().numpy()
-            opacities = gaussians['opacities'].cpu().numpy()
-        else:
-            means = gaussians.means.cpu().numpy()
-            scales = gaussians.scales.cpu().numpy()
-            rotations = gaussians.rotations.cpu().numpy()
-            harmonics = gaussians.harmonics.cpu().numpy()
-            opacities = gaussians.opacities.cpu().numpy()
-
-        B = means.shape[0]
-        output_dir = Path(folder_paths.get_output_directory())
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        file_paths = []
-        for b in range(B):
-            xyz = means[b]
-            scale = scales[b]
-            rot = rotations[b]
-            sh = harmonics[b]
-            opacity = opacities[b] if opacities.ndim == 2 else opacities[b].squeeze()
-
-            # Normalize coordinates to [-1, 1] range (shift_and_scale from original DA3)
-            # This makes the PLY compatible with standard 3DGS viewers
-            xyz_median = np.median(xyz, axis=0)
-            xyz = xyz - xyz_median  # Center at origin
-            scale_factor = np.quantile(np.abs(xyz), 0.95, axis=0).max()
-            if scale_factor > 0:
-                xyz = xyz / scale_factor
-                scale = scale / scale_factor  # Scale Gaussian sizes proportionally
-            logger.info(f"Normalized coordinates: center offset={xyz_median}, scale_factor={scale_factor:.4f}")
-
-            N = xyz.shape[0]
-            d_sh = sh.shape[-1]
-
-            dtype_list = [
-                ('x', 'f4'), ('y', 'f4'), ('z', 'f4'),
-                ('nx', 'f4'), ('ny', 'f4'), ('nz', 'f4'),
-                ('f_dc_0', 'f4'), ('f_dc_1', 'f4'), ('f_dc_2', 'f4'),
-            ]
-            if d_sh > 1:
-                for i in range(1, d_sh):
-                    for c in range(3):
-                        dtype_list.append((f'f_rest_{(i-1)*3 + c}', 'f4'))
-            dtype_list.append(('opacity', 'f4'))
-            dtype_list.extend([('scale_0', 'f4'), ('scale_1', 'f4'), ('scale_2', 'f4')])
-            dtype_list.extend([('rot_0', 'f4'), ('rot_1', 'f4'), ('rot_2', 'f4'), ('rot_3', 'f4')])
-
-            vertices = np.zeros(N, dtype=dtype_list)
-            vertices['x'] = xyz[:, 0]
-            vertices['y'] = xyz[:, 1]
-            vertices['z'] = xyz[:, 2]
-            vertices['nx'] = 0
-            vertices['ny'] = 0
-            vertices['nz'] = 0
-            vertices['f_dc_0'] = sh[:, 0, 0]
-            vertices['f_dc_1'] = sh[:, 1, 0]
-            vertices['f_dc_2'] = sh[:, 2, 0]
-            if d_sh > 1:
-                for i in range(1, d_sh):
-                    for c in range(3):
-                        vertices[f'f_rest_{(i-1)*3 + c}'] = sh[:, c, i]
-            # 3DGS format: opacity in LOGIT space (viewers apply sigmoid)
-            opacity_flat = opacity if len(opacity.shape) == 1 else opacity.squeeze()
-            opacity_clamped = np.clip(opacity_flat, 1e-6, 1.0 - 1e-6)  # Avoid log(0) or log(inf)
-            vertices['opacity'] = np.log(opacity_clamped / (1.0 - opacity_clamped))  # inverse sigmoid
-
-            # 3DGS format: scales in LOG space (viewers apply exp)
-            scale_clamped = np.maximum(scale, 1e-6)  # Avoid log(0)
-            vertices['scale_0'] = np.log(scale_clamped[:, 0])
-            vertices['scale_1'] = np.log(scale_clamped[:, 1])
-            vertices['scale_2'] = np.log(scale_clamped[:, 2])
-            vertices['rot_0'] = rot[:, 0]
-            vertices['rot_1'] = rot[:, 1]
-            vertices['rot_2'] = rot[:, 2]
-            vertices['rot_3'] = rot[:, 3]
-
-            el = PlyElement.describe(vertices, 'vertex')
-            filepath = output_dir / f"gaussians_mv_raw_{b:04d}.ply"
-            PlyData([el]).write(str(filepath))
-            file_paths.append(str(filepath))
-            logger.info(f"Saved raw Gaussians ({N} points) to: {filepath}")
-
-        return file_paths[0] if len(file_paths) == 1 else "\n".join(file_paths)
+        return io.NodeOutput(depth_out, conf_out, ray_origin_out, ray_dir_out, extrinsics_str, intrinsics_str, sky_out, rgb_out, gaussian_ply_path)
 
 
-class DA3_MultiViewPointCloud:
+
+class DA3_MultiViewPointCloud(io.ComfyNode):
     """Combine multi-view depth maps into a single world-space point cloud."""
 
     @classmethod
-    def INPUT_TYPES(s):
-        return {
-            "required": {
-                "depths": ("IMAGE", ),
-                "images": ("IMAGE", ),
-                "extrinsics": ("STRING", ),
-                "intrinsics": ("STRING", ),
-            },
-            "optional": {
-                "confidence": ("IMAGE", ),
-                "sky_mask": ("MASK", ),
-                "confidence_threshold": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "downsample": ("INT", {"default": 4, "min": 1, "max": 32, "step": 1}),
-                "use_icp": ("BOOLEAN", {"default": False}),
-                "allow_around_1": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Allow images with max depth value around 1"
-                }),
-                "filter_outliers": ("BOOLEAN", {
-                    "default": False,
-                    "tooltip": "Remove points far from point cloud center BEFORE ICP (reduces noise and improves alignment)"
-                }),
-                "outlier_percentage": ("FLOAT", {
-                    "default": 5.0,
-                    "min": 0.0,
-                    "max": 50.0,
-                    "step": 0.5,
-                    "tooltip": "Percent of furthest points to remove from center of each view"
-                }),
-            }
-        }
-
-    RETURN_TYPES = ("POINTCLOUD",)
-    RETURN_NAMES = ("pointcloud",)
-    FUNCTION = "fuse"
-    CATEGORY = "DepthAnythingV3"
-    DESCRIPTION = """
-Fuse multi-view depth maps into a single world-space point cloud.
+    def define_schema(cls):
+        return io.Schema(
+            node_id="DA3_MultiViewPointCloud",
+            display_name="DA3 Multi-View Point Cloud",
+            category="DepthAnythingV3",
+            description="""Fuse multi-view depth maps into a single world-space point cloud.
 
 Uses predicted camera poses (extrinsics) to transform each view's depth
 into a common world coordinate system, then combines all points.
+Requires Main series or Nested model (with camera pose prediction).""",
+            inputs=[
+                io.Image.Input("depths"),
+                io.Image.Input("images"),
+                io.String.Input("extrinsics"),
+                io.String.Input("intrinsics"),
+                io.Image.Input("confidence", optional=True),
+                io.Mask.Input("sky_mask", optional=True),
+                io.Float.Input("confidence_threshold", default=0.3, min=0.0, max=1.0, step=0.01, optional=True),
+                io.Int.Input("downsample", default=4, min=1, max=32, step=1, optional=True),
+                io.Boolean.Input("use_icp", default=False, optional=True),
+                io.Boolean.Input("allow_around_1", default=False, optional=True,
+                                 tooltip="Allow images with max depth value around 1"),
+                io.Boolean.Input("filter_outliers", default=False, optional=True,
+                                 tooltip="Remove points far from point cloud center BEFORE ICP"),
+                io.Float.Input("outlier_percentage", default=5.0, min=0.0, max=50.0, step=0.5, optional=True,
+                               tooltip="Percent of furthest points to remove from center of each view"),
+            ],
+            outputs=[
+                io.Custom("POINTCLOUD").Output(display_name="pointcloud"),
+            ],
+        )
 
-Inputs:
-- depths: Batch of depth maps [N, H, W, 3] from Multi-View 3D node
-- images: Original images [N, H, W, 3] for RGB colors
-- extrinsics: Camera poses JSON from Multi-View node
-- intrinsics: Camera intrinsics JSON from Multi-View node
-- confidence: Optional confidence maps to filter low-confidence points
-- sky_mask: Optional sky segmentation to exclude sky pixels from point cloud
-- use_icp: Refine alignment with ICP (slower but potentially more accurate)
-
-Output: Single combined POINTCLOUD in world space.
-
-Note: Requires Main series or Nested model (with camera pose prediction).
-Mono/Metric models don't predict camera poses.
-"""
-
-    def _check_consistency(self, depths, images, confidence, sky_mask):
+    @staticmethod
+    def _check_consistency(depths, images, confidence, sky_mask):
         """Validate that all views have matching spatial dimensions."""
         def get_hw(tensor):
             """Extract (height, width) from tensor of various shapes."""
@@ -585,7 +442,8 @@ Mono/Metric models don't predict camera poses.
                     f"Make sure to use the resized_rgb_image output from the multi-view depth node."
                 )
 
-    def _parse_camera_params(self, param_str, param_name):
+    @staticmethod
+    def _parse_camera_params(param_str, param_name):
         """Parse camera parameters from JSON string."""
         if not param_str or param_str.strip() == "":
             return None
@@ -614,7 +472,8 @@ Mono/Metric models don't predict camera poses.
             logger.warning(f"Could not parse {param_name}: {e}")
             return None
 
-    def _unproject_depth(self, depth, K):
+    @staticmethod
+    def _unproject_depth(depth, K):
         """Unproject depth map to 3D points in camera space."""
         H, W = depth.shape
         if K.dim() == 3:
@@ -638,7 +497,8 @@ Mono/Metric models don't predict camera poses.
         points = torch.stack([x, y, z], dim=-1).reshape(-1, 3)
         return points
 
-    def _transform_points(self, points, extrinsics):
+    @staticmethod
+    def _transform_points(points, extrinsics):
         """Transform points from camera space to world space."""
         # Handle both 3x4 and 4x4 extrinsics matrices
         if extrinsics.shape[-2] == 3:  # 3x4 matrix (rotation + translation only)
@@ -661,7 +521,8 @@ Mono/Metric models don't predict camera poses.
 
         return world_points
 
-    def _icp_align(self, source, target, max_iterations=50, tolerance=1e-6):
+    @staticmethod
+    def _icp_align(source, target, max_iterations=50, tolerance=1e-6):
         """Align source point cloud to target using ICP (Iterative Closest Point).
 
         Args:
@@ -760,7 +621,8 @@ Mono/Metric models don't predict camera poses.
 
         return aligned_source, transform
 
-    def _refine_with_icp(self, points_list, colors_list, conf_list, view_ids_list):
+    @classmethod
+    def _refine_with_icp(cls, points_list, colors_list, conf_list, view_ids_list):
         """Refine multi-view point cloud alignment using ICP.
 
         Uses first view as reference and aligns all subsequent views to it.
@@ -787,7 +649,7 @@ Mono/Metric models don't predict camera poses.
             logger.debug(f"ICP aligning view {i} ({source.shape[0]} pts) to reference ({accumulated_ref.shape[0]} pts)")
 
             # Align source to accumulated reference
-            aligned, transform = self._icp_align(source, accumulated_ref)
+            aligned, transform = cls._icp_align(source, accumulated_ref)
 
             refined_points.append(aligned)
             refined_colors.append(colors_list[i])
@@ -807,9 +669,10 @@ Mono/Metric models don't predict camera poses.
         logger.info("ICP refinement complete")
         return refined_points, refined_colors, refined_conf, refined_view_ids
 
-    def fuse(self, depths, images, extrinsics, intrinsics, confidence=None, sky_mask=None,
-             confidence_threshold=0.3, downsample=4, use_icp=False, allow_around_1=False,
-             filter_outliers=False, outlier_percentage=5.0):
+    @classmethod
+    def execute(cls, depths, images, extrinsics, intrinsics, confidence=None, sky_mask=None,
+                confidence_threshold=0.3, downsample=4, use_icp=False, allow_around_1=False,
+                filter_outliers=False, outlier_percentage=5.0):
         """Fuse multi-view depth maps into world-space point cloud."""
         N = depths.shape[0]
         H, W = depths.shape[1], depths.shape[2]
@@ -828,11 +691,11 @@ Mono/Metric models don't predict camera poses.
             )
 
         # Validate that all inputs have matching dimensions
-        self._check_consistency(depths, images, confidence, sky_mask)
+        cls._check_consistency(depths, images, confidence, sky_mask)
 
         # Parse camera parameters
-        extr_list = self._parse_camera_params(extrinsics, "extrinsics")
-        intr_list = self._parse_camera_params(intrinsics, "intrinsics")
+        extr_list = cls._parse_camera_params(extrinsics, "extrinsics")
+        intr_list = cls._parse_camera_params(intrinsics, "intrinsics")
 
         if extr_list is None or len(extr_list) != N:
             raise ValueError(f"Extrinsics not available or wrong count. Need {N} poses. "
@@ -883,7 +746,7 @@ Mono/Metric models don't predict camera poses.
 
             # Unproject to camera space
             K = intr_list[i]
-            points_cam = self._unproject_depth(depth, K)  # [H*W, 3]
+            points_cam = cls._unproject_depth(depth, K)  # [H*W, 3]
 
             # Get colors from original image
             colors = images[i].reshape(-1, 3)  # [H*W, 3]
@@ -903,12 +766,12 @@ Mono/Metric models don't predict camera poses.
 
             # Transform to world space
             E = extr_list[i]
-            points_world = self._transform_points(points_cam, E)
+            points_world = cls._transform_points(points_cam, E)
 
             # Apply outlier filtering if requested (BEFORE ICP for cleaner alignment)
             if filter_outliers and outlier_percentage > 0:
                 original_count = points_world.shape[0]
-                points_world, colors, conf_flat, view_id = self._filter_outliers(
+                points_world, colors, conf_flat, view_id = cls._filter_outliers(
                     points_world, colors, conf_flat, view_id, outlier_percentage
                 )
                 filtered_count = points_world.shape[0]
@@ -925,7 +788,7 @@ Mono/Metric models don't predict camera poses.
 
         # Optional: ICP refinement before combining
         if use_icp and N > 1:
-            all_points, all_colors, all_confidences, all_view_ids = self._refine_with_icp(
+            all_points, all_colors, all_confidences, all_view_ids = cls._refine_with_icp(
                 all_points, all_colors, all_confidences, all_view_ids
             )
 
@@ -948,9 +811,10 @@ Mono/Metric models don't predict camera poses.
             "view_id": combined_view_ids.numpy(),
         }
 
-        return ([pointcloud],)
+        return io.NodeOutput([pointcloud])
 
-    def _filter_outliers(self, points, colors, confidence, view_id, percentage):
+    @staticmethod
+    def _filter_outliers(points, colors, confidence, view_id, percentage):
         """Remove points furthest from the point cloud center."""
         import torch
 
@@ -974,12 +838,3 @@ Mono/Metric models don't predict camera poses.
         return filtered_points, filtered_colors, filtered_confidence, filtered_view_id
 
 
-NODE_CLASS_MAPPINGS = {
-    "DepthAnythingV3_MultiView": DepthAnythingV3_MultiView,
-    "DA3_MultiViewPointCloud": DA3_MultiViewPointCloud,
-}
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "DepthAnythingV3_MultiView": "Depth Anything V3 (Multi-View)",
-    "DA3_MultiViewPointCloud": "DA3 Multi-View Point Cloud",
-}
