@@ -240,7 +240,7 @@ def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE, method="r
     return images_pt, orig_H, orig_W
 
 
-def save_gaussians_to_ply(gaussians, save_path, depth=None,
+def save_gaussians_to_ply(gaussians, save_path, depth=None, extrinsics=None,
                            shift_and_scale=False, save_sh_dc_only=True,
                            prune_border=True, prune_depth_percent=0.9):
     """Save Gaussians to PLY file in standard 3DGS format.
@@ -253,6 +253,9 @@ def save_gaussians_to_ply(gaussians, save_path, depth=None,
         save_path: Output PLY file path (str or Path)
         depth: Optional depth tensor (V, H, W) or (V, H, W, 1) for spatial pruning.
                Provides shape info for border pruning + depth values for far pruning.
+        extrinsics: Optional world-to-camera extrinsics tensor (4x4). If provided,
+                    positions are transformed from world space to camera space via rigid
+                    transform, preserving scale/position relationship.
         shift_and_scale: If True, normalize positions to ~[-1, 1] (default: False)
         save_sh_dc_only: If True, save only DC band SH coefficients (default: True)
         prune_border: If True, remove border Gaussians (requires depth for spatial shape)
@@ -322,6 +325,31 @@ def save_gaussians_to_ply(gaussians, save_path, depth=None,
             spatial_shs = world_shs.reshape(src_v, out_h, out_w, *world_shs.shape[1:])
             spatial_opac = gs_opacities.reshape(src_v, out_h, out_w)
 
+            # --- Transform positions from world space to camera space ---
+            # The GaussianAdapter computes positions AND scales in the same world
+            # coordinate system. Applying extrinsics (world-to-camera rigid transform)
+            # preserves the scale/position relationship — scales don't change under
+            # rotation (same approach as Sharp's covariance transform).
+            if extrinsics is not None:
+                # Parse extrinsics: squeeze to (4, 4)
+                E = extrinsics
+                while E.dim() > 2:
+                    E = E.squeeze(0)
+                E = E.to(spatial_means.device, dtype=spatial_means.dtype)
+                R = E[:3, :3]  # rotation (world-to-camera)
+                t = E[:3, 3]   # translation
+
+                # Transform all positions: cam_pos = R @ world_pos + t
+                flat_means = spatial_means.reshape(-1, 3)
+                cam_means = (flat_means @ R.T) + t
+                # Flip Y and Z: OpenCV (Y-down, Z-forward) -> viewer (Y-up, Z-backward)
+                cam_means[:, 1] *= -1
+                cam_means[:, 2] *= -1
+                spatial_means = cam_means.reshape(src_v, out_h, out_w, 3)
+
+                # Scales are unchanged — rigid transform preserves singular values
+                logger.info(f"Transformed Gaussian positions to camera space via extrinsics")
+
             # Build mask
             if prune_border:
                 mask = torch.zeros(src_v, out_h, out_w, dtype=torch.bool,
@@ -367,8 +395,8 @@ def save_gaussians_to_ply(gaussians, save_path, depth=None,
     f_dc = world_shs[..., 0]  # (N, 3) — DC band
     f_rest = world_shs[..., 1:].flatten(start_dim=1) if world_shs.shape[-1] > 1 else None
 
-    # Build property list
-    attr_names = ["x", "y", "z"]
+    # Build property list (includes nx/ny/nz dummy normals to match original DA3 format)
+    attr_names = ["x", "y", "z", "nx", "ny", "nz"]
     if save_sh_dc_only:
         attr_names += ["f_dc_0", "f_dc_1", "f_dc_2"]
     else:
@@ -383,8 +411,10 @@ def save_gaussians_to_ply(gaussians, save_path, depth=None,
     dtype_full = [(name, "f4") for name in attr_names]
 
     # Concatenate all attribute arrays
+    means_np = world_means.detach().cpu().numpy()
     attr_arrays = [
-        world_means.detach().cpu().numpy(),                          # x, y, z
+        means_np,                                                    # x, y, z
+        np.zeros_like(means_np),                                     # nx, ny, nz (dummy normals)
         f_dc.detach().cpu().contiguous().numpy(),                    # f_dc_0, f_dc_1, f_dc_2
     ]
     if not save_sh_dc_only and f_rest is not None:
