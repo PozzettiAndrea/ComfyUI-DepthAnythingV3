@@ -319,9 +319,20 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
             extrinsics_tensor = torch.eye(4).unsqueeze(0).expand(len(depth_out), -1, -1)
 
         if intrinsics_list and intrinsics_list[0] is not None:
-            intrinsics_tensor = torch.stack([i.squeeze() if i.dim() > 2 else i for i in intrinsics_list if i is not None], dim=0)
+            # Convert 3x3 intrinsics to 4x4 homogeneous (compatible with Sharp)
+            intr_tensors = []
+            for i_mat in intrinsics_list:
+                if i_mat is not None:
+                    k = i_mat.squeeze()
+                    if k.shape == (3, 3):
+                        k4 = torch.eye(4, dtype=k.dtype)
+                        k4[:3, :3] = k
+                        intr_tensors.append(k4)
+                    else:
+                        intr_tensors.append(k)
+            intrinsics_tensor = torch.stack(intr_tensors, dim=0)
         else:
-            intrinsics_tensor = torch.eye(3).unsqueeze(0).expand(len(depth_out), -1, -1)
+            intrinsics_tensor = torch.eye(4).unsqueeze(0).expand(len(depth_out), -1, -1)
 
         # Save Gaussians to PLY file if available (Giant model only)
         gaussian_ply_path = ""
@@ -333,10 +344,13 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
             gs, raw_depth = gaussians_list[0]
             # Raw depth shape: (1, 1, H, W) -> squeeze to (1, H, W) for pruning
             depth_for_pruning = raw_depth.squeeze(0) if raw_depth.dim() == 4 else raw_depth
-            filepath = output_dir / "gaussians_raw_0000.ply"
+            # Get extrinsics for world-to-camera transform (preserves scale/position relationship)
+            gs_extrinsics = extrinsics_list[0] if extrinsics_list and extrinsics_list[0] is not None else None
+            filepath = output_dir / "gaussians_worldspace_0000.ply"
             gaussian_ply_path = save_gaussians_to_ply(
                 gs, filepath, depth=depth_for_pruning,
-                shift_and_scale=True, save_sh_dc_only=True,
+                extrinsics=gs_extrinsics,
+                shift_and_scale=False, save_sh_dc_only=False,
                 prune_border=True, prune_depth_percent=0.9,
             )
 

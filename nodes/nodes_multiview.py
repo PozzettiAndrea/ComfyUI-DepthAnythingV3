@@ -360,10 +360,13 @@ All images must have the same resolution. Higher N = more VRAM but better consis
             import folder_paths
             from pathlib import Path
             output_dir = Path(folder_paths.get_output_directory())
-            filepath = output_dir / "gaussians_mv_raw_0000.ply"
+            # Get extrinsics for world-to-camera transform (preserves scale/position relationship)
+            gs_extrinsics = extrinsics_list[0] if extrinsics_list and extrinsics_list[0] is not None else None
+            filepath = output_dir / "gaussians_mv_worldspace_0000.ply"
             gaussian_ply_path = save_gaussians_to_ply(
                 gaussians, filepath, depth=raw_depth_for_gs,
-                shift_and_scale=True, save_sh_dc_only=True,
+                extrinsics=gs_extrinsics,
+                shift_and_scale=False, save_sh_dc_only=False,
                 prune_border=True, prune_depth_percent=0.9,
             )
 
