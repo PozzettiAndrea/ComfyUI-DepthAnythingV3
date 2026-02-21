@@ -71,11 +71,6 @@ All images must have the same resolution. Higher N = more VRAM but better consis
         model = da3_model.model
         dtype = da3_model.model_options.get("da3_dtype", torch.float16)
 
-        # Memory estimation
-        memory_required = mm.module_size(model)
-        memory_required += images.nelement() * images.element_size() * 4
-        mm.free_memory(memory_required, device)
-
         N, H, W, C = images.shape
         logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
 

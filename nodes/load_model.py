@@ -693,7 +693,7 @@ def _build_salad_model(ckpt_path):
     """Build and load the SALAD VPR model from checkpoint."""
     from .salad.model import VPRModel
 
-    model = VPRModel()
+    model = VPRModel(operations=comfy.ops.manual_cast)
     state_dict = load_torch_file(str(ckpt_path))
     model.load_state_dict(state_dict)
     model.eval()
