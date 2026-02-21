@@ -363,7 +363,7 @@ All images must have the same resolution. Higher N = more VRAM but better consis
             filepath = output_dir / "gaussians_mv_raw_0000.ply"
             gaussian_ply_path = save_gaussians_to_ply(
                 gaussians, filepath, depth=raw_depth_for_gs,
-                shift_and_scale=False, save_sh_dc_only=True,
+                shift_and_scale=True, save_sh_dc_only=True,
                 prune_border=True, prune_depth_percent=0.9,
             )
 
