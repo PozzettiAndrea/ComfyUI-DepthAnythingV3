@@ -465,8 +465,7 @@ class StreamingPipeline:
             batch = torch.nn.functional.interpolate(batch, size=[336, 336], mode="bilinear", align_corners=False)
             batch = ((batch.to(device) - _mean) / _std)
             with torch.no_grad():
-                with torch.autocast(device_type=device.type, dtype=torch.float16):
-                    desc = model(batch).cpu()
+                desc = model(batch).cpu()
             descriptors.append(desc)
 
         descriptors = torch.cat(descriptors)  # [N, 8448]

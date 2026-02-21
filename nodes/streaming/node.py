@@ -166,20 +166,16 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
 
         # Get model and device
         device = mm.get_torch_device()
-        mm.load_models_gpu([da3_model])
+
+        # Load all models in a single call so ComfyUI can manage memory holistically
+        models_to_load = [da3_model]
+        if salad_model is not None:
+            models_to_load.append(salad_model)
+        mm.load_models_gpu(models_to_load)
+
         model = da3_model.model
         dtype = da3_model.model_options.get("da3_dtype", torch.float16)
-
-        # Memory estimation
-        memory_required = mm.module_size(model)
-        memory_required += images.nelement() * images.element_size() * 4
-        mm.free_memory(memory_required, device)
-
-        # Load SALAD model for loop closure (already a ModelPatcher from loader)
-        salad_nn_model = None
-        if salad_model is not None:
-            mm.load_models_gpu([salad_model])
-            salad_nn_model = salad_model.model
+        salad_nn_model = salad_model.model if salad_model is not None else None
 
         pbar = ProgressBar(num_views)
 

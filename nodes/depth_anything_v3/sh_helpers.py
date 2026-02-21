@@ -73,26 +73,25 @@ def rotate_sh(
 
     *_, n = sh_coefficients.shape
 
-    with torch.autocast(device_type=rotations.device.type, enabled=False):
-        rotations_float32 = rotations.to(torch.float32)
+    rotations_float32 = rotations.to(torch.float32)
 
-        # switch axes: yzx -> xyz
-        P = torch.tensor([[0, 0, 1], [1, 0, 0], [0, 1, 0]]).unsqueeze(0).to(rotations_float32)
-        permuted_rotations = torch.linalg.inv(P) @ rotations_float32 @ P
+    # switch axes: yzx -> xyz
+    P = torch.tensor([[0, 0, 1], [1, 0, 0], [0, 1, 0]]).unsqueeze(0).to(rotations_float32)
+    permuted_rotations = torch.linalg.inv(P) @ rotations_float32 @ P
 
-        # ensure rotation has det == 1 in float32 type
-        permuted_rotations_so3 = project_to_so3_strict(permuted_rotations)
+    # ensure rotation has det == 1 in float32 type
+    permuted_rotations_so3 = project_to_so3_strict(permuted_rotations)
 
-        alpha, beta, gamma = matrix_to_angles(permuted_rotations_so3)
-        result = []
-        for degree in range(isqrt(n)):
-            with torch.device(device):
-                sh_rotations = wigner_D(degree, alpha, -beta, gamma).type(dtype)
-            sh_rotated = torch.einsum(
-                "...ij,...j->...i",
-                sh_rotations,
-                sh_coefficients[..., degree**2 : (degree + 1) ** 2],
-            )
-            result.append(sh_rotated)
+    alpha, beta, gamma = matrix_to_angles(permuted_rotations_so3)
+    result = []
+    for degree in range(isqrt(n)):
+        with torch.device(device):
+            sh_rotations = wigner_D(degree, alpha, -beta, gamma).type(dtype)
+        sh_rotated = torch.einsum(
+            "...ij,...j->...i",
+            sh_rotations,
+            sh_coefficients[..., degree**2 : (degree + 1) ** 2],
+        )
+        result.append(sh_rotated)
 
     return torch.cat(result, dim=-1)

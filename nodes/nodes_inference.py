@@ -95,11 +95,6 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
         B, H, W, C = images.shape
         logger.info(f"Input image size: {H}x{W}")
 
-        # Memory estimation
-        memory_required = mm.module_size(model)
-        memory_required += images.nelement() * images.element_size() * 4
-        mm.free_memory(memory_required, device)
-
         # Convert from ComfyUI format [B, H, W, C] to PyTorch [B, C, H, W]
         images_pt = images.permute(0, 3, 1, 2)
 
