@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-02-21T14:24:23.196594+00:00",
+  "platform": "linux",
+  "hardware": {
+    "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+    "gpu": "NVIDIA RTX A4000"
+  },
+  "summary": {
+    "total": 7,
+    "passed": 5,
+    "failed": 2
+  },
+  "workflows": [
+    {
+      "name": "advanced",
+      "status": "pass",
+      "duration_seconds": 591.93,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 4.07,
+          "avg": 2.66
+        },
+        "total_ram_gb": 14.6,
+        "samples": 367,
+        "vram": {
+          "peak": 3.29,
+          "avg": 0.5
+        }
+      }
+    },
+    {
+      "name": "advanced_3d",
+      "status": "pass",
+      "duration_seconds": 131.45,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 4.39,
+          "avg": 4.08
+        },
+        "total_ram_gb": 14.6,
+        "samples": 79,
+        "vram": {
+          "peak": 2.51,
+          "avg": 0.97
+        }
+      }
+    },
+    {
+      "name": "advanced_3d_multiview",
+      "status": "pass",
+      "duration_seconds": 85.94,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 4.39,
+          "avg": 4.25
+        },
+        "total_ram_gb": 14.6,
+        "samples": 55,
+        "vram": {
+          "peak": 3.57,
+          "avg": 1.0
+        }
+      }
+    },
+    {
+      "name": "bas_relief",
+      "status": "pass",
+      "duration_seconds": 309.85,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 6.34,
+          "avg": 5.45
+        },
+        "total_ram_gb": 14.6,
+        "samples": 193,
+        "vram": {
+          "peak": 8.52,
+          "avg": 3.8
+        }
+      }
+    },
+    {
+      "name": "da3_streaming",
+      "status": "fail",
+      "duration_seconds": 227.06,
+      "error": "Workflow execution failed: {'prompt_id': '9d01e38c-80f6-4222-8f6d-a30cb6132533', 'node_id': '6', 'node_type': 'DepthAnythingV3_Streaming', 'executed': ['5', '3', '2'], 'exception_message': 'Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 8.25 GiB\\nRequested               : 2.24 GiB\\nDevice limit            : 15.99 GiB\\nFree (according to CUDA): 0 bytes\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\nThis error means you ran out of memory on your GPU.\\n\\nTIPS: If the workflow worked before you might have accidentally set the batch_size to a large number.', 'exception_type': 'torch.OutOfMemoryError', 'traceback': ['  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 530, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 334, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 308, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 296, in process_inputs\\n    result = f(**inputs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/comfy_api/internal/__init__.py\", line 149, in wrapped_func\\n    return method(locked_class, **inputs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/comfy_api/latest/_io.py\", line 1710, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/node.py\", line 217, in execute\\n    result = pipeline.run(normalized_images, pbar=pbar,\\n                          salad_model=salad_nn_model, video_frames=images)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 268, in run\\n    result = self._process_chunk(normalized_images, start, end)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 310, in _process_chunk\\n    output = self.model(chunk_input)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/python/lib/python3.13/site-packages/torch/nn/modules/module.py\", line 1776, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/python/lib/python3.13/site-packages/torch/nn/modules/module.py\", line 1787, in _call_impl\\n    return forward_call(*args, **kwargs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1487, in forward\\n    output = self._process_depth_head(feats, H, W)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1497, in _process_depth_head\\n    return self.head(feats, H, W, patch_start_idx=0)\\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/python/lib/python3.13/site-packages/torch/nn/modules/module.py\", line 1776, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/python/lib/python3.13/site-packages/torch/nn/modules/module.py\", line 1787, in _call_impl\\n    return forward_call(*args, **kwargs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1325, in forward\\n    self._forward_impl([feat[s0:s1] for feat in feats], H, W, patch_start_idx)\\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1354, in _forward_impl\\n    fused_main = self._add_pos_embed(fused_main, W, H)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1414, in _add_pos_embed\\n    return x + pe\\n           ~~^~~~\\n'], 'current_inputs': {'normalization_mode': ['Standard'], 'chunk_size': [30], 'overlap': [8], 'align_lib': ['auto'], 'align_method': ['sim3'], 'resize_method': ['resize'], 'invert_depth': [True], 'save_pointcloud': [False], 'sample_ratio': [0.015], 'conf_threshold_coef': [0.75], 'da3_model': ['<comfy.model_patcher.ModelPatcher object at 0x7cf25c0d6ad0>'], 'video': ['<comfy_api.latest._input_impl.video_types.VideoFromFile object at 0x7cf2759a4ad0>'], 'salad_model': ['<comfy.model_patcher.ModelPatcher object at 0x7cf277706710>']}, 'current_outputs': ['5', '4', '6', '2', '3'], 'timestamp': 1771683762708}\n\nDetails:\nWorkflow: /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/workflows/da3_streaming.json\nNode error: DepthAnythingV3_Streaming",
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 11.18,
+          "avg": 7.3
+        },
+        "total_ram_gb": 14.6,
+        "samples": 123,
+        "vram": {
+          "peak": 15.71,
+          "avg": 2.63
+        }
+      }
+    },
+    {
+      "name": "simple",
+      "status": "pass",
+      "duration_seconds": 66.8,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 9.92,
+          "avg": 6.81
+        },
+        "total_ram_gb": 14.6,
+        "samples": 42,
+        "vram": {
+          "peak": 8.02,
+          "avg": 1.4
+        }
+      }
+    },
+    {
+      "name": "video_multiview_depth",
+      "status": "fail",
+      "duration_seconds": 27.2,
+      "error": "Workflow execution failed: {'prompt_id': '84aeb354-6bfa-43bc-8397-046e37628db6', 'node_id': '71', 'node_type': 'LoadImagesFromFolderKJ', 'executed': [], 'exception_message': \"Folder 'input/robotframes' cannot be found.\\n\", 'exception_type': 'FileNotFoundError', 'traceback': ['  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 530, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 334, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 308, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/execution.py\", line 296, in process_inputs\\n    result = f(**inputs)\\n', '  File \"/home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-KJNodes/nodes/image_nodes.py\", line 3204, in load_images\\n    raise FileNotFoundError(f\"Folder \\'{folder}\\' cannot be found.\")\\n'], 'current_inputs': {'folder': ['input/robotframes'], 'width': [1024], 'height': [576], 'keep_aspect_ratio': ['crop'], 'image_load_cap': [0], 'start_index': [0], 'include_subfolders': [False]}, 'current_outputs': ['66', '62', '52', '71', '54', '55', '53', '3', '61'], 'timestamp': 1771683859520}\n\nDetails:\nWorkflow: /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/workflows/video_multiview_depth.json\nNode error: LoadImagesFromFolderKJ",
+      "hardware": {
+        "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "cpu": "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        "gpu": "NVIDIA RTX A4000"
+      },
+      "resources": {
+        "ram": {
+          "peak": 6.74,
+          "avg": 6.67
+        },
+        "total_ram_gb": 14.6,
+        "samples": 18,
+        "vram": {
+          "peak": 0.56,
+          "avg": 0.56
+        }
+      }
+    }
+  ]
+}

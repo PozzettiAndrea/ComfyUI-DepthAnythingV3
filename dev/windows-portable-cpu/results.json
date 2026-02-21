@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-02-21T14:02:03.269328+00:00",
+  "platform": "windows_portable",
+  "hardware": {
+    "os": "Windows-2025Server-10.0.26100-SP0",
+    "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+  },
+  "summary": {
+    "total": 7,
+    "passed": 5,
+    "failed": 1
+  },
+  "workflows": [
+    {
+      "name": "advanced",
+      "status": "pass",
+      "duration_seconds": 141.92,
+      "error": null,
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 7.74,
+          "avg": 6.47
+        },
+        "total_ram_gb": 16.0,
+        "samples": 142
+      }
+    },
+    {
+      "name": "advanced_3d",
+      "status": "pass",
+      "duration_seconds": 106.26,
+      "error": null,
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 6.84,
+          "avg": 5.27
+        },
+        "total_ram_gb": 16.0,
+        "samples": 106
+      }
+    },
+    {
+      "name": "advanced_3d_multiview",
+      "status": "pass",
+      "duration_seconds": 234.23,
+      "error": null,
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 7.77,
+          "avg": 6.05
+        },
+        "total_ram_gb": 16.0,
+        "samples": 234
+      }
+    },
+    {
+      "name": "bas_relief",
+      "status": "pass",
+      "duration_seconds": 599.31,
+      "error": null,
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 9.34,
+          "avg": 5.95
+        },
+        "total_ram_gb": 16.0,
+        "samples": 597
+      }
+    },
+    {
+      "name": "da3_streaming",
+      "status": "skipped",
+      "duration_seconds": 0,
+      "error": "Not configured for CPU runner",
+      "hardware": null
+    },
+    {
+      "name": "simple",
+      "status": "pass",
+      "duration_seconds": 134.37,
+      "error": null,
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 8.58,
+          "avg": 7.12
+        },
+        "total_ram_gb": 16.0,
+        "samples": 134
+      }
+    },
+    {
+      "name": "video_multiview_depth",
+      "status": "fail",
+      "duration_seconds": 6.5,
+      "error": "Workflow execution failed: {'prompt_id': '88ae5d3a-5efe-4adb-82a4-cb24a2f09c37', 'node_id': '71', 'node_type': 'LoadImagesFromFolderKJ', 'executed': [], 'exception_message': \"Folder 'input/robotframes' cannot be found.\\n\", 'exception_type': 'FileNotFoundError', 'traceback': ['  File \"D:\\\\a\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI_windows_portable\\\\ComfyUI\\\\execution.py\", line 530, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"D:\\\\a\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI_windows_portable\\\\ComfyUI\\\\execution.py\", line 334, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"D:\\\\a\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI_windows_portable\\\\ComfyUI\\\\execution.py\", line 308, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"D:\\\\a\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI_windows_portable\\\\ComfyUI\\\\execution.py\", line 296, in process_inputs\\n    result = f(**inputs)\\n', '  File \"D:\\\\a\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI-DepthAnythingV3\\\\ComfyUI_windows_portable\\\\ComfyUI\\\\custom_nodes\\\\ComfyUI-KJNodes\\\\nodes\\\\image_nodes.py\", line 3204, in load_images\\n    raise FileNotFoundError(f\"Folder \\'{folder}\\' cannot be found.\")\\n'], 'current_inputs': {'folder': ['input/robotframes'], 'width': [1024], 'height': [576], 'keep_aspect_ratio': ['crop'], 'image_load_cap': [0], 'start_index': [0], 'include_subfolders': [False]}, 'current_outputs': ['66', '61', '54', '55', '52', '71', '3', '53', '62'], 'timestamp': 1771682522515}\n\nDetails:\nWorkflow: D:\\a\\ComfyUI-DepthAnythingV3\\ComfyUI-DepthAnythingV3\\ComfyUI_windows_portable\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3\\workflows\\video_multiview_depth.json\nNode error: LoadImagesFromFolderKJ",
+      "hardware": {
+        "os": "Windows-2025Server-10.0.26100-SP0",
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD"
+      },
+      "resources": {
+        "ram": {
+          "peak": 6.84,
+          "avg": 5.57
+        },
+        "total_ram_gb": 16.0,
+        "samples": 7
+      }
+    }
+  ]
+}
