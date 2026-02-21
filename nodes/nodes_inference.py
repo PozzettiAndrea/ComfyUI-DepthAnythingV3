@@ -336,7 +336,7 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
             filepath = output_dir / "gaussians_raw_0000.ply"
             gaussian_ply_path = save_gaussians_to_ply(
                 gs, filepath, depth=depth_for_pruning,
-                shift_and_scale=False, save_sh_dc_only=True,
+                shift_and_scale=True, save_sh_dc_only=True,
                 prune_border=True, prune_depth_percent=0.9,
             )
 
