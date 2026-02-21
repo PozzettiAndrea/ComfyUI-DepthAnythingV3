@@ -331,7 +331,7 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
             output_dir = Path(folder_paths.get_output_directory())
             # Use the first batch item's Gaussians and depth for pruning
             gs, raw_depth = gaussians_list[0]
-            # Raw depth shape: (1, 1, H, W) → squeeze to (1, H, W) for pruning
+            # Raw depth shape: (1, 1, H, W) -> squeeze to (1, H, W) for pruning
             depth_for_pruning = raw_depth.squeeze(0) if raw_depth.dim() == 4 else raw_depth
             filepath = output_dir / "gaussians_raw_0000.ply"
             gaussian_ply_path = save_gaussians_to_ply(
