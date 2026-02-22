@@ -708,11 +708,17 @@ class DinoVisionTransformer(nn.Module):
         return pos, pos_nodiff
 
     def _get_intermediate_layers_not_chunked(self, x, n=1, export_feat_layers=[], **kwargs):
+        import logging as _logging
+        _dbg = _logging.getLogger("DA3Streaming")
+
         B, S, _, H, W = x.shape
         x = self.prepare_tokens_with_masks(x)
         output, total_block_len, aux_output = [], len(self.blocks), []
         blocks_to_take = range(total_block_len - n, total_block_len) if isinstance(n, int) else n
         pos, pos_nodiff = self._prepare_rope(B, S, H, W, x.device)
+
+        _dbg.debug(f"[DEBUG backbone] B={B} S={S} H={H} W={W} tokens_shape={list(x.shape)} "
+                  f"blocks={total_block_len} alt_start={self.alt_start}")
 
         for i, blk in enumerate(self.blocks):
             if i < self.rope_start or self.rope is None:
@@ -733,15 +739,38 @@ class DinoVisionTransformer(nn.Module):
                 x = self.process_attention(
                     x, blk, "global", pos=g_pos, attn_mask=kwargs.get("attn_mask", None)
                 )
+                if i == self.alt_start + 1:
+                    a = torch.cuda.memory_allocated(x.device) / (1024**3) if x.is_cuda else 0
+                    r = torch.cuda.memory_reserved(x.device) / (1024**3) if x.is_cuda else 0
+                    _dbg.debug(f"[VRAM backbone] after first GLOBAL attn (layer {i}): "
+                              f"allocated={a:.2f}GB reserved={r:.2f}GB seq_len={S}*N tokens={S * x.shape[2]}")
             else:
                 x = self.process_attention(x, blk, "local", pos=l_pos)
                 local_x = x
+                if i == 0:
+                    a = torch.cuda.memory_allocated(x.device) / (1024**3) if x.is_cuda else 0
+                    r = torch.cuda.memory_reserved(x.device) / (1024**3) if x.is_cuda else 0
+                    _dbg.debug(f"[VRAM backbone] after first LOCAL attn (layer {i}): "
+                              f"allocated={a:.2f}GB reserved={r:.2f}GB")
+
+            if x.is_cuda and i % 4 == 3:
+                a = torch.cuda.memory_allocated(x.device) / (1024**3)
+                r = torch.cuda.memory_reserved(x.device) / (1024**3)
+                attn_type = "global" if (self.alt_start != -1 and i >= self.alt_start and i % 2 == 1) else "local"
+                _dbg.debug(f"[VRAM backbone] layer {i}/{total_block_len} ({attn_type}): "
+                          f"allocated={a:.2f}GB reserved={r:.2f}GB")
 
             if i in blocks_to_take:
                 out_x = torch.cat([local_x, x], dim=-1) if self.cat_token else x
                 output.append((out_x[:, :, 0], out_x))
             if i in export_feat_layers:
                 aux_output.append(x)
+
+        if x.is_cuda:
+            a = torch.cuda.memory_allocated(x.device) / (1024**3)
+            r = torch.cuda.memory_reserved(x.device) / (1024**3)
+            _dbg.info(f"[VRAM backbone] DONE: allocated={a:.2f}GB reserved={r:.2f}GB")
+
         return output, aux_output
 
     def process_attention(self, x, block, attn_type="global", pos=None, attn_mask=None):
@@ -1092,7 +1121,7 @@ class DPT(nn.Module):
                                   dtype=dtype, device=device),
             )
 
-    def forward(self, feats, H, W, patch_start_idx, chunk_size=8, **kwargs):
+    def forward(self, feats, H, W, patch_start_idx, chunk_size=1, **kwargs):
         B, S, N, C = feats[0][0].shape
         feats = [feat[0].reshape(B * S, N, C) for feat in feats]
         extra_kwargs = {}
@@ -1311,24 +1340,50 @@ class DualDPT(nn.Module):
             for _ in range(self.aux_levels)
         ])
 
-    def forward(self, feats, H, W, patch_start_idx, chunk_size=8):
+    def forward(self, feats, H, W, patch_start_idx, chunk_size=1):
+        import logging as _logging
+        _dbg = _logging.getLogger("DA3Streaming")
+
+        def _vram(tag):
+            dev = feats[0][0].device if feats[0][0].is_cuda else None
+            if dev is not None:
+                a = torch.cuda.memory_allocated(dev) / (1024**3)
+                r = torch.cuda.memory_reserved(dev) / (1024**3)
+                _dbg.debug(f"[VRAM DPTHead {tag}] allocated={a:.2f}GB reserved={r:.2f}GB")
+
         B, S, N, C = feats[0][0].shape
+        _dbg.debug(f"[DEBUG DPTHead] B={B} S={S} N={N} C={C} chunk_size={chunk_size} H={H} W={W}")
         feats = [feat[0].reshape(B * S, N, C) for feat in feats]
+
+        total_mb = sum(f.nelement() * f.element_size() / (1024**2) for f in feats)
+        _dbg.debug(f"[DEBUG DPTHead] {len(feats)} reshaped feats total: {total_mb:.1f}MB")
+        _vram("entry")
+
         if chunk_size is None or chunk_size >= S:
+            _dbg.debug(f"[DEBUG DPTHead] processing all {S} frames at once (no sub-chunking)")
             out_dict = self._forward_impl(feats, H, W, patch_start_idx)
+            _vram("after_forward_impl_all")
             out_dict = {k: v.reshape(B, S, *v.shape[1:]) for k, v in out_dict.items()}
             return ModelOutput(out_dict)
+
         out_dicts = []
+        num_sub_chunks = (S + chunk_size - 1) // chunk_size
         for s0 in range(0, S, chunk_size):
             s1 = min(s0 + chunk_size, S)
+            sub_idx = s0 // chunk_size + 1
+            _dbg.debug(f"[DEBUG DPTHead] sub-chunk {sub_idx}/{num_sub_chunks}: frames [{s0}:{s1}]")
+            _vram(f"sub_chunk_{sub_idx}_before")
             out_dicts.append(
                 self._forward_impl([feat[s0:s1] for feat in feats], H, W, patch_start_idx)
             )
+            _vram(f"sub_chunk_{sub_idx}_after")
+
         out_dict = {
             k: torch.cat([od[k] for od in out_dicts], dim=0)
             for k in out_dicts[0].keys()
         }
         out_dict = {k: v.view(B, S, *v.shape[1:]) for k, v in out_dict.items()}
+        _vram("exit")
         return ModelOutput(out_dict)
 
     def _forward_impl(self, feats, H, W, patch_start_idx):
@@ -1474,23 +1529,52 @@ class DepthAnything3Net(nn.Module):
         self.gs_head = gs_head
 
     def forward(self, x, extrinsics=None, intrinsics=None, export_feat_layers=[], infer_gs=False):
+        import logging as _logging
+        _dbg = _logging.getLogger("DA3Streaming")
+
+        def _vram(tag):
+            if x.device.type == 'cuda':
+                a = torch.cuda.memory_allocated(x.device) / (1024**3)
+                r = torch.cuda.memory_reserved(x.device) / (1024**3)
+                _dbg.debug(f"[VRAM model.forward {tag}] allocated={a:.2f}GB reserved={r:.2f}GB")
+
+        _vram("entry")
+        _dbg.debug(f"[DEBUG model.forward] input x: shape={list(x.shape)} dtype={x.dtype} device={x.device}")
+
         if extrinsics is not None:
             cam_token = self.cam_enc(extrinsics, intrinsics, x.shape[-2:])
         else:
             cam_token = None
 
+        _vram("before_backbone")
         feats, aux_feats = self.backbone(
             x, cam_token=cam_token, export_feat_layers=export_feat_layers
         )
+        _vram("after_backbone")
+
+        total_feat_mb = 0
+        for fi, feat in enumerate(feats):
+            for fj, f in enumerate(feat):
+                if torch.is_tensor(f):
+                    mb = f.nelement() * f.element_size() / (1024**2)
+                    total_feat_mb += mb
+                    _dbg.debug(f"[DEBUG backbone] feats[{fi}][{fj}]: shape={list(f.shape)} dtype={f.dtype} size={mb:.1f}MB")
+        _dbg.debug(f"[DEBUG backbone] total feature size: {total_feat_mb:.1f}MB")
+
         H, W = x.shape[-2], x.shape[-1]
 
+        _vram("before_depth_head")
         output = self._process_depth_head(feats, H, W)
+        _vram("after_depth_head")
+
         output = self._process_camera_estimation(feats, H, W, output)
+        _vram("after_camera_est")
 
         if infer_gs:
             output = self._process_gs_head(feats, H, W, output, x, extrinsics, intrinsics)
 
         output.aux = self._extract_auxiliary_features(aux_feats, export_feat_layers, H, W)
+        _vram("exit")
         return output
 
     def _process_depth_head(self, feats, H, W):

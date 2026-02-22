@@ -151,6 +151,19 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
                 save_pointcloud=False, sample_ratio=0.015,
                 conf_threshold_coef=0.75):
 
+        def _vram_debug(tag, device):
+            if torch.cuda.is_available():
+                alloc = torch.cuda.memory_allocated(device) / (1024**3)
+                reserved = torch.cuda.memory_reserved(device) / (1024**3)
+                free_cuda = torch.cuda.mem_get_info(device)[0] / (1024**3)
+                total_cuda = torch.cuda.mem_get_info(device)[1] / (1024**3)
+                logger.debug(f"[VRAM {tag}] allocated={alloc:.2f}GB reserved={reserved:.2f}GB free={free_cuda:.2f}GB total={total_cuda:.2f}GB")
+
+        def _tensor_debug(name, t):
+            if torch.is_tensor(t):
+                size_mb = t.nelement() * t.element_size() / (1024**2)
+                logger.debug(f"[TENSOR {name}] shape={list(t.shape)} dtype={t.dtype} device={t.device} size={size_mb:.1f}MB")
+
         # Extract frames from VIDEO input
         components = video.get_components()
         images = components.images  # [N, H, W, C] float32 0-1
@@ -167,31 +180,44 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         # Get model and device
         device = mm.get_torch_device()
 
+        _vram_debug("before_model_load", device)
+        _tensor_debug("raw_video_frames", images)
+
         # Load all models in a single call so ComfyUI can manage memory holistically
         models_to_load = [da3_model]
         if salad_model is not None:
             models_to_load.append(salad_model)
         mm.load_models_gpu(models_to_load)
 
+        _vram_debug("after_model_load", device)
+
         model = da3_model.model
         dtype = da3_model.model_options.get("da3_dtype", torch.float16)
         salad_nn_model = salad_model.model if salad_model is not None else None
+        logger.debug(f"[DEBUG] model dtype={dtype}, salad={'loaded' if salad_nn_model else 'None'}")
 
         pbar = ProgressBar(num_views)
 
         # Preprocessing
         images_pt = images.permute(0, 3, 1, 2)  # [N, C, H, W]
+        _tensor_debug("images_pt_after_permute", images_pt)
+
         images_pt, resize_orig_H, resize_orig_W = resize_to_patch_multiple(
             images_pt, DEFAULT_PATCH_SIZE, resize_method
         )
         model_H, model_W = images_pt.shape[2], images_pt.shape[3]
         logger.info(f"Model input size: {model_H}x{model_W}")
+        _tensor_debug("images_pt_after_resize", images_pt)
 
-        # Normalize
-        normalized_images = imagenet_normalize(images_pt)
+        # Normalize and cast to model dtype early to halve CPU memory
+        normalized_images = imagenet_normalize(images_pt).to(dtype=dtype)
+        _tensor_debug("normalized_images", normalized_images)
+        del images_pt
 
         # Add batch dim: [N, C, H, W] -> [1, N, C, H, W]
         normalized_images = normalized_images.unsqueeze(0)
+        _tensor_debug("normalized_images_batched", normalized_images)
+        _vram_debug("after_preprocessing", device)
 
         # Create streaming config
         # Enable loop closure if SALAD model is connected
@@ -210,6 +236,8 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
 
         # Run streaming pipeline
         pipeline = StreamingPipeline(model, config, device, dtype)
+        pipeline._vram_debug = _vram_debug
+        pipeline._tensor_debug = _tensor_debug
         result = pipeline.run(normalized_images, pbar=pbar,
                               salad_model=salad_nn_model, video_frames=images)
 

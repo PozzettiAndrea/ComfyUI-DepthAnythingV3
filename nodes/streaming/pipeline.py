@@ -263,11 +263,19 @@ class StreamingPipeline:
 
         # Phase 1: Chunked inference
         chunk_results = []
+        _vd = getattr(self, '_vram_debug', None)
+        _td = getattr(self, '_tensor_debug', None)
+        if _vd:
+            _vd("before_phase1_inference", self.device)
         for i, (start, end) in enumerate(chunks):
             logger.info(f"Chunk {i+1}/{len(chunks)}: frames [{start}, {end})")
+            if _vd:
+                _vd(f"chunk_{i+1}_before", self.device)
             result = self._process_chunk(normalized_images, start, end)
             chunk_results.append(result)
             comfy.model_management.soft_empty_cache()
+            if _vd:
+                _vd(f"chunk_{i+1}_after_cache_clear", self.device)
             if pbar:
                 pbar.update_absolute(i + 1)
 
@@ -306,8 +314,19 @@ class StreamingPipeline:
         Returns:
             ChunkResult with outputs on CPU
         """
+        _vd = getattr(self, '_vram_debug', None)
+        _td = getattr(self, '_tensor_debug', None)
+
         chunk_input = normalized_images[:, start:end, ...].to(self.device, dtype=self.dtype)
+        if _td:
+            _td(f"chunk_input[{start}:{end}]", chunk_input)
+        if _vd:
+            _vd(f"after_chunk_to_gpu[{start}:{end}]", self.device)
+
+        logger.debug(f"[DEBUG] Running model forward on {end-start} frames...")
         output = self.model(chunk_input)
+        if _vd:
+            _vd(f"after_model_forward[{start}:{end}]", self.device)
 
         # Extract outputs and move to CPU/numpy
         depth = extract_output_field(output, 'depth')
@@ -353,6 +372,8 @@ class StreamingPipeline:
 
         del output, chunk_input
         comfy.model_management.soft_empty_cache()
+        if _vd:
+            _vd(f"after_cleanup[{start}:{end}]", self.device)
 
         return ChunkResult(
             depth=depth,
