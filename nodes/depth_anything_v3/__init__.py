@@ -1,1 +1,1 @@
-# Depth Anything V3 for ComfyUI
+# Depth Anything V3 — ComfyUI model definitions
