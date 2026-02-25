@@ -7,18 +7,18 @@ Capturing execution frames: advanced_3d.json
   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
   [Console-warning] Extension KJNodes.browserstatus is disabled.
   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-  [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:41894/assets/systemStatsStore-DM5NIESU.js:1:5552)
-    at Proxy.wrappedAction (http://127.0.0.1:41894/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
-    at Object.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:3:162877)
-    at ComfyApp.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:177:20530)
-    at http://127.0.0.1:41894/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:41894/assets/systemStatsStore-DM5NIESU.js:1:5552)
-    at Proxy.wrappedAction (http://127.0.0.1:41894/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
-    at Object.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:3:162877)
-    at ComfyApp.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:177:20530)
-    at http://127.0.0.1:41894/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+  [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
@@ -46,7 +46,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI]     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["22", 0]}
   [ComfyUI]   Node 25: DA3_PreviewPointCloud
   [ComfyUI]     Inputs: {"file_path": ["23", 0], "color_mode": "RGB", "preview_vtk": ""}
-  [ComfyUI] Generated prompt_id: aaca718e-6fbb-474f-b36f-133205fba40f
+  [ComfyUI] Generated prompt_id: 21f87c8d-1433-4a94-b790-c26ad20bb2d1
   [ComfyUI] Calling execution.validate_prompt()...
   [ComfyUI] Validation result: valid=True
   [ComfyUI] === Validation PASSED ===
@@ -54,30 +54,34 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] Auto-detected model variant: da3-large
   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
-  [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/models/depthanything3/da3_large.safetensors
+  [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
   [ComfyUI] [build] Checkpoint: 637 keys loaded
   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
   [ComfyUI] Model ready (torch.bfloat16)
   [ComfyUI] Requested to load DepthAnything3Net
-  [ComfyUI] loaded completely; 46459.80 MB usable, 781.13 MB loaded, full load: True
+  [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
   [ComfyUI] Input image size: 533x800
   [ComfyUI] Model input size (after resize): 532x798
-  [ComfyUI] [VRAM backbone] DONE: allocated=0.82GB reserved=0.91GB
-  Frame 2 saved (frame_001.jpg, t=2.4s)
-  [capture-periodic] freeze=3ms shot=142ms unfreeze=3ms saved=True
-  [ComfyUI] Saved point cloud to: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/output/pointcloud_0000.ply
-  [ComfyUI] preview() called with color_mode='RGB', file_path='/home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/output/pointcloud_0000.ply'
-  [ComfyUI] Using RGB mode, returning original file: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/output/pointcloud_0000.ply
-  [ComfyUI] Prompt executed in 6.25 seconds
+  [ComfyUI] [VRAM backbone] DONE: allocated=0.05GB reserved=0.16GB
+  Frame 2 saved (frame_001.jpg, t=2.3s)
+  [capture-periodic] freeze=3ms shot=180ms unfreeze=5ms saved=True
+  Frame 3 saved (frame_002.jpg, t=4.9s)
+  [capture-periodic] freeze=3ms shot=152ms unfreeze=3ms saved=True
+  [ComfyUI] Saved point cloud to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+  [ComfyUI] preview() called with color_mode='RGB', file_path='/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply'
+  [ComfyUI] Using RGB mode, returning original file: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+  [ComfyUI] Prompt executed in 5.81 seconds
+  [capture-loop] iter=50 t=6.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
   Node executed (2 total), capturing...
-  Frame 3 saved (frame_002.jpg, t=8.0s)
-  [capture-node] freeze=4ms shot=151ms unfreeze=0ms saved=True
-  Execution complete (t=8.0s)
-  Captured 3 unique frames over 8.26s
+  Frame 4 saved (frame_003.jpg, t=6.9s)
+  [capture-node] freeze=1113ms shot=213ms unfreeze=0ms saved=True
+  Execution complete (t=6.9s)
+  Captured 4 unique frames over 13.76s
   [debug] iframes: 1
-  [debug]   iframe[0]: src=http://127.0.0.1:41894/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1771884, canvas=588x588, rafFrozen=True
+  [debug]   iframe[0]: src=http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1772042, canvas=588x588, rafFrozen=True
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_3d_executed.png
   [timing] final_screenshot: 1.3s
-    Captured 4 video frames
+    Captured 5 video frames
+    VRAM log: /home/shadeform/vramlogs/DepthAnythingV3_advanced_3d_20260225_180135.csv
