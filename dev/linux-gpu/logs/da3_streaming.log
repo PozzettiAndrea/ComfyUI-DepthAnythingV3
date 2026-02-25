@@ -1,0 +1,212 @@
+Capturing execution frames: da3_streaming.json
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-warning] Extension KJNodes.browserstatus is disabled.
+  [Console-warning] WARNING: Multiple instances of Three.js being imported.
+  [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41894/assets/systemStatsStore-DM5NIESU.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41894/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:3:162877)
+    at ComfyApp.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:177:20530)
+    at http://127.0.0.1:41894/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
+  [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41894/assets/systemStatsStore-DM5NIESU.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41894/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:3:162877)
+    at ComfyApp.registerExtension (http://127.0.0.1:41894/assets/dialogService-45wv8NTN.js:177:20530)
+    at http://127.0.0.1:41894/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+  [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+  [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+  [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+  [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+  [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+  [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+  [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+  [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+  [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41894/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41894/assets/vendor-three-CHi1XwmR.js:3824:116004
+  [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+  [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41894/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41894/assets/vendor-three-CHi1XwmR.js:3824:116004
+  [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+  Frame 1 saved (frame_000.jpg, t=0.0s)
+  Validating workflow...
+  [ComfyUI] === /validate endpoint called ===
+  [ComfyUI] Received JSON with keys: ['prompt']
+  [ComfyUI] Prompt has 5 nodes
+  Queuing workflow for execution...
+  [ComfyUI]   Node 2: DownloadAndLoadDepthAnythingV3Model
+  [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+  [ComfyUI]   Node 3: LoadVideo
+  [ComfyUI]     Inputs: {"file": "robot_unitree.mp4", "video-preview": ""}
+  [ComfyUI]   Node 4: SaveVideo
+  [ComfyUI]     Inputs: {"filename_prefix": "video/preview_da3", "format": "auto", "codec": "auto", "video": ["6", 0]}
+  [ComfyUI]   Node 5: LoadSALADModel
+  [ComfyUI]     Inputs: {}
+  [ComfyUI]   Node 6: DepthAnythingV3_Streaming
+  [ComfyUI]     Inputs: {"normalization_mode": "Standard", "chunk_size": 30, "overlap": 8, "align_lib": "auto", "align_method": "sim3", "resize_method": "resize", "invert_depth": true, "save_pointcloud": false, "sample_ratio
+  [ComfyUI] Generated prompt_id: 5d00b357-14b9-41ee-951a-77b0018dcbbd
+  [ComfyUI] Calling execution.validate_prompt()...
+  [ComfyUI] Validation result: valid=True
+  [ComfyUI] === Validation PASSED ===
+  [ComfyUI] got prompt
+  [ComfyUI] Downloading SALAD model to: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/models/salad/dino_salad.ckpt
+  [ComfyUI] 
+  [ComfyUI]   0%|                                                                                                                             | 0.00/336M [00:00<?, ?B/s]
+  [ComfyUI]   3%|███▊                                                                                                                 | 11.0M/336M [00:00<00:02, 115MB/s]
+  [ComfyUI]   9%|██████████▍                                                                                                          | 30.1M/336M [00:00<00:02, 145MB/s]
+  [ComfyUI]  15%|█████████████████▍                                                                                                   | 50.1M/336M [00:00<00:01, 162MB/s]
+  [ComfyUI]  20%|███████████████████████▉                                                                                             | 68.6M/336M [00:00<00:01, 173MB/s]
+  [ComfyUI]  25%|█████████████████████████████▋                                                                                       | 85.2M/336M [00:00<00:01, 165MB/s]
+  [ComfyUI]  30%|███████████████████████████████████▌                                                                                  | 101M/336M [00:00<00:01, 162MB/s]
+  [ComfyUI]  35%|█████████████████████████████████████████                                                                             | 117M/336M [00:00<00:01, 161MB/s]
+  [ComfyUI]  39%|██████████████████████████████████████████████▍                                                                       | 132M/336M [00:00<00:01, 140MB/s]
+  [ComfyUI]  45%|████████████████████████████████████████████████████▊                                                                 | 150M/336M [00:01<00:01, 142MB/s]
+  [ComfyUI]  51%|████████████████████████████████████████████████████████████▊                                                         | 173M/336M [00:01<00:01, 167MB/s]
+  [ComfyUI]  56%|██████████████████████████████████████████████████████████████████▌                                                   | 190M/336M [00:01<00:00, 166MB/s]
+  [ComfyUI]  62%|████████████████████████████████████████████████████████████████████████▌                                             | 207M/336M [00:01<00:00, 170MB/s]
+  [ComfyUI]  66%|██████████████████████████████████████████████████████████████████████████████▍                                       | 223M/336M [00:01<00:00, 158MB/s]
+  [ComfyUI]  72%|████████████████████████████████████████████████████████████████████████████████████▍                                 | 240M/336M [00:01<00:00, 154MB/s]
+  [ComfyUI]  77%|███████████████████████████████████████████████████████████████████████████████████████████▍                          | 260M/336M [00:01<00:00, 162MB/s]
+  [ComfyUI]  84%|██████████████████████████████████████████████████████████████████████████████████████████████████▉                   | 281M/336M [00:01<00:00, 178MB/s]
+  [ComfyUI]  89%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▍            | 300M/336M [00:01<00:00, 180MB/s]
+  [ComfyUI]  95%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌     | 320M/336M [00:02<00:00, 188MB/s]
+  [ComfyUI] 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 336M/336M [00:02<00:00, 168MB/s]
+  Frame 2 saved (frame_001.jpg, t=2.5s)
+  [capture-periodic] freeze=3ms shot=175ms unfreeze=4ms saved=True
+  [ComfyUI] SALAD model loaded from: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/models/salad/dino_salad.ckpt
+  [ComfyUI] Auto-detected model variant: da3-large
+  [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+  [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+  [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/models/depthanything3/da3_large.safetensors
+  [ComfyUI] [build] Checkpoint: 637 keys loaded
+  [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+  [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+  [ComfyUI] Model ready (torch.bfloat16)
+  Frame 3 saved (frame_002.jpg, t=4.7s)
+  [capture-periodic] freeze=2ms shot=163ms unfreeze=4ms saved=True
+  [capture-loop] iter=50 t=6.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [ComfyUI] Streaming: 174 frames, 576x1024, 49.44 fps
+  [ComfyUI] Requested to load DepthAnything3Net
+  [ComfyUI] Requested to load VPRModel
+  [ComfyUI] loaded completely; 46452.30 MB usable, 781.13 MB loaded, full load: True
+  [ComfyUI] loaded completely; 45668.49 MB usable, 331.64 MB loaded, full load: True
+  [ComfyUI] Model input size: 574x1022
+  [capture-loop] iter=100 t=12.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [ComfyUI] Processing 174 frames in 8 chunks (size=30, overlap=8)
+  [ComfyUI] Chunk 1/8: frames [0, 30)
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=150 t=17.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [ComfyUI] Chunk 2/8: frames [22, 52)
+  Frame 4 saved (frame_003.jpg, t=20.1s)
+  [capture-periodic] freeze=3ms shot=175ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=200 t=23.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [ComfyUI] Chunk 3/8: frames [44, 74)
+  Frame 5 saved (frame_004.jpg, t=26.9s)
+  [capture-periodic] freeze=3ms shot=149ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=250 t=29.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [ComfyUI] Chunk 4/8: frames [66, 96)
+  Frame 6 saved (frame_005.jpg, t=31.4s)
+  [capture-periodic] freeze=3ms shot=153ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=300 t=35.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [ComfyUI] Chunk 5/8: frames [88, 118)
+  Frame 7 saved (frame_006.jpg, t=37.9s)
+  [capture-periodic] freeze=3ms shot=160ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=350 t=41.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [ComfyUI] Chunk 6/8: frames [110, 140)
+  Frame 8 saved (frame_007.jpg, t=42.4s)
+  [capture-periodic] freeze=3ms shot=152ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [capture-loop] iter=400 t=46.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [ComfyUI] Chunk 7/8: frames [132, 162)
+  Frame 9 saved (frame_008.jpg, t=49.0s)
+  [capture-periodic] freeze=3ms shot=155ms unfreeze=3ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.92GB reserved=5.75GB
+  [ComfyUI] Chunk 8/8: frames [154, 174)
+  [capture-loop] iter=450 t=52.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  Frame 10 saved (frame_009.jpg, t=53.5s)
+  [capture-periodic] freeze=3ms shot=168ms unfreeze=4ms saved=True
+  [ComfyUI] [VRAM backbone] DONE: allocated=2.31GB reserved=3.91GB
+  [ComfyUI] Aligning chunk 0 -> 1
+  Frame 11 saved (frame_010.jpg, t=55.7s)
+  [capture-periodic] freeze=3ms shot=164ms unfreeze=3ms saved=True
+  [ComfyUI] The number of corresponding points matched: 3760051
+  [ComfyUI] Mean error: 0.008330907672643661
+  [ComfyUI] Sim(3) alignment: scale=1.0603
+  [ComfyUI] Aligning chunk 1 -> 2
+  Frame 12 saved (frame_011.jpg, t=58.0s)
+  [capture-periodic] freeze=2ms shot=168ms unfreeze=3ms saved=True
+  [ComfyUI] The number of corresponding points matched: 4441289
+  [capture-loop] iter=500 t=58.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [ComfyUI] Mean error: 0.010892900638282299
+  [ComfyUI] Sim(3) alignment: scale=1.0237
+  [ComfyUI] Aligning chunk 2 -> 3
+  Frame 13 saved (frame_012.jpg, t=60.2s)
+  [capture-periodic] freeze=3ms shot=163ms unfreeze=3ms saved=True
+  [ComfyUI] The number of corresponding points matched: 4326160
+  [ComfyUI] Mean error: 0.01172156073153019
+  [ComfyUI] Sim(3) alignment: scale=1.0021
+  [ComfyUI] Aligning chunk 3 -> 4
+  [ComfyUI] The number of corresponding points matched: 4414240
+  Frame 14 saved (frame_013.jpg, t=62.5s)
+  [capture-periodic] freeze=4ms shot=166ms unfreeze=4ms saved=True
+  [ComfyUI] Mean error: 0.01206420548260212
+  [ComfyUI] Sim(3) alignment: scale=0.9951
+  [ComfyUI] Aligning chunk 4 -> 5
+  [ComfyUI] The number of corresponding points matched: 4428020
+  [capture-loop] iter=550 t=64.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  Frame 15 saved (frame_014.jpg, t=64.7s)
+  [capture-periodic] freeze=3ms shot=168ms unfreeze=3ms saved=True
+  [ComfyUI] Mean error: 0.025285452604293823
+  [ComfyUI] Sim(3) alignment: scale=0.9544
+  [ComfyUI] Aligning chunk 5 -> 6
+  [ComfyUI] The number of corresponding points matched: 4607503
+  [ComfyUI] Mean error: 0.01997964456677437
+  [ComfyUI] Sim(3) alignment: scale=1.0073
+  [ComfyUI] Aligning chunk 6 -> 7
+  Frame 16 saved (frame_015.jpg, t=67.0s)
+  [capture-periodic] freeze=3ms shot=153ms unfreeze=5ms saved=True
+  [ComfyUI] The number of corresponding points matched: 4441024
+  [ComfyUI] Mean error: 0.009344862774014473
+  [ComfyUI] Sim(3) alignment: scale=0.9802
+  [ComfyUI] faiss not installed, skipping loop closure. pip install faiss-cpu
+  Frame 17 saved (frame_016.jpg, t=69.2s)
+  [capture-periodic] freeze=3ms shot=167ms unfreeze=4ms saved=True
+  [capture-loop] iter=600 t=70.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [capture-loop] iter=650 t=76.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=700 t=82.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  Frame 18 saved (frame_017.jpg, t=82.5s)
+  [capture-periodic] freeze=3ms shot=158ms unfreeze=11ms saved=True
+  [capture-loop] iter=750 t=87.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [capture-loop] iter=800 t=93.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=850 t=99.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=900 t=105.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=950 t=110.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=1000 t=116.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=1050 t=122.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=1100 t=127.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+  [capture-loop] iter=1150 t=134.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2
+  [ComfyUI] Saved 174 NPZ files to /home/shadeform/workspaces/DepthAnythingV3-2214/ComfyUI/output/da3_streaming/20260223_221930
+  [capture-loop] iter=1200 t=140.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  [capture-loop] iter=1250 t=146.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+  Frame 19 saved (frame_018.jpg, t=147.1s)
+  [capture-periodic] freeze=3ms shot=177ms unfreeze=8ms saved=True
+  [ComfyUI] Prompt executed in 148.12 seconds
+  Node executed (1 total), capturing...
+  Frame 20 saved (frame_019.jpg, t=149.6s)
+  [capture-node] freeze=4ms shot=199ms unfreeze=0ms saved=True
+  Execution complete (t=149.6s)
+  Captured 20 unique frames over 149.82s
+  [debug] iframes: 0
+  [timing] trigger_3d_previews: 0.0s
+  Saved high-quality screenshot: da3_streaming_executed.png
+  [timing] final_screenshot: 1.3s
+    Captured 21 video frames
