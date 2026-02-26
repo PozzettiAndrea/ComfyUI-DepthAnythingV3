@@ -1,505 +1,1280 @@
-[00:00] Crash dump logging enabled: /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/comfy-test-logs/DepthAnythingV3-1853/linux-gpu/crash_dump.log
+[00:00] Crash dump logging enabled: /home/shadeform/logs/DepthAnythingV3-1759/dev/linux-gpu/crash_dump.log
 [00:00] 
-[00:00] [1/3] REGISTRATION
+[00:00] [1/5] SYNTAX
 [00:00] ----------------------------------------
-[00:00] [DEBUG] server=None, server_url=http://127.0.0.1:8388, api=None
+[00:00] [DEBUG] server=None, server_url=None, api=None
+[00:00] Found pyproject.toml (modern format)
+[00:00] Found requirements.txt (legacy format)
+[00:00] Unicode check: OK (all characters cp1252-safe)
+[00:00] Forbidden patterns check: OK
+[00:00] [SYNTAX] PASSED
 [00:00] 
-Connecting to existing server at http://127.0.0.1:8388...
-[00:00] Connecting to existing server at http://127.0.0.1:8388...
-[00:00] Connected to server! (attempt 1, 0.0s)
-[00:00] Checking for import errors in server logs...
-[00:00] No import errors detected
-[00:01] Found 958 registered nodes
-[00:01] [REGISTRATION] PASSED
-[00:01] 
-[00:01] [2/3] INSTANTIATION
-[00:01] ----------------------------------------
-[00:01] [DEBUG] server=<comfy_test.comfyui.server.ExternalComfyUIServer object at 0x76490ad00d70>, server_url=http://127.0.0.1:8388, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x76490ad00ec0>
-[00:01] Testing node constructors...
-[00:31] All 0 node(s) instantiated successfully!
-[00:31] [INSTANTIATION] PASSED
-[00:31] 
-[00:31] [3/3] EXECUTION
-[00:31] ----------------------------------------
-[00:31] [DEBUG] server=<comfy_test.comfyui.server.ExternalComfyUIServer object at 0x76490ad00d70>, server_url=http://127.0.0.1:8388, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x76490ad00ec0>
-[00:31] GPU runner - will execute 7 workflow(s)
-[00:31] Running 7 workflow(s) (all with videos)...
-[00:32] Starting headless browser...
-[00:46]   Installing Vulkan stack (apt)...
-[01:09]   Vulkan packages installed
-[01:11]   vulkaninfo exit=1 stdout=
-[01:11]   vulkaninfo stderr=error: XDG_RUNTIME_DIR is invalid or not set in the environment.
-XCB failed to connect to the X server due to error:1.
-ERROR at ./vulkaninfo/./vulkaninfo.h:737: AppCreateXcbSurface failed to establish connection
-
-[01:11]   GPU detected (no Vulkan) — using ANGLE/OpenGL rendering
-[01:20] Capturing execution frames: advanced.json
+[00:00] [2/5] INSTALL
+[00:00] ----------------------------------------
+[00:00] [DEBUG] server=None, server_url=None, api=None
+[00:00] Setting up ComfyUI...
+[00:00] Creating virtual environment...
+[00:00] Running: uv venv /home/shadeform/workspaces/DepthAnythingV3-1759/.venv --python 3.10
+[00:00] Cloning ComfyUI (latest)...
+[00:00] Running: git clone --depth 1 https://github.com/comfyanonymous/ComfyUI.git /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI
+[00:01] Installing ComfyUI requirements...
+[00:01] Running: uv pip install --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python --index-url https://download.pytorch.org/whl/cu128 --extra-index-url https://pypi.org/simple -r /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/requirements.txt
+[00:02] Installing local comfy-env (editable)...
+[00:03] Running: uv pip install -e /home/shadeform/utils/comfy-env --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python
+[00:03] Installing local comfy-test (editable)...
+[00:03] Running: uv pip install -e /home/shadeform/utils/comfy-test --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python
+[00:04] Installing local comfy-3d-viewers (editable)...
+[00:04] Running: uv pip install -e /home/shadeform/utils/comfy-3d-viewers --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python
+[00:05] Installing custom node...
+[00:07] Copying ComfyUI-DepthAnythingV3 to custom_nodes/...
+[00:07] Installing node requirements...
+[00:07] Running: uv pip install --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python --index-url https://download.pytorch.org/whl/cu128 --extra-index-url https://pypi.org/simple -r /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/requirements.txt
+[00:07] Running install.py...
+[00:07] Running: /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/install.py
+[00:28]   Installing 4 node dependencies...
+[00:28]     Cloning ComfyUI-VideoHelperSuite...
+[00:28]     Installing requirements for ComfyUI-VideoHelperSuite...
+[00:28]     Cloning ComfyUI-KJNodes...
+[00:28]     Installing requirements for ComfyUI-KJNodes...
+[00:28]     Cloning ComfyUI-Env-Manager...
+[00:28]     Installing requirements for ComfyUI-Env-Manager...
+[00:28]     Cloning ComfyUI-GeometryPack...
+[00:28]     Installing requirements for ComfyUI-GeometryPack...
+[00:28]     Running install.py for ComfyUI-GeometryPack...
+[00:28]   
+[00:28]   [requirements] Re-installing main package requirements...
+[00:28]     Installing requirements for ComfyUI-DepthAnythingV3...
+[00:28]   
+[00:28]   [cuda] Installing to host Python: flash_attn, sageattention
+[00:28]   [cuda] Host: Python 3.10, PyTorch 2.10.0, CUDA 12.8
+[00:28]     flash_attn: looking up in cuda-wheels index (cu128 torch210 cp310)
+[00:28]     flash_attn: found in cuda-wheels index
+[00:28]     /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/uv pip install --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python --no-deps --no-cache https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.7.12/flash_attn-2.8.3%2Bcu128torch2.10-cp310-cp310-linux_x86_64.whl
+[00:28]     sageattention: looking up in cuda-wheels index (cu128 torch210 cp310)
+[00:28]     sageattention: found in cuda-wheels index
+[00:28]     /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/uv pip install --python /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/bin/python --no-deps --no-cache https://github.com/PozzettiAndrea/cuda-wheels/releases/download/sageattention-latest/sageattention-2.2.0%2Bcu128torch210-cp310-cp310-manylinux_2_34_x86_64.manylinux_2_35_x86_64.whl
+[00:28]   
+[00:28]   Installation complete!
+[00:28] Installing 4 node dependency(ies)...
+[00:28]   ComfyUI-VideoHelperSuite from Kosinkadink/ComfyUI-VideoHelperSuite
+[00:28]   ComfyUI-VideoHelperSuite already exists, skipping...
+[00:28]   ComfyUI-KJNodes from kijai/ComfyUI-KJNodes
+[00:28]   ComfyUI-KJNodes already exists, skipping...
+[00:28]   ComfyUI-Env-Manager from PozzettiAndrea/ComfyUI-Env-Manager
+[00:28]   ComfyUI-Env-Manager already exists, skipping...
+[00:28]   ComfyUI-GeometryPack from PozzettiAndrea/ComfyUI-GeometryPack
+[00:28]   ComfyUI-GeometryPack already exists, skipping...
+[00:28] Installing validation endpoint...
+[00:28]   Cloning PozzettiAndrea/ComfyUI-validate-endpoint...
+[00:28] Running: git clone --depth 1 https://github.com/PozzettiAndrea/ComfyUI-validate-endpoint.git /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-validate-endpoint
+[00:28] COMFY_TEST_GPU env var = '1'
+[00:28] GPU mode: using real CUDA (no mocking)
+[00:28] [INSTALL] PASSED
+[00:28] 
+[00:28] [3/5] REGISTRATION
+[00:28] ----------------------------------------
+[00:28] [DEBUG] server=None, server_url=None, api=None
+[00:28] 
+Starting ComfyUI server...
+[00:28] Starting ComfyUI server on port 41890...
+[00:28] Starting ComfyUI server on port 41890...
+[00:28] Waiting for server to be ready (timeout: 300s)...
+[00:31]   [ComfyUI] [comfy-env] ComfyUI-DepthAnythingV3: root config found but env not built yet
+[00:31]   [ComfyUI] [comfy-env] Library paths (main process):
+[00:31]   [ComfyUI] [comfy-env]   PATH=/home/shadeform/.local/bin:/home/shadeform/.local/bin:/home/shadeform/.local/bin:/home/shadeform/.venv/bin:/usr/local/bin:/usr/bin:/bin:/snap/bin
+[00:31]   [ComfyUI] [comfy-env] prestartup complete
+[00:33]   [ComfyUI] [comfy-env] Auto-enabled sage attention
+[00:33]   [ComfyUI] [comfy-env] Auto-enabled flash attention
+[00:33]   [ComfyUI] Copied 19 asset(s) to /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/input: ['bas_relief.png', 'bridge.jpg', 'robot_unitree.mp4', 'kaffi.jpg', '000.png', '010.png', '__00011_.png', '__00016_.png', '__00009_.png', '__00017_.png', '__00015_.png', '__00007_.png', '__00005_.png', '__00006_.png', '__00010_.png', '__00012_.png', '__00013_.png', '__00014_.png', '__00008_.png']
+[00:33]   [ComfyUI] [comfy-env] ComfyUI-GeometryPack: root config found but env not built yet
+[00:33]   [ComfyUI] [comfy-env] 3 isolation env(s):
+[00:33]   [ComfyUI] [comfy-env]   _env_6f15f8 -> /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/gpu/_env_6f15f8
+[00:33]   [ComfyUI] [comfy-env]   _env_726b32 -> /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/blender/_env_726b32
+[00:33]   [ComfyUI] [comfy-env]   _env_12709f -> /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/main/_env_12709f
+[00:33]   [ComfyUI] [comfy-env] Library paths (main process):
+[00:33]   [ComfyUI] [comfy-env]   PATH=/home/shadeform/.local/bin:/home/shadeform/.local/bin:/home/shadeform/.local/bin:/home/shadeform/.venv/bin:/usr/local/bin:/usr/bin:/bin:/snap/bin
+[00:33]   [ComfyUI] [comfy-env] prestartup complete
+[00:33]   [ComfyUI] 
+[00:33]   [ComfyUI] Prestartup times for custom nodes:
+[00:33]   [ComfyUI]    0.1 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:33]   [ComfyUI]    2.8 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3
+[00:33]   [ComfyUI] 
+[00:33]   [ComfyUI] WARNING: Potential Error in code: Torch already imported, torch should never be imported before this point.
+[00:39]   [ComfyUI] WARNING: You need pytorch with cu130 or higher to use optimized CUDA operations.
+[00:39]   [ComfyUI] Found comfy_kitchen backend cuda: {'available': True, 'disabled': True, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8']}
+[00:39]   [ComfyUI] Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_nvfp4']}
+[00:39]   [ComfyUI] Found comfy_kitchen backend triton: {'available': True, 'disabled': True, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8']}
+[00:39]   [ComfyUI] Checkpoint files will always be loaded safely.
+[00:39]   [ComfyUI] Total VRAM 48539 MB, total RAM 48269 MB
+[00:39]   [ComfyUI] pytorch version: 2.10.0+cu128
+[00:39]   [ComfyUI] Set vram state to: NO_VRAM
+[00:39]   [ComfyUI] Device: cuda:0 NVIDIA RTX A6000 : cudaMallocAsync
+[00:39]   [ComfyUI] Using async weight offloading with 2 streams
+[00:39]   [ComfyUI] Enabled pinned memory 45855.0
+[00:39]   [ComfyUI] working around nvidia conv3d memory bug.
+[00:40]   [ComfyUI] Using sage attention
+[00:46]   [ComfyUI] Python version: 3.10.12 (main, Jan 26 2026, 14:55:28) [GCC 11.4.0]
+[00:46]   [ComfyUI] ComfyUI version: 0.15.0
+[00:46]   [ComfyUI] ****** User settings have been changed to be stored on the server instead of browser storage. ******
+[00:46]   [ComfyUI] ****** For multi-user setups add the --multi-user CLI argument to enable multiple user profiles. ******
+[00:46]   [ComfyUI] ComfyUI frontend version: 1.39.16
+[00:46]   [ComfyUI] [Prompt Server] web root: /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/comfyui_frontend_package/static
+[00:51]   [ComfyUI] [geompack] loading...
+[00:51]   [ComfyUI] [geompack] calling register_nodes
+[00:51]   [ComfyUI] [comfy-env] Version: 0.2.18
+[00:52]   [ComfyUI] [comfy-env] register_nodes: pkg_dir=/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack, caller=/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:52]   [ComfyUI] [comfy-env] Found 3 isolation env(s)
+[00:52]   [ComfyUI] [comfy-env] Importing nodes (root)...
+[00:52]   [ComfyUI] [comfy-env] Imported nodes root: 0 nodes
+[00:52]   [ComfyUI] [comfy-env] Cache stale for nodes.gpu (key v1:70dea197d2b13995 != v1:e24901e493c998c1)
+[00:52]   [ComfyUI] [comfy-env] Metadata scan: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/gpu/_env_6f15f8/bin/python /tmp/comfy_meta_gwv6crjk.py /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack nodes.gpu
+[00:52]   [ComfyUI] [comfy-env] Scan env PATH for nodes.gpu:
+[00:52]   [ComfyUI] [comfy-env]   [0] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [1] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [2] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [3] /home/shadeform/.venv/bin
+[00:52]   [ComfyUI] [comfy-env]   [4] /usr/local/bin
+[00:52]   [ComfyUI] [comfy-env]   [5] /usr/bin
+[00:52]   [ComfyUI] [comfy-env]   [6] /bin
+[00:52]   [ComfyUI] [comfy-env]   [7] /snap/bin
+[00:52]   [ComfyUI] [comfy-env] Cache stale for nodes.blender (key v1:e8e1cb507994444f != v1:bed4a55b735cb992)
+[00:52]   [ComfyUI] [comfy-env] Metadata scan: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/blender/_env_726b32/bin/python /tmp/comfy_meta_mlggqilo.py /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack nodes.blender
+[00:52]   [ComfyUI] [comfy-env] Scan env PATH for nodes.blender:
+[00:52]   [ComfyUI] [comfy-env]   [0] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [1] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [2] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [3] /home/shadeform/.venv/bin
+[00:52]   [ComfyUI] [comfy-env]   [4] /usr/local/bin
+[00:52]   [ComfyUI] [comfy-env]   [5] /usr/bin
+[00:52]   [ComfyUI] [comfy-env]   [6] /bin
+[00:52]   [ComfyUI] [comfy-env]   [7] /snap/bin
+[00:52]   [ComfyUI] [comfy-env] Cache stale for nodes.main (key v1:2ffb46da45955952 != v1:8034dcb03649f33c)
+[00:52]   [ComfyUI] [comfy-env] Metadata scan: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/main/_env_12709f/bin/python /tmp/comfy_meta_u14drifo.py /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack nodes.main
+[00:52]   [ComfyUI] [comfy-env] Scan env PATH for nodes.main:
+[00:52]   [ComfyUI] [comfy-env]   [0] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [1] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [2] /home/shadeform/.local/bin
+[00:52]   [ComfyUI] [comfy-env]   [3] /home/shadeform/.venv/bin
+[00:52]   [ComfyUI] [comfy-env]   [4] /usr/local/bin
+[00:52]   [ComfyUI] [comfy-env]   [5] /usr/bin
+[00:52]   [ComfyUI] [comfy-env]   [6] /bin
+[00:52]   [ComfyUI] [comfy-env]   [7] /snap/bin
+[00:53]   [ComfyUI] [comfy-env] Metadata scan stderr for nodes.blender:
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] python: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/blender/_env_726b32/bin/python
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] PATH:
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [0] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [1] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [2] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [3] /home/shadeform/.venv/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [4] /usr/local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [5] /usr/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [6] /bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [7] /snap/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/blender/_env_726b32/lib: 107 shared libs
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libatomic.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libbz2.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libcrypt.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libcrypto.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libexpat.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libffi.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libform.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libformw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libgcc_s.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libgomp.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libhistory.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicudata.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicui18n.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicuio.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicutest.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicutu.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicuuc.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libitm.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   liblzma.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libmenu.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libmenuw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libncurses.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libncursesw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libnsl.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libpanel.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libpanelw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libpython3.11.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libpython3.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libquadmath.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libreadline.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libsqlite3.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libssl.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libstdc++.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libtcl8.6.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libtinfo.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libtinfow.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libtk8.6.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libuuid.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libz.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libzstd.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] LD/DYLD_LIBRARY_PATH: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/blender/_env_726b32/lib:/usr/lib/x86_64-linux-gnu:/usr/lib:/lib/x86_64-linux-gnu:/home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/cv2/../../lib64:
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] importing nodes.blender from /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] import OK
+[00:53]   [ComfyUI] [comfy-env] Scanned nodes.blender: 5 nodes (1.6s)
+[00:53]   [ComfyUI] [comfy-env] Registered 5 isolation nodes from blender
+[00:53]   [ComfyUI] [comfy-env] Metadata scan stderr for nodes.gpu:
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] python: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/gpu/_env_6f15f8/bin/python
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] PATH:
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [0] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [1] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [2] /home/shadeform/.local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [3] /home/shadeform/.venv/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [4] /usr/local/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [5] /usr/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [6] /bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   [7] /snap/bin
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan] /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/gpu/_env_6f15f8/lib: 107 shared libs
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libatomic.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libbz2.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libcrypt.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libcrypto.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libexpat.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libffi.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libform.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libformw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libgcc_s.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libgomp.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libhistory.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicudata.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicui18n.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicuio.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicutest.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicutu.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libicuuc.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libitm.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   liblzma.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libmenu.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libmenuw.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libncurses.so
+[00:53]   [ComfyUI] [comfy-env]   [meta-scan]   libncursesw.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libnsl.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libpanel.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libpanelw.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libpython3.12.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libpython3.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libquadmath.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libreadline.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libsqlite3.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libssl.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libstdc++.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libtcl8.6.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libtinfo.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libtinfow.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libtk8.6.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libuuid.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libz.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libzstd.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] LD/DYLD_LIBRARY_PATH: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/gpu/_env_6f15f8/lib:/usr/lib/x86_64-linux-gnu:/usr/lib:/lib/x86_64-linux-gnu:/home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/cv2/../../lib64:
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] importing nodes.gpu from /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] import OK
+[00:54]   [ComfyUI] [comfy-env] Scanned nodes.gpu: 1 nodes (1.7s)
+[00:54]   [ComfyUI] [comfy-env] Registered 1 isolation nodes from gpu
+[00:54]   [ComfyUI] [comfy-env] Metadata scan stderr for nodes.main:
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] python: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/main/_env_12709f/bin/python
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] PATH:
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [0] /home/shadeform/.local/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [1] /home/shadeform/.local/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [2] /home/shadeform/.local/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [3] /home/shadeform/.venv/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [4] /usr/local/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [5] /usr/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [6] /bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   [7] /snap/bin
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/main/_env_12709f/lib: 218 shared libs
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_AABB_tree_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Alpha_shape_2_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Kernel_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Mesh_3_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Surface_mesher_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Triangulation_2_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libCGAL_Triangulation_3_cpp.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libatomic.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libblas.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_atomic.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_charconv.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_chrono.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_cobalt.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_container.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_context.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_contract.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_coroutine.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_date_time.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_fiber.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_filesystem.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_graph.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_iostreams.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_json.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_locale.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_log.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_log_setup.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_c99.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_c99f.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_c99l.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_tr1.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_tr1f.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_math_tr1l.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_nowide.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_prg_exec_monitor.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_process.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_program_options.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_random.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_regex.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_serialization.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   libboost_stacktrace_addr2line.so
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan]   ... and 58 more
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] LD/DYLD_LIBRARY_PATH: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack/nodes/main/_env_12709f/lib:/usr/lib/x86_64-linux-gnu:/usr/lib:/lib/x86_64-linux-gnu:/home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/cv2/../../lib64:
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] importing nodes.main from /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:54]   [ComfyUI] [comfy-env]   [meta-scan] import OK
+[00:54]   [ComfyUI] [comfy-env] Scanned nodes.main: 57 nodes (1.8s)
+[00:54]   [ComfyUI] [comfy-env] Registered 57 isolation nodes from main
+[00:54]   [ComfyUI] [comfy-env] Registered 63 total nodes
+[00:54]   [ComfyUI] ComfyUI-Env-Manager v0.1.0 routes registered
+[00:54]   [ComfyUI] 
+[00:54]   [ComfyUI] Import times for custom nodes:
+[00:54]   [ComfyUI]    0.0 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/websocket_image_save.py
+[00:54]   [ComfyUI]    0.0 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-validate-endpoint
+[00:54]   [ComfyUI]    0.0 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-Env-Manager
+[00:54]   [ComfyUI]    0.2 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3
+[00:54]   [ComfyUI]    0.3 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-KJNodes
+[00:54]   [ComfyUI]    0.3 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite
+[00:54]   [ComfyUI]    2.2 seconds: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/custom_nodes/ComfyUI-GeometryPack
+[00:54]   [ComfyUI] 
+[00:54]   [ComfyUI] Context impl SQLiteImpl.
+[00:54]   [ComfyUI] Will assume non-transactional DDL.
+[00:54]   [ComfyUI] Context impl SQLiteImpl.
+[00:54]   [ComfyUI] Will assume non-transactional DDL.
+[00:54]   [ComfyUI] Running upgrade  -> 0001_assets, Initial assets schema
+[00:54]   [ComfyUI] Revision ID: 0001_assets
+[00:54]   [ComfyUI] Revises: None
+[00:54]   [ComfyUI] Create Date: 2025-12-10 00:00:00
+[00:54]   [ComfyUI] Database upgraded from None to 0001_assets
+[00:54]   [ComfyUI] Assets scan(roots=['models']) completed in 0.080s (created=11, skipped_existing=0, orphans_pruned=0, total_seen=11)
+[00:54]   [ComfyUI] Starting server
+[00:54]   [ComfyUI] 
+[00:54]   [ComfyUI] To see the GUI go to: http://127.0.0.1:41890
+[00:55] Server responding, waiting for nodes to load...
+[01:15] Server is ready!
+[01:15] Checking for import errors in server logs...
+[01:15] No import errors detected
+[01:16] Found 982 registered nodes
+[01:16] [REGISTRATION] PASSED
+[01:16] 
+[01:16] [4/5] INSTANTIATION
+[01:16] ----------------------------------------
+[01:16] [DEBUG] server=<comfy_test.comfyui.server.ComfyUIServer object at 0x788321907da0>, server_url=None, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x788321917a10>
+[01:16] Testing node constructors...
+[01:19] All 0 node(s) instantiated successfully!
+[01:19] [INSTANTIATION] PASSED
+[01:19] 
+[01:19] [5/5] EXECUTION
+[01:19] ----------------------------------------
+[01:19] [DEBUG] server=<comfy_test.comfyui.server.ComfyUIServer object at 0x788321907da0>, server_url=None, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x788321917a10>
+[01:19] GPU runner - will execute 7 workflow(s)
+[01:19] Running 7 workflow(s) (all with videos)...
+[01:19] Starting headless browser...
+[01:21]   GPU + Vulkan detected — using ANGLE/Vulkan rendering
+[01:21] Capturing execution frames: advanced.json
 [01:22]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
 [01:22]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:32]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:32]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:33]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:34]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[01:40]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[01:41]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
-[01:41]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
-[01:41]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[01:41]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[01:41]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[01:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[01:41]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[01:51]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[01:51]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[03:04]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[03:04]   Validating workflow...
-[03:05]   Queuing workflow for execution...
-[03:18]   Frame 2 saved (frame_001.jpg, t=51.2s)
-[03:18]   [capture-periodic] freeze=63ms shot=10517ms unfreeze=57ms saved=True
-[03:29]   [capture-loop] iter=50 t=73.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=37
-[03:44]   [capture-loop] iter=100 t=88.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=43
-[03:59]   [capture-loop] iter=150 t=102.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=39
-[04:14]   [capture-loop] iter=200 t=117.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=43
-[04:29]   [capture-loop] iter=250 t=133.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=47
-[04:44]   [capture-loop] iter=300 t=148.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=50
-[05:00]   [capture-loop] iter=350 t=163.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=41
-[05:16]   [capture-loop] iter=400 t=179.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=47
-[05:32]   [capture-loop] iter=450 t=196.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=60
-[05:49]   [capture-loop] iter=500 t=213.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=67
-[06:04]   [capture-loop] iter=550 t=228.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=47
-[06:19]   [capture-loop] iter=600 t=242.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=42
-[06:35]   [capture-loop] iter=650 t=258.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=52
-[06:54]   [capture-loop] iter=700 t=277.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=61
-[07:11]   [capture-loop] iter=750 t=295.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=53
-[07:30]   [capture-loop] iter=800 t=313.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=61
-[07:46]   [capture-loop] iter=850 t=329.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=72
-[08:04]   [capture-loop] iter=900 t=347.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=46
-[08:21]   [capture-loop] iter=950 t=365.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=48
-[08:38]   [capture-loop] iter=1000 t=381.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=48
-[08:59]   [capture-loop] iter=1050 t=402.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=38
-[09:19]   [capture-loop] iter=1100 t=422.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=59
-[09:37]   [capture-loop] iter=1150 t=440.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=55
-[09:57]   [capture-loop] iter=1200 t=460.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=64
-[10:13]   [capture-loop] iter=1250 t=476.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=50
-[10:31]   [capture-loop] iter=1300 t=495.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=51
-[10:47]   [capture-loop] iter=1350 t=510.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=59
-[11:03]   [capture-loop] iter=1400 t=526.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=49
-[11:19]   [capture-loop] iter=1450 t=542.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=53
-[11:34]   [capture-loop] iter=1500 t=557.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=54
-[11:49]   [capture-loop] iter=1550 t=572.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=52
-[12:08]   [capture-loop] iter=1600 t=592.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=49
-[12:21]   Frame 3 saved (frame_002.jpg, t=597.4s)
-[12:21]   [capture-periodic] freeze=38ms shot=7371ms unfreeze=48ms saved=True
-[12:30]   [capture-loop] iter=1650 t=613.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=43
-[12:46]   Node executed (1 total), capturing...
-[13:21]   Frame 4 saved (frame_003.jpg, t=630.1s)
-[13:21]   [capture-node] freeze=436ms shot=33638ms unfreeze=74ms saved=True
-[13:21]   Node executed (8 total), capturing...
-[13:26]   Frame 5 saved (frame_004.jpg, t=665.0s)
-[13:26]   [capture-node] freeze=50ms shot=4406ms unfreeze=0ms saved=True
-[13:26]   Execution complete (t=665.0s)
-[13:26]   Captured 5 unique frames over 669.78s
-[13:26]   [debug] iframes: 0
-[13:26]   [timing] trigger_3d_previews: 0.1s
-[13:54]   Saved high-quality screenshot: advanced_executed.png
-[13:55]   [timing] final_screenshot: 26.2s
-[13:56] Capturing execution frames: advanced_3d.json
-[13:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[13:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:05]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:07]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:07]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:08]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:09]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[14:13]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[14:15]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[14:15]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
-[14:15]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
-[14:15]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[14:15]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[14:15]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[14:15]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[14:22]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[14:22]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[14:44]   Warning: WebSocket not ready, proceeding anyway
-[14:58]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
-[14:59]   [Console-error] No input!
-[15:33]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[15:33]   Validating workflow...
-[15:33]   Queuing workflow for execution...
-[15:46]   Frame 2 saved (frame_001.jpg, t=36.5s)
-[15:46]   [capture-periodic] freeze=66ms shot=9298ms unfreeze=67ms saved=True
-[16:00]   Frame 3 saved (frame_002.jpg, t=48.4s)
-[16:00]   [capture-periodic] freeze=85ms shot=11856ms unfreeze=72ms saved=True
-[16:14]   Frame 4 saved (frame_003.jpg, t=62.8s)
-[16:14]   [capture-periodic] freeze=44ms shot=11304ms unfreeze=45ms saved=True
-[16:26]   Node executed (2 total), capturing...
-[16:47]   Frame 5 saved (frame_004.jpg, t=86.7s)
-[16:47]   [capture-node] freeze=144ms shot=20531ms unfreeze=0ms saved=True
-[16:47]   Execution complete (t=86.7s)
-[16:47]   Captured 5 unique frames over 107.77s
-[16:47]   [debug] iframes: 1
-[16:47]   [debug]   iframe[0]: src=http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=17718, canvas=588x588, rafFrozen=True
-[16:48]   [timing] trigger_3d_previews: 0.1s
-[17:14]   Saved high-quality screenshot: advanced_3d_executed.png
-[17:15]   [timing] final_screenshot: 24.9s
-[17:16] Capturing execution frames: advanced_3d_multiview.json
-[17:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:36]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:38]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:38]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:40]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:40]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[17:45]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[17:45]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[17:45]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
-[17:45]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
-[17:46]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[17:46]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[17:46]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[17:46]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[17:52]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[17:52]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[18:28]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
-[18:29]   [Console-error] No input!
-[19:02]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[19:02]   Validating workflow...
-[19:03]   Queuing workflow for execution...
-[19:04]   Node executed (1 total), capturing...
-[19:26]   Frame 2 saved (frame_001.jpg, t=34.7s)
-[19:26]   [capture-node] freeze=54ms shot=21335ms unfreeze=56ms saved=True
-[19:35]   Frame 3 saved (frame_002.jpg, t=58.4s)
-[19:35]   [capture-periodic] freeze=68ms shot=6405ms unfreeze=47ms saved=True
-[19:58]   Frame 4 saved (frame_003.jpg, t=67.2s)
-[19:58]   [capture-periodic] freeze=41ms shot=20845ms unfreeze=69ms saved=True
-[19:58]   Node executed (4 total), capturing...
-[20:03]   Frame 5 saved (frame_004.jpg, t=88.8s)
-[20:03]   [capture-node] freeze=56ms shot=4707ms unfreeze=0ms saved=True
-[20:03]   Execution complete (t=88.8s)
-[20:03]   Captured 5 unique frames over 93.99s
-[20:04]   [debug] iframes: 1
-[20:04]   [debug]   iframe[0]: src=http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=17718, canvas=588x588, rafFrozen=True
-[20:04]   [timing] trigger_3d_previews: 0.1s
-[20:32]   Saved high-quality screenshot: advanced_3d_multiview_executed.png
-[20:33]   [timing] final_screenshot: 26.9s
-[20:35] Capturing execution frames: bas_relief.json
-[20:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[20:59]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[21:02]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[21:02]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
-[21:02]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
-[21:02]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[21:02]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[21:02]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[21:03]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[21:05]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[21:09]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[21:09]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[22:05]   Warning: WebSocket not ready, proceeding anyway
-[22:05]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
-[22:05]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:8388/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
-    at http://127.0.0.1:8388/assets/vendor-three-BDtRe4OM.js:3824:95202
-[22:24]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
-[22:24]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:8388/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
-    at http://127.0.0.1:8388/assets/vendor-three-BDtRe4OM.js:3824:95202
-[22:24]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
-[22:59]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[22:59]   Validating workflow...
-[23:00]   Queuing workflow for execution...
-[23:28]   Frame 2 saved (frame_001.jpg, t=38.5s)
-[23:28]   [capture-periodic] freeze=97ms shot=25849ms unfreeze=54ms saved=True
-[23:50]   Frame 3 saved (frame_002.jpg, t=66.8s)
-[23:51]   [capture-periodic] freeze=53ms shot=19854ms unfreeze=64ms saved=True
-[24:11]   [capture-loop] iter=50 t=107.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=55
-[24:55]   [capture-loop] iter=100 t=151.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=42
-[25:33]   [capture-loop] iter=150 t=189.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=75
-[25:39]   Node executed (1 total), capturing...
-[26:19]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[26:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[26:48]   Frame 4 saved (frame_003.jpg, t=196.1s)
-[26:48]   [capture-node] freeze=43ms shot=68122ms unfreeze=83ms saved=True
-[26:48]   Node executed (3 total), capturing...
-[27:12]   Frame 5 saved (frame_004.jpg, t=265.1s)
-[27:12]   [capture-node] freeze=53ms shot=23225ms unfreeze=0ms saved=True
-[27:12]   Execution complete (t=265.1s)
-[27:12]   [3d-wait] Phase 1: Waiting for 'Loading 3D Model' text to disappear...
-[28:12]   [3d-wait] Phase 1 exception after 60.1s: Page.wait_for_function: Timeout 60000ms exceeded.
-[28:13]   [3d-wait] Phase 2: iframes=0
-[28:13]   [3d-wait] Total 3D wait: 60.3s
-[28:13]   Captured 5 unique frames over 349.03s
-[28:13]   [debug] iframes: 0
-[28:13]   [timing] trigger_3d_previews: 0.1s
-[28:53]   Saved high-quality screenshot: bas_relief_executed.png
-[28:53]   [timing] final_screenshot: 38.3s
-[28:53] Capturing execution frames: da3_streaming.json
-[29:08]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:08]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:15]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:16]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:17]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:18]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:18]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[29:23]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[29:23]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[29:23]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
-[29:23]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
-[29:23]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[29:23]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[29:23]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[29:24]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[29:29]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[29:30]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[30:14]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[30:14]   Validating workflow...
-[30:14]   Queuing workflow for execution...
-[30:40]   Frame 2 saved (frame_001.jpg, t=23.9s)
-[30:40]   [capture-periodic] freeze=83ms shot=22233ms unfreeze=51ms saved=True
-[30:49]   Frame 3 saved (frame_002.jpg, t=48.7s)
-[30:49]   [capture-periodic] freeze=48ms shot=6525ms unfreeze=94ms saved=True
-[31:08]   Frame 4 saved (frame_003.jpg, t=66.5s)
-[31:08]   [capture-periodic] freeze=74ms shot=7954ms unfreeze=59ms saved=True
-[31:18]   [capture-loop] iter=50 t=85.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=80
-[31:49]   [capture-loop] iter=100 t=116.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=63
-[32:40]   [capture-loop] iter=150 t=166.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=53
-[32:56]   Frame 5 saved (frame_004.jpg, t=173.2s)
-[32:56]   [capture-periodic] freeze=45ms shot=9385ms unfreeze=43ms saved=True
-[33:07]   [capture-loop] iter=200 t=193.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=54
-[33:34]   Frame 6 saved (frame_005.jpg, t=211.5s)
-[33:34]   [capture-periodic] freeze=58ms shot=8954ms unfreeze=54ms saved=True
-[33:35]   [capture-loop] iter=250 t=222.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=37
-[34:02]   Frame 7 saved (frame_006.jpg, t=243.0s)
-[34:02]   [capture-periodic] freeze=51ms shot=5076ms unfreeze=56ms saved=True
-[34:10]   [capture-loop] iter=300 t=256.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=37
-[34:44]   Frame 8 saved (frame_007.jpg, t=274.5s)
-[34:44]   [capture-periodic] freeze=60ms shot=15738ms unfreeze=65ms saved=True
-[34:45]   [capture-loop] iter=350 t=291.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=64
-[35:03]   Frame 9 saved (frame_008.jpg, t=304.1s)
-[35:03]   [capture-periodic] freeze=48ms shot=5391ms unfreeze=56ms saved=True
-[35:08]   Frame 10 saved (frame_009.jpg, t=312.1s)
-[35:08]   [capture-periodic] freeze=62ms shot=2345ms unfreeze=67ms saved=True
-[35:10]   [capture-loop] iter=400 t=316.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=48
-[35:47]   Frame 11 saved (frame_010.jpg, t=343.2s)
-[35:47]   [capture-periodic] freeze=54ms shot=10029ms unfreeze=54ms saved=True
-[35:47]   [capture-loop] iter=450 t=354.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=48
-[36:09]   [capture-loop] iter=500 t=375.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=56
-[36:25]   Frame 12 saved (frame_011.jpg, t=376.5s)
-[36:25]   [capture-periodic] freeze=49ms shot=14992ms unfreeze=57ms saved=True
-[36:35]   Frame 13 saved (frame_012.jpg, t=394.0s)
-[36:35]   [capture-periodic] freeze=64ms shot=7427ms unfreeze=52ms saved=True
-[36:40]   Frame 14 saved (frame_013.jpg, t=403.9s)
-[36:40]   [capture-periodic] freeze=113ms shot=2472ms unfreeze=109ms saved=True
-[36:57]   [capture-loop] iter=550 t=423.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=44
-[37:25]   [capture-loop] iter=600 t=451.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=55
-[37:43]   Frame 15 saved (frame_014.jpg, t=459.0s)
-[37:43]   [capture-periodic] freeze=50ms shot=10242ms unfreeze=44ms saved=True
-[37:51]   Frame 16 saved (frame_015.jpg, t=471.7s)
-[37:51]   [capture-periodic] freeze=42ms shot=5822ms unfreeze=65ms saved=True
-[38:01]   Frame 17 saved (frame_016.jpg, t=480.0s)
-[38:01]   [capture-periodic] freeze=53ms shot=7143ms unfreeze=73ms saved=True
-[38:02]   [capture-loop] iter=650 t=488.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=125
-[38:10]   Frame 18 saved (frame_017.jpg, t=489.6s)
-[38:10]   [capture-periodic] freeze=47ms shot=6643ms unfreeze=80ms saved=True
-[38:25]   Frame 19 saved (frame_018.jpg, t=498.8s)
-[38:25]   [capture-periodic] freeze=60ms shot=13201ms unfreeze=51ms saved=True
-[38:39]   Frame 20 saved (frame_019.jpg, t=514.4s)
-[38:39]   [capture-periodic] freeze=60ms shot=11161ms unfreeze=63ms saved=True
-[38:51]   [capture-loop] iter=700 t=537.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=47
-[39:13]   [capture-loop] iter=750 t=560.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=57
-[39:39]   [capture-loop] iter=800 t=585.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=40
-[40:01]   [capture-loop] iter=850 t=607.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=65
-[40:16]   Frame 21 saved (frame_020.jpg, t=613.3s)
-[40:16]   [capture-periodic] freeze=91ms shot=9331ms unfreeze=67ms saved=True
-[40:31]   [capture-loop] iter=900 t=637.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=52
-[40:53]   [capture-loop] iter=950 t=659.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=54
-[41:12]   [capture-loop] iter=1000 t=678.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=49
-[41:31]   [capture-loop] iter=1050 t=697.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=45
-[41:50]   [capture-loop] iter=1100 t=716.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=46
-[42:09]   [capture-loop] iter=1150 t=735.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=42
-[42:28]   [capture-loop] iter=1200 t=754.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=44
-[42:50]   [capture-loop] iter=1250 t=776.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=44
-[43:09]   [capture-loop] iter=1300 t=795.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=43
-[43:28]   [capture-loop] iter=1350 t=814.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=48
-[43:48]   [capture-loop] iter=1400 t=834.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=54
-[44:08]   [capture-loop] iter=1450 t=855.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=39
-[44:29]   [capture-loop] iter=1500 t=875.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=43
-[45:08]   [capture-loop] iter=1550 t=914.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=79
-[45:20]   Frame 22 saved (frame_021.jpg, t=914.6s)
-[45:20]   [capture-periodic] freeze=45ms shot=11924ms unfreeze=91ms saved=True
-[45:43]   [capture-loop] iter=1600 t=950.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=47
-[46:05]   [capture-loop] iter=1650 t=971.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=56
-[46:29]   [capture-loop] iter=1700 t=996.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=49
-[46:50]   [capture-loop] iter=1750 t=1016.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=54
-[46:58]   Node executed (1 total), capturing...
-[47:20]   Frame 23 saved (frame_022.jpg, t=1024.9s)
-[47:20]   [capture-node] freeze=67ms shot=21227ms unfreeze=0ms saved=True
-[47:20]   Execution complete (t=1024.9s)
-[47:20]   Captured 23 unique frames over 1046.72s
-[47:20]   [debug] iframes: 0
-[47:20]   [timing] trigger_3d_previews: 0.0s
-[47:43]   Saved high-quality screenshot: da3_streaming_executed.png
-[47:43]   [timing] final_screenshot: 20.6s
-[47:44] Capturing execution frames: simple.json
-[47:47]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:59]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[47:59]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[48:04]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[48:04]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[48:04]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
-[48:04]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
-[48:04]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[48:04]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[48:05]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[48:05]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[48:11]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[48:11]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[48:59]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[48:59]   Validating workflow...
-[48:59]   Queuing workflow for execution...
-[49:20]   Frame 2 saved (frame_001.jpg, t=30.5s)
-[49:20]   [capture-periodic] freeze=44ms shot=17735ms unfreeze=41ms saved=True
-[49:37]   Frame 3 saved (frame_002.jpg, t=50.6s)
-[49:37]   [capture-periodic] freeze=67ms shot=14936ms unfreeze=63ms saved=True
-[49:37]   Node executed (1 total), capturing...
-[49:50]   Frame 4 saved (frame_003.jpg, t=66.3s)
-[49:50]   [capture-node] freeze=50ms shot=11973ms unfreeze=0ms saved=True
-[49:50]   Execution complete (t=66.3s)
-[49:50]   Captured 4 unique frames over 78.7s
-[49:50]   [debug] iframes: 0
-[49:50]   [timing] trigger_3d_previews: 0.0s
-[50:11]   Saved high-quality screenshot: simple_executed.png
-[50:11]   [timing] final_screenshot: 19.1s
-[50:11] Capturing execution frames: video_multiview_depth.json
-[50:12]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:12]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:17]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:19]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:19]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:20]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:20]   [Console-warning] Extension KJNodes.browserstatus is disabled.
-[50:23]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
-[50:24]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
-[50:24]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
-    at Proxy.registerExtension (http://127.0.0.1:8388/assets/PanelTemplate-BUPnglF3.js:1:7530)
-    at Proxy.wrappedAction (http://127.0.0.1:8388/assets/vendor-vue-BAQ5VIVR.js:1:4647)
-    at Object.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:3:110199)
-    at ComfyApp.registerExtension (http://127.0.0.1:8388/assets/dialogService-Cr3DyAja.js:192:20543)
-    at http://127.0.0.1:8388/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
-[50:24]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
-[50:24]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
-[50:24]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
-[50:24]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
-[50:24]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
-[50:31]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
-[50:31]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
-[51:42]   Frame 1 saved (frame_000.jpg, t=0.0s)
-[51:42]   Validating workflow...
-[51:42]   Queuing workflow for execution...
-[52:04]   Frame 2 saved (frame_001.jpg, t=52.3s)
-[52:04]   [capture-periodic] freeze=56ms shot=19197ms unfreeze=54ms saved=True
-[52:04]   Node executed (1 total), capturing...
-[52:15]   [capture-node] freeze=63ms shot=10480ms unfreeze=58ms saved=False
-[52:30]   [capture-loop] iter=50 t=97.7s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=57
-[52:48]   [capture-loop] iter=100 t=116.1s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=70
-[53:08]   [capture-loop] iter=150 t=135.3s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=66
-[53:27]   [capture-loop] iter=200 t=154.4s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=50
-[53:45]   [capture-loop] iter=250 t=173.0s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=40
-[54:04]   [capture-loop] iter=300 t=191.6s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=50
-[54:23]   [capture-loop] iter=350 t=210.3s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=33
-[54:45]   [capture-loop] iter=400 t=232.8s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=61
-[55:13]   Frame 3 saved (frame_002.jpg, t=239.3s)
-[55:13]   [capture-periodic] freeze=59ms shot=21133ms unfreeze=55ms saved=True
-[55:34]   Frame 4 saved (frame_003.jpg, t=268.2s)
-[55:34]   [capture-periodic] freeze=56ms shot=13029ms unfreeze=281ms saved=True
-[55:34]   Node executed (2 total), capturing...
-[56:08]   Frame 5 saved (frame_004.jpg, t=282.2s)
-[56:08]   [capture-node] freeze=41ms shot=32916ms unfreeze=64ms saved=True
-[56:08]   Node executed (3 total), capturing...
-[56:15]   Frame 6 saved (frame_005.jpg, t=316.0s)
-[56:15]   [capture-node] freeze=78ms shot=6530ms unfreeze=0ms saved=True
-[56:15]   Execution complete (t=316.0s)
-[56:15]   Captured 6 unique frames over 323.02s
-[56:15]   [debug] iframes: 0
-[56:16]   [timing] trigger_3d_previews: 0.0s
-[56:49]   Saved high-quality screenshot: video_multiview_depth_executed.png
-[56:49]   [timing] final_screenshot: 31.5s
-[56:56] Results saved to /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/comfy-test-logs/DepthAnythingV3-1853/linux-gpu/results.json
-[56:57] Model report: 5 files, 2.4 GB -> /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/comfy-test-logs/DepthAnythingV3-1853/linux-gpu/models.json
-[56:57] Saved: /home/administrator/github-runners/PozzettiAndrea-ComfyUI-DepthAnythingV3/_work/ComfyUI-DepthAnythingV3/ComfyUI-DepthAnythingV3/comfy-test-logs/DepthAnythingV3-1853/linux-gpu/index.html
-[56:57] [EXECUTION] PASSED
-[56:57] 
+[01:23]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:23]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:23]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:23]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:23]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[01:24]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[01:24]   [ComfyUI] [DEPRECATION WARNING] Detected import of deprecated legacy API: /scripts/ui.js. This is likely caused by a custom node extension using outdated APIs. Please update your extensions or contact the extension author for an updated version.
+[01:24]   [ComfyUI] [DEPRECATION WARNING] Detected import of deprecated legacy API: /extensions/core/widgetInputs.js. This is likely caused by a custom node extension using outdated APIs. Please update your extensions or contact the extension author for an updated version.
+[01:24]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
+[01:24]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
+[01:24]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:24]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[01:24]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[01:24]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[01:24]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[01:25]   [ComfyUI] [DEPRECATION WARNING] Detected import of deprecated legacy API: /scripts/ui/components/buttonGroup.js. This is likely caused by a custom node extension using outdated APIs. Please update your extensions or contact the extension author for an updated version.
+[01:25]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[01:25]   [ComfyUI] [DEPRECATION WARNING] Detected import of deprecated legacy API: /scripts/ui/components/button.js. This is likely caused by a custom node extension using outdated APIs. Please update your extensions or contact the extension author for an updated version.
+[01:25]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[01:30]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[01:30]   Validating workflow...
+[01:30]   [ComfyUI] === /validate endpoint called ===
+[01:30]   [ComfyUI] Received JSON with keys: ['prompt']
+[01:30]   [ComfyUI] Prompt has 11 nodes
+[01:30]   Queuing workflow for execution...
+[01:30]   [ComfyUI]   Node 2: LoadImage
+[01:30]   [ComfyUI]     Inputs: {"image": "bridge.jpg"}
+[01:30]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[01:30]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[01:30]   [ComfyUI]   Node 4: PreviewImage
+[01:30]   [ComfyUI]     Inputs: {"images": ["12", 0]}
+[01:30]   [ComfyUI]   Node 6: PreviewImage
+[01:30]   [ComfyUI]     Inputs: {"images": ["12", 1]}
+[01:30]   [ComfyUI]   Node 7: PreviewImage
+[01:30]   [ComfyUI]     Inputs: {"images": ["12", 2]}
+[01:30]   [ComfyUI]   Node 8: PreviewImage
+[01:30]   [ComfyUI]     Inputs: {"images": ["12", 3]}
+[01:30]   [ComfyUI]   Node 9: PreviewAny
+[01:30]   [ComfyUI]     Inputs: {"preview": "", "previewMode": false, "source": ["12", 6]}
+[01:30]   [ComfyUI]   Node 10: PreviewAny
+[01:30]   [ComfyUI]     Inputs: {"preview": "", "previewMode": false, "source": ["12", 5]}
+[01:30]   [ComfyUI]   Node 11: MaskPreview
+[01:30]   [ComfyUI]     Inputs: {"mask": ["12", 7]}
+[01:30]   [ComfyUI]   Node 12: DepthAnything_V3
+[01:30]   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+[01:30]   [ComfyUI]   Node 13: PreviewImage
+[01:30]   [ComfyUI]     Inputs: {"images": ["12", 4]}
+[01:30]   [ComfyUI] Generated prompt_id: 4fa5f6a5-bbd0-48f3-ac8e-5e6b3ed27a59
+[01:30]   [ComfyUI] Calling execution.validate_prompt()...
+[01:30]   [ComfyUI] Validation result: valid=True
+[01:30]   [ComfyUI] === Validation PASSED ===
+[01:30]   [ComfyUI] got prompt
+[01:30]   [ComfyUI] Auto-downloading da3_large.safetensors from HuggingFace (depth-anything/DA3-LARGE-1.1)...
+[01:30]   [ComfyUI] /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py:202: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `snapshot_download`. Downloading to a local directory does not use symlinks anymore.
+[01:30]   [ComfyUI]   warnings.warn(
+[01:30]   [ComfyUI] HTTP Request: GET https://huggingface.co/api/models/depth-anything/DA3-LARGE-1.1/revision/main "HTTP/1.1 200 OK"
+[01:30]   [ComfyUI] [comfy-env] Removed stale socket: /dev/shm/comfy_worker_db139546637c.sock
+[01:30]   [ComfyUI] 
+[01:30]   [ComfyUI] Fetching 1 files:   0%|                                                                                                                                        | 0/1 [00:00<?, ?it/s]HTTP Request: HEAD https://huggingface.co/depth-anything/DA3-LARGE-1.1/resolve/0e109ae307c5982f319a67cf6f9f99ccdc0ec97c/model.safetensors "HTTP/1.1 302 Found"
+[01:30]   [ComfyUI] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[01:30]   [ComfyUI] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[01:30]   [ComfyUI] HTTP Request: GET https://huggingface.co/api/models/depth-anything/DA3-LARGE-1.1/xet-read-token/0e109ae307c5982f319a67cf6f9f99ccdc0ec97c "HTTP/1.1 200 OK"
+[01:32]   Frame 2 saved (frame_001.jpg, t=2.4s)
+[01:32]   [capture-periodic] freeze=6ms shot=188ms unfreeze=14ms saved=True
+[01:36]   [capture-loop] iter=50 t=6.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=18
+[01:36]   [ComfyUI] 
+[01:36]   [ComfyUI] Fetching 1 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:06<00:00,  6.29s/it]
+[01:36]   [ComfyUI] Fetching 1 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:06<00:00,  6.29s/it]
+[01:36]   [ComfyUI] Downloaded model to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[01:36]   [ComfyUI] Auto-detected model variant: da3-large
+[01:36]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[01:36]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[01:36]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[01:36]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[01:36]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[01:36]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[01:37]   [ComfyUI] Model ready (torch.bfloat16)
+[01:38]   [ComfyUI] Requested to load DepthAnything3Net
+[01:38]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[01:38]   [ComfyUI] WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
+[01:38]   [ComfyUI] Input image size: 683x1024
+[01:38]   [ComfyUI] Model input size (after resize): 686x1022
+[01:39]   Frame 3 saved (frame_002.jpg, t=9.2s)
+[01:39]   [capture-periodic] freeze=4ms shot=153ms unfreeze=3ms saved=True
+[01:41]   [ComfyUI] [VRAM backbone] DONE: allocated=0.08GB reserved=0.22GB
+[01:42]   [capture-loop] iter=100 t=12.4s state={'complete': False, 'error': None, 'executedCount': 2, 'wsState': 1} eval_ms=23
+[01:42]   Node executed (2 total), capturing...
+[01:42]   [ComfyUI] Prompt executed in 12.36 seconds
+[01:42]   Frame 4 saved (frame_003.jpg, t=12.6s)
+[01:42]   [capture-node] freeze=35ms shot=344ms unfreeze=4ms saved=True
+[01:43]   Node executed (8 total), capturing...
+[01:43]   Frame 5 saved (frame_004.jpg, t=13.3s)
+[01:43]   [capture-node] freeze=4ms shot=196ms unfreeze=0ms saved=True
+[01:43]   Execution complete (t=13.3s)
+[01:43]   Captured 5 unique frames over 13.61s
+[01:43]   [debug] iframes: 0
+[01:43]   [timing] trigger_3d_previews: 0.0s
+[01:46]   Saved high-quality screenshot: advanced_executed.png
+[01:47]   [timing] final_screenshot: 1.6s
+[01:47] Capturing execution frames: advanced_3d.json
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:48]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:49]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[01:49]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[01:49]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+[01:49]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
+[01:49]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[01:49]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[01:49]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[01:49]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[01:49]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[01:50]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[01:50]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[01:52]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+[01:52]   [Console-error] No input!
+[01:55]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[01:55]   Validating workflow...
+[01:55]   [ComfyUI] === /validate endpoint called ===
+[01:55]   [ComfyUI] Received JSON with keys: ['prompt']
+[01:55]   [ComfyUI] Prompt has 6 nodes
+[01:55]   Queuing workflow for execution...
+[01:55]   [ComfyUI]   Node 2: LoadImage
+[01:55]   [ComfyUI]     Inputs: {"image": "kaffi.jpg"}
+[01:55]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[01:55]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[01:55]   [ComfyUI]   Node 21: DepthAnything_V3
+[01:55]   [ComfyUI]     Inputs: {"normalization_mode": "Raw", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+[01:55]   [ComfyUI]   Node 22: DA3_ToPointCloud
+[01:55]   [ComfyUI]     Inputs: {"confidence_threshold": 0.2, "downsample": 1, "allow_around_1": 1, "filter_outliers": false, "outlier_percentage": 5, "depth_raw": ["21", 0], "confidence": ["21", 1], "intrinsics": ["21", 6], "sky_ma
+[01:55]   [ComfyUI]   Node 23: DA3_SavePointCloud
+[01:55]   [ComfyUI]     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["22", 0]}
+[01:55]   [ComfyUI]   Node 25: DA3_PreviewPointCloud
+[01:55]   [ComfyUI]     Inputs: {"file_path": ["23", 0], "color_mode": "RGB", "preview_vtk": ""}
+[01:55]   [ComfyUI] Generated prompt_id: 21f87c8d-1433-4a94-b790-c26ad20bb2d1
+[01:55]   [ComfyUI] Calling execution.validate_prompt()...
+[01:55]   [ComfyUI] Validation result: valid=True
+[01:55]   [ComfyUI] === Validation PASSED ===
+[01:55]   [ComfyUI] got prompt
+[01:55]   [ComfyUI] Auto-detected model variant: da3-large
+[01:55]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[01:55]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[01:55]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[01:55]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[01:55]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[01:55]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[01:56]   [ComfyUI] Model ready (torch.bfloat16)
+[01:56]   [ComfyUI] Requested to load DepthAnything3Net
+[01:56]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[01:56]   [ComfyUI] Input image size: 533x800
+[01:56]   [ComfyUI] Model input size (after resize): 532x798
+[01:57]   [ComfyUI] [VRAM backbone] DONE: allocated=0.05GB reserved=0.16GB
+[01:58]   Frame 2 saved (frame_001.jpg, t=2.3s)
+[01:58]   [capture-periodic] freeze=3ms shot=180ms unfreeze=5ms saved=True
+[02:00]   Frame 3 saved (frame_002.jpg, t=4.9s)
+[02:00]   [capture-periodic] freeze=3ms shot=152ms unfreeze=3ms saved=True
+[02:01]   [ComfyUI] Saved point cloud to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:01]   [ComfyUI] preview() called with color_mode='RGB', file_path='/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply'
+[02:01]   [ComfyUI] Using RGB mode, returning original file: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:01]   [ComfyUI] Prompt executed in 5.81 seconds
+[02:01]   [capture-loop] iter=50 t=6.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[02:02]   Node executed (2 total), capturing...
+[02:03]   Frame 4 saved (frame_003.jpg, t=6.9s)
+[02:09]   [capture-node] freeze=1113ms shot=213ms unfreeze=0ms saved=True
+[02:09]   Execution complete (t=6.9s)
+[02:09]   Captured 4 unique frames over 13.76s
+[02:09]   [debug] iframes: 1
+[02:09]   [debug]   iframe[0]: src=http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1772042, canvas=588x588, rafFrozen=True
+[02:09]   [timing] trigger_3d_previews: 0.0s
+[02:12]   Saved high-quality screenshot: advanced_3d_executed.png
+[02:12]   [timing] final_screenshot: 1.3s
+[02:12] Capturing execution frames: advanced_3d_multiview.json
+[02:12]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:12]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:13]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:13]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:13]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:14]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:14]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[02:14]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[02:14]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
+[02:14]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
+[02:14]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:14]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[02:14]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[02:14]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[02:14]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[02:15]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[02:15]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[02:17]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+[02:17]   [Console-error] No input!
+[02:19]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+[02:19]   [Console-error] No input!
+[02:22]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[02:22]   Validating workflow...
+[02:22]   [ComfyUI] === /validate endpoint called ===
+[02:22]   [ComfyUI] Received JSON with keys: ['prompt']
+[02:22]   [ComfyUI] Prompt has 8 nodes
+[02:22]   Queuing workflow for execution...
+[02:22]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[02:22]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[02:22]   [ComfyUI]   Node 21: LoadImageDataSetFromFolder
+[02:22]   [ComfyUI]     Inputs: {"folder": "SOH"}
+[02:22]   [ComfyUI]   Node 27: PreviewImage
+[02:22]   [ComfyUI]     Inputs: {"images": ["21", 0]}
+[02:22]   [ComfyUI]   Node 38: DA3_MultiViewPointCloud
+[02:22]   [ComfyUI]     Inputs: {"extrinsics": ["39", 4], "intrinsics": ["39", 5], "confidence_threshold": 0.3, "downsample": 4, "use_icp": false, "allow_around_1": false, "filter_outliers": true, "outlier_percentage": 5, "depths":
+[02:22]   [ComfyUI]   Node 39: DepthAnythingV3_MultiView
+[02:22]   [ComfyUI]     Inputs: {"normalization_mode": "Raw", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["21", 0]}
+[02:22]   [ComfyUI]   Node 44: DA3_SavePointCloud
+[02:22]   [ComfyUI]     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["38", 0]}
+[02:22]   [ComfyUI]   Node 45: PreviewAny
+[02:22]   [ComfyUI]     Inputs: {"preview": "", "previewMode": null, "source": ["44", 0]}
+[02:22]   [ComfyUI]   Node 48: DA3_PreviewPointCloud
+[02:22]   [ComfyUI]     Inputs: {"file_path": ["44", 0], "color_mode": "RGB", "preview_vtk": ""}
+[02:22]   [ComfyUI] Generated prompt_id: bc054e04-177a-40a2-b8f2-afc796db843b
+[02:22]   [ComfyUI] Calling execution.validate_prompt()...
+[02:22]   [ComfyUI] Validation result: valid=True
+[02:22]   [ComfyUI] === Validation PASSED ===
+[02:22]   [ComfyUI] got prompt
+[02:22]   [ComfyUI] Auto-detected model variant: da3-large
+[02:22]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[02:22]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[02:22]   Node executed (1 total), capturing...
+[02:22]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[02:22]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[02:22]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[02:22]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[02:22]   Frame 2 saved (frame_001.jpg, t=0.7s)
+[02:22]   [capture-node] freeze=4ms shot=141ms unfreeze=4ms saved=True
+[02:23]   [ComfyUI] Model ready (torch.bfloat16)
+[02:23]   [ComfyUI] Requested to load DepthAnything3Net
+[02:23]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[02:23]   [ComfyUI] Multi-view input: 1 images, size: 680x1208
+[02:23]   [ComfyUI] Processing 1 images with multi-view attention
+[02:23]   [ComfyUI] Model input size (after resize): 686x1204
+[02:23]   [ComfyUI] [VRAM backbone] DONE: allocated=0.09GB reserved=0.25GB
+[02:24]   [ComfyUI] Model output intrinsics: 1 views, fx range=[1087.7, 1087.7]
+[02:24]   [ComfyUI] Resizing from 686x1204 to 680x1208, scale: h=0.9913, w=1.0033
+[02:24]   [ComfyUI] Scaled intrinsics (view 0):
+[02:24]   [ComfyUI] tensor([[1.0913e+03, 0.0000e+00, 6.0400e+02],
+[02:24]   [ComfyUI]         [0.0000e+00, 1.0782e+03, 3.4000e+02],
+[02:24]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[02:24]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[02:24]   [ComfyUI] Multi-view input: 1 images, size: 680x1208
+[02:24]   [ComfyUI] Processing 1 images with multi-view attention
+[02:24]   [ComfyUI] Model input size (after resize): 686x1204
+[02:24]   [ComfyUI] [VRAM backbone] DONE: allocated=0.09GB reserved=0.25GB
+[02:24]   [ComfyUI] Model output intrinsics: 1 views, fx range=[1201.7, 1201.7]
+[02:24]   [ComfyUI] Resizing from 686x1204 to 680x1208, scale: h=0.9913, w=1.0033
+[02:24]   [ComfyUI] Scaled intrinsics (view 0):
+[02:24]   [ComfyUI] tensor([[1.2057e+03, 0.0000e+00, 6.0400e+02],
+[02:24]   [ComfyUI]         [0.0000e+00, 1.1912e+03, 3.4000e+02],
+[02:25]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[02:25]   [ComfyUI] Fusing 1 views into world-space point cloud
+[02:25]   [ComfyUI]   View 0: 319245 points -> 319245 after sky filtering (removed 0)
+[02:25]   [ComfyUI]   View 0: 319245 points -> 19831 after 4x downsampling
+[02:25]   [ComfyUI]   View 0: Outlier filtering: 19831 -> 18839 points (removed 992, 5.0% furthest from center)
+[02:25]   [ComfyUI]   View 0: Contributing 18839 points to combined cloud
+[02:25]   [ComfyUI] Combined point cloud: 18839 total points (view0=18839)
+[02:25]   [ComfyUI] Fusing 1 views into world-space point cloud
+[02:25]   [ComfyUI]   View 0: 345682 points -> 345682 after sky filtering (removed 0)
+[02:25]   [ComfyUI]   View 0: 345682 points -> 21505 after 4x downsampling
+[02:25]   [ComfyUI]   View 0: Outlier filtering: 21505 -> 20429 points (removed 1076, 5.0% furthest from center)
+[02:25]   [ComfyUI]   View 0: Contributing 20429 points to combined cloud
+[02:25]   [ComfyUI] Combined point cloud: 20429 total points (view0=20429)
+[02:25]   Frame 3 saved (frame_002.jpg, t=3.0s)
+[02:25]   [capture-periodic] freeze=3ms shot=163ms unfreeze=18ms saved=True
+[02:25]   [ComfyUI] Saved point cloud to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:25]   [ComfyUI] Saved point cloud to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:25]   [ComfyUI] preview() called with color_mode='RGB', file_path='/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply'
+[02:25]   [ComfyUI] Using RGB mode, returning original file: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:25]   [ComfyUI] preview() called with color_mode='RGB', file_path='/home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply'
+[02:25]   [ComfyUI] Using RGB mode, returning original file: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/pointcloud_0000.ply
+[02:25]   [ComfyUI] Prompt executed in 3.45 seconds
+[02:25]   Node executed (4 total), capturing...
+[02:26]   Frame 4 saved (frame_003.jpg, t=3.9s)
+[02:26]   [capture-node] freeze=4ms shot=168ms unfreeze=0ms saved=True
+[02:26]   Execution complete (t=3.9s)
+[02:26]   Captured 4 unique frames over 4.17s
+[02:26]   [debug] iframes: 1
+[02:26]   [debug]   iframe[0]: src=http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=1772, canvas=588x588, rafFrozen=True
+[02:26]   [timing] trigger_3d_previews: 0.0s
+[02:29]   Saved high-quality screenshot: advanced_3d_multiview_executed.png
+[02:29]   [timing] final_screenshot: 1.3s
+[02:29] Capturing execution frames: bas_relief.json
+[02:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:30]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:31]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:31]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[02:31]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[02:31]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
+[02:31]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
+[02:31]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:31]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[02:31]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[02:31]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[02:31]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[02:32]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[02:32]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[02:33]   [Console-warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently
+[02:33]   [Console-error] No input!
+[02:34]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[02:34]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41890/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41890/assets/vendor-three-CHi1XwmR.js:3824:116004
+[02:34]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[02:34]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41890/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41890/assets/vendor-three-CHi1XwmR.js:3824:116004
+[02:34]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[02:37]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[02:37]   Validating workflow...
+[02:37]   [ComfyUI] === /validate endpoint called ===
+[02:37]   [ComfyUI] Received JSON with keys: ['prompt']
+[02:37]   Queuing workflow for execution...
+[02:37]   [ComfyUI] Prompt has 6 nodes
+[02:37]   [ComfyUI]   Node 2: LoadImage
+[02:37]   [ComfyUI]     Inputs: {"image": "bas_relief.png"}
+[02:37]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[02:37]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[02:37]   [ComfyUI]   Node 21: DepthAnything_V3
+[02:37]   [ComfyUI]     Inputs: {"normalization_mode": "Raw", "resize_method": "resize", "invert_depth": false, "keep_model_size": true, "da3_model": ["3", 0], "images": ["2", 0]}
+[02:37]   [ComfyUI]   Node 27: PreviewImage
+[02:37]   [ComfyUI]     Inputs: {"images": ["21", 2]}
+[02:37]   [ComfyUI]   Node 30: Preview3D
+[02:37]   [ComfyUI]     Inputs: {"model_file": ["32", 0], "image": ""}
+[02:37]   [ComfyUI]   Node 32: DA3_ToMesh
+[02:37]   [ComfyUI]     Inputs: {"confidence_threshold": 0.1, "depth_edge_threshold": 0.1, "downsample": 1, "target_faces": 100000, "filename_prefix": "mesh", "allow_around_1": true, "use_draco_compression": false, "depth_raw": ["21
+[02:37]   [ComfyUI] Generated prompt_id: 8a400e85-5ee7-4ab4-a689-fd228e51167b
+[02:37]   [ComfyUI] Calling execution.validate_prompt()...
+[02:37]   [ComfyUI] Validation result: valid=True
+[02:37]   [ComfyUI] === Validation PASSED ===
+[02:37]   [ComfyUI] got prompt
+[02:38]   [ComfyUI] Auto-detected model variant: da3-large
+[02:38]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[02:38]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[02:38]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[02:38]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[02:38]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[02:38]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[02:38]   [ComfyUI] Model ready (torch.bfloat16)
+[02:38]   [ComfyUI] Requested to load DepthAnything3Net
+[02:39]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[02:39]   [ComfyUI] Input image size: 2000x1336
+[02:39]   [ComfyUI] Model input size (after resize): 2002x1330
+[02:40]   [ComfyUI] [VRAM backbone] DONE: allocated=0.28GB reserved=0.59GB
+[02:40]   Frame 2 saved (frame_001.jpg, t=2.4s)
+[02:40]   [capture-periodic] freeze=4ms shot=187ms unfreeze=4ms saved=True
+[02:40]   [ComfyUI] Creating mesh from 2002x1330 depth map
+[02:40]   [ComfyUI] Grid mesh: 2662461 vertices, 5318002 faces
+[02:40]   [ComfyUI] pyfqmr not installed, skipping decimation. Install with: pip install pyfqmr
+[02:42]   Frame 3 saved (frame_002.jpg, t=4.7s)
+[02:42]   [capture-periodic] freeze=5ms shot=198ms unfreeze=4ms saved=True
+[02:43]   [capture-loop] iter=50 t=6.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[02:46]   [ComfyUI] pygltflib is required for material post-processing. Install with: pip install pygltflib. Mesh may appear dark or single-sided.
+[02:46]   [ComfyUI] Saved mesh to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/mesh_0000.glb
+[02:46]   Node executed (1 total), capturing...
+[02:46]   [ComfyUI] Prompt executed in 8.67 seconds
+[02:46]   Frame 4 saved (frame_003.jpg, t=8.6s)
+[02:46]   [capture-node] freeze=76ms shot=582ms unfreeze=4ms saved=True
+[02:47]   Node executed (2 total), capturing...
+[02:47]   [capture-node] freeze=6ms shot=335ms unfreeze=213ms saved=False
+[02:48]   Node executed (3 total), capturing...
+[02:50]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:53]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[02:53]   Frame 5 saved (frame_004.jpg, t=10.8s)
+[02:53]   [capture-node] freeze=1935ms shot=2930ms unfreeze=0ms saved=True
+[02:53]   Execution complete (t=10.8s)
+[02:53]   [3d-wait] Phase 1: Waiting for 'Loading 3D Model' text to disappear...
+[03:53]   [3d-wait] Phase 1 exception after 60.0s: Page.wait_for_function: Timeout 60000ms exceeded.
+[03:53]   [3d-wait] Phase 2: iframes=0
+[03:53]   [3d-wait] Total 3D wait: 60.0s
+[03:53]   Captured 5 unique frames over 75.81s
+[03:53]   [debug] iframes: 0
+[03:53]   [timing] trigger_3d_previews: 0.0s
+[03:56]   Saved high-quality screenshot: bas_relief_executed.png
+[03:57]   [timing] final_screenshot: 1.6s
+[03:57] Capturing execution frames: da3_streaming.json
+[03:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:57]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:58]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:58]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[03:58]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[03:59]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+[03:59]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
+[03:59]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[03:59]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[03:59]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[03:59]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[03:59]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[04:00]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[04:00]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[04:01]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[04:01]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41890/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41890/assets/vendor-three-CHi1XwmR.js:3824:116004
+[04:01]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[04:01]   [Console-error] Error loading model: HttpError: fetch for "http://127.0.0.1:41890/api/view?type=output&subfolder=%2Fhome%2Fshadeform%2Fdepth_node%2FComfyUI%2Foutput&filename=mesh_0000.glb" responded with 403: Forbidden
+    at http://127.0.0.1:41890/assets/vendor-three-CHi1XwmR.js:3824:116004
+[04:01]   [Console-error] Failed to load resource: the server responded with a status of 403 (Forbidden)
+[04:05]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[04:05]   Validating workflow...
+[04:05]   [ComfyUI] === /validate endpoint called ===
+[04:05]   [ComfyUI] Received JSON with keys: ['prompt']
+[04:05]   [ComfyUI] Prompt has 5 nodes
+[04:05]   [ComfyUI]   Node 2: DownloadAndLoadDepthAnythingV3Model
+[04:05]   Queuing workflow for execution...
+[04:05]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[04:05]   [ComfyUI]   Node 3: LoadVideo
+[04:05]   [ComfyUI]     Inputs: {"file": "robot_unitree.mp4", "video-preview": ""}
+[04:05]   [ComfyUI]   Node 4: SaveVideo
+[04:05]   [ComfyUI]     Inputs: {"filename_prefix": "video/preview_da3", "format": "auto", "codec": "auto", "video": ["6", 0]}
+[04:05]   [ComfyUI]   Node 5: LoadSALADModel
+[04:05]   [ComfyUI]     Inputs: {}
+[04:05]   [ComfyUI]   Node 6: DepthAnythingV3_Streaming
+[04:05]   [ComfyUI]     Inputs: {"normalization_mode": "Standard", "chunk_size": 30, "overlap": 8, "align_lib": "auto", "align_method": "sim3", "resize_method": "resize", "invert_depth": true, "save_pointcloud": false, "sample_ratio
+[04:05]   [ComfyUI] Generated prompt_id: 10f7b60e-9cea-48b1-961f-20f372ba71ad
+[04:05]   [ComfyUI] Calling execution.validate_prompt()...
+[04:05]   [ComfyUI] Validation result: valid=True
+[04:05]   [ComfyUI] === Validation PASSED ===
+[04:05]   [ComfyUI] got prompt
+[04:05]   [ComfyUI] Downloading SALAD model to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/salad/dino_salad.ckpt
+[04:06]   [ComfyUI] 
+[04:06]   [ComfyUI]   0%|                                                                                                                                                     | 0.00/336M [00:00<?, ?B/s]
+[04:06]   [ComfyUI]   3%|████▏                                                                                                                                       | 10.1M/336M [00:00<00:04, 75.9MB/s]
+[04:06]   [ComfyUI]   8%|██████████▌                                                                                                                                  | 25.2M/336M [00:00<00:02, 118MB/s]
+[04:06]   [ComfyUI]  12%|████████████████▊                                                                                                                            | 40.1M/336M [00:00<00:02, 128MB/s]
+[04:06]   [ComfyUI]  16%|██████████████████████▏                                                                                                                      | 52.8M/336M [00:00<00:02, 117MB/s]
+[04:06]   [ComfyUI]  21%|█████████████████████████████▍                                                                                                               | 70.1M/336M [00:00<00:02, 126MB/s]
+[04:06]   [ComfyUI]  25%|███████████████████████████████████▊                                                                                                         | 85.4M/336M [00:00<00:01, 136MB/s]
+[04:06]   [ComfyUI]  30%|██████████████████████████████████████████▎                                                                                                   | 100M/336M [00:00<00:01, 127MB/s]
+[04:07]   [ComfyUI]  35%|██████████████████████████████████████████████████▏                                                                                           | 119M/336M [00:00<00:01, 145MB/s]
+[04:07]   [ComfyUI]  40%|████████████████████████████████████████████████████████▎                                                                                     | 133M/336M [00:01<00:01, 113MB/s]
+[04:07]   [ComfyUI]  45%|███████████████████████████████████████████████████████████████▍                                                                              | 150M/336M [00:01<00:01, 120MB/s]
+[04:07]   [ComfyUI]  50%|██████████████████████████████████████████████████████████████████████▋                                                                       | 167M/336M [00:01<00:01, 134MB/s]
+[04:07]   [ComfyUI]  54%|████████████████████████████████████████████████████████████████████████████▌                                                                 | 181M/336M [00:01<00:01, 127MB/s]
+[04:07]   [ComfyUI]  60%|████████████████████████████████████████████████████████████████████████████████████▋                                                         | 200M/336M [00:01<00:01, 135MB/s]
+[04:07]   [ComfyUI]  65%|████████████████████████████████████████████████████████████████████████████████████████████▌                                                 | 219M/336M [00:01<00:00, 150MB/s]
+[04:08]   [ComfyUI]  70%|██████████████████████████████████████████████████████████████████████████████████████████████████▊                                           | 234M/336M [00:01<00:00, 142MB/s]
+[04:08]   [ComfyUI]  75%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▊                                    | 250M/336M [00:02<00:00, 139MB/s]
+[04:08]   Frame 2 saved (frame_001.jpg, t=2.6s)
+[04:08]   [capture-periodic] freeze=3ms shot=182ms unfreeze=5ms saved=True
+[04:08]   [ComfyUI]  79%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████▌                             | 266M/336M [00:02<00:00, 147MB/s]
+[04:08]   [ComfyUI]  84%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                       | 281M/336M [00:02<00:00, 119MB/s]
+[04:08]   [ComfyUI]  89%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▉               | 300M/336M [00:02<00:00, 127MB/s]
+[04:08]   [ComfyUI]  94%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████        | 317M/336M [00:02<00:00, 139MB/s]
+[04:08]   [ComfyUI]  99%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████  | 331M/336M [00:02<00:00, 121MB/s]
+[04:08]   [ComfyUI] 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 336M/336M [00:02<00:00, 130MB/s]
+[04:09]   [ComfyUI] SALAD model loaded from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/salad/dino_salad.ckpt
+[04:09]   [ComfyUI] Auto-detected model variant: da3-large
+[04:09]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[04:09]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[04:09]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[04:09]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[04:09]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[04:09]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[04:10]   Frame 3 saved (frame_002.jpg, t=4.9s)
+[04:10]   [capture-periodic] freeze=4ms shot=174ms unfreeze=7ms saved=True
+[04:10]   [ComfyUI] Model ready (torch.bfloat16)
+[04:11]   [capture-loop] iter=50 t=6.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:12]   Frame 4 saved (frame_003.jpg, t=7.2s)
+[04:12]   [capture-periodic] freeze=2ms shot=154ms unfreeze=3ms saved=True
+[04:14]   [ComfyUI] Streaming: 174 frames, 576x1024, 49.44 fps
+[04:14]   [ComfyUI] Requested to load DepthAnything3Net
+[04:14]   [ComfyUI] Requested to load VPRModel
+[04:14]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[04:15]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 331.57 MB offloaded, 27.04 MB buffer reserved, lowvram patches: 0
+[04:17]   [capture-loop] iter=100 t=12.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:17]   [ComfyUI] Model input size: 574x1022
+[04:22]   [ComfyUI] Processing 174 frames in 8 chunks (size=30, overlap=8)
+[04:22]   [ComfyUI] Chunk 1/8: frames [0, 30)
+[04:23]   [capture-loop] iter=150 t=18.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:25]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.31GB
+[04:28]   [ComfyUI] Chunk 2/8: frames [22, 52)
+[04:29]   [capture-loop] iter=200 t=24.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:30]   Frame 5 saved (frame_004.jpg, t=24.9s)
+[04:30]   [capture-periodic] freeze=3ms shot=156ms unfreeze=3ms saved=True
+[04:31]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.31GB
+[04:33]   [ComfyUI] Chunk 3/8: frames [44, 74)
+[04:34]   Frame 6 saved (frame_005.jpg, t=29.4s)
+[04:34]   [capture-periodic] freeze=2ms shot=167ms unfreeze=4ms saved=True
+[04:35]   [capture-loop] iter=250 t=30.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:37]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.31GB
+[04:39]   [ComfyUI] Chunk 4/8: frames [66, 96)
+[04:41]   [capture-loop] iter=300 t=36.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:41]   Frame 7 saved (frame_006.jpg, t=36.1s)
+[04:41]   [capture-periodic] freeze=6ms shot=168ms unfreeze=3ms saved=True
+[04:43]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.28GB
+[04:45]   [ComfyUI] Chunk 5/8: frames [88, 118)
+[04:46]   Frame 8 saved (frame_007.jpg, t=40.7s)
+[04:46]   [capture-periodic] freeze=3ms shot=180ms unfreeze=5ms saved=True
+[04:47]   [capture-loop] iter=350 t=42.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:48]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.31GB
+[04:51]   [ComfyUI] Chunk 6/8: frames [110, 140)
+[04:53]   Frame 9 saved (frame_008.jpg, t=47.5s)
+[04:53]   [capture-periodic] freeze=3ms shot=166ms unfreeze=3ms saved=True
+[04:53]   [capture-loop] iter=400 t=48.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:54]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.31GB
+[04:57]   [ComfyUI] Chunk 7/8: frames [132, 162)
+[04:59]   [capture-loop] iter=450 t=53.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[04:59]   Frame 10 saved (frame_009.jpg, t=54.1s)
+[04:59]   [capture-periodic] freeze=4ms shot=169ms unfreeze=3ms saved=True
+[05:00]   [ComfyUI] [VRAM backbone] DONE: allocated=1.82GB reserved=3.34GB
+[05:03]   [ComfyUI] Chunk 8/8: frames [154, 174)
+[05:04]   Frame 11 saved (frame_010.jpg, t=58.6s)
+[05:04]   [capture-periodic] freeze=4ms shot=170ms unfreeze=9ms saved=True
+[05:04]   [ComfyUI] [VRAM backbone] DONE: allocated=1.22GB reserved=2.28GB
+[05:05]   [capture-loop] iter=500 t=59.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5
+[05:06]   [ComfyUI] Aligning chunk 0 -> 1
+[05:07]   [ComfyUI] The number of corresponding points matched: 3760717
+[05:08]   [ComfyUI] Mean error: 0.008369823917746544
+[05:08]   [ComfyUI] Sim(3) alignment: scale=1.0584
+[05:08]   [ComfyUI] Aligning chunk 1 -> 2
+[05:08]   Frame 12 saved (frame_011.jpg, t=63.1s)
+[05:08]   [capture-periodic] freeze=3ms shot=175ms unfreeze=4ms saved=True
+[05:09]   [ComfyUI] The number of corresponding points matched: 4438812
+[05:10]   [ComfyUI] Mean error: 0.010825893841683865
+[05:10]   [ComfyUI] Sim(3) alignment: scale=1.0259
+[05:10]   [ComfyUI] Aligning chunk 2 -> 3
+[05:10]   Frame 13 saved (frame_012.jpg, t=65.4s)
+[05:10]   [capture-periodic] freeze=12ms shot=192ms unfreeze=3ms saved=True
+[05:11]   [capture-loop] iter=550 t=66.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+[05:11]   [ComfyUI] The number of corresponding points matched: 4324866
+[05:12]   [ComfyUI] Mean error: 0.011824630200862885
+[05:12]   [ComfyUI] Sim(3) alignment: scale=1.0017
+[05:12]   [ComfyUI] Aligning chunk 3 -> 4
+[05:13]   Frame 14 saved (frame_013.jpg, t=67.7s)
+[05:13]   [capture-periodic] freeze=4ms shot=168ms unfreeze=5ms saved=True
+[05:13]   [ComfyUI] The number of corresponding points matched: 4412667
+[05:14]   [ComfyUI] Mean error: 0.012203465215861797
+[05:14]   [ComfyUI] Sim(3) alignment: scale=0.9976
+[05:14]   [ComfyUI] Aligning chunk 4 -> 5
+[05:15]   Frame 15 saved (frame_014.jpg, t=70.0s)
+[05:15]   [capture-periodic] freeze=3ms shot=162ms unfreeze=4ms saved=True
+[05:15]   [ComfyUI] The number of corresponding points matched: 4427369
+[05:16]   [ComfyUI] Mean error: 0.02541310340166092
+[05:16]   [ComfyUI] Sim(3) alignment: scale=0.9543
+[05:16]   [ComfyUI] Aligning chunk 5 -> 6
+[05:17]   [capture-loop] iter=600 t=71.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+[05:17]   [ComfyUI] The number of corresponding points matched: 4606601
+[05:17]   Frame 16 saved (frame_015.jpg, t=72.2s)
+[05:17]   [capture-periodic] freeze=7ms shot=186ms unfreeze=4ms saved=True
+[05:18]   [ComfyUI] Mean error: 0.02001798525452614
+[05:18]   [ComfyUI] Sim(3) alignment: scale=1.0074
+[05:18]   [ComfyUI] Aligning chunk 6 -> 7
+[05:19]   [ComfyUI] The number of corresponding points matched: 4443201
+[05:20]   Frame 17 saved (frame_016.jpg, t=74.5s)
+[05:20]   [capture-periodic] freeze=4ms shot=166ms unfreeze=4ms saved=True
+[05:20]   [ComfyUI] Mean error: 0.009344955906271935
+[05:20]   [ComfyUI] Sim(3) alignment: scale=0.9793
+[05:20]   [ComfyUI] faiss not installed, skipping loop closure. pip install faiss-cpu
+[05:22]   Frame 18 saved (frame_017.jpg, t=76.8s)
+[05:22]   [capture-periodic] freeze=3ms shot=161ms unfreeze=4ms saved=True
+[05:23]   [capture-loop] iter=650 t=78.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:26]   Frame 19 saved (frame_018.jpg, t=81.3s)
+[05:26]   [capture-periodic] freeze=18ms shot=185ms unfreeze=4ms saved=True
+[05:29]   [capture-loop] iter=700 t=84.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:35]   [capture-loop] iter=750 t=89.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:41]   [capture-loop] iter=800 t=95.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:46]   [capture-loop] iter=850 t=101.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:52]   [capture-loop] iter=900 t=107.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[05:58]   [capture-loop] iter=950 t=113.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[06:04]   [capture-loop] iter=1000 t=118.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4
+[06:10]   [capture-loop] iter=1050 t=124.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+[06:16]   [capture-loop] iter=1100 t=130.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5
+[06:21]   [capture-loop] iter=1150 t=136.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3
+[06:24]   [ComfyUI] Saved 174 NPZ files to /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/output/da3_streaming/20260225_180514
+[06:28]   [capture-loop] iter=1200 t=142.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=6
+[06:33]   Frame 20 saved (frame_019.jpg, t=147.8s)
+[06:33]   [capture-periodic] freeze=4ms shot=192ms unfreeze=21ms saved=True
+[06:34]   [capture-loop] iter=1250 t=148.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7
+[06:35]   [ComfyUI] Prompt executed in 149.45 seconds
+[06:35]   Node executed (1 total), capturing...
+[06:35]   Frame 21 saved (frame_020.jpg, t=150.2s)
+[06:35]   [capture-node] freeze=4ms shot=217ms unfreeze=0ms saved=True
+[06:35]   Execution complete (t=150.1s)
+[06:35]   Captured 21 unique frames over 150.44s
+[06:35]   [debug] iframes: 0
+[06:35]   [timing] trigger_3d_previews: 0.0s
+[06:39]   Saved high-quality screenshot: da3_streaming_executed.png
+[06:39]   [timing] final_screenshot: 1.7s
+[06:40] Capturing execution frames: simple.json
+[06:40]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:40]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:41]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:41]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[06:42]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[06:42]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/dynamic_widgets.js:125:5
+[06:42]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-GeometryPack/js/pointcloud_preview_vtk.js:13:5
+[06:42]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:42]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[06:42]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[06:42]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[06:42]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[06:43]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[06:43]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[06:48]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[06:48]   Validating workflow...
+[06:48]   [ComfyUI] === /validate endpoint called ===
+[06:48]   [ComfyUI] Received JSON with keys: ['prompt']
+[06:48]   [ComfyUI] Prompt has 4 nodes
+[06:48]   Queuing workflow for execution...
+[06:48]   [ComfyUI]   Node 2: LoadImage
+[06:48]   [ComfyUI]     Inputs: {"image": "bridge.jpg"}
+[06:48]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[06:48]   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+[06:48]   [ComfyUI]   Node 4: PreviewImage
+[06:48]   [ComfyUI]     Inputs: {"images": ["14", 0]}
+[06:48]   [ComfyUI]   Node 14: DepthAnything_V3
+[06:48]   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+[06:48]   [ComfyUI] Generated prompt_id: 3a4e3f3b-27da-44bb-be4f-37c3f2c43063
+[06:48]   [ComfyUI] Calling execution.validate_prompt()...
+[06:48]   [ComfyUI] Validation result: valid=True
+[06:48]   [ComfyUI] === Validation PASSED ===
+[06:48]   [ComfyUI] got prompt
+[06:48]   [ComfyUI] Auto-detected model variant: da3-large
+[06:48]   [ComfyUI] [build] model_key=da3-large, dtype=torch.bfloat16, attention=auto
+[06:48]   [ComfyUI] [build] config: encoder=vitl, dim_in=2048, features=256, out_channels=[256, 512, 1024, 1024]
+[06:48]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_large.safetensors
+[06:48]   [ComfyUI] [build] Checkpoint: 637 keys loaded
+[06:48]   [ComfyUI] [build] Stripped 'model.' prefix from 637 keys
+[06:48]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[06:49]   [ComfyUI] Model ready (torch.bfloat16)
+[06:49]   [ComfyUI] Requested to load DepthAnything3Net
+[06:49]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 781.02 MB offloaded, 34.02 MB buffer reserved, lowvram patches: 0
+[06:49]   [ComfyUI] WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
+[06:49]   [ComfyUI] Input image size: 683x1024
+[06:49]   [ComfyUI] Model input size (after resize): 686x1022
+[06:49]   [ComfyUI] [VRAM backbone] DONE: allocated=0.08GB reserved=0.22GB
+[06:50]   [ComfyUI] Prompt executed in 1.98 seconds
+[06:50]   Frame 2 saved (frame_001.jpg, t=2.4s)
+[06:50]   [capture-periodic] freeze=8ms shot=183ms unfreeze=4ms saved=True
+[06:50]   Node executed (1 total), capturing...
+[06:51]   Frame 3 saved (frame_002.jpg, t=3.1s)
+[06:51]   [capture-node] freeze=5ms shot=295ms unfreeze=0ms saved=True
+[06:51]   Execution complete (t=3.1s)
+[06:51]   Captured 3 unique frames over 3.48s
+[06:51]   [debug] iframes: 0
+[06:51]   [timing] trigger_3d_previews: 0.0s
+[06:54]   Saved high-quality screenshot: simple_executed.png
+[06:54]   [timing] final_screenshot: 1.4s
+[06:55] Capturing execution frames: video_multiview_depth.json
+[06:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:55]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:56]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:56]   [Console-warning] Extension KJNodes.browserstatus is disabled.
+[06:56]   [Console-warning] WARNING: Multiple instances of Three.js being imported.
+[06:56]   [Console-error] [vite:preloadError] Error: Extension named 'Comfy.DynamicWidgets' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/dynamic_widgets.js:125:5
+[06:56]   [Console-error] [vite:preloadError] Error: Extension named 'comfy3d.pointcloud.vtk' already registered.
+    at Proxy.registerExtension (http://127.0.0.1:41890/assets/systemStatsStore-D9aNY5gT.js:1:5552)
+    at Proxy.wrappedAction (http://127.0.0.1:41890/assets/vendor-vue-core-X6q-rGJs.js:2:90540)
+    at Object.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:3:162873)
+    at ComfyApp.registerExtension (http://127.0.0.1:41890/assets/dialogService-Cqui0UMO.js:177:20566)
+    at http://127.0.0.1:41890/extensions/ComfyUI-DepthAnythingV3/js/pointcloud_preview_vtk.js:13:5
+[06:56]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui.js" is deprecated and will be removed in v1.34.
+[06:56]   [Console-error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[06:56]   [Console-warning] [ComfyUI Notice] "extensions/core/widgetInputs.js" is an internal module, not part of the public API. Future updates may break this import.
+[06:56]   [Console-warning] [ComfyUI Notice] "scripts/utils.js" is an internal module, not part of the public API. Future updates may break this import.
+[06:56]   [Console-warning] [MaskEditor] ComfyApp.open_maskeditor is deprecated. Plugins should migrate to using the command system or direct node context menu integration.
+[06:57]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/buttonGroup.js" is deprecated and will be removed in v1.34.
+[06:57]   [Console-warning] [ComfyUI Deprecated] Importing from "scripts/ui/components/button.js" is deprecated and will be removed in v1.34.
+[07:02]   Frame 1 saved (frame_000.jpg, t=0.0s)
+[07:02]   Validating workflow...
+[07:02]   [ComfyUI] === /validate endpoint called ===
+[07:02]   Queuing workflow for execution...
+[07:02]   [ComfyUI] Received JSON with keys: ['prompt']
+[07:02]   [ComfyUI] Prompt has 9 nodes
+[07:02]   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+[07:02]   [ComfyUI]     Inputs: {"model": "da3_base.safetensors", "precision": "auto", "attention": "auto"}
+[07:02]   [ComfyUI]   Node 52: CreateVideo
+[07:02]   [ComfyUI]     Inputs: {"fps": 10, "images": ["62", 0]}
+[07:02]   [ComfyUI]   Node 53: CreateVideo
+[07:02]   [ComfyUI]     Inputs: {"fps": 10, "images": ["61", 0]}
+[07:02]   [ComfyUI]   Node 54: SaveVideo
+[07:02]   [ComfyUI]     Inputs: {"filename_prefix": "video/ComfyUI", "format": "auto", "codec": "auto", "video": ["52", 0]}
+[07:02]   [ComfyUI]   Node 55: SaveVideo
+[07:02]   [ComfyUI]     Inputs: {"filename_prefix": "video/ComfyUI", "format": "auto", "codec": "auto", "video": ["53", 0]}
+[07:02]   [ComfyUI]   Node 61: DepthAnything_V3
+[07:02]   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["71", 0]}
+[07:02]   [ComfyUI]   Node 62: DepthAnythingV3_MultiView
+[07:02]   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["71", 0]}
+[07:02]   [ComfyUI]   Node 66: PreviewImage
+[07:02]   [ComfyUI]     Inputs: {"images": ["71", 0]}
+[07:02]   [ComfyUI]   Node 71: LoadImagesFromFolderKJ
+[07:02]   [ComfyUI]     Inputs: {"folder": "input/robotframes", "width": 1024, "height": 576, "keep_aspect_ratio": "crop", "image_load_cap": 0, "start_index": 0, "include_subfolders": false}
+[07:02]   [ComfyUI] Generated prompt_id: 63b6317c-9458-4788-b5b6-1e95b7af5fbe
+[07:02]   [ComfyUI] Calling execution.validate_prompt()...
+[07:02]   [ComfyUI] Validation result: valid=True
+[07:02]   [ComfyUI] === Validation PASSED ===
+[07:02]   [ComfyUI] got prompt
+[07:04]   [ComfyUI] Auto-downloading da3_base.safetensors from HuggingFace (depth-anything/DA3-BASE)...
+[07:04]   [ComfyUI] /home/shadeform/workspaces/DepthAnythingV3-1759/.venv/lib/python3.10/site-packages/huggingface_hub/utils/_validators.py:202: UserWarning: The `local_dir_use_symlinks` argument is deprecated and ignored in `snapshot_download`. Downloading to a local directory does not use symlinks anymore.
+[07:04]   [ComfyUI]   warnings.warn(
+[07:04]   [ComfyUI] HTTP Request: GET https://huggingface.co/api/models/depth-anything/DA3-BASE/revision/main "HTTP/1.1 200 OK"
+[07:04]   [ComfyUI] 
+[07:04]   Node executed (1 total), capturing...
+[07:04]   [ComfyUI] Fetching 1 files:   0%|                                                                                                                                        | 0/1 [00:00<?, ?it/s]HTTP Request: HEAD https://huggingface.co/depth-anything/DA3-BASE/resolve/f4a6c9b3c95e41c82048423d3493a81ec3fa810e/model.safetensors "HTTP/1.1 302 Found"
+[07:04]   [ComfyUI] HTTP Request: GET https://huggingface.co/api/models/depth-anything/DA3-BASE/xet-read-token/f4a6c9b3c95e41c82048423d3493a81ec3fa810e "HTTP/1.1 200 OK"
+[07:04]   Frame 2 saved (frame_001.jpg, t=2.3s)
+[07:04]   [capture-node] freeze=4ms shot=167ms unfreeze=4ms saved=True
+[07:07]   [ComfyUI] 
+[07:07]   [ComfyUI] Fetching 1 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:03<00:00,  3.40s/it]
+[07:07]   [ComfyUI] Fetching 1 files: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:03<00:00,  3.40s/it]
+[07:07]   [ComfyUI] Downloaded model to: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_base.safetensors
+[07:07]   [ComfyUI] Auto-detected model variant: da3-base
+[07:07]   [ComfyUI] [build] model_key=da3-base, dtype=torch.bfloat16, attention=auto
+[07:07]   [ComfyUI] [build] config: encoder=vitb, dim_in=1536, features=128, out_channels=[96, 192, 384, 768]
+[07:07]   [ComfyUI] [build] Loading model from: /home/shadeform/workspaces/DepthAnythingV3-1759/ComfyUI/models/depthanything3/da3_base.safetensors
+[07:07]   [ComfyUI] [build] Checkpoint: 437 keys loaded
+[07:07]   [ComfyUI] [build] Stripped 'model.' prefix from 437 keys
+[07:07]   [ComfyUI] [build] Expanded 6 shared-weight keys for output_conv2_aux
+[07:08]   [ComfyUI] Model ready (torch.bfloat16)
+[07:08]   [ComfyUI] Requested to load DepthAnything3Net
+[07:08]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 256.13 MB offloaded, 19.14 MB buffer reserved, lowvram patches: 0
+[07:08]   [ComfyUI] Multi-view input: 13 images, size: 576x1024
+[07:08]   [ComfyUI] WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
+[07:08]   [ComfyUI] Processing 13 images with multi-view attention
+[07:08]   [ComfyUI] Model input size (after resize): 574x1022
+[07:08]   [capture-loop] iter=50 t=6.5s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=5
+[07:09]   [ComfyUI] [VRAM backbone] DONE: allocated=0.61GB reserved=1.22GB
+[07:09]   Frame 3 saved (frame_002.jpg, t=7.0s)
+[07:09]   [capture-periodic] freeze=3ms shot=166ms unfreeze=4ms saved=True
+[07:10]   [ComfyUI] Model output intrinsics: 13 views, fx range=[936.9, 1010.5]
+[07:13]   [ComfyUI] Resizing from 574x1022 to 576x1024, scale: h=1.0035, w=1.0020
+[07:13]   [ComfyUI] Scaled intrinsics (view 0):
+[07:13]   [ComfyUI] tensor([[938.6932,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 940.1242, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 1):
+[07:13]   [ComfyUI] tensor([[964.1375,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 965.6072, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 2):
+[07:13]   [ComfyUI] tensor([[969.8892,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 971.3677, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 3):
+[07:13]   [ComfyUI] tensor([[967.1172,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 968.5915, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 4):
+[07:13]   [ComfyUI] tensor([[982.1790,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 983.6763, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 5):
+[07:13]   [ComfyUI] tensor([[975.2936,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 976.7805, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 6):
+[07:13]   [ComfyUI] tensor([[985.2858,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 986.7878, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 7):
+[07:13]   [ComfyUI] tensor([[997.0067,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 998.5266, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 8):
+[07:13]   [ComfyUI] tensor([[988.5861,   0.0000, 512.0000],
+[07:13]   [ComfyUI]         [  0.0000, 990.0931, 288.0000],
+[07:13]   [ComfyUI]         [  0.0000,   0.0000,   1.0000]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 9):
+[07:13]   [ComfyUI] tensor([[1.0077e+03, 0.0000e+00, 5.1200e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 1.0092e+03, 2.8800e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 10):
+[07:13]   [ComfyUI] tensor([[1.0002e+03, 0.0000e+00, 5.1200e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 1.0018e+03, 2.8800e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 11):
+[07:13]   [ComfyUI] tensor([[1.0046e+03, 0.0000e+00, 5.1200e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 1.0062e+03, 2.8800e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[07:13]   [ComfyUI] Scaled intrinsics (view 12):
+[07:13]   [ComfyUI] tensor([[1.0125e+03, 0.0000e+00, 5.1200e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 1.0140e+03, 2.8800e+02],
+[07:13]   [ComfyUI]         [0.0000e+00, 0.0000e+00, 1.0000e+00]])
+[07:13]   [ComfyUI] loaded partially; 0.00 MB usable, 0.00 MB loaded, 256.13 MB offloaded, 19.14 MB buffer reserved, lowvram patches: 0
+[07:13]   [ComfyUI] WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
+[07:13]   [ComfyUI] Input image size: 576x1024
+[07:13]   Node executed (2 total), capturing...
+[07:14]   [ComfyUI] Model input size (after resize): 574x1022
+[07:14]   Frame 4 saved (frame_003.jpg, t=11.7s)
+[07:14]   [capture-node] freeze=8ms shot=246ms unfreeze=4ms saved=True
+[07:14]   [ComfyUI] [VRAM backbone] DONE: allocated=0.06GB reserved=0.12GB
+[07:14]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:14]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:15]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:15]   [capture-loop] iter=100 t=13.0s state={'complete': False, 'error': None, 'executedCount': 2, 'wsState': 1} eval_ms=8
+[07:15]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:15]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:15]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:16]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:16]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:16]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:16]   Frame 5 saved (frame_004.jpg, t=14.1s)
+[07:16]   [capture-periodic] freeze=3ms shot=263ms unfreeze=6ms saved=True
+[07:16]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.00GB
+[07:17]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.19GB
+[07:17]   [ComfyUI] [VRAM backbone] DONE: allocated=0.07GB reserved=1.22GB
+[07:19]   Frame 6 saved (frame_005.jpg, t=16.4s)
+[07:19]   [capture-periodic] freeze=4ms shot=184ms unfreeze=4ms saved=True
+[07:20]   [ComfyUI] Prompt executed in 17.56 seconds
+[07:20]   Node executed (3 total), capturing...
+[07:20]   Frame 7 saved (frame_006.jpg, t=18.1s)
+[07:20]   [capture-node] freeze=4ms shot=237ms unfreeze=0ms saved=True
+[07:20]   Execution complete (t=18.1s)
+[07:20]   Captured 7 unique frames over 18.42s
+[07:20]   [debug] iframes: 0
+[07:20]   [timing] trigger_3d_previews: 0.0s
+[07:24]   Saved high-quality screenshot: video_multiview_depth_executed.png
+[07:24]   [timing] final_screenshot: 1.9s
+[07:24] 
+[VRAM] Peak across all workflows: 7840 MiB / 49140 MiB (16.0%)
+[07:24] Results saved to /home/shadeform/logs/DepthAnythingV3-1759/dev/linux-gpu/results.json
+[07:24] Model report: 5 files, 2.4 GB -> /home/shadeform/logs/DepthAnythingV3-1759/dev/linux-gpu/models.json
+[07:24] Saved: /home/shadeform/logs/DepthAnythingV3-1759/dev/linux-gpu/index.html
+[07:25] [EXECUTION] PASSED
+[07:25] 
 linux: PASSED
+[07:25] Stopping ComfyUI server...
