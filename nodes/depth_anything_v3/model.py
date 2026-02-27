@@ -22,7 +22,7 @@ import torch.nn.functional as F
 from torch import Tensor
 
 import comfy.ops
-from comfy.ldm.modules.attention import optimized_attention
+from comfy.ldm.modules.attention import optimized_attention_for_device
 
 from .alignment import (
     apply_metric_scaling,
@@ -447,10 +447,10 @@ class Attention(nn.Module):
 
         if attn_mask is not None:
             attn_mask = attn_mask[:, None].expand(-1, self.num_heads, -1, -1)
-            x = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
-            x = x.transpose(1, 2).reshape(B, N, C)
+            fn = optimized_attention_for_device(q.device, mask=True)
+            x = fn(q, k, v, heads=self.num_heads, mask=attn_mask, skip_reshape=True)
         else:
-            x = optimized_attention(q, k, v, heads=self.num_heads, skip_reshape=True)
+            x = optimized_attention_for_device(q.device)(q, k, v, heads=self.num_heads, skip_reshape=True)
 
         x = self.proj(x)
         return x

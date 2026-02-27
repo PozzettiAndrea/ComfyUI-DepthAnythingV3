@@ -272,10 +272,14 @@ class NestedModelWrapper(torch.nn.Module):
         return self.da3.gs_adapter if hasattr(self.da3, 'gs_adapter') else None
 
 
-def _build_da3_model(model_path, model_key, dtype, attention):
+def _build_da3_model(model_path, model_key, dtype, attention, state_dict=None):
     """Build and load the DA3 model from checkpoint.
 
     Returns a loaded nn.Module on CPU with the given dtype.
+
+    If *state_dict* is provided it will be used directly instead of loading
+    from *model_path*, avoiding a redundant disk read when the caller already
+    has the weights in memory (e.g. after variant detection).
     """
     logger.info(f"[build] model_key={model_key}, dtype={dtype}, attention={attention}")
     config = MODEL_CONFIGS[model_key]
@@ -419,8 +423,11 @@ def _build_da3_model(model_path, model_key, dtype, attention):
             )
 
     # Load weights
-    logger.info(f"[build] Loading model from: {model_path}")
-    state_dict = load_torch_file(model_path)
+    if state_dict is None:
+        logger.info(f"[build] Loading model from: {model_path}")
+        state_dict = load_torch_file(model_path)
+    else:
+        logger.info(f"[build] Using pre-loaded state_dict (skipping redundant disk read)")
     logger.info(f"[build] Checkpoint: {len(state_dict)} keys loaded")
 
     # Strip 'model.' prefix from keys if present
@@ -499,7 +506,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="DownloadAndLoadDepthAnythingV3Model",
-            display_name="Load Depth Anything V3 Model",
+            display_name="(Down)Load Depth Anything V3 Model",
             category="loaders",
             description="Load a Depth Anything V3 model from ComfyUI/models/depthanything3/. "
                         "Model variant is auto-detected from weights. Supports Small, Base, Large, Giant, Mono, Metric, and Nested.",
@@ -567,16 +574,18 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
                 f"Model '{model}' not found in ComfyUI/models/depthanything3/ and not a known HuggingFace model."
             )
 
-        # Auto-detect model variant from state_dict
+        # Auto-detect model variant from state_dict, then reuse
+        # the same state_dict for model building to avoid loading from disk twice.
         sd = load_torch_file(model_path)
         model_key = detect_da3_variant_with_filename_hint(sd, model)
         logger.info(f"Auto-detected model variant: {model_key}")
-        del sd  # Free memory before building model
 
         config = MODEL_CONFIGS[model_key]
 
-        # Build and load model immediately
-        loaded_model = _build_da3_model(model_path, model_key, dtype, attention)
+        # Build and load model immediately, passing the already-loaded
+        # state_dict so _build_da3_model does not re-read from disk.
+        loaded_model = _build_da3_model(model_path, model_key, dtype, attention, state_dict=sd)
+        del sd  # Free the reference now that weights have been assigned
 
         # Wrap in ModelPatcher for ComfyUI memory management
         patcher = comfy.model_patcher.ModelPatcher(
@@ -642,7 +651,7 @@ class DA3_DownloadModel(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="DA3_DownloadModel",
-            display_name="DA3 Download Model (HuggingFace)",
+            display_name="DA3: Download Model (HuggingFace)",
             category="DepthAnythingV3",
             is_output_node=True,
             description="Download a DA3 model from HuggingFace to ComfyUI/models/depthanything3/. "
@@ -690,12 +699,44 @@ SALAD_CKPT_NAME = "dino_salad.ckpt"
 
 
 def _build_salad_model(ckpt_path):
-    """Build and load the SALAD VPR model from checkpoint."""
+    """Build and load the SALAD VPR model from checkpoint.
+
+    Uses meta-device initialization to avoid 2x RAM: the model is
+    constructed on the meta device (zero memory), then weights are
+    assigned directly from the state_dict via ``assign=True``.
+    """
     from .salad.model import VPRModel
 
-    model = VPRModel(operations=comfy.ops.manual_cast)
+    # Construct on meta device — allocates no real memory
+    with torch.device("meta"):
+        model = VPRModel(operations=comfy.ops.manual_cast)
+
+    # Load weights and assign directly into the model (no copy)
     state_dict = load_torch_file(str(ckpt_path))
-    model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict, strict=False, assign=True)
+
+    # Fix any leftover meta parameters (uninitialized weights not in checkpoint)
+    for name, param in list(model.named_parameters()):
+        if param.device.type == "meta":
+            logger.warning(f"[salad] Meta param remaining: {name}, initializing with zeros")
+            parts = name.split(".")
+            parent = model
+            for part in parts[:-1]:
+                parent = getattr(parent, part)
+            setattr(parent, parts[-1], torch.nn.Parameter(
+                torch.zeros(param.shape, dtype=param.dtype), requires_grad=False
+            ))
+
+    # Fix any leftover meta buffers
+    for name, buf in list(model.named_buffers()):
+        if buf.device.type == "meta":
+            logger.warning(f"[salad] Meta buffer remaining: {name}, initializing with zeros")
+            parts = name.split(".")
+            parent = model
+            for part in parts[:-1]:
+                parent = getattr(parent, part)
+            parent.register_buffer(parts[-1], torch.zeros(buf.shape, dtype=buf.dtype))
+
     model.eval()
     logger.info(f"SALAD model loaded from: {ckpt_path}")
     return model
@@ -708,7 +749,7 @@ class LoadSALADModel(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="LoadSALADModel",
-            display_name="Load SALAD Model",
+            display_name="(Down)Load SALAD Model",
             category="DepthAnythingV3",
             description="Load the SALAD model for loop closure detection. "
                         "Uses DINOv2 ViT-B14 backbone + SALAD aggregator (~340MB). "

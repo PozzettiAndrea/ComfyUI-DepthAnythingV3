@@ -203,6 +203,7 @@ Output POINTCLOUD contains:
         point_clouds = []
 
         for b in range(B):
+            mm.throw_exception_if_processing_interrupted()
             cls._check_consistency(
                 depth_raw[b],
                 confidence[b],

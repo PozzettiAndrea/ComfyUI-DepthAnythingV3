@@ -67,11 +67,12 @@ All images must have the same resolution. Higher N = more VRAM but better consis
             raise ValueError("No input provided. Connect 'images' input.")
 
         device = mm.get_torch_device()
-        mm.load_models_gpu([da3_model])
-        model = da3_model.model
         dtype = da3_model.model_options.get("da3_dtype", torch.float16)
 
         N, H, W, C = images.shape
+        memory_required = H * W * C * N * mm.dtype_size(dtype)
+        mm.load_models_gpu([da3_model], memory_required=memory_required)
+        model = da3_model.model
         logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
 
         # Check model capabilities
@@ -710,6 +711,7 @@ Requires Main series or Nested model (with camera pose prediction).""",
         pbar = ProgressBar(N)
 
         for i in range(N):
+            mm.throw_exception_if_processing_interrupted()
             # Get depth for this view (take first channel, assuming grayscale)
             depth = depths[i, :, :, 0]
 

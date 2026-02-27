@@ -187,12 +187,13 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         models_to_load = [da3_model]
         if salad_model is not None:
             models_to_load.append(salad_model)
-        mm.load_models_gpu(models_to_load)
+        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+        memory_required = orig_H * orig_W * 3 * num_views * mm.dtype_size(dtype)
+        mm.load_models_gpu(models_to_load, memory_required=memory_required)
 
         _vram_debug("after_model_load", device)
 
         model = da3_model.model
-        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
         salad_nn_model = salad_model.model if salad_model is not None else None
         logger.debug(f"[DEBUG] model dtype={dtype}, salad={'loaded' if salad_nn_model else 'None'}")
 
@@ -251,6 +252,7 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         raw_conf = result.conf    # [N, H, W] CPU tensor
 
         for i in range(num_views):
+            mm.throw_exception_if_processing_interrupted()
             frame_data = {
                 "depth": raw_depth[i].numpy().astype(np.float32),
                 "conf": raw_conf[i].numpy().astype(np.float32),
