@@ -547,7 +547,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
             download_dir = os.path.join(folder_paths.models_dir, "depthanything3")
             os.makedirs(download_dir, exist_ok=True)
             try:
-                from huggingface_hub import snapshot_download
+                from huggingface_hub import hf_hub_download
             except ImportError:
                 raise ImportError(
                     "huggingface_hub is required to auto-download models. "
@@ -555,11 +555,10 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
                     "Or manually download and place in ComfyUI/models/depthanything3/"
                 )
             logger.info(f"Auto-downloading {model} from HuggingFace ({MODEL_REPOS[model]})...")
-            snapshot_download(
+            hf_hub_download(
                 repo_id=MODEL_REPOS[model],
-                allow_patterns=["*.safetensors"],
+                filename="model.safetensors",
                 local_dir=download_dir,
-                local_dir_use_symlinks=False,
             )
             # HuggingFace may save as model.safetensors — rename to expected name
             hf_default = os.path.join(download_dir, "model.safetensors")
@@ -674,17 +673,16 @@ class DA3_DownloadModel(io.ComfyNode):
             return io.NodeOutput(f"Model already exists: {model_path}")
 
         try:
-            from huggingface_hub import snapshot_download
+            from huggingface_hub import hf_hub_download
         except ImportError:
             return io.NodeOutput("Error: huggingface_hub not installed. Install with: pip install huggingface_hub")
 
         logger.info(f"Downloading model to: {model_path}")
         repo = MODEL_REPOS[model]
-        snapshot_download(
+        hf_hub_download(
             repo_id=repo,
-            allow_patterns=["*.safetensors"],
+            filename="model.safetensors",
             local_dir=download_path,
-            local_dir_use_symlinks=False
         )
         # The downloaded file might be named differently (model.safetensors)
         downloaded_file = os.path.join(download_path, "model.safetensors")
@@ -694,8 +692,8 @@ class DA3_DownloadModel(io.ComfyNode):
         return io.NodeOutput(f"Downloaded: {model_path}")
 
 
-SALAD_CKPT_URL = "https://github.com/serizba/salad/releases/download/v1.0.0/dino_salad.ckpt"
-SALAD_CKPT_NAME = "dino_salad.ckpt"
+SALAD_REPO_ID = "apozz/salad-safetensors"
+SALAD_FILENAME = "dino_salad.safetensors"
 
 
 def _build_salad_model(ckpt_path):
@@ -753,7 +751,7 @@ class LoadSALADModel(io.ComfyNode):
             category="DepthAnythingV3",
             description="Load the SALAD model for loop closure detection. "
                         "Uses DINOv2 ViT-B14 backbone + SALAD aggregator (~340MB). "
-                        "Auto-downloads from GitHub on first use.",
+                        "Auto-downloads from HuggingFace on first use.",
             inputs=[],
             outputs=[
                 io.Custom("SALAD_MODEL").Output(display_name="salad_model"),
@@ -762,13 +760,19 @@ class LoadSALADModel(io.ComfyNode):
 
     @classmethod
     def execute(cls):
+        from huggingface_hub import hf_hub_download
+
         download_dir = os.path.join(folder_paths.models_dir, "salad")
         os.makedirs(download_dir, exist_ok=True)
-        ckpt_path = os.path.join(download_dir, SALAD_CKPT_NAME)
+        ckpt_path = os.path.join(download_dir, SALAD_FILENAME)
 
         if not os.path.exists(ckpt_path):
-            logger.info(f"Downloading SALAD model to: {ckpt_path}")
-            torch.hub.download_url_to_file(SALAD_CKPT_URL, ckpt_path)
+            logger.info(f"Downloading SALAD model from HuggingFace...")
+            hf_hub_download(
+                repo_id=SALAD_REPO_ID,
+                filename=SALAD_FILENAME,
+                local_dir=download_dir,
+            )
 
         # Build and wrap in ModelPatcher for ComfyUI memory management
         salad_nn = _build_salad_model(ckpt_path)
