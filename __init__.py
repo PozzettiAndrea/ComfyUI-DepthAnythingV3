@@ -1,15 +1,13 @@
-from typing_extensions import override
-from comfy_api.latest import ComfyExtension
+from .nodes import NODE_CLASSES
+
+# 将作者提供的 List 格式转换为 ComfyUI 官方要求的 Dict 格式
+NODE_CLASS_MAPPINGS = {cls.__name__: cls for cls in NODE_CLASSES}
+
+# 自动美化节点在 ComfyUI UI 界面上的显示名称（例如把 DA3_ToPointCloud 变成 DA3 ToPointCloud）
+NODE_DISPLAY_NAME_MAPPINGS = {
+    cls.__name__: cls.__name__.replace("_", " ") for cls in NODE_CLASSES
+}
 
 WEB_DIRECTORY = "./web"
 
-
-class DA3Extension(ComfyExtension):
-    @override
-    async def get_node_list(self):
-        from .nodes import NODE_CLASSES
-        return NODE_CLASSES
-
-
-async def comfy_entrypoint():
-    return DA3Extension()
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
