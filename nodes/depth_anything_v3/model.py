@@ -1403,6 +1403,14 @@ class DualDPT(nn.Module):
             resized_feats.append(x)
 
         fused_main, fused_aux_pyr = self._fuse(resized_feats)
+        del resized_feats
+
+        # Release cached CUDA blocks from fusion convolutions — at 2K inputs the
+        # allocator can hold ~3.6 GB of fragmented blocks that prevent subsequent
+        # full-resolution allocations from succeeding.
+        if feats[0].is_cuda:
+            torch.cuda.empty_cache()
+
         h_out = int(ph * self.patch_size / self.down_ratio)
         w_out = int(pw * self.patch_size / self.down_ratio)
 

@@ -1,15 +1,7 @@
-from typing_extensions import override
-from comfy_api.latest import ComfyExtension
+from comfy_env import register_nodes
+
+NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS = register_nodes()
+
 
 WEB_DIRECTORY = "./web"
-
-
-class DA3Extension(ComfyExtension):
-    @override
-    async def get_node_list(self):
-        from .nodes import NODE_CLASSES
-        return NODE_CLASSES
-
-
-async def comfy_entrypoint():
-    return DA3Extension()
+__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
