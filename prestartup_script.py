@@ -13,4 +13,4 @@ COMFYUI_DIR = SCRIPT_DIR.parent.parent
 copy_viewer("pointcloud_vtk", SCRIPT_DIR / "web")
 
 # Copy assets
-copy_files(SCRIPT_DIR / "assets", COMFYUI_DIR / "input")
+copy_files(SCRIPT_DIR / "assets", COMFYUI_DIR / "input", "**/*")
