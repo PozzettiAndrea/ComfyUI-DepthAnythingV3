@@ -14,6 +14,7 @@
 #
 # Adapted from [VGGT-Long](https://github.com/DengKaiCQ/VGGT-Long)
 
+import ast
 import bisect
 import glob
 import logging
@@ -1198,7 +1199,7 @@ def weighted_align_point_maps(
                 all_weights,
                 delta=config["Model"]["IRLS"]["delta"],
                 max_iters=config["Model"]["IRLS"]["max_iters"],
-                tol=eval(config["Model"]["IRLS"]["tol"]),
+                tol=ast.literal_eval(config["Model"]["IRLS"]["tol"]),
                 align_method=config["Model"]["align_method"],
             )
         else:
@@ -1208,7 +1209,7 @@ def weighted_align_point_maps(
                 all_weights,
                 delta=config["Model"]["IRLS"]["delta"],
                 max_iters=config["Model"]["IRLS"]["max_iters"],
-                tol=eval(config["Model"]["IRLS"]["tol"]),
+                tol=ast.literal_eval(config["Model"]["IRLS"]["tol"]),
                 align_method=config["Model"]["align_method"],
             )
     elif config["Model"]["align_lib"] == "numpy":  # numpy
@@ -1218,7 +1219,7 @@ def weighted_align_point_maps(
             all_weights,
             delta=config["Model"]["IRLS"]["delta"],
             max_iters=config["Model"]["IRLS"]["max_iters"],
-            tol=eval(config["Model"]["IRLS"]["tol"]),
+            tol=ast.literal_eval(config["Model"]["IRLS"]["tol"]),
             align_method=config["Model"]["align_method"],
         )
     elif config["Model"]["align_lib"] == "torch":  # torch
@@ -1228,7 +1229,7 @@ def weighted_align_point_maps(
             all_weights,
             delta=config["Model"]["IRLS"]["delta"],
             max_iters=config["Model"]["IRLS"]["max_iters"],
-            tol=eval(config["Model"]["IRLS"]["tol"]),
+            tol=ast.literal_eval(config["Model"]["IRLS"]["tol"]),
             align_method=config["Model"]["align_method"],
         )
     elif config["Model"]["align_lib"] == "triton":  # triton
@@ -1240,7 +1241,7 @@ def weighted_align_point_maps(
             all_weights,
             delta=config["Model"]["IRLS"]["delta"],
             max_iters=config["Model"]["IRLS"]["max_iters"],
-            tol=eval(config["Model"]["IRLS"]["tol"]),
+            tol=ast.literal_eval(config["Model"]["IRLS"]["tol"]),
             align_method=config["Model"]["align_method"],
         )
     else:

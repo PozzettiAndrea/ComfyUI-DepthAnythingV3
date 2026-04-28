@@ -22,7 +22,7 @@ import torch.nn.functional as F
 from torch import Tensor
 
 import comfy.ops
-from comfy.ldm.modules.attention import optimized_attention
+from comfy.ldm.modules.attention import optimized_attention_for_device
 
 from .alignment import (
     apply_metric_scaling,
@@ -214,7 +214,8 @@ class LayerScale(nn.Module):
         self.gamma = nn.Parameter(init_values * torch.ones(dim))
 
     def forward(self, x: Tensor) -> Tensor:
-        return x.mul_(self.gamma) if self.inplace else x * self.gamma
+        gamma = self.gamma.to(device=x.device, dtype=x.dtype)
+        return x.mul_(gamma) if self.inplace else x * gamma
 
 
 class Mlp(nn.Module):
@@ -446,10 +447,10 @@ class Attention(nn.Module):
 
         if attn_mask is not None:
             attn_mask = attn_mask[:, None].expand(-1, self.num_heads, -1, -1)
-            x = F.scaled_dot_product_attention(q, k, v, attn_mask=attn_mask)
-            x = x.transpose(1, 2).reshape(B, N, C)
+            fn = optimized_attention_for_device(q.device, mask=True)
+            x = fn(q, k, v, heads=self.num_heads, mask=attn_mask, skip_reshape=True)
         else:
-            x = optimized_attention(q, k, v, heads=self.num_heads, skip_reshape=True)
+            x = optimized_attention_for_device(q.device)(q, k, v, heads=self.num_heads, skip_reshape=True)
 
         x = self.proj(x)
         return x
@@ -674,14 +675,14 @@ class DinoVisionTransformer(nn.Module):
         x = self.patch_embed(x)
         if masks is not None:
             x = torch.where(masks.unsqueeze(-1), self.mask_token.to(x.dtype).unsqueeze(0), x)
-        cls_token = self.prepare_cls_token(B, S)
+        cls_token = self.prepare_cls_token(B, S).to(device=x.device, dtype=x.dtype)
         x = torch.cat((cls_token, x), dim=1)
-        x = x + self.interpolate_pos_encoding(x, w, h)
+        x = x + self.interpolate_pos_encoding(x, w, h).to(device=x.device)
         if self.register_tokens is not None:
             x = torch.cat(
                 (
                     x[:, :1],
-                    self.register_tokens.expand(x.shape[0], -1, -1),
+                    self.register_tokens.to(device=x.device, dtype=x.dtype).expand(x.shape[0], -1, -1),
                     x[:, 1:],
                 ),
                 dim=1,
@@ -730,8 +731,9 @@ class DinoVisionTransformer(nn.Module):
                 if kwargs.get("cam_token", None) is not None:
                     cam_token = kwargs.get("cam_token")
                 else:
-                    ref_token = self.camera_token[:, :1].expand(B, -1, -1)
-                    src_token = self.camera_token[:, 1:].expand(B, S - 1, -1)
+                    _cam_tok = self.camera_token.to(device=x.device, dtype=x.dtype)
+                    ref_token = _cam_tok[:, :1].expand(B, -1, -1)
+                    src_token = _cam_tok[:, 1:].expand(B, S - 1, -1)
                     cam_token = torch.cat([ref_token, src_token], dim=1)
                 x[:, :, 0] = cam_token
 
@@ -1401,6 +1403,14 @@ class DualDPT(nn.Module):
             resized_feats.append(x)
 
         fused_main, fused_aux_pyr = self._fuse(resized_feats)
+        del resized_feats
+
+        # Release cached CUDA blocks from fusion convolutions — at 2K inputs the
+        # allocator can hold ~3.6 GB of fragmented blocks that prevent subsequent
+        # full-resolution allocations from succeeding.
+        if feats[0].is_cuda:
+            torch.cuda.empty_cache()
+
         h_out = int(ph * self.patch_size / self.down_ratio)
         w_out = int(pw * self.patch_size / self.down_ratio)
 

@@ -3,8 +3,12 @@ import torch
 import torch.nn.functional as F
 from contextlib import nullcontext
 
-import comfy.model_management as mm
 from comfy.utils import ProgressBar
+
+
+def _mm():
+    import comfy.model_management
+    return comfy.model_management
 import folder_paths
 from comfy_api.latest import io
 
@@ -203,6 +207,7 @@ Output POINTCLOUD contains:
         point_clouds = []
 
         for b in range(B):
+            _mm().throw_exception_if_processing_interrupted()
             cls._check_consistency(
                 depth_raw[b],
                 confidence[b],
@@ -1031,7 +1036,7 @@ Output: GLB file path
 
         # Move to GPU for fast mesh construction
         import comfy.model_management as mm
-        device = mm.get_torch_device()
+        device = _mm().get_torch_device()
         depth_map = depth_map.to(device)
         valid_mask = valid_mask.to(device)
         if colors is not None:

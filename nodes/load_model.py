@@ -1,23 +1,23 @@
-"""Model loading and configuration nodes for DepthAnythingV3."""
+"""Model loading and configuration nodes for DepthAnythingV3.
+
+All comfy.* and model imports are lazy to avoid triggering CUDA init at
+import time (breaks meta-scan on CPU-only runners).
+"""
 import logging
 import torch
 import os
 
-import comfy.ops
-import comfy.model_management as mm
-import comfy.model_patcher
-from comfy.utils import load_torch_file
 import folder_paths
 from comfy_api.latest import io
 
 from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
-from .depth_anything_v3.model import (
-    DepthAnything3Net, NestedDepthAnything3Net,
-    DinoV2, DualDPT, DPT,
-)
-from .depth_anything_v3.camera import CameraEnc, CameraDec
-from .depth_anything_v3.gs import GSDPT, GaussianAdapter
 from .utils import DEFAULT_PATCH_SIZE, logger, check_model_capabilities
+
+
+def _mm():
+    """Lazy import of comfy.model_management to avoid CUDA init at import time."""
+    import comfy.model_management
+    return comfy.model_management
 
 # Register model folder with ComfyUI's folder_paths system
 _da3_model_dir = os.path.join(folder_paths.models_dir, "depthanything3")
@@ -140,6 +140,7 @@ def detect_da3_variant_with_filename_hint(state_dict, filename):
 
 def _build_gs_modules(config, operations):
     """Build GS head and adapter for Giant model."""
+    from .depth_anything_v3.gs import GSDPT, GaussianAdapter
     gs_head = GSDPT(
         dim_in=config['dim_in'],
         output_dim=38,
@@ -158,6 +159,50 @@ def _build_gs_modules(config, operations):
     )
 
     return gs_head, gs_adapter
+
+
+_DA3_MODEL_CACHE = {}
+
+
+def _get_or_build_da3_model(config):
+    """Build DA3 model from config dict, caching by model_path."""
+    import comfy.model_patcher
+    key = config["model_path"]
+    if key not in _DA3_MODEL_CACHE:
+        dtype_map = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}
+        dtype = dtype_map[config["dtype"]]
+        model = _build_da3_model(config["model_path"], config["model_key"], dtype, config["attention"])
+        patcher = comfy.model_patcher.ModelPatcher(
+            model,
+            load_device=_mm().get_torch_device(),
+            offload_device=_mm().unet_offload_device(),
+        )
+        patcher.model_options["da3_capabilities"] = check_model_capabilities(model)
+        patcher.model_options["da3_config"] = MODEL_CONFIGS[config["model_key"]]
+        patcher.model_options["da3_dtype"] = dtype
+        patcher.model_options["da3_model_key"] = config["model_key"]
+        if "da3_tiled_config" in config:
+            patcher.model_options["da3_tiled_config"] = config["da3_tiled_config"]
+        _DA3_MODEL_CACHE[key] = patcher
+    return _DA3_MODEL_CACHE[key]
+
+
+_SALAD_MODEL_CACHE = {}
+
+
+def _get_or_build_salad_model(config):
+    """Build SALAD model from config dict, caching by checkpoint_path."""
+    import comfy.model_patcher
+    key = config["checkpoint_path"]
+    if key not in _SALAD_MODEL_CACHE:
+        salad_nn = _build_salad_model(key)
+        patcher = comfy.model_patcher.ModelPatcher(
+            salad_nn,
+            load_device=_mm().get_torch_device(),
+            offload_device=_mm().unet_offload_device(),
+        )
+        _SALAD_MODEL_CACHE[key] = patcher
+    return _SALAD_MODEL_CACHE[key]
 
 
 class DA3ModelWrapper(torch.nn.Module):
@@ -272,15 +317,25 @@ class NestedModelWrapper(torch.nn.Module):
         return self.da3.gs_adapter if hasattr(self.da3, 'gs_adapter') else None
 
 
-def _build_da3_model(model_path, model_key, dtype, attention):
+def _build_da3_model(model_path, model_key, dtype, attention, state_dict=None):
     """Build and load the DA3 model from checkpoint.
 
     Returns a loaded nn.Module on CPU with the given dtype.
+
+    If *state_dict* is provided it will be used directly instead of loading
+    from *model_path*, avoiding a redundant disk read when the caller already
+    has the weights in memory (e.g. after variant detection).
     """
     logger.info(f"[build] model_key={model_key}, dtype={dtype}, attention={attention}")
     config = MODEL_CONFIGS[model_key]
     logger.info(f"[build] config: encoder={config.get('encoder')}, dim_in={config.get('dim_in')}, "
                 f"features={config.get('features')}, out_channels={config.get('out_channels')}")
+
+    import comfy.ops
+    from comfy.utils import load_torch_file
+    from .depth_anything_v3.model import DepthAnything3Net, DinoV2, DualDPT, DPT
+    from .depth_anything_v3.camera import CameraEnc, CameraDec
+    from .depth_anything_v3.gs import GSDPT, GaussianAdapter
 
     is_nested = config.get('is_nested', False)
     operations = comfy.ops.manual_cast
@@ -419,8 +474,11 @@ def _build_da3_model(model_path, model_key, dtype, attention):
             )
 
     # Load weights
-    logger.info(f"[build] Loading model from: {model_path}")
-    state_dict = load_torch_file(model_path)
+    if state_dict is None:
+        logger.info(f"[build] Loading model from: {model_path}")
+        state_dict = load_torch_file(model_path)
+    else:
+        logger.info(f"[build] Using pre-loaded state_dict (skipping redundant disk read)")
     logger.info(f"[build] Checkpoint: {len(state_dict)} keys loaded")
 
     # Strip 'model.' prefix from keys if present
@@ -499,7 +557,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="DownloadAndLoadDepthAnythingV3Model",
-            display_name="Load Depth Anything V3 Model",
+            display_name="(Down)Load Depth Anything V3 Model",
             category="loaders",
             description="Load a Depth Anything V3 model from ComfyUI/models/depthanything3/. "
                         "Model variant is auto-detected from weights. Supports Small, Base, Large, Giant, Mono, Metric, and Nested.",
@@ -517,13 +575,13 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
 
     @classmethod
     def execute(cls, model, precision="auto", attention="auto"):
-        device = mm.get_torch_device()
+        device = _mm().get_torch_device()
 
         # Determine dtype
         if precision == "auto":
-            if mm.should_use_bf16(device):
+            if _mm().should_use_bf16(device):
                 dtype = torch.bfloat16
-            elif mm.should_use_fp16(device):
+            elif _mm().should_use_fp16(device):
                 dtype = torch.float16
             else:
                 dtype = torch.float32
@@ -540,7 +598,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
             download_dir = os.path.join(folder_paths.models_dir, "depthanything3")
             os.makedirs(download_dir, exist_ok=True)
             try:
-                from huggingface_hub import snapshot_download
+                from huggingface_hub import hf_hub_download
             except ImportError:
                 raise ImportError(
                     "huggingface_hub is required to auto-download models. "
@@ -548,11 +606,10 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
                     "Or manually download and place in ComfyUI/models/depthanything3/"
                 )
             logger.info(f"Auto-downloading {model} from HuggingFace ({MODEL_REPOS[model]})...")
-            snapshot_download(
+            hf_hub_download(
                 repo_id=MODEL_REPOS[model],
-                allow_patterns=["*.safetensors"],
+                filename="model.safetensors",
                 local_dir=download_dir,
-                local_dir_use_symlinks=False,
             )
             # HuggingFace may save as model.safetensors — rename to expected name
             hf_default = os.path.join(download_dir, "model.safetensors")
@@ -568,30 +625,23 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
             )
 
         # Auto-detect model variant from state_dict
+        from comfy.utils import load_torch_file
         sd = load_torch_file(model_path)
         model_key = detect_da3_variant_with_filename_hint(sd, model)
         logger.info(f"Auto-detected model variant: {model_key}")
-        del sd  # Free memory before building model
+        del sd
 
-        config = MODEL_CONFIGS[model_key]
+        # Store dtype as string for JSON-safe IPC across isolation boundary
+        dtype_str = {torch.bfloat16: "bf16", torch.float16: "fp16", torch.float32: "fp32"}[dtype]
 
-        # Build and load model immediately
-        loaded_model = _build_da3_model(model_path, model_key, dtype, attention)
-
-        # Wrap in ModelPatcher for ComfyUI memory management
-        patcher = comfy.model_patcher.ModelPatcher(
-            loaded_model,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
-        )
-
-        # Store metadata on patcher for use by inference nodes
-        patcher.model_options["da3_capabilities"] = check_model_capabilities(loaded_model)
-        patcher.model_options["da3_config"] = config
-        patcher.model_options["da3_dtype"] = dtype
-        patcher.model_options["da3_model_key"] = model_key
-
-        return io.NodeOutput(patcher)
+        # Return JSON-safe config — model construction happens in consumer nodes
+        config = {
+            "model_path": str(model_path),
+            "model_key": model_key,
+            "dtype": dtype_str,
+            "attention": attention,
+        }
+        return io.NodeOutput(config)
 
 
 class DA3_EnableTiledProcessing(io.ComfyNode):
@@ -623,8 +673,8 @@ class DA3_EnableTiledProcessing(io.ComfyNode):
             tile_size = patch_size
         overlap = (overlap // patch_size) * patch_size
 
-        # Store tiled config in model_options on the ModelPatcher
-        da3_model.model_options["da3_tiled_config"] = {
+        # Store tiled config in the config dict (JSON-safe)
+        da3_model["da3_tiled_config"] = {
             "enabled": True,
             "tile_size": tile_size,
             "overlap": overlap,
@@ -642,7 +692,7 @@ class DA3_DownloadModel(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="DA3_DownloadModel",
-            display_name="DA3 Download Model (HuggingFace)",
+            display_name="DA3: Download Model (HuggingFace)",
             category="DepthAnythingV3",
             is_output_node=True,
             description="Download a DA3 model from HuggingFace to ComfyUI/models/depthanything3/. "
@@ -665,17 +715,16 @@ class DA3_DownloadModel(io.ComfyNode):
             return io.NodeOutput(f"Model already exists: {model_path}")
 
         try:
-            from huggingface_hub import snapshot_download
+            from huggingface_hub import hf_hub_download
         except ImportError:
             return io.NodeOutput("Error: huggingface_hub not installed. Install with: pip install huggingface_hub")
 
         logger.info(f"Downloading model to: {model_path}")
         repo = MODEL_REPOS[model]
-        snapshot_download(
+        hf_hub_download(
             repo_id=repo,
-            allow_patterns=["*.safetensors"],
+            filename="model.safetensors",
             local_dir=download_path,
-            local_dir_use_symlinks=False
         )
         # The downloaded file might be named differently (model.safetensors)
         downloaded_file = os.path.join(download_path, "model.safetensors")
@@ -685,17 +734,51 @@ class DA3_DownloadModel(io.ComfyNode):
         return io.NodeOutput(f"Downloaded: {model_path}")
 
 
-SALAD_CKPT_URL = "https://github.com/serizba/salad/releases/download/v1.0.0/dino_salad.ckpt"
-SALAD_CKPT_NAME = "dino_salad.ckpt"
+SALAD_REPO_ID = "apozz/salad-safetensors"
+SALAD_FILENAME = "dino_salad.safetensors"
 
 
 def _build_salad_model(ckpt_path):
-    """Build and load the SALAD VPR model from checkpoint."""
+    """Build and load the SALAD VPR model from checkpoint.
+
+    Uses meta-device initialization to avoid 2x RAM: the model is
+    constructed on the meta device (zero memory), then weights are
+    assigned directly from the state_dict via ``assign=True``.
+    """
+    import comfy.ops
+    from comfy.utils import load_torch_file
     from .salad.model import VPRModel
 
-    model = VPRModel(operations=comfy.ops.manual_cast)
+    # Construct on meta device — allocates no real memory
+    with torch.device("meta"):
+        model = VPRModel(operations=comfy.ops.manual_cast)
+
+    # Load weights and assign directly into the model (no copy)
     state_dict = load_torch_file(str(ckpt_path))
-    model.load_state_dict(state_dict)
+    model.load_state_dict(state_dict, strict=False, assign=True)
+
+    # Fix any leftover meta parameters (uninitialized weights not in checkpoint)
+    for name, param in list(model.named_parameters()):
+        if param.device.type == "meta":
+            logger.warning(f"[salad] Meta param remaining: {name}, initializing with zeros")
+            parts = name.split(".")
+            parent = model
+            for part in parts[:-1]:
+                parent = getattr(parent, part)
+            setattr(parent, parts[-1], torch.nn.Parameter(
+                torch.zeros(param.shape, dtype=param.dtype), requires_grad=False
+            ))
+
+    # Fix any leftover meta buffers
+    for name, buf in list(model.named_buffers()):
+        if buf.device.type == "meta":
+            logger.warning(f"[salad] Meta buffer remaining: {name}, initializing with zeros")
+            parts = name.split(".")
+            parent = model
+            for part in parts[:-1]:
+                parent = getattr(parent, part)
+            parent.register_buffer(parts[-1], torch.zeros(buf.shape, dtype=buf.dtype))
+
     model.eval()
     logger.info(f"SALAD model loaded from: {ckpt_path}")
     return model
@@ -708,11 +791,11 @@ class LoadSALADModel(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(
             node_id="LoadSALADModel",
-            display_name="Load SALAD Model",
+            display_name="(Down)Load SALAD Model",
             category="DepthAnythingV3",
             description="Load the SALAD model for loop closure detection. "
                         "Uses DINOv2 ViT-B14 backbone + SALAD aggregator (~340MB). "
-                        "Auto-downloads from GitHub on first use.",
+                        "Auto-downloads from HuggingFace on first use.",
             inputs=[],
             outputs=[
                 io.Custom("SALAD_MODEL").Output(display_name="salad_model"),
@@ -721,20 +804,20 @@ class LoadSALADModel(io.ComfyNode):
 
     @classmethod
     def execute(cls):
+        from huggingface_hub import hf_hub_download
+
         download_dir = os.path.join(folder_paths.models_dir, "salad")
         os.makedirs(download_dir, exist_ok=True)
-        ckpt_path = os.path.join(download_dir, SALAD_CKPT_NAME)
+        ckpt_path = os.path.join(download_dir, SALAD_FILENAME)
 
         if not os.path.exists(ckpt_path):
-            logger.info(f"Downloading SALAD model to: {ckpt_path}")
-            torch.hub.download_url_to_file(SALAD_CKPT_URL, ckpt_path)
+            logger.info(f"Downloading SALAD model from HuggingFace...")
+            hf_hub_download(
+                repo_id=SALAD_REPO_ID,
+                filename=SALAD_FILENAME,
+                local_dir=download_dir,
+            )
 
-        # Build and wrap in ModelPatcher for ComfyUI memory management
-        salad_nn = _build_salad_model(ckpt_path)
-        patcher = comfy.model_patcher.ModelPatcher(
-            salad_nn,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
-        )
-
-        return io.NodeOutput(patcher)
+        # Return JSON-safe config — model construction happens in consumer nodes
+        config = {"checkpoint_path": str(ckpt_path)}
+        return io.NodeOutput(config)

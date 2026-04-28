@@ -4,8 +4,6 @@ import torch
 import torch.nn.functional as F
 import logging
 
-import comfy.model_management as mm
-
 logger = logging.getLogger("DepthAnythingV3")
 
 # Constants

@@ -14,6 +14,7 @@ import torch.nn.functional as F
 
 import comfy.model_management
 import comfy.ops
+from comfy.ldm.modules.attention import optimized_attention_for_device
 
 
 # ---------------------------------------------------------------------------
@@ -30,7 +31,6 @@ class _Attention(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         self.head_dim = dim // num_heads
-        self.scale = self.head_dim ** -0.5
         self.qkv = operations.Linear(dim, dim * 3, bias=qkv_bias, dtype=dtype, device=device)
         self.proj = operations.Linear(dim, dim, bias=True, dtype=dtype, device=device)
 
@@ -38,9 +38,7 @@ class _Attention(nn.Module):
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)
-        attn = (q @ k.transpose(-2, -1)) * self.scale
-        attn = attn.softmax(dim=-1)
-        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+        x = optimized_attention_for_device(q.device)(q, k, v, heads=self.num_heads, skip_reshape=True)
         x = self.proj(x)
         return x
 

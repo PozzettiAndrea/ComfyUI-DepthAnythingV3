@@ -2,7 +2,9 @@
 import json
 import torch
 import torch.nn.functional as F
-import comfy.model_management as mm
+def _mm():
+    import comfy.model_management
+    return comfy.model_management
 from comfy.utils import ProgressBar
 from comfy_api.latest import io
 
@@ -66,12 +68,17 @@ All images must have the same resolution. Higher N = more VRAM but better consis
         if images is None or images.shape[0] == 0:
             raise ValueError("No input provided. Connect 'images' input.")
 
-        device = mm.get_torch_device()
-        mm.load_models_gpu([da3_model])
-        model = da3_model.model
-        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+        device = _mm().get_torch_device()
+
+        # da3_model is a JSON-safe config dict — build/cache the model on first use
+        from .load_model import _get_or_build_da3_model
+        patcher = _get_or_build_da3_model(da3_model)
+        dtype = patcher.model_options.get("da3_dtype", torch.float16)
 
         N, H, W, C = images.shape
+        memory_required = H * W * C * N * _mm().dtype_size(dtype)
+        _mm().load_models_gpu([patcher], memory_required=memory_required)
+        model = patcher.model
         logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
 
         # Check model capabilities
@@ -710,6 +717,7 @@ Requires Main series or Nested model (with camera pose prediction).""",
         pbar = ProgressBar(N)
 
         for i in range(N):
+            _mm().throw_exception_if_processing_interrupted()
             # Get depth for this view (take first channel, assuming grayscale)
             depth = depths[i, :, :, 0]
 
