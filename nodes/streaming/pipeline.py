@@ -11,7 +11,10 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 import torch
-import comfy.model_management
+def _lazy_mm():
+    import comfy.model_management
+    return comfy.model_management
+
 
 logger = logging.getLogger("DA3Streaming")
 
@@ -89,7 +92,7 @@ class StreamingConfig:
             pass
 
         # Then torch (GPU, always available with CUDA)
-        if comfy.model_management.get_torch_device().type == "cuda":
+        if _lazy_mm().get_torch_device().type == "cuda":
             return "torch"
 
         # Then numba (JIT CPU)
@@ -273,7 +276,7 @@ class StreamingPipeline:
                 _vd(f"chunk_{i+1}_before", self.device)
             result = self._process_chunk(normalized_images, start, end)
             chunk_results.append(result)
-            comfy.model_management.soft_empty_cache()
+            _lazy_mm().soft_empty_cache()
             if _vd:
                 _vd(f"chunk_{i+1}_after_cache_clear", self.device)
             if pbar:
@@ -371,7 +374,7 @@ class StreamingPipeline:
         conf = conf - 1.0
 
         del output, chunk_input
-        comfy.model_management.soft_empty_cache()
+        _lazy_mm().soft_empty_cache()
         if _vd:
             _vd(f"after_cleanup[{start}:{end}]", self.device)
 
