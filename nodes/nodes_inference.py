@@ -1,7 +1,9 @@
 """Basic inference nodes for DepthAnythingV3."""
 import torch
 import torch.nn.functional as F
-import comfy.model_management as mm
+def _mm():
+    import comfy.model_management
+    return comfy.model_management
 from comfy.utils import ProgressBar
 from comfy_api.latest import io
 
@@ -75,7 +77,7 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
     @classmethod
     def execute(cls, da3_model, images, normalization_mode="V2-Style", camera_params=None,
                 resize_method="resize", invert_depth=False, keep_model_size=False):
-        device = mm.get_torch_device()
+        device = _mm().get_torch_device()
 
         B, H, W, C = images.shape
 
@@ -83,8 +85,8 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
         from .load_model import _get_or_build_da3_model
         patcher = _get_or_build_da3_model(da3_model)
         dtype = patcher.model_options.get("da3_dtype", torch.float16)
-        memory_required = H * W * C * B * mm.dtype_size(dtype)
-        mm.load_models_gpu([patcher], memory_required=memory_required)
+        memory_required = H * W * C * B * _mm().dtype_size(dtype)
+        _mm().load_models_gpu([patcher], memory_required=memory_required)
         model = patcher.model
 
         # Get metadata stored by loader
@@ -143,7 +145,7 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
             logger.info("Model supports 3D Gaussians - will output raw Gaussians")
 
         for i in range(B):
-            mm.throw_exception_if_processing_interrupted()
+            _mm().throw_exception_if_processing_interrupted()
             img = normalized_images[i:i+1].to(device, dtype=dtype)
 
             # Get camera params for this batch item

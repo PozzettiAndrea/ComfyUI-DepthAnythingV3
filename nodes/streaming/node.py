@@ -7,7 +7,9 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
-import comfy.model_management as mm
+def _mm():
+    import comfy.model_management
+    return comfy.model_management
 import folder_paths
 from comfy.utils import ProgressBar
 from comfy_api.latest import io
@@ -178,7 +180,7 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         logger.info(f"Streaming: {num_views} frames, {orig_H}x{orig_W}, {float(fps):.2f} fps")
 
         # Get model and device
-        device = mm.get_torch_device()
+        device = _mm().get_torch_device()
 
         _vram_debug("before_model_load", device)
         _tensor_debug("raw_video_frames", images)
@@ -193,8 +195,8 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         if salad_patcher is not None:
             models_to_load.append(salad_patcher)
         dtype = da3_patcher.model_options.get("da3_dtype", torch.float16)
-        memory_required = orig_H * orig_W * 3 * num_views * mm.dtype_size(dtype)
-        mm.load_models_gpu(models_to_load, memory_required=memory_required)
+        memory_required = orig_H * orig_W * 3 * num_views * _mm().dtype_size(dtype)
+        _mm().load_models_gpu(models_to_load, memory_required=memory_required)
 
         _vram_debug("after_model_load", device)
 
@@ -257,7 +259,7 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         raw_conf = result.conf    # [N, H, W] CPU tensor
 
         for i in range(num_views):
-            mm.throw_exception_if_processing_interrupted()
+            _mm().throw_exception_if_processing_interrupted()
             frame_data = {
                 "depth": raw_depth[i].numpy().astype(np.float32),
                 "conf": raw_conf[i].numpy().astype(np.float32),

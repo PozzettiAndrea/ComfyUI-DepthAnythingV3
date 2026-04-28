@@ -1,28 +1,23 @@
-"""Model loading and configuration nodes for DepthAnythingV3."""
+"""Model loading and configuration nodes for DepthAnythingV3.
+
+All comfy.* and model imports are lazy to avoid triggering CUDA init at
+import time (breaks meta-scan on CPU-only runners).
+"""
 import logging
 import torch
 import os
 
-import comfy.ops
-import comfy.model_patcher
-from comfy.utils import load_torch_file
 import folder_paths
 from comfy_api.latest import io
+
+from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
+from .utils import DEFAULT_PATCH_SIZE, logger, check_model_capabilities
 
 
 def _mm():
     """Lazy import of comfy.model_management to avoid CUDA init at import time."""
     import comfy.model_management
     return comfy.model_management
-
-from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
-from .depth_anything_v3.model import (
-    DepthAnything3Net, NestedDepthAnything3Net,
-    DinoV2, DualDPT, DPT,
-)
-from .depth_anything_v3.camera import CameraEnc, CameraDec
-from .depth_anything_v3.gs import GSDPT, GaussianAdapter
-from .utils import DEFAULT_PATCH_SIZE, logger, check_model_capabilities
 
 # Register model folder with ComfyUI's folder_paths system
 _da3_model_dir = os.path.join(folder_paths.models_dir, "depthanything3")
@@ -145,6 +140,7 @@ def detect_da3_variant_with_filename_hint(state_dict, filename):
 
 def _build_gs_modules(config, operations):
     """Build GS head and adapter for Giant model."""
+    from .depth_anything_v3.gs import GSDPT, GaussianAdapter
     gs_head = GSDPT(
         dim_in=config['dim_in'],
         output_dim=38,
@@ -170,6 +166,7 @@ _DA3_MODEL_CACHE = {}
 
 def _get_or_build_da3_model(config):
     """Build DA3 model from config dict, caching by model_path."""
+    import comfy.model_patcher
     key = config["model_path"]
     if key not in _DA3_MODEL_CACHE:
         dtype_map = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}
@@ -195,6 +192,7 @@ _SALAD_MODEL_CACHE = {}
 
 def _get_or_build_salad_model(config):
     """Build SALAD model from config dict, caching by checkpoint_path."""
+    import comfy.model_patcher
     key = config["checkpoint_path"]
     if key not in _SALAD_MODEL_CACHE:
         salad_nn = _build_salad_model(key)
@@ -332,6 +330,12 @@ def _build_da3_model(model_path, model_key, dtype, attention, state_dict=None):
     config = MODEL_CONFIGS[model_key]
     logger.info(f"[build] config: encoder={config.get('encoder')}, dim_in={config.get('dim_in')}, "
                 f"features={config.get('features')}, out_channels={config.get('out_channels')}")
+
+    import comfy.ops
+    from comfy.utils import load_torch_file
+    from .depth_anything_v3.model import DepthAnything3Net, DinoV2, DualDPT, DPT
+    from .depth_anything_v3.camera import CameraEnc, CameraDec
+    from .depth_anything_v3.gs import GSDPT, GaussianAdapter
 
     is_nested = config.get('is_nested', False)
     operations = comfy.ops.manual_cast
@@ -621,6 +625,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
             )
 
         # Auto-detect model variant from state_dict
+        from comfy.utils import load_torch_file
         sd = load_torch_file(model_path)
         model_key = detect_da3_variant_with_filename_hint(sd, model)
         logger.info(f"Auto-detected model variant: {model_key}")
@@ -740,6 +745,8 @@ def _build_salad_model(ckpt_path):
     constructed on the meta device (zero memory), then weights are
     assigned directly from the state_dict via ``assign=True``.
     """
+    import comfy.ops
+    from comfy.utils import load_torch_file
     from .salad.model import VPRModel
 
     # Construct on meta device — allocates no real memory
