@@ -4,11 +4,16 @@ import torch
 import os
 
 import comfy.ops
-import comfy.model_management as mm
 import comfy.model_patcher
 from comfy.utils import load_torch_file
 import folder_paths
 from comfy_api.latest import io
+
+
+def _mm():
+    """Lazy import of comfy.model_management to avoid CUDA init at import time."""
+    import comfy.model_management
+    return comfy.model_management
 
 from .depth_anything_v3.configs import MODEL_CONFIGS, MODEL_REPOS
 from .depth_anything_v3.model import (
@@ -172,8 +177,8 @@ def _get_or_build_da3_model(config):
         model = _build_da3_model(config["model_path"], config["model_key"], dtype, config["attention"])
         patcher = comfy.model_patcher.ModelPatcher(
             model,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
+            load_device=_mm().get_torch_device(),
+            offload_device=_mm().unet_offload_device(),
         )
         patcher.model_options["da3_capabilities"] = check_model_capabilities(model)
         patcher.model_options["da3_config"] = MODEL_CONFIGS[config["model_key"]]
@@ -195,8 +200,8 @@ def _get_or_build_salad_model(config):
         salad_nn = _build_salad_model(key)
         patcher = comfy.model_patcher.ModelPatcher(
             salad_nn,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
+            load_device=_mm().get_torch_device(),
+            offload_device=_mm().unet_offload_device(),
         )
         _SALAD_MODEL_CACHE[key] = patcher
     return _SALAD_MODEL_CACHE[key]
@@ -566,13 +571,13 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
 
     @classmethod
     def execute(cls, model, precision="auto", attention="auto"):
-        device = mm.get_torch_device()
+        device = _mm().get_torch_device()
 
         # Determine dtype
         if precision == "auto":
-            if mm.should_use_bf16(device):
+            if _mm().should_use_bf16(device):
                 dtype = torch.bfloat16
-            elif mm.should_use_fp16(device):
+            elif _mm().should_use_fp16(device):
                 dtype = torch.float16
             else:
                 dtype = torch.float32
