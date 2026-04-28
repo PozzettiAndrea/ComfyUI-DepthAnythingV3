@@ -31,27 +31,23 @@ from .streaming import DepthAnythingV3_Streaming
 
 from .preview_nodes import DA3_PreviewPointCloud
 
-NODE_CLASSES = [
-    # Loaders
-    DownloadAndLoadDepthAnythingV3Model,
-    DA3_EnableTiledProcessing,
-    DA3_DownloadModel,
-    LoadSALADModel,
-    # Inference
-    DepthAnything_V3,
-    # Multi-view
-    DepthAnythingV3_MultiView,
-    DA3_MultiViewPointCloud,
-    # Streaming
-    DepthAnythingV3_Streaming,
-    # 3D
-    DA3_ToPointCloud,
-    DA3_SavePointCloud,
-    DA3_FilterGaussians,
-    DA3_ToMesh,
-    # Camera
-    DA3_CreateCameraParams,
-    DA3_ParseCameraPose,
-    # Preview
-    DA3_PreviewPointCloud,
-]
+NODE_CLASS_MAPPINGS = {
+    cls.__name__: cls for cls in [
+        DownloadAndLoadDepthAnythingV3Model,
+        DA3_EnableTiledProcessing,
+        DA3_DownloadModel,
+        LoadSALADModel,
+        DepthAnything_V3,
+        DepthAnythingV3_MultiView,
+        DA3_MultiViewPointCloud,
+        DepthAnythingV3_Streaming,
+        DA3_ToPointCloud,
+        DA3_SavePointCloud,
+        DA3_FilterGaussians,
+        DA3_ToMesh,
+        DA3_CreateCameraParams,
+        DA3_ParseCameraPose,
+        DA3_PreviewPointCloud,
+    ]
+}
+NODE_DISPLAY_NAME_MAPPINGS = {k: k for k in NODE_CLASS_MAPPINGS}
