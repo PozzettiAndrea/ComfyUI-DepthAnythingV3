@@ -67,12 +67,16 @@ All images must have the same resolution. Higher N = more VRAM but better consis
             raise ValueError("No input provided. Connect 'images' input.")
 
         device = mm.get_torch_device()
-        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+
+        # da3_model is a JSON-safe config dict — build/cache the model on first use
+        from .load_model import _get_or_build_da3_model
+        patcher = _get_or_build_da3_model(da3_model)
+        dtype = patcher.model_options.get("da3_dtype", torch.float16)
 
         N, H, W, C = images.shape
         memory_required = H * W * C * N * mm.dtype_size(dtype)
-        mm.load_models_gpu([da3_model], memory_required=memory_required)
-        model = da3_model.model
+        mm.load_models_gpu([patcher], memory_required=memory_required)
+        model = patcher.model
         logger.info(f"Multi-view input: {N} images, size: {H}x{W}")
 
         # Check model capabilities

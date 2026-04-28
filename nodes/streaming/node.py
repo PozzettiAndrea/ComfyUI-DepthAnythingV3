@@ -183,18 +183,23 @@ class DepthAnythingV3_Streaming(io.ComfyNode):
         _vram_debug("before_model_load", device)
         _tensor_debug("raw_video_frames", images)
 
+        # da3_model / salad_model are JSON-safe config dicts — build/cache on first use
+        from ..load_model import _get_or_build_da3_model, _get_or_build_salad_model
+        da3_patcher = _get_or_build_da3_model(da3_model)
+        salad_patcher = _get_or_build_salad_model(salad_model) if salad_model is not None else None
+
         # Load all models in a single call so ComfyUI can manage memory holistically
-        models_to_load = [da3_model]
-        if salad_model is not None:
-            models_to_load.append(salad_model)
-        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+        models_to_load = [da3_patcher]
+        if salad_patcher is not None:
+            models_to_load.append(salad_patcher)
+        dtype = da3_patcher.model_options.get("da3_dtype", torch.float16)
         memory_required = orig_H * orig_W * 3 * num_views * mm.dtype_size(dtype)
         mm.load_models_gpu(models_to_load, memory_required=memory_required)
 
         _vram_debug("after_model_load", device)
 
-        model = da3_model.model
-        salad_nn_model = salad_model.model if salad_model is not None else None
+        model = da3_patcher.model
+        salad_nn_model = salad_patcher.model if salad_patcher is not None else None
         logger.debug(f"[DEBUG] model dtype={dtype}, salad={'loaded' if salad_nn_model else 'None'}")
 
         pbar = ProgressBar(num_views)

@@ -79,14 +79,16 @@ Connect only the outputs you need - unused outputs are simply ignored.""",
 
         B, H, W, C = images.shape
 
-        # da3_model is now a ModelPatcher — load to GPU via ComfyUI memory management
-        dtype = da3_model.model_options.get("da3_dtype", torch.float16)
+        # da3_model is a JSON-safe config dict — build/cache the model on first use
+        from .load_model import _get_or_build_da3_model
+        patcher = _get_or_build_da3_model(da3_model)
+        dtype = patcher.model_options.get("da3_dtype", torch.float16)
         memory_required = H * W * C * B * mm.dtype_size(dtype)
-        mm.load_models_gpu([da3_model], memory_required=memory_required)
-        model = da3_model.model
+        mm.load_models_gpu([patcher], memory_required=memory_required)
+        model = patcher.model
 
         # Get metadata stored by loader
-        capabilities = da3_model.model_options.get("da3_capabilities", check_model_capabilities(model))
+        capabilities = patcher.model_options.get("da3_capabilities", check_model_capabilities(model))
 
         if not capabilities["has_sky_segmentation"] and normalization_mode == "V2-Style":
             logger.warning(

@@ -160,6 +160,48 @@ def _build_gs_modules(config, operations):
     return gs_head, gs_adapter
 
 
+_DA3_MODEL_CACHE = {}
+
+
+def _get_or_build_da3_model(config):
+    """Build DA3 model from config dict, caching by model_path."""
+    key = config["model_path"]
+    if key not in _DA3_MODEL_CACHE:
+        dtype_map = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}
+        dtype = dtype_map[config["dtype"]]
+        model = _build_da3_model(config["model_path"], config["model_key"], dtype, config["attention"])
+        patcher = comfy.model_patcher.ModelPatcher(
+            model,
+            load_device=mm.get_torch_device(),
+            offload_device=mm.unet_offload_device(),
+        )
+        patcher.model_options["da3_capabilities"] = check_model_capabilities(model)
+        patcher.model_options["da3_config"] = MODEL_CONFIGS[config["model_key"]]
+        patcher.model_options["da3_dtype"] = dtype
+        patcher.model_options["da3_model_key"] = config["model_key"]
+        if "da3_tiled_config" in config:
+            patcher.model_options["da3_tiled_config"] = config["da3_tiled_config"]
+        _DA3_MODEL_CACHE[key] = patcher
+    return _DA3_MODEL_CACHE[key]
+
+
+_SALAD_MODEL_CACHE = {}
+
+
+def _get_or_build_salad_model(config):
+    """Build SALAD model from config dict, caching by checkpoint_path."""
+    key = config["checkpoint_path"]
+    if key not in _SALAD_MODEL_CACHE:
+        salad_nn = _build_salad_model(key)
+        patcher = comfy.model_patcher.ModelPatcher(
+            salad_nn,
+            load_device=mm.get_torch_device(),
+            offload_device=mm.unet_offload_device(),
+        )
+        _SALAD_MODEL_CACHE[key] = patcher
+    return _SALAD_MODEL_CACHE[key]
+
+
 class DA3ModelWrapper(torch.nn.Module):
     """Wrapper to match checkpoint parameter naming (da3.backbone... etc)"""
     def __init__(self, model):
@@ -573,33 +615,23 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
                 f"Model '{model}' not found in ComfyUI/models/depthanything3/ and not a known HuggingFace model."
             )
 
-        # Auto-detect model variant from state_dict, then reuse
-        # the same state_dict for model building to avoid loading from disk twice.
+        # Auto-detect model variant from state_dict
         sd = load_torch_file(model_path)
         model_key = detect_da3_variant_with_filename_hint(sd, model)
         logger.info(f"Auto-detected model variant: {model_key}")
+        del sd
 
-        config = MODEL_CONFIGS[model_key]
+        # Store dtype as string for JSON-safe IPC across isolation boundary
+        dtype_str = {torch.bfloat16: "bf16", torch.float16: "fp16", torch.float32: "fp32"}[dtype]
 
-        # Build and load model immediately, passing the already-loaded
-        # state_dict so _build_da3_model does not re-read from disk.
-        loaded_model = _build_da3_model(model_path, model_key, dtype, attention, state_dict=sd)
-        del sd  # Free the reference now that weights have been assigned
-
-        # Wrap in ModelPatcher for ComfyUI memory management
-        patcher = comfy.model_patcher.ModelPatcher(
-            loaded_model,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
-        )
-
-        # Store metadata on patcher for use by inference nodes
-        patcher.model_options["da3_capabilities"] = check_model_capabilities(loaded_model)
-        patcher.model_options["da3_config"] = config
-        patcher.model_options["da3_dtype"] = dtype
-        patcher.model_options["da3_model_key"] = model_key
-
-        return io.NodeOutput(patcher)
+        # Return JSON-safe config — model construction happens in consumer nodes
+        config = {
+            "model_path": str(model_path),
+            "model_key": model_key,
+            "dtype": dtype_str,
+            "attention": attention,
+        }
+        return io.NodeOutput(config)
 
 
 class DA3_EnableTiledProcessing(io.ComfyNode):
@@ -631,8 +663,8 @@ class DA3_EnableTiledProcessing(io.ComfyNode):
             tile_size = patch_size
         overlap = (overlap // patch_size) * patch_size
 
-        # Store tiled config in model_options on the ModelPatcher
-        da3_model.model_options["da3_tiled_config"] = {
+        # Store tiled config in the config dict (JSON-safe)
+        da3_model["da3_tiled_config"] = {
             "enabled": True,
             "tile_size": tile_size,
             "overlap": overlap,
@@ -774,12 +806,6 @@ class LoadSALADModel(io.ComfyNode):
                 local_dir=download_dir,
             )
 
-        # Build and wrap in ModelPatcher for ComfyUI memory management
-        salad_nn = _build_salad_model(ckpt_path)
-        patcher = comfy.model_patcher.ModelPatcher(
-            salad_nn,
-            load_device=mm.get_torch_device(),
-            offload_device=mm.unet_offload_device(),
-        )
-
-        return io.NodeOutput(patcher)
+        # Return JSON-safe config — model construction happens in consumer nodes
+        config = {"checkpoint_path": str(ckpt_path)}
+        return io.NodeOutput(config)
