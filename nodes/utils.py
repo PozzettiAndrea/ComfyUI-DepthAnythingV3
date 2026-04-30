@@ -92,11 +92,11 @@ def check_model_capabilities(model):
     }
 
 
-def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False, skip_resize=False):
-    """Convert list of depth/conf tensors to ComfyUI IMAGE format.
+def process_tensor_to_image(tensor_input, orig_H, orig_W, normalize_output=False, skip_resize=False):
+    """Convert depth/conf tensors to ComfyUI IMAGE format.
 
     Args:
-        tensor_list: List of tensors with shape [1, H, W] or [H, W]
+        tensor_input: Pre-allocated tensor [B, 1, H, W] or list of tensors with shape [1, H, W] or [H, W]
         orig_H: Original image height
         orig_W: Original image width
         normalize_output: If True, clamp output to 0-1 range
@@ -105,8 +105,10 @@ def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False,
     Returns:
         Tensor with shape [B, H, W, 3] in ComfyUI IMAGE format
     """
-    # Concatenate all tensors
-    out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W] or [B, H, W]
+    if isinstance(tensor_input, list):
+        out = torch.cat(tensor_input, dim=0)
+    else:
+        out = tensor_input
 
     # Ensure 4D: [B, 1, H, W]
     if out.dim() == 3:
@@ -129,15 +131,15 @@ def process_tensor_to_image(tensor_list, orig_H, orig_W, normalize_output=False,
             ).permute(0, 2, 3, 1)
 
     if normalize_output:
-        return torch.clamp(out, 0, 1)
+        out.clamp_(0, 1)
     return out
 
 
-def process_tensor_to_mask(tensor_list, orig_H, orig_W, skip_resize=False):
-    """Convert list of tensors to ComfyUI MASK format.
+def process_tensor_to_mask(tensor_input, orig_H, orig_W, skip_resize=False):
+    """Convert tensors to ComfyUI MASK format.
 
     Args:
-        tensor_list: List of tensors with shape [1, H, W] or [H, W]
+        tensor_input: Pre-allocated tensor [B, 1, H, W] or list of tensors with shape [1, H, W] or [H, W]
         orig_H: Original image height
         orig_W: Original image width
         skip_resize: If True, keep model's native output size instead of resizing back
@@ -145,8 +147,10 @@ def process_tensor_to_mask(tensor_list, orig_H, orig_W, skip_resize=False):
     Returns:
         Tensor with shape [B, H, W] in ComfyUI MASK format
     """
-    # Concatenate all tensors
-    out = torch.cat(tensor_list, dim=0)  # [B, 1, H, W] or [B, H, W]
+    if isinstance(tensor_input, list):
+        out = torch.cat(tensor_input, dim=0)
+    else:
+        out = tensor_input
 
     # Ensure 3D: [B, H, W]
     if out.dim() == 4:
@@ -166,7 +170,8 @@ def process_tensor_to_mask(tensor_list, orig_H, orig_W, skip_resize=False):
                 mode="bilinear"
             ).squeeze(1)  # Back to [B, H, W]
 
-    return torch.clamp(out, 0, 1)
+    out.clamp_(0, 1)
+    return out
 
 
 def resize_to_patch_multiple(images_pt, patch_size=DEFAULT_PATCH_SIZE, method="resize"):
