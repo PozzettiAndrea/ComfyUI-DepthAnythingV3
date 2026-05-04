@@ -15,6 +15,9 @@ Three options, in order of speed → reliability:
    python install.py
    ```
 
+---
+
+
 
 <div align="center">
 <a href="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/">
@@ -44,7 +47,6 @@ Single image to mesh:
 Use multi attention node for smooth video depth!
 ![video](docs/video.png)
 
----
 
 
 ## Demo Videos
