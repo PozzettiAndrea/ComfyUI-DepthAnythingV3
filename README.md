@@ -44,6 +44,9 @@ Single image to mesh:
 Use multi attention node for smooth video depth!
 ![video](docs/video.png)
 
+---
+
+
 ## Demo Videos
 
 You can use the multi-view node to use the cross attention feature of the main class of models. This is done to have a more consistent depth across frames of a video.
