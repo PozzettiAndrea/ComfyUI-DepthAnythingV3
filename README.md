@@ -1,5 +1,21 @@
 # ComfyUI Depth Anything V3
 
+## Installation
+
+Three options, in order of speed → reliability:
+
+1. **ComfyUI Manager (nightly)** — search for `ComfyUI-DepthAnythingV3` in the Manager and click Install. Fastest, but the Manager's nightly index can lag.
+2. **Manager via Git URL** — in ComfyUI Manager: "Install via Git URL" with `https://github.com/PozzettiAndrea/ComfyUI-DepthAnythingV3.git`.
+3. **Manual (most reliable)**:
+   ```bash
+   cd ComfyUI/custom_nodes
+   git clone https://github.com/PozzettiAndrea/ComfyUI-DepthAnythingV3.git
+   cd ComfyUI-DepthAnythingV3
+   pip install -r requirements.txt --upgrade
+   python install.py
+   ```
+
+
 <div align="center">
 <a href="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/">
 <img src="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/gallery-preview.png" alt="Workflow Test Gallery" width="800">
