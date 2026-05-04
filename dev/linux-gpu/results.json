@@ -1,23 +1,23 @@
 {
-  "timestamp": "2026-05-02T00:24:43.813415+00:00",
+  "timestamp": "2026-05-04T23:59:08.634929+00:00",
   "platform": "linux",
   "hardware": {
     "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
     "cpu": "AMD Ryzen 5 3600 6-Core Processor",
     "gpu": "NVIDIA GeForce RTX 5060"
   },
-  "commit_hash": "f98303eb3ae92cb1629d5574d9ce2ccf89a43829",
-  "success": true,
+  "commit_hash": "3fc2df5bc9b22b82a84ada26ce56ee80f509ff4c",
+  "success": false,
   "summary": {
     "total": 7,
-    "passed": 7,
-    "failed": 0
+    "passed": 6,
+    "failed": 1
   },
   "workflows": [
     {
       "name": "advanced",
       "status": "pass",
-      "duration_seconds": 32.75,
+      "duration_seconds": 38.61,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
@@ -26,21 +26,44 @@
       },
       "resources": {
         "ram": {
-          "peak": 3.52,
-          "avg": 2.09
+          "peak": 3.26,
+          "avg": 1.97
         },
         "total_ram_gb": 31.3,
-        "samples": 32,
+        "samples": 37,
         "vram": {
-          "peak": 2.82,
-          "avg": 0.51
+          "peak": 2.79,
+          "avg": 0.49
         }
       }
     },
     {
       "name": "advanced_3d",
       "status": "pass",
-      "duration_seconds": 15.2,
+      "duration_seconds": 18.34,
+      "error": null,
+      "hardware": {
+        "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
+        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
+        "gpu": "NVIDIA GeForce RTX 5060"
+      },
+      "resources": {
+        "ram": {
+          "peak": 3.85,
+          "avg": 3.16
+        },
+        "total_ram_gb": 31.3,
+        "samples": 18,
+        "vram": {
+          "peak": 2.79,
+          "avg": 0.81
+        }
+      }
+    },
+    {
+      "name": "advanced_3d_multiview",
+      "status": "pass",
+      "duration_seconds": 16.8,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
@@ -50,43 +73,20 @@
       "resources": {
         "ram": {
           "peak": 3.65,
-          "avg": 2.64
+          "avg": 3.07
         },
         "total_ram_gb": 31.3,
-        "samples": 15,
+        "samples": 17,
         "vram": {
-          "peak": 2.82,
-          "avg": 0.81
-        }
-      }
-    },
-    {
-      "name": "advanced_3d_multiview",
-      "status": "pass",
-      "duration_seconds": 15.97,
-      "error": null,
-      "hardware": {
-        "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
-      },
-      "resources": {
-        "ram": {
-          "peak": 3.64,
-          "avg": 2.94
-        },
-        "total_ram_gb": 31.3,
-        "samples": 16,
-        "vram": {
-          "peak": 3.07,
-          "avg": 1.1
+          "peak": 3.1,
+          "avg": 1.31
         }
       }
     },
     {
       "name": "bas_relief",
       "status": "pass",
-      "duration_seconds": 82.44,
+      "duration_seconds": 106.2,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
@@ -95,22 +95,22 @@
       },
       "resources": {
         "ram": {
-          "peak": 4.79,
-          "avg": 4.3
+          "peak": 4.45,
+          "avg": 4.28
         },
         "total_ram_gb": 31.3,
-        "samples": 80,
+        "samples": 103,
         "vram": {
-          "peak": 7.23,
-          "avg": 0.9
+          "peak": 6.42,
+          "avg": 0.61
         }
       }
     },
     {
       "name": "da3_streaming",
-      "status": "pass",
-      "duration_seconds": 163.19,
-      "error": null,
+      "status": "fail",
+      "duration_seconds": 32.6,
+      "error": "Workflow execution failed: {'prompt_id': '0c4f08a2-b1c0-4c79-808e-93f07830825a', 'node_id': '6', 'node_type': 'DepthAnythingV3_Streaming', 'executed': ['5', '3', '2'], 'exception_message': 'Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 4.92 GiB\\nRequested               : 286.44 MiB\\nDevice limit            : 7.52 GiB\\nFree (according to CUDA): 17.31 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\n\\nWorker traceback:\\nTraceback (most recent call last):\\n  File \"/tmp/comfyui_pvenv_6p1ttxov/persistent_worker.py\", line 1749, in main\\n    result = method(**inputs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/comfy_api/latest/_io.py\", line 1826, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/node.py\", line 249, in execute\\n    result = pipeline.run(normalized_images, pbar=pbar,\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 277, in run\\n    result = self._process_chunk(normalized_images, start, end)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 330, in _process_chunk\\n    output = self.model(chunk_input)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\\n    return forward_call(*args, **kwargs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1577, in forward\\n    output = self._process_depth_head(feats, H, W)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1591, in _process_depth_head\\n    return self.head(feats, H, W, patch_start_idx=0)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\\n    return forward_call(*args, **kwargs)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1379, in forward\\n    self._forward_impl([feat[s0:s1] for feat in feats], H, W, patch_start_idx)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1419, in _forward_impl\\n    fused_main = self._add_pos_embed(fused_main, W, H)\\n  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1477, in _add_pos_embed\\n    pe = position_grid_to_embed(pe, x.shape[1]) * ratio\\ntorch.OutOfMemoryError: Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 4.92 GiB\\nRequested               : 286.44 MiB\\nDevice limit            : 7.52 GiB\\nFree (according to CUDA): 17.31 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\n\\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/execution.py\", line 535, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n', '  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/execution.py\", line 335, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n', '  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/workspaces/DepthAnythingV3-2350/ComfyUI/execution.py\", line 297, in process_inputs\\n    result = f(**inputs)\\n', '  File \"/workspaces/DepthAnythingV3-2350/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py\", line 528, in proxy\\n    result = worker.call_method(\\n', '  File \"/workspaces/DepthAnythingV3-2350/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py\", line 3516, in call_method\\n    raise WorkerError(\\n'], 'current_inputs': {'normalization_mode': ['Standard'], 'chunk_size': [30], 'overlap': [8], 'align_lib': ['auto'], 'align_method': ['sim3'], 'resize_method': ['resize'], 'invert_depth': [True], 'save_pointcloud': [False], 'sample_ratio': [0.015], 'conf_threshold_coef': [0.75], 'da3_model': [\"{'model_path': '/workspaces/DepthAnythingV3-2350/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}\"], 'video': ['<comfy_api.latest._input_impl.video_types.VideoFromFile object at 0x79a48c689cf0>'], 'salad_model': [\"{'checkpoint_path': '/workspaces/DepthAnythingV3-2350/ComfyUI/models/salad/dino_salad.safetensors'}\"]}, 'current_outputs': ['2', '5', '4', '3', '6'], 'timestamp': 1777939104725}\n\nDetails:\nWorkflow: /node/ComfyUI-DepthAnythingV3/workflows/da3_streaming.json\nNode error: DepthAnythingV3_Streaming",
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
         "cpu": "AMD Ryzen 5 3600 6-Core Processor",
@@ -118,21 +118,21 @@
       },
       "resources": {
         "ram": {
-          "peak": 9.09,
-          "avg": 6.08
+          "peak": 7.26,
+          "avg": 4.2
         },
         "total_ram_gb": 31.3,
-        "samples": 159,
+        "samples": 32,
         "vram": {
-          "peak": 7.35,
-          "avg": 3.42
+          "peak": 7.13,
+          "avg": 2.01
         }
       }
     },
     {
       "name": "simple",
       "status": "pass",
-      "duration_seconds": 14.94,
+      "duration_seconds": 15.09,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
@@ -141,21 +141,21 @@
       },
       "resources": {
         "ram": {
-          "peak": 6.14,
-          "avg": 3.97
+          "peak": 4.19,
+          "avg": 3.02
         },
         "total_ram_gb": 31.3,
         "samples": 15,
         "vram": {
-          "peak": 2.88,
-          "avg": 0.64
+          "peak": 7.23,
+          "avg": 4.15
         }
       }
     },
     {
       "name": "video_multiview_depth",
       "status": "pass",
-      "duration_seconds": 35.24,
+      "duration_seconds": 28.06,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
@@ -164,14 +164,14 @@
       },
       "resources": {
         "ram": {
-          "peak": 4.34,
-          "avg": 3.05
+          "peak": 5.05,
+          "avg": 3.15
         },
         "total_ram_gb": 31.3,
-        "samples": 35,
+        "samples": 28,
         "vram": {
-          "peak": 2.95,
-          "avg": 0.63
+          "peak": 3.11,
+          "avg": 0.84
         }
       }
     }
