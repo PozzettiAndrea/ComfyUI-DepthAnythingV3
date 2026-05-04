@@ -1,5 +1,24 @@
 # ComfyUI Depth Anything V3
 
+## Installation
+
+Three options, in order of speed → reliability:
+
+1. **ComfyUI Manager (nightly)** — search for `ComfyUI-DepthAnythingV3` in the Manager and click Install. Fastest, but the Manager's nightly index can lag.
+2. **Manager via Git URL** — in ComfyUI Manager: "Install via Git URL" with `https://github.com/PozzettiAndrea/ComfyUI-DepthAnythingV3.git`.
+3. **Manual (most reliable)**:
+   ```bash
+   cd ComfyUI/custom_nodes
+   git clone https://github.com/PozzettiAndrea/ComfyUI-DepthAnythingV3.git
+   cd ComfyUI-DepthAnythingV3
+   pip install -r requirements.txt --upgrade
+   python install.py
+   ```
+
+---
+
+
+
 <div align="center">
 <a href="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/">
 <img src="https://pozzettiandrea.github.io/ComfyUI-DepthAnythingV3/gallery-preview.png" alt="Workflow Test Gallery" width="800">
@@ -27,6 +46,8 @@ Single image to mesh:
 
 Use multi attention node for smooth video depth!
 ![video](docs/video.png)
+
+
 
 ## Demo Videos
 
@@ -60,65 +81,6 @@ Depth Anything V3 is the latest depth estimation model that predicts spatially c
 
 **Published**: November 14, 2025
 **Paper**: [Depth Anything 3: Recovering the Visual Space from Any Views](https://arxiv.org/abs/2511.10647)
-
-## Nodes
-
-### Model Loading
-**Download And Load Depth Anything V3 Model** - Downloads and loads model from HuggingFace
-- Inputs: `model` (variant), `precision` (auto/fp16/fp32/bf16)
-- Output: `da3_model`
-- Models auto-download to `ComfyUI/models/depthanything3/`
-
-**DA3 Enable Tiled Processing** - Configure model for high-resolution images
-- Inputs: `da3_model`, `tile_size`, `overlap`
-- Output: `da3_model` (with tiled config)
-- Use for 4K+ images to avoid OOM errors
-
-### Inference Nodes
-
-**Depth Anything V3** - Unified depth estimation with multiple normalization modes
-- Inputs: `da3_model`, `images`, `normalization_mode`, `camera_params` (optional), `resize_method`, `invert_depth`, `keep_model_size`
-- Outputs: `depth`, `confidence`, `ray_origin`, `ray_direction`, `extrinsics`, `intrinsics`, `sky_mask`
-- **Normalization Modes:**
-  - **Standard**: Original V3 min-max normalization (0-1 range, includes sky in normalization)
-  - **V2-Style** (default): Disparity-based with content-aware contrast - best for ControlNet workflows
-    - Sky appears BLACK (like Depth Anything V2)
-    - Content-only normalization excludes sky from range calculation
-    - Percentile-based contrast enhancement (1st-99th percentile)
-    - Enhanced depth gradations via contrast boost
-    - Subtle edge anti-aliasing for natural transitions
-    - Contribution by [Ltamann (TBG)](https://www.patreon.com/posts/tbg-takeaways-v3-143804015)
-  - **Raw**: No normalization, outputs metric depth values for 3D reconstruction/point clouds
-
-**Note:** The unified node always outputs all available data. Connect only the outputs you need - unused outputs are simply ignored.
-
-**Depth Anything V3 (Multi-View)** - Process multiple images with cross-view attention
-- Inputs: `da3_model`, `images` (batch), `normalization_mode`, `resize_method`, `invert_depth`
-- Outputs: `depth`, `confidence`, `ray_origin`, `ray_direction`, `extrinsics`, `intrinsics`, `sky_mask`
-- **Normalization modes**: Standard, V2-Style (default), Raw
-- Use for video frames or multiple angles of same scene
-- Normalizes depth across all views together for temporal/spatial consistency
-
-### 3D Processing
-
-**DA3 to Point Cloud** - Convert depth to point cloud using geometric unprojection
-- Inputs: `depth_raw`, `confidence`, `sky_mask` (optional but recommended), `intrinsics` (optional), `source_image` (optional)
-- Output: `pointcloud`
-- **Sky filtering**: When sky_mask is connected, sky pixels are automatically excluded from the point cloud
-- **Input validation**: Automatically detects and rejects normalized depth inputs (requires Raw mode)
-
-**DA3 to Point Cloud (Multi view)** - Convert depth to point cloud using geometric unprojection
-
-**DA3 Save Point Cloud** - Export to PLY format
-
-**DA3 to 3D Gaussians** - Extract 3D Gaussian splats (placeholder)
-
-**DA3 Save 3D Gaussians** - Export Gaussians to PLY
-
-### Camera Utilities
-**DA3 Create Camera Parameters** - Create camera conditioning input
-
-**DA3 Parse Camera Pose** - Parse camera parameters from JSON
 
 ## Model Variants
 
