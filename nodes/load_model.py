@@ -25,6 +25,30 @@ os.makedirs(_da3_model_dir, exist_ok=True)
 folder_paths.add_model_folder_path("depth_anything_v3", _da3_model_dir)
 
 
+def _comfy_tqdm():
+    """tqdm that shows download progress in ComfyUI's UI."""
+    try:
+        import comfy.utils
+        import tqdm as _tqdm_mod
+    except ImportError:
+        return None
+    holder = {"pbar": None, "total": 0, "done": 0}
+    class _T(_tqdm_mod.tqdm):
+        def __init__(self, *a, **kw):
+            super().__init__(*a, **kw)
+            if self.total and self.total > 0 and holder["pbar"] is None:
+                holder["total"] = self.total
+                holder["done"] = 0
+                holder["pbar"] = comfy.utils.ProgressBar(self.total)
+        def update(self, n=1):
+            ret = super().update(n)
+            if n and holder["pbar"] and holder["total"] > 0:
+                holder["done"] = min(holder["done"] + n, holder["total"])
+                holder["pbar"].update_absolute(holder["done"], holder["total"])
+            return ret
+    return _T
+
+
 def _get_da3_model_list():
     """Get combined model list: known HuggingFace models + locally-placed files."""
     local_models = folder_paths.get_filename_list("depth_anything_v3")
@@ -610,6 +634,7 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
                 repo_id=MODEL_REPOS[model],
                 filename="model.safetensors",
                 local_dir=download_dir,
+                tqdm_class=_comfy_tqdm(),
             )
             # HuggingFace may save as model.safetensors — rename to expected name
             hf_default = os.path.join(download_dir, "model.safetensors")
@@ -725,6 +750,7 @@ class DA3_DownloadModel(io.ComfyNode):
             repo_id=repo,
             filename="model.safetensors",
             local_dir=download_path,
+            tqdm_class=_comfy_tqdm(),
         )
         # The downloaded file might be named differently (model.safetensors)
         downloaded_file = os.path.join(download_path, "model.safetensors")
@@ -816,6 +842,7 @@ class LoadSALADModel(io.ComfyNode):
                 repo_id=SALAD_REPO_ID,
                 filename=SALAD_FILENAME,
                 local_dir=download_dir,
+                tqdm_class=_comfy_tqdm(),
             )
 
         # Return JSON-safe config — model construction happens in consumer nodes
