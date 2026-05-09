@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PozzettiAndrea/ComfyUI-DepthAnythingV3 - Test Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1923;
+            color: #e6edf3;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #162033;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #243656;
+        }
+
+        body.in-iframe header {
+            display: none;
+        }
+
+        body.in-iframe .container {
+            padding-top: 1.25rem;
+        }
+
+        body.in-iframe .summary-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 a {
+            color: #e6edf3;
+            text-decoration: none;
+        }
+
+        h1 a:hover { color: #58a6ff; }
+
+        .meta-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            background: #1c2d44;
+            border: 1px solid #243656;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+        }
+
+        .meta-chip svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Summary Section */
+        .summary {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            background: #1c2d44;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .progress-fill {
+            background: #3fb950;
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.has-failures {
+            background: linear-gradient(90deg, #3fb950 0%, #3fb950 75.0%, #f85149 75.0%, #f85149 100%);
+            width: 100% !important;
+            border-radius: 6px;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #8ba3c1;
+            white-space: nowrap;
+            min-width: 3.5rem;
+            text-align: right;
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .stat-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .stat-pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .stat-fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .stat-total {
+            color: #8ba3c1;
+            font-size: 0.85rem;
+        }
+
+        /* Failed Section */
+        .failed-section {
+            background: rgba(248, 81, 73, 0.08);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .failed-section h2 {
+            color: #f85149;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .failed-item {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .failed-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .failed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .failed-name {
+            font-weight: 600;
+            color: #f85149;
+        }
+
+        .failed-duration {
+            color: #8ba3c1;
+            font-size: 0.8rem;
+        }
+
+        .failed-error {
+            background: #0f1923;
+            border: 1px solid #243656;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.8rem;
+            color: #d29922;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-link {
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .log-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Workflow Grid */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            border: 1px solid #243656;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            background: #1c2d44;
+            color: #8ba3c1;
+            border: none;
+            border-right: 1px solid #243656;
+            padding: 0.3rem 0.75rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .view-btn:last-child {
+            border-right: none;
+        }
+
+        .view-btn:hover {
+            background: #243656;
+            color: #e6edf3;
+        }
+
+        .view-btn.active {
+            background: #58a6ff;
+            color: #fff;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .workflow-grid.view-list {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .workflow-grid.view-list .workflow-card {
+            border-radius: 0;
+            border-bottom: 1px solid #243656;
+        }
+
+        .workflow-grid.view-list .workflow-card:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .workflow-grid.view-list .workflow-card:last-child {
+            border-radius: 0 0 8px 8px;
+            border-bottom: none;
+        }
+
+        .workflow-grid.view-list .workflow-card:only-child {
+            border-radius: 8px;
+        }
+
+        .workflow-grid.view-list .workflow-screenshot {
+            width: 100%;
+            height: auto;
+            aspect-ratio: auto;
+        }
+
+        .workflow-grid.view-list .workflow-info {
+            border-top: 1px solid #243656;
+            padding: 0.75rem 1rem;
+        }
+
+        .workflow-grid.view-list .workflow-name {
+            max-width: none;
+            font-size: 0.9rem;
+        }
+
+        .workflow-card {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-1px);
+            border-color: #4a6282;
+        }
+
+        .workflow-card.clickable {
+            cursor: pointer;
+        }
+
+        .workflow-card.failed {
+            border-color: #f85149;
+        }
+
+        .workflow-card.failed:hover {
+            border-color: #f85149;
+        }
+
+        .workflow-screenshot {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+            background: #0f1923;
+            display: block;
+        }
+
+        .workflow-screenshot.placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a6282;
+            font-size: 0.8rem;
+        }
+
+        .workflow-info {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #243656;
+        }
+
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .workflow-name {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #e6edf3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 65%;
+        }
+
+        .workflow-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+        }
+
+        .workflow-badge.pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .workflow-badge.fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .workflow-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #4a6282;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 4, 9, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #243656;
+            align-self: center;
+            cursor: zoom-in;
+        }
+
+        .img-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1002;
+            background: rgba(1, 4, 9, 0.95);
+            overflow: auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-overlay.active {
+            display: flex;
+        }
+
+        .img-overlay.zoomed {
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .img-overlay img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: zoom-in;
+        }
+
+        .img-overlay.zoomed img {
+            max-width: none;
+            max-height: none;
+            cursor: zoom-out;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            color: #e6edf3;
+            cursor: pointer;
+            opacity: 0.6;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(22, 32, 51, 0.8);
+            border: 1px solid #243656;
+            color: #e6edf3;
+            font-size: 2.5rem;
+            width: 48px;
+            height: 64px;
+            border-radius: 8px;
+            cursor: pointer;
+            opacity: 0.6;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .lightbox-nav:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav-left { left: 1rem; }
+        .lightbox-nav-right { right: 1rem; }
+
+        .lightbox-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .lightbox-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .lightbox-hardware {
+            display: block;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+            margin-top: 0.25rem;
+        }
+
+        .lightbox-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .lightbox-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .lightbox-badge.pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .lightbox-badge.fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .lightbox-duration {
+            color: #8ba3c1;
+            font-size: 0.85rem;
+        }
+
+        .lightbox-log {
+            background: #0f1923;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #8ba3c1;
+        }
+
+        .lightbox-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-track {
+            background: #162033;
+            border-radius: 4px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-thumb {
+            background: #243656;
+            border-radius: 4px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-thumb:hover {
+            background: #4a6282;
+        }
+
+        /* Resource Graph */
+        .resource-graph {
+            display: none;
+            margin-top: 1rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .resource-graph.active {
+            display: block;
+        }
+
+        .resource-graph-title {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-graph canvas {
+            width: 100%;
+            height: 120px;
+            cursor: crosshair;
+        }
+
+        .resource-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+        }
+
+        .resource-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .resource-legend .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .resource-legend .ram { background: #3fb950; }
+        .resource-legend .gpu { background: #d29922; }
+
+        /* Video Player */
+        .video-player {
+            display: none;
+            margin-top: 1rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .video-player.active {
+            display: block;
+        }
+
+        .video-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .video-play-btn {
+            background: #58a6ff;
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .video-play-btn:hover {
+            background: #79b8ff;
+        }
+
+        .video-frame-counter {
+            color: #8ba3c1;
+            font-size: 0.8rem;
+        }
+
+        .video-slider-container {
+            padding: 15px 0;
+        }
+
+        /* noUiSlider customization */
+        #video-slider {
+            height: 6px;
+            background: #1c2d44;
+            border: none;
+            box-shadow: none;
+        }
+
+        #video-slider .noUi-connect {
+            background: #58a6ff;
+        }
+
+        #video-slider .noUi-handle {
+            width: 16px;
+            height: 16px;
+            background: #58a6ff;
+            border: none;
+            border-radius: 50%;
+            box-shadow: none;
+            top: -5px;
+            right: -8px;
+            cursor: pointer;
+        }
+
+        #video-slider .noUi-handle:before,
+        #video-slider .noUi-handle:after {
+            display: none;
+        }
+
+        /* Pips (tick marks) */
+        .noUi-pips {
+            color: #4a6282;
+        }
+
+        .noUi-marker {
+            background: #243656;
+            width: 2px;
+        }
+
+        .noUi-marker-large {
+            height: 12px;
+        }
+
+        .noUi-value {
+            display: none;
+        }
+
+        /* Models Section */
+        .models-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .models-total {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+        }
+
+        .models-folder {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .models-folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+        }
+
+        .models-folder-header::-webkit-details-marker {
+            display: none;
+        }
+
+        .models-folder-header::before {
+            content: '\25B6';
+            font-size: 0.6rem;
+            color: #4a6282;
+            margin-right: 0.5rem;
+            transition: transform 0.15s;
+        }
+
+        .models-folder[open] > .models-folder-header::before {
+            transform: rotate(90deg);
+        }
+
+        .models-folder-name {
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .models-folder-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .models-folder-size {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #8ba3c1;
+        }
+
+        .models-source-link {
+            font-size: 0.75rem;
+            color: #3fb950;
+            text-decoration: none;
+            padding: 0.15rem 0.5rem;
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.2);
+            border-radius: 2rem;
+        }
+
+        .models-source-link:hover {
+            background: rgba(63, 185, 80, 0.2);
+            text-decoration: none;
+        }
+
+        .models-file-list {
+            border-top: 1px solid #243656;
+            padding: 0.25rem 0;
+        }
+
+        .models-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.35rem 1rem 0.35rem 2rem;
+            font-size: 0.8rem;
+        }
+
+        .models-file:hover {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .models-file-path {
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            color: #8ba3c1;
+            word-break: break-all;
+        }
+
+        .models-file-size {
+            color: #4a6282;
+            white-space: nowrap;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            color: #4a6282;
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .workflow-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .workflow-grid.view-list .workflow-card {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-grid.view-list .workflow-screenshot {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16/10;
+            }
+
+            .stats {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><a href="https://github.com/PozzettiAndrea/PozzettiAndrea/ComfyUI-DepthAnythingV3">PozzettiAndrea/ComfyUI-DepthAnythingV3</a> Test Results</h1>
+        <div class="meta-chips">
+            <span class="meta-chip"><svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 110 16A8 8 0 018 0zm.5 4.5a.5.5 0 00-1 0v3.793L5.854 9.854a.5.5 0 10.708.708l1.853-1.854a.5.5 0 00.085-.094V4.5z"/></svg> 2026-05-09 17:20 UTC</span> <span class="meta-chip"><svg viewBox="0 0 16 16"><path d="M2.5 4a.5.5 0 100 1 .5.5 0 000-1zM4 4.5a.5.5 0 01.5-.5h7a.5.5 0 010 1h-7a.5.5 0 01-.5-.5zM2.5 7a.5.5 0 100 1 .5.5 0 000-1zM4 7.5a.5.5 0 01.5-.5h7a.5.5 0 010 1h-7A.5.5 0 014 7.5zM2.5 10a.5.5 0 100 1 .5.5 0 000-1zM4 10.5a.5.5 0 01.5-.5h7a.5.5 0 010 1h-7a.5.5 0 01-.5-.5z"/></svg> macOS-15.7.4-arm64-arm-64bit</span> <span class="meta-chip"><svg viewBox="0 0 16 16"><path d="M5 0a.5.5 0 01.5.5V2h1V.5a.5.5 0 011 0V2h1V.5a.5.5 0 011 0V2h.5A2.5 2.5 0 0112.5 4.5H14v1h-1.5v1H14v1h-1.5v1H14v1h-1.5A2.5 2.5 0 0110 12h-.5v1.5a.5.5 0 01-1 0V12h-1v1.5a.5.5 0 01-1 0V12H6v1.5a.5.5 0 01-1 0V12h-.5A2.5 2.5 0 012 9.5H.5v-1H2v-1H.5v-1H2v-1H.5v-1H2A2.5 2.5 0 014.5 2V.5A.5.5 0 015 0zm-.5 4A1.5 1.5 0 003 5.5v4A1.5 1.5 0 004.5 11h6a1.5 1.5 0 001.5-1.5v-4A1.5 1.5 0 0010.5 4h-6z"/></svg> arm</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="summary">
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-fill has-failures" style="width: 75.0%"></div>
+                </div>
+                <span class="progress-label">75.0%</span>
+            </div>
+            <div class="stats">
+                <span class="stat-badge stat-pass">3 passed</span>
+                <span class="stat-badge stat-fail">1 failed</span>
+                <span class="stat-total">3/4 tests</span>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Workflows</h2>
+            <div class="view-controls">
+                <button class="view-btn active" onclick="setView('grid')">Grid</button>
+                <button class="view-btn" onclick="setView('list')">List</button>
+            </div>
+        </div>
+        <div class="workflow-grid" id="workflow-grid">
+            
+            <div class="workflow-card clickable " onclick="openLightboxByName('advanced')">
+                
+                <img class="workflow-screenshot" src="screenshots/advanced_executed.png"
+                     alt="advanced" loading="lazy">
+            
+                <div class="workflow-info">
+                    <div class="workflow-header">
+                        <span class="workflow-name" title="advanced">advanced</span>
+                        <span class="workflow-badge pass">pass</span>
+                    </div>
+                    <div class="workflow-meta">
+                        <span>84.93s</span>
+                    </div>
+                </div>
+            </div>
+        
+
+            <div class="workflow-card clickable " onclick="openLightboxByName('advanced_3d')">
+                
+                <img class="workflow-screenshot" src="screenshots/advanced_3d_executed.png"
+                     alt="advanced_3d" loading="lazy">
+            
+                <div class="workflow-info">
+                    <div class="workflow-header">
+                        <span class="workflow-name" title="advanced_3d">advanced_3d</span>
+                        <span class="workflow-badge pass">pass</span>
+                    </div>
+                    <div class="workflow-meta">
+                        <span>20.22s</span>
+                    </div>
+                </div>
+            </div>
+        
+
+            <div class="workflow-card clickable failed" onclick="openLightboxByName('advanced_3d_multiview')">
+                <div class="workflow-screenshot placeholder">No screenshot</div>
+                <div class="workflow-info">
+                    <div class="workflow-header">
+                        <span class="workflow-name" title="advanced_3d_multiview">advanced_3d_multiview</span>
+                        <span class="workflow-badge fail">fail</span>
+                    </div>
+                    <div class="workflow-meta">
+                        <span>72.85s</span>
+                    </div>
+                </div>
+            </div>
+        
+
+            <div class="workflow-card clickable " onclick="openLightboxByName('simple')">
+                
+                <img class="workflow-screenshot" src="screenshots/simple_executed.png"
+                     alt="simple" loading="lazy">
+            
+                <div class="workflow-info">
+                    <div class="workflow-header">
+                        <span class="workflow-name" title="simple">simple</span>
+                        <span class="workflow-badge pass">pass</span>
+                    </div>
+                    <div class="workflow-meta">
+                        <span>59.57s</span>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+
+        
+        <div class="failed-section">
+            <h2>Failed Tests</h2>
+            
+            <div class="failed-item">
+                <div class="failed-header">
+                    <span class="failed-name">advanced_3d_multiview</span>
+                    <span class="failed-duration">72.85s</span>
+                </div>
+                <div class="failed-error">Workflow execution failed: {&#x27;prompt_id&#x27;: &#x27;3bed6e0d-25f9-4926-af93-460fe72bc08b&#x27;, &#x27;node_id&#x27;: &#x27;38&#x27;, &#x27;node_type&#x27;: &#x27;DA3_MultiViewPointCloud&#x27;, &#x27;executed&#x27;: [&#x27;27&#x27;, &#x27;39&#x27;, &#x27;21&#x27;, &#x27;3&#x27;], &#x27;exception_message&#x27;: &#x27;Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\&#x27;Raw\&#x27; and connect the depth output to this node\&#x27;s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\n\nWorker traceback:\nTraceback (most recent call last):\n  File &quot;/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv__zn50zv9/persistent_worker.py&quot;, line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/comfy_api/latest/_io.py&quot;, line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_multiview.py&quot;, line 690, in execute\n    raise ValueError(\nValueError: Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\&#x27;Raw\&#x27; and connect the depth output to this node\&#x27;s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\n\n&#x27;, &#x27;exception_type&#x27;: &#x27;comfy_env.isolation.workers.base.WorkerError&#x27;, &#x27;traceback&#x27;: [&#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py&quot;, line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&#x27;, &#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py&quot;, line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&#x27;, &#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py&quot;, line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n&#x27;, &#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py&quot;, line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n&#x27;, &#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py&quot;, line 536, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n&#x27;, &#x27;  File &quot;/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py&quot;, line 674, in call_method\n    raise WorkerError(\n&#x27;], &#x27;current_inputs&#x27;: {&#x27;extrinsics&#x27;: [&#x27;{\n  &quot;extrinsics&quot;: [\n    {\n      &quot;image_0&quot;: [\n        [\n          0.9999998211860657,\n          -0.0005656706052832305,\n          -0.00022657914087176323,\n          0.00018741225358098745\n        ],\n        [\n          0.000565818976610899,\n          0.9999996423721313,\n          0.0006551882834173739,\n          -0.0001278371928492561\n        ],\n        [\n          0.0002262084453832358,\n          -0.0006553163402713835,\n          0.9999997615814209,\n          0.00023603401496075094\n        ]\n      ]\n    }\n  ]\n}&#x27;, &#x27;{\n  &quot;extrinsics&quot;: [\n    {\n      &quot;image_0&quot;: [\n        [\n          0.9999998211860657,\n          0.00017460108210798353,\n          0.0005202052416279912,\n          0.0003719621745403856\n        ],\n        [\n          -0.0001742378663038835,\n          0.9999997615814209,\n          -0.0006981720798648894,\n          2.779594979074318e-05\n        ],\n        [\n          -0.0005203270702622831,\n          0.0006980813923291862,\n          0.9999996423721313,\n          -0.00018597673624753952\n        ]\n      ]\n    }\n  ]\n}&#x27;], &#x27;intrinsics&#x27;: [&#x27;{\n  &quot;intrinsics&quot;: [\n    {\n      &quot;image_0&quot;: [\n        [\n          1086.2222900390625,\n          0.0,\n          604.0\n        ],\n        [\n          0.0,\n          1073.156494140625,\n          340.0\n        ],\n        [\n          0.0,\n          0.0,\n          1.0\n        ]\n      ]\n    }\n  ]\n}&#x27;, &#x27;{\n  &quot;intrinsics&quot;: [\n    {\n      &quot;image_0&quot;: [\n        [\n          1206.2451171875,\n          0.0,\n          604.0\n        ],\n        [\n          0.0,\n          1191.7357177734375,\n          340.0\n        ],\n        [\n          0.0,\n          0.0,\n          1.0\n        ]\n      ]\n    }\n  ]\n}&#x27;], &#x27;confidence_threshold&#x27;: [0.3], &#x27;downsample&#x27;: [4], &#x27;use_icp&#x27;: [False], &#x27;allow_around_1&#x27;: [False], &#x27;filter_outliers&#x27;: [True], &#x27;outlier_percentage&#x27;: [5], &#x27;depths&#x27;: [&#x27;tensor([[[[2.2783, 2.2783, 2.2783],\n          [2.3971, 2.3971, 2.3971],\n          [2.4024, 2.4024, 2.4024],\n          [2.4413, 2.4413, 2.4413],\n          [2.4575, 2.4575, 2.4575],\n          [2.5005, 2.5005, 2.5005],\n          ...,\n          [0.5850, 0.5850, 0.5850],\n          [0.6002, 0.6002, 0.6002],\n          [0.6126, 0.6126, 0.6126],\n          [0.6116, 0.6116, 0.6116],\n          [0.5946, 0.5946, 0.5946],\n          [0.6213, 0.6213, 0.6213]],\n\n         [[2.4074, 2.4074, 2.4074],\n          [2.3734, 2.3734, 2.3734],\n          [2.3657, 2.3657, 2.3657],\n          [2.3895, 2.3895, 2.3895],\n          [2.4327, 2.4327, 2.4327],\n          [2.4825, 2.4825, 2.4825],\n          ...,\n          [0.5775, 0.5775, 0.5775],\n          [0.5878, 0.5878, 0.5878],\n          [0.6050, 0.6050, 0.6050],\n          [0.6096, 0.6096, 0.6096],\n          [0.6084, 0.6084, 0.6084],\n          [0.5969, 0.5969, 0.5969]],\n\n         [[2.3300, 2.3300, 2.3300],\n          [2.3779, 2.3779, 2.3779],\n          [2.3220, 2.3220, 2.3220],\n          [2.3551, 2.3551, 2.3551],\n          [2.3910, 2.3910, 2.3910],\n          [2.4299, 2.4299, 2.4299],\n          ...,\n          [0.5814, 0.5814, 0.5814],\n          [0.5922, 0.5922, 0.5922],\n          [0.6092, 0.6092, 0.6092],\n          [0.6136, 0.6136, 0.6136],\n          [0.6157, 0.6157, 0.6157],\n          [0.6142, 0.6142, 0.6142]],\n\n         [[2.2869, 2.2869, 2.2869],\n          [2.3868, 2.3868, 2.3868],\n          [2.3343, 2.3343, 2.3343],\n          [2.3674, 2.3674, 2.3674],\n          [2.4019, 2.4019, 2.4019],\n          [2.4264, 2.4264, 2.4264],\n          ...,\n          [0.5805, 0.5805, 0.5805],\n          [0.5912, 0.5912, 0.5912],\n          [0.6062, 0.6062, 0.6062],\n          [0.6109, 0.6109, 0.6109],\n          [0.6102, 0.6102, 0.6102],\n          [0.6125, 0.6125, 0.6125]],\n\n         [[2.2942, 2.2942, 2.2942],\n          [2.4084, 2.4084, 2.4084],\n          [2.3634, 2.3634, 2.3634],\n          [2.3800, 2.3800, 2.3800],\n          [2.4075, 2.4075, 2.4075],\n          [2.4276, 2.4276, 2.4276],\n          ...,\n          [0.5763, 0.5763, 0.5763],\n          [0.5869, 0.5869, 0.5869],\n          [0.6009, 0.6009, 0.6009],\n          [0.6054, 0.6054, 0.6054],\n          [0.6034, 0.6034, 0.6034],\n          [0.6058, 0.6058, 0.6058]],\n\n         [[2.3065, 2.3065, 2.3065],\n          [2.4346, 2.4346, 2.4346],\n          [2.3916, 2.3916, 2.3916],\n          [2.4178, 2.4178, 2.4178],\n          [2.4234, 2.4234, 2.4234],\n          [2.4390, 2.4390, 2.4390],\n          ...,\n          [0.5719, 0.5719, 0.5719],\n          [0.5821, 0.5821, 0.5821],\n          [0.5960, 0.5960, 0.5960],\n          [0.6006, 0.6006, 0.6006],\n          [0.5946, 0.5946, 0.5946],\n          [0.6008, 0.6008, 0.6008]],\n\n         ...,\n\n         [[0.5395, 0.5395, 0.5395],\n          [0.5402, 0.5402, 0.5402],\n          [0.5399, 0.5399, 0.5399],\n          [0.5397, 0.5397, 0.5397],\n          [0.5394, 0.5394, 0.5394],\n          [0.5392, 0.5392, 0.5392],\n          ...,\n          [0.5638, 0.5638, 0.5638],\n          [0.5638, 0.5638, 0.5638],\n          [0.5647, 0.5647, 0.5647],\n          [0.5654, 0.5654, 0.5654],\n          [0.5665, 0.5665, 0.5665],\n          [0.5654, 0.5654, 0.5654]],\n\n         [[0.5388, 0.5388, 0.5388],\n          [0.5388, 0.5388, 0.5388],\n          [0.5383, 0.5383, 0.5383],\n          [0.5376, 0.5376, 0.5376],\n          [0.5375, 0.5375, 0.5375],\n          [0.5371, 0.5371, 0.5371],\n          ...,\n          [0.5628, 0.5628, 0.5628],\n          [0.5629, 0.5629, 0.5629],\n          [0.5637, 0.5637, 0.5637],\n          [0.5642, 0.5642, 0.5642],\n          [0.5656, 0.5656, 0.5656],\n          [0.5643, 0.5643, 0.5643]],\n\n         [[0.5371, 0.5371, 0.5371],\n          [0.5365, 0.5365, 0.5365],\n          [0.5369, 0.5369, 0.5369],\n          [0.5368, 0.5368, 0.5368],\n          [0.5363, 0.5363, 0.5363],\n          [0.5360, 0.5360, 0.5360],\n          ...,\n          [0.5621, 0.5621, 0.5621],\n          [0.5625, 0.5625, 0.5625],\n          [0.5628, 0.5628, 0.5628],\n          [0.5628, 0.5628, 0.5628],\n          [0.5639, 0.5639, 0.5639],\n          [0.5640, 0.5640, 0.5640]],\n\n         [[0.5345, 0.5345, 0.5345],\n          [0.5358, 0.5358, 0.5358],\n          [0.5354, 0.5354, 0.5354],\n          [0.5354, 0.5354, 0.5354],\n          [0.5354, 0.5354, 0.5354],\n          [0.5347, 0.5347, 0.5347],\n          ...,\n          [0.5614, 0.5614, 0.5614],\n          [0.5608, 0.5608, 0.5608],\n          [0.5612, 0.5612, 0.5612],\n          [0.5596, 0.5596, 0.5596],\n          [0.5615, 0.5615, 0.5615],\n          [0.5612, 0.5612, 0.5612]],\n\n         [[0.5333, 0.5333, 0.5333],\n          [0.5347, 0.5347, 0.5347],\n          [0.5344, 0.5344, 0.5344],\n          [0.5348, 0.5348, 0.5348],\n          [0.5347, 0.5347, 0.5347],\n          [0.5335, 0.5335, 0.5335],\n          ...,\n          [0.5602, 0.5602, 0.5602],\n          [0.5598, 0.5598, 0.5598],\n          [0.5607, 0.5607, 0.5607],\n          [0.5583, 0.5583, 0.5583],\n          [0.5604, 0.5604, 0.5604],\n          [0.5585, 0.5585, 0.5585]],\n\n         [[0.5335, 0.5335, 0.5335],\n          [0.5316, 0.5316, 0.5316],\n          [0.5332, 0.5332, 0.5332],\n          [0.5330, 0.5330, 0.5330],\n          [0.5345, 0.5345, 0.5345],\n          [0.5335, 0.5335, 0.5335],\n          ...,\n          [0.5599, 0.5599, 0.5599],\n          [0.5602, 0.5602, 0.5602],\n          [0.5606, 0.5606, 0.5606],\n          [0.5591, 0.5591, 0.5591],\n          [0.5583, 0.5583, 0.5583],\n          [0.5668, 0.5668, 0.5668]]]])&#x27;, &#x27;tensor([[[[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         ...,\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]],\n\n         [[1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          ...,\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302],\n          [1.0302, 1.0302, 1.0302]]]])&#x27;], &#x27;images&#x27;: [&#x27;tensor([[[[0.6157, 0.8706, 1.0000],\n          [0.6157, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5960, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6156, 0.8706, 1.0000],\n          [0.6156, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5960, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5960, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6115, 0.8707, 1.0000],\n          [0.6115, 0.8707, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5960, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6117, 0.8706, 1.0000],\n          [0.6043, 0.8743, 1.0000],\n          [0.6042, 0.8744, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5960, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6119, 0.8706, 1.0000],\n          [0.6119, 0.8706, 1.0000],\n          [0.6119, 0.8706, 1.0000],\n          [0.6119, 0.8706, 1.0000],\n          [0.6044, 0.8743, 1.0000],\n          [0.6043, 0.8743, 1.0000],\n          ...,\n          [0.5922, 0.8706, 1.0000],\n          [0.5922, 0.8705, 1.0000],\n          [0.5962, 0.8669, 1.0000],\n          [0.5963, 0.8668, 1.0000],\n          [0.5963, 0.8668, 1.0000],\n          [0.5963, 0.8668, 1.0000]],\n\n         ...,\n\n         [[0.3221, 0.4157, 0.4939],\n          [0.3143, 0.4078, 0.4860],\n          [0.3073, 0.3894, 0.4640],\n          [0.3038, 0.3858, 0.4603],\n          [0.3077, 0.3894, 0.4641],\n          [0.3268, 0.4083, 0.4830],\n          ...,\n          [0.3298, 0.4474, 0.5415],\n          [0.3519, 0.4696, 0.5637],\n          [0.3087, 0.4263, 0.5204],\n          [0.3040, 0.4217, 0.5158],\n          [0.3109, 0.4286, 0.5227],\n          [0.3292, 0.4468, 0.5410]],\n\n         [[0.3253, 0.4194, 0.4979],\n          [0.3178, 0.4119, 0.4903],\n          [0.3212, 0.4037, 0.4782],\n          [0.3213, 0.4037, 0.4782],\n          [0.3251, 0.4074, 0.4819],\n          [0.3299, 0.4121, 0.4866],\n          ...,\n          [0.3258, 0.4435, 0.5376],\n          [0.3245, 0.4421, 0.5362],\n          [0.3036, 0.4213, 0.5154],\n          [0.2789, 0.3965, 0.4906],\n          [0.2723, 0.3900, 0.4841],\n          [0.2868, 0.4045, 0.4986]],\n\n         [[0.3254, 0.4195, 0.4979],\n          [0.3252, 0.4192, 0.4976],\n          [0.3292, 0.4116, 0.4862],\n          [0.3331, 0.4154, 0.4899],\n          [0.3331, 0.4154, 0.4900],\n          [0.3402, 0.4224, 0.4970],\n          ...,\n          [0.3396, 0.4572, 0.5513],\n          [0.2806, 0.3983, 0.4924],\n          [0.2508, 0.3685, 0.4626],\n          [0.2639, 0.3815, 0.4757],\n          [0.2753, 0.3930, 0.4871],\n          [0.2619, 0.3795, 0.4736]],\n\n         [[0.3217, 0.4159, 0.4943],\n          [0.3217, 0.4158, 0.4942],\n          [0.3294, 0.4119, 0.4864],\n          [0.3369, 0.4193, 0.4938],\n          [0.3295, 0.4119, 0.4864],\n          [0.3255, 0.4077, 0.4822],\n          ...,\n          [0.3356, 0.4532, 0.5473],\n          [0.2898, 0.4075, 0.5016],\n          [0.2957, 0.4134, 0.5075],\n          [0.2848, 0.4024, 0.4966],\n          [0.3068, 0.4244, 0.5185],\n          [0.3292, 0.4468, 0.5409]],\n\n         [[0.3253, 0.4194, 0.4979],\n          [0.3216, 0.4157, 0.4941],\n          [0.3293, 0.4118, 0.4863],\n          [0.3332, 0.4155, 0.4901],\n          [0.3292, 0.4116, 0.4861],\n          [0.3107, 0.3930, 0.4675],\n          ...,\n          [0.2715, 0.3891, 0.4832],\n          [0.2478, 0.3655, 0.4596],\n          [0.2519, 0.3696, 0.4637],\n          [0.2293, 0.3470, 0.4411],\n          [0.2068, 0.3244, 0.4185],\n          [0.2181, 0.3358, 0.4299]],\n\n         [[0.3177, 0.4118, 0.4902],\n          [0.3216, 0.4156, 0.4940],\n          [0.3255, 0.4079, 0.4825],\n          [0.3256, 0.4080, 0.4825],\n          [0.3331, 0.4155, 0.4900],\n          [0.3295, 0.4117, 0.4862],\n          ...,\n          [0.2394, 0.3571, 0.4512],\n          [0.2326, 0.3502, 0.4444],\n          [0.3011, 0.4187, 0.5128],\n          [0.3132, 0.4308, 0.5250],\n          [0.3054, 0.4230, 0.5171],\n          [0.2860, 0.4036, 0.4978]]]])&#x27;, &#x27;tensor([[[[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6195, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         ...,\n\n         [[0.3561, 0.3953, 0.4659],\n          [0.3455, 0.3847, 0.4553],\n          [0.3416, 0.3808, 0.4514],\n          [0.3418, 0.3810, 0.4516],\n          [0.3451, 0.3843, 0.4549],\n          [0.3455, 0.3847, 0.4553],\n          ...,\n          [0.2467, 0.3761, 0.4663],\n          [0.2778, 0.4072, 0.4974],\n          [0.2873, 0.4167, 0.5069],\n          [0.3226, 0.4520, 0.5422],\n          [0.3729, 0.5023, 0.5925],\n          [0.4193, 0.5487, 0.6389]],\n\n         [[0.3646, 0.4038, 0.4744],\n          [0.3606, 0.3998, 0.4704],\n          [0.3531, 0.3924, 0.4630],\n          [0.3527, 0.3919, 0.4625],\n          [0.3456, 0.3849, 0.4555],\n          [0.3455, 0.3848, 0.4553],\n          ...,\n          [0.2781, 0.4075, 0.4977],\n          [0.2974, 0.4268, 0.5170],\n          [0.3052, 0.4346, 0.5248],\n          [0.2921, 0.4215, 0.5117],\n          [0.3112, 0.4406, 0.5308],\n          [0.3202, 0.4496, 0.5398]],\n\n         [[0.3685, 0.4077, 0.4783],\n          [0.3722, 0.4114, 0.4820],\n          [0.3681, 0.4073, 0.4779],\n          [0.3607, 0.3999, 0.4705],\n          [0.3567, 0.3959, 0.4665],\n          [0.3566, 0.3958, 0.4664],\n          ...,\n          [0.2873, 0.4167, 0.5069],\n          [0.3071, 0.4365, 0.5267],\n          [0.3154, 0.4448, 0.5350],\n          [0.3008, 0.4302, 0.5204],\n          [0.2836, 0.4130, 0.5032],\n          [0.2765, 0.4059, 0.4961]],\n\n         [[0.3685, 0.4078, 0.4784],\n          [0.3723, 0.4115, 0.4821],\n          [0.3685, 0.4078, 0.4783],\n          [0.3646, 0.4038, 0.4744],\n          [0.3608, 0.4001, 0.4706],\n          [0.3606, 0.3999, 0.4704],\n          ...,\n          [0.2235, 0.3529, 0.4431],\n          [0.2386, 0.3680, 0.4582],\n          [0.2645, 0.3939, 0.4841],\n          [0.2758, 0.4052, 0.4954],\n          [0.2945, 0.4239, 0.5141],\n          [0.2983, 0.4277, 0.5179]],\n\n         [[0.3646, 0.4039, 0.4745],\n          [0.3609, 0.4001, 0.4707],\n          [0.3646, 0.4038, 0.4744],\n          [0.3646, 0.4038, 0.4744],\n          [0.3645, 0.4038, 0.4744],\n          [0.3609, 0.4001, 0.4707],\n          ...,\n          [0.3101, 0.4396, 0.5298],\n          [0.3056, 0.4350, 0.5252],\n          [0.2981, 0.4275, 0.5177],\n          [0.3020, 0.4314, 0.5216],\n          [0.3246, 0.4540, 0.5442],\n          [0.3323, 0.4617, 0.5519]],\n\n         [[0.3569, 0.3961, 0.4667],\n          [0.3569, 0.3961, 0.4667],\n          [0.3569, 0.3961, 0.4667],\n          [0.3569, 0.3962, 0.4667],\n          [0.3607, 0.4000, 0.4705],\n          [0.3610, 0.4002, 0.4708],\n          ...,\n          [0.3834, 0.5128, 0.6030],\n          [0.3604, 0.4898, 0.5800],\n          [0.3257, 0.4551, 0.5453],\n          [0.3175, 0.4469, 0.5371],\n          [0.2944, 0.4238, 0.5140],\n          [0.2904, 0.4198, 0.5100]]]])&#x27;], &#x27;confidence&#x27;: [&#x27;tensor([[[[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [1.3101e-09, 1.3101e-09, 1.3101e-09],\n          [1.6468e-07, 1.6468e-07, 1.6468e-07],\n          [1.5277e-06, 1.5277e-06, 1.5277e-06]],\n\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [2.3837e-09, 2.3837e-09, 2.3837e-09],\n          [4.7627e-07, 4.7627e-07, 4.7627e-07]],\n\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [2.6038e-09, 2.6038e-09, 2.6038e-09],\n          [5.2025e-07, 5.2025e-07, 5.2025e-07]],\n\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [7.8522e-10, 7.8522e-10, 7.8522e-10],\n          [1.5689e-07, 1.5689e-07, 1.5689e-07]],\n\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [5.3943e-10, 5.3943e-10, 5.3943e-10],\n          [1.0778e-07, 1.0778e-07, 1.0778e-07]],\n\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          ...,\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\n          [7.9339e-10, 7.9339e-10, 7.9339e-10],\n          [1.5852e-07, 1.5852e-07, 1.5852e-07]],\n\n         ...,\n\n         [[6.9341e-01, 6.9341e-01, 6.9341e-01],\n          [7.1799e-01, 7.1799e-01, 7.1799e-01],\n          [7.1019e-01, 7.1019e-01, 7.1019e-01],\n          [7.0631e-01, 7.0631e-01, 7.0631e-01],\n          [6.9907e-01, 6.9907e-01, 6.9907e-01],\n          [6.7305e-01, 6.7305e-01, 6.7305e-01],\n          ...,\n          [7.2666e-01, 7.2666e-01, 7.2666e-01],\n          [7.3909e-01, 7.3909e-01, 7.3909e-01],\n          [7.3024e-01, 7.3024e-01, 7.3024e-01],\n          [7.5258e-01, 7.5258e-01, 7.5258e-01],\n          [7.7059e-01, 7.7059e-01, 7.7059e-01],\n          [8.0613e-01, 8.0613e-01, 8.0613e-01]],\n\n         [[7.4227e-01, 7.4227e-01, 7.4227e-01],\n          [7.4080e-01, 7.4080e-01, 7.4080e-01],\n          [7.2267e-01, 7.2267e-01, 7.2267e-01],\n          [7.1428e-01, 7.1428e-01, 7.1428e-01],\n          [7.0517e-01, 7.0517e-01, 7.0517e-01],\n          [6.8194e-01, 6.8194e-01, 6.8194e-01],\n          ...,\n          [7.4598e-01, 7.4598e-01, 7.4598e-01],\n          [7.5767e-01, 7.5767e-01, 7.5767e-01],\n          [7.4881e-01, 7.4881e-01, 7.4881e-01],\n          [7.6793e-01, 7.6793e-01, 7.6793e-01],\n          [7.8683e-01, 7.8683e-01, 7.8683e-01],\n          [7.9820e-01, 7.9820e-01, 7.9820e-01]],\n\n         [[8.0560e-01, 8.0560e-01, 8.0560e-01],\n          [7.6401e-01, 7.6401e-01, 7.6401e-01],\n          [7.2580e-01, 7.2580e-01, 7.2580e-01],\n          [7.1010e-01, 7.1010e-01, 7.1010e-01],\n          [7.0087e-01, 7.0087e-01, 7.0087e-01],\n          [6.7798e-01, 6.7798e-01, 6.7798e-01],\n          ...,\n          [7.3870e-01, 7.3870e-01, 7.3870e-01],\n          [7.4850e-01, 7.4850e-01, 7.4850e-01],\n          [7.3721e-01, 7.3721e-01, 7.3721e-01],\n          [7.5312e-01, 7.5312e-01, 7.5312e-01],\n          [7.9021e-01, 7.9021e-01, 7.9021e-01],\n          [7.8266e-01, 7.8266e-01, 7.8266e-01]],\n\n         [[8.1176e-01, 8.1176e-01, 8.1176e-01],\n          [7.6108e-01, 7.6108e-01, 7.6108e-01],\n          [7.1788e-01, 7.1788e-01, 7.1788e-01],\n          [7.0467e-01, 7.0467e-01, 7.0467e-01],\n          [7.0413e-01, 7.0413e-01, 7.0413e-01],\n          [6.8829e-01, 6.8829e-01, 6.8829e-01],\n          ...,\n          [7.3936e-01, 7.3936e-01, 7.3936e-01],\n          [7.5389e-01, 7.5389e-01, 7.5389e-01],\n          [7.3625e-01, 7.3625e-01, 7.3625e-01],\n          [7.5464e-01, 7.5464e-01, 7.5464e-01],\n          [7.8965e-01, 7.8965e-01, 7.8965e-01],\n          [7.9548e-01, 7.9548e-01, 7.9548e-01]],\n\n         [[7.9422e-01, 7.9422e-01, 7.9422e-01],\n          [7.7065e-01, 7.7065e-01, 7.7065e-01],\n          [7.3907e-01, 7.3907e-01, 7.3907e-01],\n          [7.2047e-01, 7.2047e-01, 7.2047e-01],\n          [7.1502e-01, 7.1502e-01, 7.1502e-01],\n          [6.9604e-01, 6.9604e-01, 6.9604e-01],\n          ...,\n          [7.4609e-01, 7.4609e-01, 7.4609e-01],\n          [7.6319e-01, 7.6319e-01, 7.6319e-01],\n          [7.5987e-01, 7.5987e-01, 7.5987e-01],\n          [7.8462e-01, 7.8462e-01, 7.8462e-01],\n          [8.3637e-01, 8.3637e-01, 8.3637e-01],\n          [7.5797e-01, 7.5797e-01, 7.5797e-01]],\n\n         [[9.9909e-01, 9.9909e-01, 9.9909e-01],\n          [8.1340e-01, 8.1340e-01, 8.1340e-01],\n          [8.4776e-01, 8.4776e-01, 8.4776e-01],\n          [8.3745e-01, 8.3745e-01, 8.3745e-01],\n          [7.7048e-01, 7.7048e-01, 7.7048e-01],\n          [7.3428e-01, 7.3428e-01, 7.3428e-01],\n          ...,\n          [7.9207e-01, 7.9207e-01, 7.9207e-01],\n          [7.7252e-01, 7.7252e-01, 7.7252e-01],\n          [7.2407e-01, 7.2407e-01, 7.2407e-01],\n          [7.6479e-01, 7.6479e-01, 7.6479e-01],\n          [8.8026e-01, 8.8026e-01, 8.8026e-01],\n          [7.8775e-01, 7.8775e-01, 7.8775e-01]]]])&#x27;, &#x27;tensor([[[[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         ...,\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]],\n\n         [[1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          ...,\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.],\n          [1., 1., 1.]]]])&#x27;], &#x27;sky_mask&#x27;: [&#x27;tensor([[[0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         ...,\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.]]])&#x27;, &#x27;tensor([[[0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         ...,\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.]]])&#x27;]}, &#x27;current_outputs&#x27;: [&#x27;38&#x27;, &#x27;48&#x27;, &#x27;27&#x27;, &#x27;21&#x27;, &#x27;45&#x27;, &#x27;39&#x27;, &#x27;44&#x27;, &#x27;3&#x27;], &#x27;timestamp&#x27;: 1778347143975}
+
+Details:
+Workflow: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/workflows/advanced_3d_multiview.json
+Node error: DA3_MultiViewPointCloud</div>
+            </div>
+        
+        </div>
+    
+
+        
+        <div class="models-section">
+            <div class="section-header">
+                <h2 class="section-title">Downloaded Models</h2>
+                <span class="models-total">4 files &middot; 1.5 GB</span>
+            </div>
+            
+            <details class="models-folder" open>
+                <summary class="models-folder-header">
+                    <span class="models-folder-name">models/depthanything3/</span>
+                    <span class="models-folder-meta">
+                        
+                        <span class="models-folder-size">1.5 GB</span>
+                    </span>
+                </summary>
+                <div class="models-file-list">
+                    <div class="models-file"><span class="models-file-path">da3_large.safetensors</span><span class="models-file-size">1.5 GB</span></div>
+<div class="models-file"><span class="models-file-path">.cache/huggingface/CACHEDIR.TAG</span><span class="models-file-size">191.0 B</span></div>
+<div class="models-file"><span class="models-file-path">.cache/huggingface/download/model.safetensors.metadata</span><span class="models-file-size">124.0 B</span></div>
+<div class="models-file"><span class="models-file-path">.cache/huggingface/.gitignore</span><span class="models-file-size">1.0 B</span></div>
+                </div>
+            </details>
+        
+        </div>
+    
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-nav-left" onclick="navigateLightbox(-1)">&#8249;</button>
+        <button class="lightbox-nav lightbox-nav-right" onclick="navigateLightbox(1)">&#8250;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <video id="lightbox-video" controls preload="metadata" style="display:none; max-width:90vw; max-height:80vh; background:#000;"></video>
+            <div class="video-player" id="video-player">
+                <div class="video-slider-container">
+                    <div id="video-slider"></div>
+                </div>
+                <div class="video-controls">
+                    <span class="video-frame-counter" id="video-frame-counter">0.0s / 0.0s</span>
+                </div>
+            </div>
+            <div class="resource-graph" id="resource-graph">
+                <div class="resource-graph-title">Resource Usage</div>
+                <canvas id="resource-canvas"></canvas>
+                <div class="resource-legend">
+                    <span><span class="dot ram"></span> RAM (GB)</span>
+                    <span id="gpu-legend" style="display:none"><span class="dot gpu"></span> VRAM (GB)</span>
+                </div>
+            </div>
+            <div class="lightbox-info">
+                <div>
+                    <span class="lightbox-title" id="lightbox-title"></span>
+                    <span class="lightbox-hardware" id="lightbox-hardware"></span>
+                </div>
+                <div class="lightbox-meta">
+                    <span class="lightbox-badge" id="lightbox-badge"></span>
+                    <span class="lightbox-duration" id="lightbox-duration"></span>
+                </div>
+            </div>
+            <pre class="lightbox-log" id="lightbox-log"></pre>
+        </div>
+    </div>
+
+    <div class="img-overlay" id="img-overlay">
+        <img id="img-overlay-content" src="" alt="">
+    </div>
+
+    <footer>
+        Generated by <a href="https://github.com/PozzettiAndrea/comfy-test">comfy-test</a>
+    </footer>
+
+    <script>
+        function setView(mode) {
+            const grid = document.getElementById('workflow-grid');
+            grid.className = mode === 'list' ? 'workflow-grid view-list' : 'workflow-grid';
+            document.querySelectorAll('.view-controls .view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === mode);
+            });
+        }
+
+        const workflowData = {"advanced": {"src": "screenshots/advanced_executed.png", "title": "advanced", "status": "pass", "duration": "84.93", "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB\n  Frame 7 saved (frame_006.jpg, t=20.0s)\n  [capture-periodic] freeze=39ms shot=651ms unfreeze=38ms saved=True\n  Frame 8 saved (frame_007.jpg, t=22.9s)\n  [capture-periodic] freeze=54ms shot=441ms unfreeze=35ms saved=True\n  Frame 9 saved (frame_008.jpg, t=25.5s)\n  [capture-periodic] freeze=4ms shot=272ms unfreeze=27ms saved=True\n  [capture-loop] iter=150 t=26.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=71% browser_rss=0.60GB\n  [capture-loop] iter=200 t=33.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=3.5/7.0GB (65%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.58GB\n  [capture-loop] iter=250 t=41.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=3.8/7.0GB (76%) swap=0.0/0.0GB (0%) cpu=65% browser_rss=0.44GB\n  [capture-loop] iter=300 t=47.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=4.4/7.0GB (80%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.44GB\n  [capture-loop] iter=350 t=54.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=19 ram=4.9/7.0GB (88%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.44GB\n  [capture-loop] iter=400 t=67.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=2.7/7.0GB (77%) swap=0.3/1.0GB (28%) cpu=70% browser_rss=0.26GB\n  Node executed (1 total), capturing...\n  Frame 10 saved (frame_009.jpg, t=72.7s)\n  [capture-node] freeze=563ms shot=433ms unfreeze=4ms saved=True\n  Node executed (8 total), capturing...\n  Frame 11 saved (frame_010.jpg, t=74.0s)\n  [capture-node] freeze=4ms shot=356ms unfreeze=0ms saved=True\n  Execution complete (t=74.0s)\n  Captured 11 unique frames over 74.37s\n  [debug] iframes: 0\n  [timing] trigger_3d_previews: 0.0s\n  Saved high-quality screenshot: advanced_executed.png\n  [timing] final_screenshot: 0.3s\n    Captured 12 video frames", "hardware": {"os": "macOS-15.7.4-arm64-arm-64bit", "cpu": "arm"}}, "advanced_3d": {"src": "screenshots/advanced_3d_executed.png", "title": "advanced_3d", "status": "pass", "duration": "20.22", "log": "Capturing execution frames: advanced_3d.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.4s)\n  [capture-periodic] freeze=6ms shot=847ms unfreeze=40ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=4ms shot=298ms unfreeze=12ms saved=True\n  [capture-loop] iter=50 t=7.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=5.3/7.0GB (82%) swap=0.6/1.0GB (57%) cpu=66% browser_rss=0.49GB\n  Frame 4 saved (frame_003.jpg, t=7.8s)\n  [capture-periodic] freeze=7ms shot=289ms unfreeze=48ms saved=True\n  Node executed (2 total), capturing...\n  Frame 5 saved (frame_004.jpg, t=9.2s)\n  [capture-node] freeze=6ms shot=330ms unfreeze=0ms saved=True\n  Execution complete (t=9.2s)\n  Captured 5 unique frames over 9.65s\n  [debug] iframes: 1\n  [debug]   iframe[0]: src=http://127.0.0.1:8188/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=17783, canvas=486x430, rafFrozen=True\n  [timing] trigger_3d_previews: 0.0s\n  Saved high-quality screenshot: advanced_3d_executed.png\n  [timing] final_screenshot: 0.3s\n    Captured 6 video frames", "hardware": {"os": "macOS-15.7.4-arm64-arm-64bit", "cpu": "arm"}}, "advanced_3d_multiview": {"src": "", "title": "advanced_3d_multiview", "status": "fail", "duration": "72.85", "log": "Capturing execution frames: advanced_3d_multiview.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Node executed (1 total), capturing...\n  Frame 2 saved (frame_001.jpg, t=1.6s)\n  [capture-node] freeze=12ms shot=925ms unfreeze=94ms saved=True\n  Frame 3 saved (frame_002.jpg, t=4.8s)\n  [capture-periodic] freeze=4ms shot=602ms unfreeze=25ms saved=True\n  Frame 4 saved (frame_003.jpg, t=7.4s)\n  [capture-periodic] freeze=4ms shot=534ms unfreeze=33ms saved=True\n  [capture-loop] iter=50 t=9.1s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=5 ram=5.1/7.0GB (80%) swap=0.5/1.0GB (53%) cpu=69% browser_rss=0.55GB\n  Frame 5 saved (frame_004.jpg, t=10.1s)\n  [capture-periodic] freeze=5ms shot=20373ms unfreeze=555ms saved=True\n  Frame 6 saved (frame_005.jpg, t=33.8s)\n  [capture-periodic] freeze=20ms shot=1831ms unfreeze=33ms saved=True\n  [capture-loop] iter=100 t=39.4s state={'complete': False, 'error': None, 'executedCount': 1, 'wsState': 1} eval_ms=13 ram=4.8/7.0GB (73%) swap=1.0/2.0GB (50%) cpu=67% browser_rss=0.20GB\n  Frame 7 saved (frame_006.jpg, t=43.7s)\n  [capture-periodic] freeze=19ms shot=18753ms unfreeze=256ms saved=True\n  Frame 8 saved (frame_007.jpg, t=64.9s)\n  [capture-periodic] freeze=6ms shot=1074ms unfreeze=106ms saved=True\n  Execution complete (t=64.9s)\n  Execution error: {'prompt_id': '3bed6e0d-25f9-4926-af93-460fe72bc08b', 'node_id': '38', 'node_type': 'DA3_MultiViewPointCloud', 'executed': ['27', '39', '21', '3'], 'exception_message': 'Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\\'Raw\\' and connect the depth output to this node\\'s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\\n\\nWorker traceback:\\nTraceback (most recent call last):\\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv__zn50zv9/persistent_worker.py\", line 1762, in main\\n    result = method(**inputs)\\n             ^^^^^^^^^^^^^^^^\\n  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_multiview.py\", line 690, in execute\\n    raise ValueError(\\nValueError: Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\\'Raw\\' and connect the depth output to this node\\'s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\\n\\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 535, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 335, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 297, in process_inputs\\n    result = f(**inputs)\\n             ^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py\", line 536, in proxy\\n    result = worker.call_method(\\n             ^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\\n    raise WorkerError(\\n'], 'current_inputs': {'extrinsics': ['{\\n  \"extrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          0.9999998211860657,\\n          -0.0005656706052832305,\\n          -0.00022657914087176323,\\n          0.00018741225358098745\\n        ],\\n        [\\n          0.000565818976610899,\\n          0.9999996423721313,\\n          0.0006551882834173739,\\n          -0.0001278371928492561\\n        ],\\n        [\\n          0.0002262084453832358,\\n          -0.0006553163402713835,\\n          0.9999997615814209,\\n          0.00023603401496075094\\n        ]\\n      ]\\n    }\\n  ]\\n}', '{\\n  \"extrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          0.9999998211860657,\\n          0.00017460108210798353,\\n          0.0005202052416279912,\\n          0.0003719621745403856\\n        ],\\n        [\\n          -0.0001742378663038835,\\n          0.9999997615814209,\\n          -0.0006981720798648894,\\n          2.779594979074318e-05\\n        ],\\n        [\\n          -0.0005203270702622831,\\n          0.0006980813923291862,\\n          0.9999996423721313,\\n          -0.00018597673624753952\\n        ]\\n      ]\\n    }\\n  ]\\n}'], 'intrinsics': ['{\\n  \"intrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          1086.2222900390625,\\n          0.0,\\n          604.0\\n        ],\\n        [\\n          0.0,\\n          1073.156494140625,\\n          340.0\\n        ],\\n        [\\n          0.0,\\n          0.0,\\n          1.0\\n        ]\\n      ]\\n    }\\n  ]\\n}', '{\\n  \"intrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          1206.2451171875,\\n          0.0,\\n          604.0\\n        ],\\n        [\\n          0.0,\\n          1191.7357177734375,\\n          340.0\\n        ],\\n        [\\n          0.0,\\n          0.0,\\n          1.0\\n        ]\\n      ]\\n    }\\n  ]\\n}'], 'confidence_threshold': [0.3], 'downsample': [4], 'use_icp': [False], 'allow_around_1': [False], 'filter_outliers': [True], 'outlier_percentage': [5], 'depths': ['tensor([[[[2.2783, 2.2783, 2.2783],\\n          [2.3971, 2.3971, 2.3971],\\n          [2.4024, 2.4024, 2.4024],\\n          [2.4413, 2.4413, 2.4413],\\n          [2.4575, 2.4575, 2.4575],\\n          [2.5005, 2.5005, 2.5005],\\n          ...,\\n          [0.5850, 0.5850, 0.5850],\\n          [0.6002, 0.6002, 0.6002],\\n          [0.6126, 0.6126, 0.6126],\\n          [0.6116, 0.6116, 0.6116],\\n          [0.5946, 0.5946, 0.5946],\\n          [0.6213, 0.6213, 0.6213]],\\n\\n         [[2.4074, 2.4074, 2.4074],\\n          [2.3734, 2.3734, 2.3734],\\n          [2.3657, 2.3657, 2.3657],\\n          [2.3895, 2.3895, 2.3895],\\n          [2.4327, 2.4327, 2.4327],\\n          [2.4825, 2.4825, 2.4825],\\n          ...,\\n          [0.5775, 0.5775, 0.5775],\\n          [0.5878, 0.5878, 0.5878],\\n          [0.6050, 0.6050, 0.6050],\\n          [0.6096, 0.6096, 0.6096],\\n          [0.6084, 0.6084, 0.6084],\\n          [0.5969, 0.5969, 0.5969]],\\n\\n         [[2.3300, 2.3300, 2.3300],\\n          [2.3779, 2.3779, 2.3779],\\n          [2.3220, 2.3220, 2.3220],\\n          [2.3551, 2.3551, 2.3551],\\n          [2.3910, 2.3910, 2.3910],\\n          [2.4299, 2.4299, 2.4299],\\n          ...,\\n          [0.5814, 0.5814, 0.5814],\\n          [0.5922, 0.5922, 0.5922],\\n          [0.6092, 0.6092, 0.6092],\\n          [0.6136, 0.6136, 0.6136],\\n          [0.6157, 0.6157, 0.6157],\\n          [0.6142, 0.6142, 0.6142]],\\n\\n         [[2.2869, 2.2869, 2.2869],\\n          [2.3868, 2.3868, 2.3868],\\n          [2.3343, 2.3343, 2.3343],\\n          [2.3674, 2.3674, 2.3674],\\n          [2.4019, 2.4019, 2.4019],\\n          [2.4264, 2.4264, 2.4264],\\n          ...,\\n          [0.5805, 0.5805, 0.5805],\\n          [0.5912, 0.5912, 0.5912],\\n          [0.6062, 0.6062, 0.6062],\\n          [0.6109, 0.6109, 0.6109],\\n          [0.6102, 0.6102, 0.6102],\\n          [0.6125, 0.6125, 0.6125]],\\n\\n         [[2.2942, 2.2942, 2.2942],\\n          [2.4084, 2.4084, 2.4084],\\n          [2.3634, 2.3634, 2.3634],\\n          [2.3800, 2.3800, 2.3800],\\n          [2.4075, 2.4075, 2.4075],\\n          [2.4276, 2.4276, 2.4276],\\n          ...,\\n          [0.5763, 0.5763, 0.5763],\\n          [0.5869, 0.5869, 0.5869],\\n          [0.6009, 0.6009, 0.6009],\\n          [0.6054, 0.6054, 0.6054],\\n          [0.6034, 0.6034, 0.6034],\\n          [0.6058, 0.6058, 0.6058]],\\n\\n         [[2.3065, 2.3065, 2.3065],\\n          [2.4346, 2.4346, 2.4346],\\n          [2.3916, 2.3916, 2.3916],\\n          [2.4178, 2.4178, 2.4178],\\n          [2.4234, 2.4234, 2.4234],\\n          [2.4390, 2.4390, 2.4390],\\n          ...,\\n          [0.5719, 0.5719, 0.5719],\\n          [0.5821, 0.5821, 0.5821],\\n          [0.5960, 0.5960, 0.5960],\\n          [0.6006, 0.6006, 0.6006],\\n          [0.5946, 0.5946, 0.5946],\\n          [0.6008, 0.6008, 0.6008]],\\n\\n         ...,\\n\\n         [[0.5395, 0.5395, 0.5395],\\n          [0.5402, 0.5402, 0.5402],\\n          [0.5399, 0.5399, 0.5399],\\n          [0.5397, 0.5397, 0.5397],\\n          [0.5394, 0.5394, 0.5394],\\n          [0.5392, 0.5392, 0.5392],\\n          ...,\\n          [0.5638, 0.5638, 0.5638],\\n          [0.5638, 0.5638, 0.5638],\\n          [0.5647, 0.5647, 0.5647],\\n          [0.5654, 0.5654, 0.5654],\\n          [0.5665, 0.5665, 0.5665],\\n          [0.5654, 0.5654, 0.5654]],\\n\\n         [[0.5388, 0.5388, 0.5388],\\n          [0.5388, 0.5388, 0.5388],\\n          [0.5383, 0.5383, 0.5383],\\n          [0.5376, 0.5376, 0.5376],\\n          [0.5375, 0.5375, 0.5375],\\n          [0.5371, 0.5371, 0.5371],\\n          ...,\\n          [0.5628, 0.5628, 0.5628],\\n          [0.5629, 0.5629, 0.5629],\\n          [0.5637, 0.5637, 0.5637],\\n          [0.5642, 0.5642, 0.5642],\\n          [0.5656, 0.5656, 0.5656],\\n          [0.5643, 0.5643, 0.5643]],\\n\\n         [[0.5371, 0.5371, 0.5371],\\n          [0.5365, 0.5365, 0.5365],\\n          [0.5369, 0.5369, 0.5369],\\n          [0.5368, 0.5368, 0.5368],\\n          [0.5363, 0.5363, 0.5363],\\n          [0.5360, 0.5360, 0.5360],\\n          ...,\\n          [0.5621, 0.5621, 0.5621],\\n          [0.5625, 0.5625, 0.5625],\\n          [0.5628, 0.5628, 0.5628],\\n          [0.5628, 0.5628, 0.5628],\\n          [0.5639, 0.5639, 0.5639],\\n          [0.5640, 0.5640, 0.5640]],\\n\\n         [[0.5345, 0.5345, 0.5345],\\n          [0.5358, 0.5358, 0.5358],\\n          [0.5354, 0.5354, 0.5354],\\n          [0.5354, 0.5354, 0.5354],\\n          [0.5354, 0.5354, 0.5354],\\n          [0.5347, 0.5347, 0.5347],\\n          ...,\\n          [0.5614, 0.5614, 0.5614],\\n          [0.5608, 0.5608, 0.5608],\\n          [0.5612, 0.5612, 0.5612],\\n          [0.5596, 0.5596, 0.5596],\\n          [0.5615, 0.5615, 0.5615],\\n          [0.5612, 0.5612, 0.5612]],\\n\\n         [[0.5333, 0.5333, 0.5333],\\n          [0.5347, 0.5347, 0.5347],\\n          [0.5344, 0.5344, 0.5344],\\n          [0.5348, 0.5348, 0.5348],\\n          [0.5347, 0.5347, 0.5347],\\n          [0.5335, 0.5335, 0.5335],\\n          ...,\\n          [0.5602, 0.5602, 0.5602],\\n          [0.5598, 0.5598, 0.5598],\\n          [0.5607, 0.5607, 0.5607],\\n          [0.5583, 0.5583, 0.5583],\\n          [0.5604, 0.5604, 0.5604],\\n          [0.5585, 0.5585, 0.5585]],\\n\\n         [[0.5335, 0.5335, 0.5335],\\n          [0.5316, 0.5316, 0.5316],\\n          [0.5332, 0.5332, 0.5332],\\n          [0.5330, 0.5330, 0.5330],\\n          [0.5345, 0.5345, 0.5345],\\n          [0.5335, 0.5335, 0.5335],\\n          ...,\\n          [0.5599, 0.5599, 0.5599],\\n          [0.5602, 0.5602, 0.5602],\\n          [0.5606, 0.5606, 0.5606],\\n          [0.5591, 0.5591, 0.5591],\\n          [0.5583, 0.5583, 0.5583],\\n          [0.5668, 0.5668, 0.5668]]]])', 'tensor([[[[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         ...,\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]],\\n\\n         [[1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          ...,\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302],\\n          [1.0302, 1.0302, 1.0302]]]])'], 'images': ['tensor([[[[0.6157, 0.8706, 1.0000],\\n          [0.6157, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5960, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000]],\\n\\n         [[0.6156, 0.8706, 1.0000],\\n          [0.6156, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5960, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000]],\\n\\n         [[0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5960, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000]],\\n\\n         [[0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6115, 0.8707, 1.0000],\\n          [0.6115, 0.8707, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5960, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000]],\\n\\n         [[0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6118, 0.8706, 1.0000],\\n          [0.6117, 0.8706, 1.0000],\\n          [0.6043, 0.8743, 1.0000],\\n          [0.6042, 0.8744, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5960, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000],\\n          [0.5961, 0.8667, 1.0000]],\\n\\n         [[0.6119, 0.8706, 1.0000],\\n          [0.6119, 0.8706, 1.0000],\\n          [0.6119, 0.8706, 1.0000],\\n          [0.6119, 0.8706, 1.0000],\\n          [0.6044, 0.8743, 1.0000],\\n          [0.6043, 0.8743, 1.0000],\\n          ...,\\n          [0.5922, 0.8706, 1.0000],\\n          [0.5922, 0.8705, 1.0000],\\n          [0.5962, 0.8669, 1.0000],\\n          [0.5963, 0.8668, 1.0000],\\n          [0.5963, 0.8668, 1.0000],\\n          [0.5963, 0.8668, 1.0000]],\\n\\n         ...,\\n\\n         [[0.3221, 0.4157, 0.4939],\\n          [0.3143, 0.4078, 0.4860],\\n          [0.3073, 0.3894, 0.4640],\\n          [0.3038, 0.3858, 0.4603],\\n          [0.3077, 0.3894, 0.4641],\\n          [0.3268, 0.4083, 0.4830],\\n          ...,\\n          [0.3298, 0.4474, 0.5415],\\n          [0.3519, 0.4696, 0.5637],\\n          [0.3087, 0.4263, 0.5204],\\n          [0.3040, 0.4217, 0.5158],\\n          [0.3109, 0.4286, 0.5227],\\n          [0.3292, 0.4468, 0.5410]],\\n\\n         [[0.3253, 0.4194, 0.4979],\\n          [0.3178, 0.4119, 0.4903],\\n          [0.3212, 0.4037, 0.4782],\\n          [0.3213, 0.4037, 0.4782],\\n          [0.3251, 0.4074, 0.4819],\\n          [0.3299, 0.4121, 0.4866],\\n          ...,\\n          [0.3258, 0.4435, 0.5376],\\n          [0.3245, 0.4421, 0.5362],\\n          [0.3036, 0.4213, 0.5154],\\n          [0.2789, 0.3965, 0.4906],\\n          [0.2723, 0.3900, 0.4841],\\n          [0.2868, 0.4045, 0.4986]],\\n\\n         [[0.3254, 0.4195, 0.4979],\\n          [0.3252, 0.4192, 0.4976],\\n          [0.3292, 0.4116, 0.4862],\\n          [0.3331, 0.4154, 0.4899],\\n          [0.3331, 0.4154, 0.4900],\\n          [0.3402, 0.4224, 0.4970],\\n          ...,\\n          [0.3396, 0.4572, 0.5513],\\n          [0.2806, 0.3983, 0.4924],\\n          [0.2508, 0.3685, 0.4626],\\n          [0.2639, 0.3815, 0.4757],\\n          [0.2753, 0.3930, 0.4871],\\n          [0.2619, 0.3795, 0.4736]],\\n\\n         [[0.3217, 0.4159, 0.4943],\\n          [0.3217, 0.4158, 0.4942],\\n          [0.3294, 0.4119, 0.4864],\\n          [0.3369, 0.4193, 0.4938],\\n          [0.3295, 0.4119, 0.4864],\\n          [0.3255, 0.4077, 0.4822],\\n          ...,\\n          [0.3356, 0.4532, 0.5473],\\n          [0.2898, 0.4075, 0.5016],\\n          [0.2957, 0.4134, 0.5075],\\n          [0.2848, 0.4024, 0.4966],\\n          [0.3068, 0.4244, 0.5185],\\n          [0.3292, 0.4468, 0.5409]],\\n\\n         [[0.3253, 0.4194, 0.4979],\\n          [0.3216, 0.4157, 0.4941],\\n          [0.3293, 0.4118, 0.4863],\\n          [0.3332, 0.4155, 0.4901],\\n          [0.3292, 0.4116, 0.4861],\\n          [0.3107, 0.3930, 0.4675],\\n          ...,\\n          [0.2715, 0.3891, 0.4832],\\n          [0.2478, 0.3655, 0.4596],\\n          [0.2519, 0.3696, 0.4637],\\n          [0.2293, 0.3470, 0.4411],\\n          [0.2068, 0.3244, 0.4185],\\n          [0.2181, 0.3358, 0.4299]],\\n\\n         [[0.3177, 0.4118, 0.4902],\\n          [0.3216, 0.4156, 0.4940],\\n          [0.3255, 0.4079, 0.4825],\\n          [0.3256, 0.4080, 0.4825],\\n          [0.3331, 0.4155, 0.4900],\\n          [0.3295, 0.4117, 0.4862],\\n          ...,\\n          [0.2394, 0.3571, 0.4512],\\n          [0.2326, 0.3502, 0.4444],\\n          [0.3011, 0.4187, 0.5128],\\n          [0.3132, 0.4308, 0.5250],\\n          [0.3054, 0.4230, 0.5171],\\n          [0.2860, 0.4036, 0.4978]]]])', 'tensor([[[[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         [[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         [[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         [[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         [[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         [[0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6196, 0.8784, 1.0000],\\n          [0.6195, 0.8784, 1.0000],\\n          ...,\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000],\\n          [0.6000, 0.8784, 1.0000]],\\n\\n         ...,\\n\\n         [[0.3561, 0.3953, 0.4659],\\n          [0.3455, 0.3847, 0.4553],\\n          [0.3416, 0.3808, 0.4514],\\n          [0.3418, 0.3810, 0.4516],\\n          [0.3451, 0.3843, 0.4549],\\n          [0.3455, 0.3847, 0.4553],\\n          ...,\\n          [0.2467, 0.3761, 0.4663],\\n          [0.2778, 0.4072, 0.4974],\\n          [0.2873, 0.4167, 0.5069],\\n          [0.3226, 0.4520, 0.5422],\\n          [0.3729, 0.5023, 0.5925],\\n          [0.4193, 0.5487, 0.6389]],\\n\\n         [[0.3646, 0.4038, 0.4744],\\n          [0.3606, 0.3998, 0.4704],\\n          [0.3531, 0.3924, 0.4630],\\n          [0.3527, 0.3919, 0.4625],\\n          [0.3456, 0.3849, 0.4555],\\n          [0.3455, 0.3848, 0.4553],\\n          ...,\\n          [0.2781, 0.4075, 0.4977],\\n          [0.2974, 0.4268, 0.5170],\\n          [0.3052, 0.4346, 0.5248],\\n          [0.2921, 0.4215, 0.5117],\\n          [0.3112, 0.4406, 0.5308],\\n          [0.3202, 0.4496, 0.5398]],\\n\\n         [[0.3685, 0.4077, 0.4783],\\n          [0.3722, 0.4114, 0.4820],\\n          [0.3681, 0.4073, 0.4779],\\n          [0.3607, 0.3999, 0.4705],\\n          [0.3567, 0.3959, 0.4665],\\n          [0.3566, 0.3958, 0.4664],\\n          ...,\\n          [0.2873, 0.4167, 0.5069],\\n          [0.3071, 0.4365, 0.5267],\\n          [0.3154, 0.4448, 0.5350],\\n          [0.3008, 0.4302, 0.5204],\\n          [0.2836, 0.4130, 0.5032],\\n          [0.2765, 0.4059, 0.4961]],\\n\\n         [[0.3685, 0.4078, 0.4784],\\n          [0.3723, 0.4115, 0.4821],\\n          [0.3685, 0.4078, 0.4783],\\n          [0.3646, 0.4038, 0.4744],\\n          [0.3608, 0.4001, 0.4706],\\n          [0.3606, 0.3999, 0.4704],\\n          ...,\\n          [0.2235, 0.3529, 0.4431],\\n          [0.2386, 0.3680, 0.4582],\\n          [0.2645, 0.3939, 0.4841],\\n          [0.2758, 0.4052, 0.4954],\\n          [0.2945, 0.4239, 0.5141],\\n          [0.2983, 0.4277, 0.5179]],\\n\\n         [[0.3646, 0.4039, 0.4745],\\n          [0.3609, 0.4001, 0.4707],\\n          [0.3646, 0.4038, 0.4744],\\n          [0.3646, 0.4038, 0.4744],\\n          [0.3645, 0.4038, 0.4744],\\n          [0.3609, 0.4001, 0.4707],\\n          ...,\\n          [0.3101, 0.4396, 0.5298],\\n          [0.3056, 0.4350, 0.5252],\\n          [0.2981, 0.4275, 0.5177],\\n          [0.3020, 0.4314, 0.5216],\\n          [0.3246, 0.4540, 0.5442],\\n          [0.3323, 0.4617, 0.5519]],\\n\\n         [[0.3569, 0.3961, 0.4667],\\n          [0.3569, 0.3961, 0.4667],\\n          [0.3569, 0.3961, 0.4667],\\n          [0.3569, 0.3962, 0.4667],\\n          [0.3607, 0.4000, 0.4705],\\n          [0.3610, 0.4002, 0.4708],\\n          ...,\\n          [0.3834, 0.5128, 0.6030],\\n          [0.3604, 0.4898, 0.5800],\\n          [0.3257, 0.4551, 0.5453],\\n          [0.3175, 0.4469, 0.5371],\\n          [0.2944, 0.4238, 0.5140],\\n          [0.2904, 0.4198, 0.5100]]]])'], 'confidence': ['tensor([[[[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [1.3101e-09, 1.3101e-09, 1.3101e-09],\\n          [1.6468e-07, 1.6468e-07, 1.6468e-07],\\n          [1.5277e-06, 1.5277e-06, 1.5277e-06]],\\n\\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [2.3837e-09, 2.3837e-09, 2.3837e-09],\\n          [4.7627e-07, 4.7627e-07, 4.7627e-07]],\\n\\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [2.6038e-09, 2.6038e-09, 2.6038e-09],\\n          [5.2025e-07, 5.2025e-07, 5.2025e-07]],\\n\\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [7.8522e-10, 7.8522e-10, 7.8522e-10],\\n          [1.5689e-07, 1.5689e-07, 1.5689e-07]],\\n\\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [5.3943e-10, 5.3943e-10, 5.3943e-10],\\n          [1.0778e-07, 1.0778e-07, 1.0778e-07]],\\n\\n         [[0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          ...,\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [0.0000e+00, 0.0000e+00, 0.0000e+00],\\n          [7.9339e-10, 7.9339e-10, 7.9339e-10],\\n          [1.5852e-07, 1.5852e-07, 1.5852e-07]],\\n\\n         ...,\\n\\n         [[6.9341e-01, 6.9341e-01, 6.9341e-01],\\n          [7.1799e-01, 7.1799e-01, 7.1799e-01],\\n          [7.1019e-01, 7.1019e-01, 7.1019e-01],\\n          [7.0631e-01, 7.0631e-01, 7.0631e-01],\\n          [6.9907e-01, 6.9907e-01, 6.9907e-01],\\n          [6.7305e-01, 6.7305e-01, 6.7305e-01],\\n          ...,\\n          [7.2666e-01, 7.2666e-01, 7.2666e-01],\\n          [7.3909e-01, 7.3909e-01, 7.3909e-01],\\n          [7.3024e-01, 7.3024e-01, 7.3024e-01],\\n          [7.5258e-01, 7.5258e-01, 7.5258e-01],\\n          [7.7059e-01, 7.7059e-01, 7.7059e-01],\\n          [8.0613e-01, 8.0613e-01, 8.0613e-01]],\\n\\n         [[7.4227e-01, 7.4227e-01, 7.4227e-01],\\n          [7.4080e-01, 7.4080e-01, 7.4080e-01],\\n          [7.2267e-01, 7.2267e-01, 7.2267e-01],\\n          [7.1428e-01, 7.1428e-01, 7.1428e-01],\\n          [7.0517e-01, 7.0517e-01, 7.0517e-01],\\n          [6.8194e-01, 6.8194e-01, 6.8194e-01],\\n          ...,\\n          [7.4598e-01, 7.4598e-01, 7.4598e-01],\\n          [7.5767e-01, 7.5767e-01, 7.5767e-01],\\n          [7.4881e-01, 7.4881e-01, 7.4881e-01],\\n          [7.6793e-01, 7.6793e-01, 7.6793e-01],\\n          [7.8683e-01, 7.8683e-01, 7.8683e-01],\\n          [7.9820e-01, 7.9820e-01, 7.9820e-01]],\\n\\n         [[8.0560e-01, 8.0560e-01, 8.0560e-01],\\n          [7.6401e-01, 7.6401e-01, 7.6401e-01],\\n          [7.2580e-01, 7.2580e-01, 7.2580e-01],\\n          [7.1010e-01, 7.1010e-01, 7.1010e-01],\\n          [7.0087e-01, 7.0087e-01, 7.0087e-01],\\n          [6.7798e-01, 6.7798e-01, 6.7798e-01],\\n          ...,\\n          [7.3870e-01, 7.3870e-01, 7.3870e-01],\\n          [7.4850e-01, 7.4850e-01, 7.4850e-01],\\n          [7.3721e-01, 7.3721e-01, 7.3721e-01],\\n          [7.5312e-01, 7.5312e-01, 7.5312e-01],\\n          [7.9021e-01, 7.9021e-01, 7.9021e-01],\\n          [7.8266e-01, 7.8266e-01, 7.8266e-01]],\\n\\n         [[8.1176e-01, 8.1176e-01, 8.1176e-01],\\n          [7.6108e-01, 7.6108e-01, 7.6108e-01],\\n          [7.1788e-01, 7.1788e-01, 7.1788e-01],\\n          [7.0467e-01, 7.0467e-01, 7.0467e-01],\\n          [7.0413e-01, 7.0413e-01, 7.0413e-01],\\n          [6.8829e-01, 6.8829e-01, 6.8829e-01],\\n          ...,\\n          [7.3936e-01, 7.3936e-01, 7.3936e-01],\\n          [7.5389e-01, 7.5389e-01, 7.5389e-01],\\n          [7.3625e-01, 7.3625e-01, 7.3625e-01],\\n          [7.5464e-01, 7.5464e-01, 7.5464e-01],\\n          [7.8965e-01, 7.8965e-01, 7.8965e-01],\\n          [7.9548e-01, 7.9548e-01, 7.9548e-01]],\\n\\n         [[7.9422e-01, 7.9422e-01, 7.9422e-01],\\n          [7.7065e-01, 7.7065e-01, 7.7065e-01],\\n          [7.3907e-01, 7.3907e-01, 7.3907e-01],\\n          [7.2047e-01, 7.2047e-01, 7.2047e-01],\\n          [7.1502e-01, 7.1502e-01, 7.1502e-01],\\n          [6.9604e-01, 6.9604e-01, 6.9604e-01],\\n          ...,\\n          [7.4609e-01, 7.4609e-01, 7.4609e-01],\\n          [7.6319e-01, 7.6319e-01, 7.6319e-01],\\n          [7.5987e-01, 7.5987e-01, 7.5987e-01],\\n          [7.8462e-01, 7.8462e-01, 7.8462e-01],\\n          [8.3637e-01, 8.3637e-01, 8.3637e-01],\\n          [7.5797e-01, 7.5797e-01, 7.5797e-01]],\\n\\n         [[9.9909e-01, 9.9909e-01, 9.9909e-01],\\n          [8.1340e-01, 8.1340e-01, 8.1340e-01],\\n          [8.4776e-01, 8.4776e-01, 8.4776e-01],\\n          [8.3745e-01, 8.3745e-01, 8.3745e-01],\\n          [7.7048e-01, 7.7048e-01, 7.7048e-01],\\n          [7.3428e-01, 7.3428e-01, 7.3428e-01],\\n          ...,\\n          [7.9207e-01, 7.9207e-01, 7.9207e-01],\\n          [7.7252e-01, 7.7252e-01, 7.7252e-01],\\n          [7.2407e-01, 7.2407e-01, 7.2407e-01],\\n          [7.6479e-01, 7.6479e-01, 7.6479e-01],\\n          [8.8026e-01, 8.8026e-01, 8.8026e-01],\\n          [7.8775e-01, 7.8775e-01, 7.8775e-01]]]])', 'tensor([[[[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         ...,\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]],\\n\\n         [[1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          ...,\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.],\\n          [1., 1., 1.]]]])'], 'sky_mask': ['tensor([[[0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         ...,\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.]]])', 'tensor([[[0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         ...,\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.],\\n         [0., 0., 0., 0., 0., 0.,  ..., 0., 0., 0., 0., 0., 0.]]])']}, 'current_outputs': ['38', '48', '27', '21', '45', '39', '44', '3'], 'timestamp': 1778347143975}\n    Status: FAILED\n    Error: Workflow execution failed: {'prompt_id': '3bed6e0d-25f9-4926-af93-460fe72bc08b', 'node_id': '38', 'node_type': 'DA3_MultiViewPointCloud', 'executed': ['27', '39', '21', '3'], 'exception_message': 'Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\\'Raw\\' and connect the depth output to this node\\'s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\\n\\nWorker traceback:\\nTraceback (most recent call last):\\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv__zn50zv9/persistent_worker.py\", line 1762, in main\\n    result = method(**inputs)\\n             ^^^^^^^^^^^^^^^^\\n  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_multiview.py\", line 690, in execute\\n    raise ValueError(\\nValueError: Depth input appears to be normalized (max=1.0302) instead of raw/metric depth. Multi-view point cloud fusion requires raw metric depth values. Please use DepthAnythingV3_MultiView node with normalization_mode=\\'Raw\\' and connect the depth output to this node\\'s depths input. If you think this is a mistake, feel free to toggle allow_around_1.\\n\\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 535, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 335, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI/execution.py\", line 297, in process_inputs\\n    result = f(**inputs)\\n             ^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py\", line 536, in proxy\\n    result = worker.call_method(\\n             ^^^^^^^^^^^^^^^^^^^\\n', '  File \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\\n    raise WorkerError(\\n'], 'current_inputs': {'extrinsics': ['{\\n  \"extrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          0.9999998211860657,\\n          -0.0005656706052832305,\\n          -0.00022657914087176323,\\n          0.00018741225358098745\\n        ],\\n        [\\n          0.000565818976610899,\\n          0.9999996423721313,\\n          0.0006551882834173739,\\n          -0.0001278371928492561\\n        ],\\n        [\\n          0.0002262084453832358,\\n          -0.0006553163402713835,\\n          0.9999997615814209,\\n          0.00023603401496075094\\n        ]\\n      ]\\n    }\\n  ]\\n}', '{\\n  \"extrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          0.9999998211860657,\\n          0.00017460108210798353,\\n          0.0005202052416279912,\\n          0.0003719621745403856\\n        ],\\n        [\\n          -0.0001742378663038835,\\n          0.9999997615814209,\\n          -0.0006981720798648894,\\n          2.779594979074318e-05\\n        ],\\n        [\\n          -0.0005203270702622831,\\n          0.0006980813923291862,\\n          0.9999996423721313,\\n          -0.00018597673624753952\\n        ]\\n      ]\\n    }\\n  ]\\n}'], 'intrinsics': ['{\\n  \"intrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          1086.2222900390625,\\n          0.0,\\n          604.0\\n        ],\\n        [\\n          0.0,\\n          1073.156494140625,\\n          340.0\\n        ],\\n        [\\n          0.0,\\n          0.0,\\n          1.0\\n        ]\\n      ]\\n    }\\n  ]\\n}', '{\\n  \"intrinsics\": [\\n    {\\n      \"image_0\": [\\n        [\\n          1206.2451171875,\\n          0.0,\\n          604.0\\n        ],\\n        [\\n          0.0,\\n          1191.7357177734375,\\n          340.0\\n        ],\\n        [\\n          0.0,\\n          0.0,\\n          1.0\\n        ]\\n      ]\\n    }\\n  ]\\n}'], 'confidence_threshold': [0.3], 'downsample': [4], 'use_icp': [False], 'allow_around_1': [False], 'filter_outliers': [True], 'outlier_percentage': [5], 'depths': ['tensor([[[[2.2783, 2.2783, 2.2783],\\n          [2.3971, 2.3971, 2.3971],\\n          [2.4024, 2.4024, 2.4024],\\n          [2.4413, 2.4413, 2.4413],\\n          [2.4575, 2.4575, 2.4575],\\n          [2.5005, 2.5005, 2.5005],\\n          ...,\\n          [0.5850, 0.5850, 0.5850],\\n          [0.6002, 0.6002, 0.6002],\\n          [0.6126, 0.6126, 0.6126],\\n          [0.6116, 0.6116, 0.6116],\\n          [0.5946, 0.5946, 0.5946],\\n          [0.6213, 0.6213, 0.6213]],\\n\\n         [[2.4074, 2.4074, 2.4074],\\n          [2.3734, 2.3734, 2.3734],\\n          [2.3657, 2.3657, 2.3657],\\n          [2.3895, 2.3895, 2.3895],\\n          [2.4327, 2.4327, 2.4327],\\n          [2.4825, 2.4825, 2.4825],\\n          ...,\\n          [0.5775, 0.5775, 0.5775],\\n          [0.5878, 0.5878, 0.5878],\\n          [0.6050, 0.6050, 0.6050],\\n          [0.6096, 0.6096, 0.6096],\\n          [0.6084, 0.6084, 0.6084],\\n          [0.5969, 0.5969, 0.5969]],\\n\\n         [[2.3300, 2.3300, 2.3300],\\n          [2.3779, 2.3779, 2.3779],\\n          [2.3220, 2.3220, 2.3220],\\n          [2.3551, 2.3551, 2.3551],\\n          [2.3910, 2.3910, 2.3910],\\n          [2.4299, 2.4299, 2.4299],\\n          ...,\\n          [0.5814, 0.5814, 0.5814],\\n          [0.5922, 0.5922, 0.5922],\\n          [0.6092, 0.6092, 0.6092],\\n          [0.6136, 0.6136, 0.6136],\\n          [0.6157, 0.6157, 0.6157],\\n          [0.6142, 0.6142, 0.6142]],\\n\\n         [[2.2869, 2.2869, 2.2869],\\n          [2.3868, 2.3868, 2.3868],\\n          [2.3343, 2.3343, 2.3343],\\n          [2.3674, 2.3674, 2.3674],\\n          [2.4019, 2.4019, 2.4019],\\n          [2.4264, 2.4264, 2.4264],\\n          ...,\\n          [0.5805, 0.5805, 0.5805],\\n          [0.5912, 0.5912, 0.5912],\\n          [0.6062, 0.6062, 0.6062],\\n          [0.6109, 0.6109, 0.6109],\\n          [0.6102, 0.6102, 0.6102],\\n          [0.6125, 0.6125, 0.6125]],\\n\\n         [[2.2942, 2.2942, 2.2942],\\n          [2.4084, 2.4084, 2.4084],\\n          [2.3634, 2.3634, 2.3634],\\n          [2.3800, 2.3800, 2.3800],\\n          [2.4075, 2.4075, 2.4075],\\n          [2.4276, 2.4276, 2.4276],\\n          ...,\\n          [0.5763, 0.5763, 0.5763],\\n          [0.5869, 0.5869, 0.5869],\\n          [0.6009, 0.6009, 0.6009],\\n          [0.6054, 0.6054, 0.6054],\\n          [0.6034, 0.6034, 0.6034],\\n          [0.6058, 0.6058, 0.6058]],\\n\\n         [[2.3065, 2.3065, 2.3065],\\n          [2.4346, 2.4346, 2.4346],\\n          [2.3916, 2.3916, 2.3916],\\n          [2.4178, 2.4178, 2.4178],\\n          [2.4234, 2.4234, 2.4234],\\n          [2.4390, 2.4390, 2.4390],\\n          ...,\\n          [0.5719, 0.5719, 0.5719],\\n          [0.5821, 0.5821, 0.5821],\\n          [0.5960, 0.5960, 0.5960],\\n          [0.6006, 0.6006, 0.6006],\\n  \n... (truncated)", "hardware": {"os": "macOS-15.7.4-arm64-arm-64bit", "cpu": "arm"}}, "simple": {"src": "screenshots/simple_executed.png", "title": "simple", "status": "pass", "duration": "59.57", "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB\n  Frame 4 saved (frame_003.jpg, t=10.6s)\n  [capture-periodic] freeze=3ms shot=235ms unfreeze=19ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.0s)\n  [capture-periodic] freeze=5ms shot=218ms unfreeze=24ms saved=True\n  [capture-loop] iter=100 t=14.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.4/7.0GB (50%) swap=0.7/2.0GB (35%) cpu=28% browser_rss=0.47GB\n  [capture-loop] iter=150 t=22.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=4.8/7.0GB (75%) swap=0.7/2.0GB (34%) cpu=76% browser_rss=0.40GB\n  [capture-loop] iter=200 t=32.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=14 ram=5.0/7.0GB (81%) swap=0.7/2.0GB (34%) cpu=87% browser_rss=0.31GB\n  Frame 6 saved (frame_005.jpg, t=33.2s)\n  [capture-periodic] freeze=8ms shot=7330ms unfreeze=93ms saved=True\n  Frame 7 saved (frame_006.jpg, t=42.8s)\n  [capture-periodic] freeze=7ms shot=387ms unfreeze=34ms saved=True\n  Node executed (1 total), capturing...\n  Frame 8 saved (frame_007.jpg, t=46.6s)\n  [capture-node] freeze=13ms shot=419ms unfreeze=0ms saved=True\n  Execution complete (t=46.6s)\n  Captured 8 unique frames over 47.09s\n  [debug] iframes: 0\n  [timing] trigger_3d_previews: 0.0s\n  Saved high-quality screenshot: simple_executed.png\n  [timing] final_screenshot: 0.6s\n    Captured 9 video frames", "hardware": {"os": "macOS-15.7.4-arm64-arm-64bit", "cpu": "arm"}}};
+        const workflowNames = Object.keys(workflowData);
+        const videoData = {"advanced_3d": {"frames": [{"file": "frame_000.jpg", "time": 0.0, "log": "Capturing execution frames: advanced_3d.json"}, {"file": "frame_001.jpg", "time": 2.38, "log": "Capturing execution frames: advanced_3d.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution..."}, {"file": "frame_002.jpg", "time": 5.33, "log": "Capturing execution frames: advanced_3d.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.4s)\n  [capture-periodic] freeze=6ms shot=847ms unfreeze=40ms saved=True"}, {"file": "frame_003.jpg", "time": 7.75, "log": "Capturing execution frames: advanced_3d.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.4s)\n  [capture-periodic] freeze=6ms shot=847ms unfreeze=40ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=4ms shot=298ms unfreeze=12ms saved=True\n  [capture-loop] iter=50 t=7.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=5.3/7.0GB (82%) swap=0.6/1.0GB (57%) cpu=66% browser_rss=0.49GB"}, {"file": "frame_004.jpg", "time": 9.21, "log": "Capturing execution frames: advanced_3d.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.4s)\n  [capture-periodic] freeze=6ms shot=847ms unfreeze=40ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=4ms shot=298ms unfreeze=12ms saved=True\n  [capture-loop] iter=50 t=7.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=5.3/7.0GB (82%) swap=0.6/1.0GB (57%) cpu=66% browser_rss=0.49GB\n  Frame 4 saved (frame_003.jpg, t=7.8s)\n  [capture-periodic] freeze=7ms shot=289ms unfreeze=48ms saved=True"}, {"file": "frame_005.jpg", "time": 11.963467121124268, "log": "Final screenshot"}], "total_time": 9.65}, "simple": {"frames": [{"file": "frame_000.jpg", "time": 0.0, "log": "Capturing execution frames: simple.json"}, {"file": "frame_001.jpg", "time": 2.45, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution..."}, {"file": "frame_002.jpg", "time": 5.26, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True"}, {"file": "frame_003.jpg", "time": 10.63, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB"}, {"file": "frame_004.jpg", "time": 13.04, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB\n  Frame 4 saved (frame_003.jpg, t=10.6s)\n  [capture-periodic] freeze=3ms shot=235ms unfreeze=19ms saved=True"}, {"file": "frame_005.jpg", "time": 33.21, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB\n  Frame 4 saved (frame_003.jpg, t=10.6s)\n  [capture-periodic] freeze=3ms shot=235ms unfreeze=19ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.0s)\n  [capture-periodic] freeze=5ms shot=218ms unfreeze=24ms saved=True\n  [capture-loop] iter=100 t=14.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.4/7.0GB (50%) swap=0.7/2.0GB (35%) cpu=28% browser_rss=0.47GB\n  [capture-loop] iter=150 t=22.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=4.8/7.0GB (75%) swap=0.7/2.0GB (34%) cpu=76% browser_rss=0.40GB\n  [capture-loop] iter=200 t=32.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=14 ram=5.0/7.0GB (81%) swap=0.7/2.0GB (34%) cpu=87% browser_rss=0.31GB"}, {"file": "frame_006.jpg", "time": 42.79, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB\n  Frame 4 saved (frame_003.jpg, t=10.6s)\n  [capture-periodic] freeze=3ms shot=235ms unfreeze=19ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.0s)\n  [capture-periodic] freeze=5ms shot=218ms unfreeze=24ms saved=True\n  [capture-loop] iter=100 t=14.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.4/7.0GB (50%) swap=0.7/2.0GB (35%) cpu=28% browser_rss=0.47GB\n  [capture-loop] iter=150 t=22.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=4.8/7.0GB (75%) swap=0.7/2.0GB (34%) cpu=76% browser_rss=0.40GB\n  [capture-loop] iter=200 t=32.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=14 ram=5.0/7.0GB (81%) swap=0.7/2.0GB (34%) cpu=87% browser_rss=0.31GB\n  Frame 6 saved (frame_005.jpg, t=33.2s)\n  [capture-periodic] freeze=8ms shot=7330ms unfreeze=93ms saved=True"}, {"file": "frame_007.jpg", "time": 46.56, "log": "Capturing execution frames: simple.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.5s)\n  [capture-periodic] freeze=5ms shot=641ms unfreeze=17ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.3s)\n  [capture-periodic] freeze=8ms shot=812ms unfreeze=55ms saved=True\n  [capture-loop] iter=50 t=8.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=2.1/7.0GB (32%) swap=0.7/2.0GB (36%) cpu=65% browser_rss=0.46GB\n  Frame 4 saved (frame_003.jpg, t=10.6s)\n  [capture-periodic] freeze=3ms shot=235ms unfreeze=19ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.0s)\n  [capture-periodic] freeze=5ms shot=218ms unfreeze=24ms saved=True\n  [capture-loop] iter=100 t=14.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.4/7.0GB (50%) swap=0.7/2.0GB (35%) cpu=28% browser_rss=0.47GB\n  [capture-loop] iter=150 t=22.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=4.8/7.0GB (75%) swap=0.7/2.0GB (34%) cpu=76% browser_rss=0.40GB\n  [capture-loop] iter=200 t=32.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=14 ram=5.0/7.0GB (81%) swap=0.7/2.0GB (34%) cpu=87% browser_rss=0.31GB\n  Frame 6 saved (frame_005.jpg, t=33.2s)\n  [capture-periodic] freeze=8ms shot=7330ms unfreeze=93ms saved=True\n  Frame 7 saved (frame_006.jpg, t=42.8s)\n  [capture-periodic] freeze=7ms shot=387ms unfreeze=34ms saved=True"}, {"file": "frame_008.jpg", "time": 49.72296905517578, "log": "Final screenshot"}], "total_time": 47.09}, "advanced": {"frames": [{"file": "frame_000.jpg", "time": 0.0, "log": "Capturing execution frames: advanced.json"}, {"file": "frame_001.jpg", "time": 2.6, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution..."}, {"file": "frame_002.jpg", "time": 5.19, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True"}, {"file": "frame_003.jpg", "time": 10.01, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB"}, {"file": "frame_004.jpg", "time": 13.4, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True"}, {"file": "frame_005.jpg", "time": 16.69, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True"}, {"file": "frame_006.jpg", "time": 19.99, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB"}, {"file": "frame_007.jpg", "time": 22.94, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB\n  Frame 7 saved (frame_006.jpg, t=20.0s)\n  [capture-periodic] freeze=39ms shot=651ms unfreeze=38ms saved=True"}, {"file": "frame_008.jpg", "time": 25.53, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB\n  Frame 7 saved (frame_006.jpg, t=20.0s)\n  [capture-periodic] freeze=39ms shot=651ms unfreeze=38ms saved=True\n  Frame 8 saved (frame_007.jpg, t=22.9s)\n  [capture-periodic] freeze=54ms shot=441ms unfreeze=35ms saved=True"}, {"file": "frame_009.jpg", "time": 72.65, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB\n  Frame 7 saved (frame_006.jpg, t=20.0s)\n  [capture-periodic] freeze=39ms shot=651ms unfreeze=38ms saved=True\n  Frame 8 saved (frame_007.jpg, t=22.9s)\n  [capture-periodic] freeze=54ms shot=441ms unfreeze=35ms saved=True\n  Frame 9 saved (frame_008.jpg, t=25.5s)\n  [capture-periodic] freeze=4ms shot=272ms unfreeze=27ms saved=True\n  [capture-loop] iter=150 t=26.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=71% browser_rss=0.60GB\n  [capture-loop] iter=200 t=33.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=3.5/7.0GB (65%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.58GB\n  [capture-loop] iter=250 t=41.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=3.8/7.0GB (76%) swap=0.0/0.0GB (0%) cpu=65% browser_rss=0.44GB\n  [capture-loop] iter=300 t=47.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=4.4/7.0GB (80%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.44GB\n  [capture-loop] iter=350 t=54.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=19 ram=4.9/7.0GB (88%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.44GB\n  [capture-loop] iter=400 t=67.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=2.7/7.0GB (77%) swap=0.3/1.0GB (28%) cpu=70% browser_rss=0.26GB"}, {"file": "frame_010.jpg", "time": 73.98, "log": "Capturing execution frames: advanced.json\n  Frame 1 saved (frame_000.jpg, t=0.0s)\n  Validating workflow...\n  Queuing workflow for execution...\n  Frame 2 saved (frame_001.jpg, t=2.6s)\n  [capture-periodic] freeze=4ms shot=467ms unfreeze=27ms saved=True\n  Frame 3 saved (frame_002.jpg, t=5.2s)\n  [capture-periodic] freeze=5ms shot=352ms unfreeze=43ms saved=True\n  [capture-loop] iter=50 t=7.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.8/7.0GB (60%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.70GB\n  Frame 4 saved (frame_003.jpg, t=10.0s)\n  [capture-periodic] freeze=5ms shot=1115ms unfreeze=109ms saved=True\n  Frame 5 saved (frame_004.jpg, t=13.4s)\n  [capture-periodic] freeze=13ms shot=909ms unfreeze=220ms saved=True\n  Frame 6 saved (frame_005.jpg, t=16.7s)\n  [capture-periodic] freeze=17ms shot=930ms unfreeze=186ms saved=True\n  [capture-loop] iter=100 t=18.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=22 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=90% browser_rss=0.58GB\n  Frame 7 saved (frame_006.jpg, t=20.0s)\n  [capture-periodic] freeze=39ms shot=651ms unfreeze=38ms saved=True\n  Frame 8 saved (frame_007.jpg, t=22.9s)\n  [capture-periodic] freeze=54ms shot=441ms unfreeze=35ms saved=True\n  Frame 9 saved (frame_008.jpg, t=25.5s)\n  [capture-periodic] freeze=4ms shot=272ms unfreeze=27ms saved=True\n  [capture-loop] iter=150 t=26.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=3.7/7.0GB (62%) swap=0.0/0.0GB (0%) cpu=71% browser_rss=0.60GB\n  [capture-loop] iter=200 t=33.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=8 ram=3.5/7.0GB (65%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.58GB\n  [capture-loop] iter=250 t=41.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=3.8/7.0GB (76%) swap=0.0/0.0GB (0%) cpu=65% browser_rss=0.44GB\n  [capture-loop] iter=300 t=47.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=4.4/7.0GB (80%) swap=0.0/0.0GB (0%) cpu=60% browser_rss=0.44GB\n  [capture-loop] iter=350 t=54.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=19 ram=4.9/7.0GB (88%) swap=0.0/0.0GB (0%) cpu=52% browser_rss=0.44GB\n  [capture-loop] iter=400 t=67.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=2.7/7.0GB (77%) swap=0.3/1.0GB (28%) cpu=70% browser_rss=0.26GB\n  Node executed (1 total), capturing...\n  Frame 10 saved (frame_009.jpg, t=72.7s)\n  [capture-node] freeze=563ms shot=433ms unfreeze=4ms saved=True"}, {"file": "frame_011.jpg", "time": 76.77550315856934, "log": "Final screenshot"}], "total_time": 74.37}};
+
+        const inIframe = window !== window.top;
+        let currentWorkflow = null;
+        let playInterval = null;
+        let originalLogContent = '';
+        let currentFrameIndex = 0;
+        let currentFrames = [];
+        let currentTotalTime = 0;
+
+        function openLightboxByName(name) {
+            const w = workflowData[name];
+            if (w) openLightbox(w.src, w.title, w.status, w.duration, w.log, w.hardware);
+        }
+
+        function openLightbox(src, title, status, duration, logContent, hardware) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-title').textContent = title;
+            currentWorkflow = title;
+            originalLogContent = logContent;
+
+            const badge = document.getElementById('lightbox-badge');
+            badge.textContent = status;
+            badge.className = 'lightbox-badge ' + status;
+
+            document.getElementById('lightbox-duration').textContent = duration + 's';
+            document.getElementById('lightbox-log').textContent = logContent || '(No log available)';
+
+            const hwEl = document.getElementById('lightbox-hardware');
+            if (hardware) {
+                const parts = [];
+                if (hardware.os) parts.push(hardware.os);
+                if (hardware.cpu) parts.push(hardware.cpu);
+                if (hardware.gpu) parts.push(hardware.gpu);
+                hwEl.textContent = parts.join(' | ');
+            } else {
+                hwEl.textContent = status === 'skipped' ? '(Did not run on this machine)' : '';
+            }
+
+            const data = videoData[title];
+            const videoPlayer = document.getElementById('video-player');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
+
+            // Reset both modes; the branch below activates one.
+            videoPlayer.classList.remove('active');
+            lightboxVideo.style.display = 'none';
+            lightboxVideo.removeAttribute('src');
+            lightboxImg.style.display = '';
+
+            if (data && data.mp4) {
+                // Playable mp4 (desktop runs). Show <video>, hide the
+                // frame-slideshow img + slider.
+                lightboxVideo.src = 'videos/' + encodeURIComponent(title) + '/' + data.mp4;
+                lightboxVideo.style.display = '';
+                lightboxImg.style.display = 'none';
+            } else if (data && data.frames && data.frames.length > 1) {
+                currentFrames = data.frames;
+                currentTotalTime = data.total_time || data.frames[data.frames.length - 1].time;
+                setupVideoSlider(data.frames, currentTotalTime);
+                updateVideoFrameByIndex(title, data.frames.length - 1);
+                videoPlayer.classList.add('active');
+            }
+
+            loadResourceGraph(title);
+
+            // Close image overlay if open
+            closeImgOverlay();
+
+            document.getElementById('lightbox').classList.add('active');
+            history.replaceState(null, '', '#' + encodeURIComponent(title));
+
+            // Notify parent frames for deep linking
+            if (inIframe) {
+                window.parent.postMessage({ type: 'comfytest-open', name: title }, '*');
+            }
+        }
+
+        function buildSliderRange(frames, totalTime) {
+            const range = { 'min': frames[0].time };
+            frames.forEach((frame, idx) => {
+                if (idx > 0 && idx < frames.length - 1) {
+                    const pct = (frame.time / totalTime * 100).toFixed(1) + '%';
+                    range[pct] = frame.time;
+                }
+            });
+            range['max'] = frames[frames.length - 1].time;
+            return range;
+        }
+
+        function setupVideoSlider(frames, totalTime) {
+            const sliderEl = document.getElementById('video-slider');
+
+            if (sliderEl.noUiSlider) {
+                sliderEl.noUiSlider.destroy();
+            }
+
+            const range = buildSliderRange(frames, totalTime);
+
+            noUiSlider.create(sliderEl, {
+                start: frames[frames.length - 1].time,
+                snap: true,
+                range: range,
+                pips: {
+                    mode: 'range',
+                    density: 100
+                }
+            });
+
+            sliderEl.noUiSlider.on('update', function(values) {
+                const time = parseFloat(values[0]);
+                const frameIdx = frames.findIndex(f => Math.abs(f.time - time) < 0.01);
+                if (frameIdx >= 0 && frameIdx !== currentFrameIndex) {
+                    currentFrameIndex = frameIdx;
+                    showFrame(currentWorkflow, frameIdx);
+                }
+            });
+        }
+
+        function showFrame(workflowName, frameIndex) {
+            const data = videoData[workflowName];
+            if (!data || !data.frames) return;
+
+            const frame = data.frames[frameIndex];
+            const img = document.getElementById('lightbox-img');
+
+            const isLastFrame = frameIndex === data.frames.length - 1;
+            if (isLastFrame && workflowData[workflowName] && workflowData[workflowName].src) {
+                img.src = workflowData[workflowName].src;
+            } else {
+                img.src = 'videos/' + workflowName + '/' + frame.file;
+            }
+
+            const counter = document.getElementById('video-frame-counter');
+            const totalTime = data.total_time || data.frames[data.frames.length - 1].time;
+            counter.textContent = frame.time.toFixed(1) + 's / ' + totalTime.toFixed(1) + 's';
+
+            const logEl = document.getElementById('lightbox-log');
+            if (frame.log) {
+                logEl.textContent = frame.log;
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }
+
+        function updateVideoFrameByIndex(workflowName, frameIndex) {
+            currentFrameIndex = frameIndex;
+            showFrame(workflowName, frameIndex);
+
+            const sliderEl = document.getElementById('video-slider');
+            if (sliderEl.noUiSlider && currentFrames[frameIndex]) {
+                sliderEl.noUiSlider.set(currentFrames[frameIndex].time);
+            }
+        }
+
+        function toggleVideoPlay() {
+            const btn = document.getElementById('video-play-btn');
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+                btn.innerHTML = '&#9654; Play';
+            } else {
+                btn.innerHTML = '&#9632; Stop';
+                playInterval = setInterval(() => {
+                    if (!currentFrames.length) return;
+                    currentFrameIndex = (currentFrameIndex + 1) % currentFrames.length;
+                    updateVideoFrameByIndex(currentWorkflow, currentFrameIndex);
+                }, 500);
+            }
+        }
+
+        let resourceGraphState = null;
+
+        async function loadResourceGraph(workflowName) {
+            const graphContainer = document.getElementById('resource-graph');
+            const canvas = document.getElementById('resource-canvas');
+            const gpuLegend = document.getElementById('gpu-legend');
+
+            resourceGraphState = null;
+
+            try {
+                const csvResponse = await fetch('logs/' + workflowName + '_resources.csv');
+
+                if (!csvResponse.ok) {
+                    graphContainer.classList.remove('active');
+                    return;
+                }
+
+                const text = await csvResponse.text();
+                const allLines = text.trim().split('\n');
+
+                let totalRamGb = 32;
+                if (allLines[0].startsWith('#')) {
+                    const metaMatch = allLines[0].match(/total_ram_gb=([\d.]+)/);
+                    if (metaMatch) {
+                        totalRamGb = parseFloat(metaMatch[1]);
+                    }
+                }
+
+                const dataLines = allLines.slice(2);
+
+                if (dataLines.length < 2) {
+                    graphContainer.classList.remove('active');
+                    return;
+                }
+
+                const data = dataLines.map(line => {
+                    const [t, ram, vram] = line.split(',');
+                    return {
+                        t: parseFloat(t),
+                        ram: parseFloat(ram),
+                        vram: vram ? parseFloat(vram) : null
+                    };
+                });
+
+                const hasVram = data.some(d => d.vram !== null);
+                gpuLegend.style.display = hasVram ? 'flex' : 'none';
+
+                graphContainer.classList.add('active');
+                await new Promise(r => setTimeout(r, 10));
+
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+
+                const w = rect.width;
+                const h = rect.height;
+                const padding = { top: 10, right: 40, bottom: 20, left: 45 };
+                const graphW = w - padding.left - padding.right;
+                const graphH = h - padding.top - padding.bottom;
+
+                const maxRam = Math.max(...data.map(d => d.ram), 0.5);
+                const maxVram = hasVram ? Math.max(...data.filter(d => d.vram !== null).map(d => d.vram), 0.5) : 1;
+                const maxTime = data[data.length - 1].t;
+
+                resourceGraphState = { data, padding, w, h, graphW, graphH, maxRam, maxVram, maxTime, hasVram, dpr };
+
+                drawResourceGraph();
+            } catch (e) {
+                console.error('Resource graph error:', e);
+                graphContainer.classList.remove('active');
+            }
+        }
+
+        function drawResourceGraph(hoverX) {
+            if (!resourceGraphState) return;
+            const { data, padding, w, h, graphW, graphH, maxRam, maxVram, maxTime, hasVram, dpr } = resourceGraphState;
+
+            const canvas = document.getElementById('resource-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+
+            // Grid lines
+            ctx.strokeStyle = '#1c2d44';
+            ctx.lineWidth = 0.5;
+            for (let i = 1; i < 4; i++) {
+                const y = padding.top + (graphH * i / 4);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(w - padding.right, y);
+                ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#243656';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, padding.top);
+            ctx.lineTo(padding.left, h - padding.bottom);
+            ctx.lineTo(w - padding.right, h - padding.bottom);
+            ctx.lineTo(w - padding.right, padding.top);
+            ctx.stroke();
+
+            // Left axis: RAM
+            ctx.fillStyle = '#3fb950';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'right';
+            const ramMax = Math.ceil(maxRam * 10) / 10;
+            ctx.fillText(ramMax.toFixed(1) + ' GB', padding.left - 3, padding.top + 4);
+            ctx.fillText('0', padding.left - 3, h - padding.bottom + 4);
+
+            // Right axis: VRAM (if present)
+            if (hasVram) {
+                ctx.fillStyle = '#d29922';
+                ctx.textAlign = 'left';
+                const vramMax = Math.ceil(maxVram * 10) / 10;
+                ctx.fillText(vramMax.toFixed(1) + ' GB', w - padding.right + 3, padding.top + 4);
+                ctx.fillText('0', w - padding.right + 3, h - padding.bottom + 4);
+            }
+
+            // Time labels
+            ctx.fillStyle = '#4a6282';
+            ctx.textAlign = 'center';
+            ctx.fillText('0s', padding.left, h - padding.bottom + 12);
+            ctx.fillText(maxTime.toFixed(0) + 's', w - padding.right, h - padding.bottom + 12);
+
+            function drawLine(values, maxVal, color) {
+                if (values.every(v => v === null || isNaN(v))) return;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                let started = false;
+                data.forEach((d, i) => {
+                    const val = values[i];
+                    if (val === null || isNaN(val)) return;
+                    const x = padding.left + (d.t / maxTime) * graphW;
+                    const y = padding.top + (1 - val / maxVal) * graphH;
+                    if (!started) { ctx.moveTo(x, y); started = true; }
+                    else { ctx.lineTo(x, y); }
+                });
+                ctx.stroke();
+            }
+
+            drawLine(data.map(d => d.ram), ramMax, '#3fb950');
+            if (hasVram) {
+                drawLine(data.map(d => d.vram), Math.ceil(maxVram * 10) / 10, '#d29922');
+            }
+
+            // Hover crosshair
+            if (hoverX !== undefined && hoverX >= padding.left && hoverX <= w - padding.right) {
+                const timeAtCursor = ((hoverX - padding.left) / graphW) * maxTime;
+                let closest = data[0], closestDist = Infinity;
+                for (const d of data) {
+                    const dist = Math.abs(d.t - timeAtCursor);
+                    if (dist < closestDist) { closestDist = dist; closest = d; }
+                }
+
+                const snapX = padding.left + (closest.t / maxTime) * graphW;
+
+                // Vertical line
+                ctx.strokeStyle = 'rgba(230,237,243,0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(snapX, padding.top);
+                ctx.lineTo(snapX, h - padding.bottom);
+                ctx.stroke();
+
+                // Readout
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'left';
+                const readoutX = snapX + 6;
+                let readoutY = padding.top + 14;
+
+                ctx.fillStyle = '#8ba3c1';
+                ctx.fillText(closest.t.toFixed(1) + 's', readoutX, readoutY);
+                readoutY += 13;
+
+                ctx.fillStyle = '#3fb950';
+                ctx.fillText('RAM: ' + closest.ram.toFixed(2) + ' GB', readoutX, readoutY);
+                readoutY += 13;
+
+                if (hasVram && closest.vram !== null) {
+                    ctx.fillStyle = '#d29922';
+                    ctx.fillText('VRAM: ' + closest.vram.toFixed(2) + ' GB', readoutX, readoutY);
+                }
+            }
+        }
+
+        // Canvas hover handler
+        document.getElementById('resource-canvas').addEventListener('mousemove', function(e) {
+            if (!resourceGraphState) return;
+            const rect = this.getBoundingClientRect();
+            drawResourceGraph(e.clientX - rect.left);
+        });
+        document.getElementById('resource-canvas').addEventListener('mouseleave', function() {
+            drawResourceGraph();
+        });
+
+        function closeImgOverlay() {
+            const overlay = document.getElementById('img-overlay');
+            overlay.classList.remove('active', 'zoomed');
+        }
+
+        function closeLightbox() {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+                document.getElementById('video-play-btn').innerHTML = '&#9654; Play';
+            }
+            closeImgOverlay();
+            document.getElementById('resource-graph').classList.remove('active');
+            document.getElementById('lightbox').classList.remove('active');
+            history.replaceState(null, '', window.location.pathname);
+
+            if (inIframe) {
+                window.parent.postMessage({ type: 'comfytest-close' }, '*');
+            }
+        }
+
+        document.getElementById('lightbox').onclick = (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        };
+
+        function navigateLightbox(delta) {
+            if (workflowNames.length === 0) return;
+            const idx = workflowNames.indexOf(currentWorkflow);
+            if (idx === -1) return;
+            const newIdx = (idx + delta + workflowNames.length) % workflowNames.length;
+            openLightboxByName(workflowNames[newIdx]);
+        }
+
+        function handleKey(key) {
+            const overlay = document.getElementById('img-overlay');
+            if (key === 'Escape') {
+                if (overlay.classList.contains('active')) {
+                    closeImgOverlay();
+                } else {
+                    closeLightbox();
+                }
+                return;
+            }
+            if (document.getElementById('lightbox').classList.contains('active') && !overlay.classList.contains('active')) {
+                if (key === 'ArrowLeft') { navigateLightbox(-1); }
+                if (key === 'ArrowRight') { navigateLightbox(1); }
+            }
+        }
+
+        document.onkeydown = (e) => {
+            if (['Escape', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                handleKey(e.key);
+            }
+        };
+
+        // Click lightbox image -> open in fullscreen overlay (fit mode)
+        document.getElementById('lightbox-img').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const overlay = document.getElementById('img-overlay');
+            const overlayImg = document.getElementById('img-overlay-content');
+            overlayImg.src = this.src;
+            overlay.classList.add('active');
+            overlay.classList.remove('zoomed');
+        });
+
+        // Click overlay image: fit -> zoomed -> close
+        document.getElementById('img-overlay-content').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const overlay = document.getElementById('img-overlay');
+            if (overlay.classList.contains('zoomed')) {
+                closeImgOverlay();
+            } else {
+                overlay.classList.add('zoomed');
+            }
+        });
+
+        // Click overlay background -> close overlay
+        document.getElementById('img-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeImgOverlay();
+        });
+
+        function openFromHash() {
+            const hash = decodeURIComponent(window.location.hash.slice(1));
+            if (hash && workflowData[hash]) {
+                const w = workflowData[hash];
+                openLightbox(w.src, w.title, w.status, w.duration, w.log, w.hardware);
+            }
+        }
+
+        window.addEventListener('hashchange', openFromHash);
+        window.addEventListener('load', openFromHash);
+
+        // Listen for messages from parent frames
+        window.addEventListener('message', function(e) {
+            if (!e.data || !e.data.type) return;
+            if (e.data.type === 'comfytest-open' && e.data.name) {
+                openLightboxByName(e.data.name);
+            }
+            if (e.data.type === 'comfytest-key') {
+                handleKey(e.data.key);
+            }
+        });
+
+        // Detect iframe: hide header and move meta chips into summary
+        if (inIframe) {
+            document.body.classList.add('in-iframe');
+            const chips = document.querySelector('.meta-chips');
+            const summary = document.querySelector('.summary');
+            if (chips && summary) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'summary-meta';
+                while (chips.firstChild) wrapper.appendChild(chips.firstChild);
+                summary.insertBefore(wrapper, summary.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>

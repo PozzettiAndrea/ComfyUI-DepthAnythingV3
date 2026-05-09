@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PozzettiAndrea/ComfyUI-DepthAnythingV3 - Test Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1923;
+            color: #e6edf3;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #162033;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #243656;
+        }
+
+        body.in-iframe header {
+            display: none;
+        }
+
+        body.in-iframe .container {
+            padding-top: 1.25rem;
+        }
+
+        body.in-iframe .summary-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 a {
+            color: #e6edf3;
+            text-decoration: none;
+        }
+
+        h1 a:hover { color: #58a6ff; }
+
+        .meta-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.6rem;
+            background: #1c2d44;
+            border: 1px solid #243656;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+        }
+
+        .meta-chip svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Summary Section */
+        .summary {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            background: #1c2d44;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .progress-fill {
+            background: #3fb950;
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.has-failures {
+            background: linear-gradient(90deg, #3fb950 0%, #3fb950 0%, #f85149 0%, #f85149 100%);
+            width: 100% !important;
+            border-radius: 6px;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #8ba3c1;
+            white-space: nowrap;
+            min-width: 3.5rem;
+            text-align: right;
+        }
+
+        .stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .stat-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .stat-pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .stat-fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .stat-total {
+            color: #8ba3c1;
+            font-size: 0.85rem;
+        }
+
+        /* Failed Section */
+        .failed-section {
+            background: rgba(248, 81, 73, 0.08);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .failed-section h2 {
+            color: #f85149;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .failed-item {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .failed-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .failed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .failed-name {
+            font-weight: 600;
+            color: #f85149;
+        }
+
+        .failed-duration {
+            color: #8ba3c1;
+            font-size: 0.8rem;
+        }
+
+        .failed-error {
+            background: #0f1923;
+            border: 1px solid #243656;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.8rem;
+            color: #d29922;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-link {
+            color: #58a6ff;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .log-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Workflow Grid */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            border: 1px solid #243656;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            background: #1c2d44;
+            color: #8ba3c1;
+            border: none;
+            border-right: 1px solid #243656;
+            padding: 0.3rem 0.75rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .view-btn:last-child {
+            border-right: none;
+        }
+
+        .view-btn:hover {
+            background: #243656;
+            color: #e6edf3;
+        }
+
+        .view-btn.active {
+            background: #58a6ff;
+            color: #fff;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .workflow-grid.view-list {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .workflow-grid.view-list .workflow-card {
+            border-radius: 0;
+            border-bottom: 1px solid #243656;
+        }
+
+        .workflow-grid.view-list .workflow-card:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .workflow-grid.view-list .workflow-card:last-child {
+            border-radius: 0 0 8px 8px;
+            border-bottom: none;
+        }
+
+        .workflow-grid.view-list .workflow-card:only-child {
+            border-radius: 8px;
+        }
+
+        .workflow-grid.view-list .workflow-screenshot {
+            width: 100%;
+            height: auto;
+            aspect-ratio: auto;
+        }
+
+        .workflow-grid.view-list .workflow-info {
+            border-top: 1px solid #243656;
+            padding: 0.75rem 1rem;
+        }
+
+        .workflow-grid.view-list .workflow-name {
+            max-width: none;
+            font-size: 0.9rem;
+        }
+
+        .workflow-card {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-1px);
+            border-color: #4a6282;
+        }
+
+        .workflow-card.clickable {
+            cursor: pointer;
+        }
+
+        .workflow-card.failed {
+            border-color: #f85149;
+        }
+
+        .workflow-card.failed:hover {
+            border-color: #f85149;
+        }
+
+        .workflow-screenshot {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+            background: #0f1923;
+            display: block;
+        }
+
+        .workflow-screenshot.placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a6282;
+            font-size: 0.8rem;
+        }
+
+        .workflow-info {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #243656;
+        }
+
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .workflow-name {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #e6edf3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 65%;
+        }
+
+        .workflow-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            flex-shrink: 0;
+        }
+
+        .workflow-badge.pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .workflow-badge.fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .workflow-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #4a6282;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 4, 9, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #243656;
+            align-self: center;
+            cursor: zoom-in;
+        }
+
+        .img-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1002;
+            background: rgba(1, 4, 9, 0.95);
+            overflow: auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-overlay.active {
+            display: flex;
+        }
+
+        .img-overlay.zoomed {
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .img-overlay img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: zoom-in;
+        }
+
+        .img-overlay.zoomed img {
+            max-width: none;
+            max-height: none;
+            cursor: zoom-out;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            color: #e6edf3;
+            cursor: pointer;
+            opacity: 0.6;
+            background: none;
+            border: none;
+            z-index: 1001;
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(22, 32, 51, 0.8);
+            border: 1px solid #243656;
+            color: #e6edf3;
+            font-size: 2.5rem;
+            width: 48px;
+            height: 64px;
+            border-radius: 8px;
+            cursor: pointer;
+            opacity: 0.6;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .lightbox-nav:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav-left { left: 1rem; }
+        .lightbox-nav-right { right: 1rem; }
+
+        .lightbox-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .lightbox-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .lightbox-hardware {
+            display: block;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+            margin-top: 0.25rem;
+        }
+
+        .lightbox-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .lightbox-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .lightbox-badge.pass {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .lightbox-badge.fail {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+        }
+
+        .lightbox-duration {
+            color: #8ba3c1;
+            font-size: 0.85rem;
+        }
+
+        .lightbox-log {
+            background: #0f1923;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #8ba3c1;
+        }
+
+        .lightbox-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-track {
+            background: #162033;
+            border-radius: 4px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-thumb {
+            background: #243656;
+            border-radius: 4px;
+        }
+
+        .lightbox-log::-webkit-scrollbar-thumb:hover {
+            background: #4a6282;
+        }
+
+        /* Resource Graph */
+        .resource-graph {
+            display: none;
+            margin-top: 1rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .resource-graph.active {
+            display: block;
+        }
+
+        .resource-graph-title {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .resource-graph canvas {
+            width: 100%;
+            height: 120px;
+            cursor: crosshair;
+        }
+
+        .resource-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #8ba3c1;
+        }
+
+        .resource-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .resource-legend .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .resource-legend .ram { background: #3fb950; }
+        .resource-legend .gpu { background: #d29922; }
+
+        /* Video Player */
+        .video-player {
+            display: none;
+            margin-top: 1rem;
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .video-player.active {
+            display: block;
+        }
+
+        .video-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .video-play-btn {
+            background: #58a6ff;
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .video-play-btn:hover {
+            background: #79b8ff;
+        }
+
+        .video-frame-counter {
+            color: #8ba3c1;
+            font-size: 0.8rem;
+        }
+
+        .video-slider-container {
+            padding: 15px 0;
+        }
+
+        /* noUiSlider customization */
+        #video-slider {
+            height: 6px;
+            background: #1c2d44;
+            border: none;
+            box-shadow: none;
+        }
+
+        #video-slider .noUi-connect {
+            background: #58a6ff;
+        }
+
+        #video-slider .noUi-handle {
+            width: 16px;
+            height: 16px;
+            background: #58a6ff;
+            border: none;
+            border-radius: 50%;
+            box-shadow: none;
+            top: -5px;
+            right: -8px;
+            cursor: pointer;
+        }
+
+        #video-slider .noUi-handle:before,
+        #video-slider .noUi-handle:after {
+            display: none;
+        }
+
+        /* Pips (tick marks) */
+        .noUi-pips {
+            color: #4a6282;
+        }
+
+        .noUi-marker {
+            background: #243656;
+            width: 2px;
+        }
+
+        .noUi-marker-large {
+            height: 12px;
+        }
+
+        .noUi-value {
+            display: none;
+        }
+
+        /* Models Section */
+        .models-section {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .models-total {
+            font-size: 0.8rem;
+            color: #8ba3c1;
+        }
+
+        .models-folder {
+            background: #162033;
+            border: 1px solid #243656;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .models-folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
+        }
+
+        .models-folder-header::-webkit-details-marker {
+            display: none;
+        }
+
+        .models-folder-header::before {
+            content: '\25B6';
+            font-size: 0.6rem;
+            color: #4a6282;
+            margin-right: 0.5rem;
+            transition: transform 0.15s;
+        }
+
+        .models-folder[open] > .models-folder-header::before {
+            transform: rotate(90deg);
+        }
+
+        .models-folder-name {
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .models-folder-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .models-folder-size {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #8ba3c1;
+        }
+
+        .models-source-link {
+            font-size: 0.75rem;
+            color: #3fb950;
+            text-decoration: none;
+            padding: 0.15rem 0.5rem;
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.2);
+            border-radius: 2rem;
+        }
+
+        .models-source-link:hover {
+            background: rgba(63, 185, 80, 0.2);
+            text-decoration: none;
+        }
+
+        .models-file-list {
+            border-top: 1px solid #243656;
+            padding: 0.25rem 0;
+        }
+
+        .models-file {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.35rem 1rem 0.35rem 2rem;
+            font-size: 0.8rem;
+        }
+
+        .models-file:hover {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        .models-file-path {
+            font-family: 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
+            color: #8ba3c1;
+            word-break: break-all;
+        }
+
+        .models-file-size {
+            color: #4a6282;
+            white-space: nowrap;
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            color: #4a6282;
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .workflow-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .workflow-grid.view-list .workflow-card {
+                grid-template-columns: 1fr;
+            }
+
+            .workflow-grid.view-list .workflow-screenshot {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16/10;
+            }
+
+            .stats {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15/dist/nouislider.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1><a href="https://github.com/PozzettiAndrea/PozzettiAndrea/ComfyUI-DepthAnythingV3">PozzettiAndrea/ComfyUI-DepthAnythingV3</a> Test Results</h1>
+        <div class="meta-chips">
+            
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="summary">
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-label">0.0%</span>
+            </div>
+            <div class="stats">
+                <span class="stat-badge stat-pass">0 passed</span>
+                
+                <span class="stat-total">0/0 tests</span>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Workflows</h2>
+            <div class="view-controls">
+                <button class="view-btn active" onclick="setView('grid')">Grid</button>
+                <button class="view-btn" onclick="setView('list')">List</button>
+            </div>
+        </div>
+        <div class="workflow-grid" id="workflow-grid">
+            
+            <div class="workflow-card clickable " onclick="openLightboxByName('system')">
+                <div class="workflow-screenshot placeholder">No screenshot</div>
+                <div class="workflow-info">
+                    <div class="workflow-header">
+                        <span class="workflow-name" title="system">system</span>
+                        <span class="workflow-badge pass">pass</span>
+                    </div>
+                    <div class="workflow-meta">
+                        <span>0.00s</span>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+
+        
+
+        
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-nav-left" onclick="navigateLightbox(-1)">&#8249;</button>
+        <button class="lightbox-nav lightbox-nav-right" onclick="navigateLightbox(1)">&#8250;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <video id="lightbox-video" controls preload="metadata" style="display:none; max-width:90vw; max-height:80vh; background:#000;"></video>
+            <div class="video-player" id="video-player">
+                <div class="video-slider-container">
+                    <div id="video-slider"></div>
+                </div>
+                <div class="video-controls">
+                    <span class="video-frame-counter" id="video-frame-counter">0.0s / 0.0s</span>
+                </div>
+            </div>
+            <div class="resource-graph" id="resource-graph">
+                <div class="resource-graph-title">Resource Usage</div>
+                <canvas id="resource-canvas"></canvas>
+                <div class="resource-legend">
+                    <span><span class="dot ram"></span> RAM (GB)</span>
+                    <span id="gpu-legend" style="display:none"><span class="dot gpu"></span> VRAM (GB)</span>
+                </div>
+            </div>
+            <div class="lightbox-info">
+                <div>
+                    <span class="lightbox-title" id="lightbox-title"></span>
+                    <span class="lightbox-hardware" id="lightbox-hardware"></span>
+                </div>
+                <div class="lightbox-meta">
+                    <span class="lightbox-badge" id="lightbox-badge"></span>
+                    <span class="lightbox-duration" id="lightbox-duration"></span>
+                </div>
+            </div>
+            <pre class="lightbox-log" id="lightbox-log"></pre>
+        </div>
+    </div>
+
+    <div class="img-overlay" id="img-overlay">
+        <img id="img-overlay-content" src="" alt="">
+    </div>
+
+    <footer>
+        Generated by <a href="https://github.com/PozzettiAndrea/comfy-test">comfy-test</a>
+    </footer>
+
+    <script>
+        function setView(mode) {
+            const grid = document.getElementById('workflow-grid');
+            grid.className = mode === 'list' ? 'workflow-grid view-list' : 'workflow-grid';
+            document.querySelectorAll('.view-controls .view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === mode);
+            });
+        }
+
+        const workflowData = {"system": {"src": "", "title": "system", "status": "pass", "duration": "0.00", "log": "[2026-05-08 11:14:55.568] [MAI] [2026-05-08 11:14:55.568] [info]  Install state: not installed\n[2026-05-08 11:14:55.568] [MAI] [2026-05-08 11:14:55.568] [info]  Starting installation.\n[2026-05-08 11:15:11.230] [MAI] [2026-05-08 11:15:11.230] [info]  Creating ComfyUI directories in /Users/runner/Documents/ComfyUI\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/custom_nodes\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/input\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/output\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/user\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/user/default\n[2026-05-08 11:15:11.233] [MAI] [2026-05-08 11:15:11.233] [info]  Created directory: /Users/runner/Documents/ComfyUI/models\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/checkpoints\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/clip\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/clip_vision\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/configs\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/controlnet\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/diffusers\n[2026-05-08 11:15:11.234] [MAI] [2026-05-08 11:15:11.234] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/diffusion_models\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/embeddings\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/gligen\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/hypernetworks\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/loras\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/photomaker\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/style_models\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/text_encoders\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/unet\n[2026-05-08 11:15:11.235] [MAI] [2026-05-08 11:15:11.235] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/upscale_models\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/vae\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/vae_approx\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/animatediff_models\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/animatediff_motion_lora\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/animatediff_video_formats\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/liveportrait\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/insightface\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/insightface/buffalo_1\n[2026-05-08 11:15:11.236] [MAI] [2026-05-08 11:15:11.236] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/blip\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/blip/checkpoints\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/CogVideo\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/xlabs\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/xlabs/loras\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/xlabs/controlnets\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/layerstyle\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/LLM\n[2026-05-08 11:15:11.237] [MAI] [2026-05-08 11:15:11.237] [info]  Created directory: /Users/runner/Documents/ComfyUI/models/Joy_caption\n[2026-05-08 11:15:11.239] [MAI] [2026-05-08 11:15:11.239] [info]  Settings file /Users/runner/Documents/ComfyUI/user/default/comfy.settings.json does not exist. Using default settings.\n[2026-05-08 11:15:11.241] [MAI] [2026-05-08 11:15:11.241] [info]  Wrote install options to comfy settings file.\n[2026-05-08 11:15:11.241] [MAI] [2026-05-08 11:15:11.241] [info]  Creating model config files in /Users/runner/Library/Application Support/ComfyUI/extra_models_config.yaml\n[2026-05-08 11:15:11.244] [MAI] [2026-05-08 11:15:11.244] [info]  Created extra_model_paths.yaml at /Users/runner/Library/Application Support/ComfyUI/extra_models_config.yaml\n[2026-05-08 11:15:11.245] [MAI] [2026-05-08 11:15:11.245] [info]  Using uv at /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv\n[2026-05-08 11:15:11.247] [MAI] [2026-05-08 11:15:11.247] [info]  Creating virtual environment at /Users/runner/Documents/ComfyUI/.venv with python 3.12\n[2026-05-08 11:15:11.247] [MAI] [2026-05-08 11:15:11.247] [info]  Running uv command: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \"venv\" \"--python\" \"3.12\" \"--python-preference\" \"only-managed\"\n[2026-05-08 11:15:11.264] [MAI] [2026-05-08 11:15:11.264] [info]  /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \"venv\" \"--python\" \"3.12\" \"--python-preference\" \"only-managed\"\n[2026-05-08 11:15:11.264] [MAI] echo \"_-end-1778238911247:$?\"\n[2026-05-08 11:15:11.264] [MAI] \n[2026-05-08 11:15:11.283] [MAI] [2026-05-08 11:15:11.283] [info]  %                                                                               \n[2026-05-08 11:15:11.283] [MAI]  \n[2026-05-08 11:15:11.294] [MAI] [2026-05-08 11:15:11.294] [info]  \n[2026-05-08 11:15:11.294] [MAI] sat12-bq167-532d87b4-ddc2-4bfd-9b08-f0d67a86f360-16BBB72E5298% /\b/Users/runner/wor \n[2026-05-08 11:15:11.294] [MAI] k\n[2026-05-08 11:15:11.295] [MAI] [2026-05-08 11:15:11.295] [info]  \n[2026-05-08 11:15:11.295] [MAI] k/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \"venv\" \"- \n[2026-05-08 11:15:11.295] [MAI] -\n[2026-05-08 11:15:11.295] [MAI] -python\" \"3.12\" \"--python-pr\n[2026-05-08 11:15:11.295] [MAI] [2026-05-08 11:15:11.295] [info]  eference\" \"only-managed\"\n[2026-05-08 11:15:11.295] [MAI] \n[2026-05-08 11:15:11.295] [MAI] \n[2026-05-08 11:15:11.306] [MAI] [2026-05-08 11:15:11.306] [info]  Received renderer-ready message!\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"loading-progress\",\"data\":{\"status\":\"python-setup\"}}\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"log-message\",\"data\":\"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \\\"venv\\\" \\\"--python\\\" \\\"3.12\\\" \\\"--python-preference\\\" \\\"only-managed\\\"\\r\\necho \\\"_-end-1778238911247:$?\\\"\\r\\n\"}\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"log-message\",\"data\":\"\\u001b[1m\\u001b[7m%\\u001b[27m\\u001b[1m\\u001b[0m                                                                               \\r \\r\"}\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"log-message\",\"data\":\"\\r\\u001b[0m\\u001b[27m\\u001b[24m\\u001b[Jsat12-bq167-532d87b4-ddc2-4bfd-9b08-f0d67a86f360-16BBB72E5298% \\u001b[K\\u001b[?2004h/\\b/Users/runner/wor \\r\\u001b[Kk\"}\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"log-message\",\"data\":\"\\rk/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \\\"venv\\\" \\\"- \\r\\u001b[K-\\r-python\\\" \\\"3.12\\\" \\\"--python-pr\"}\n[2026-05-08 11:15:11.307] [MAI] [2026-05-08 11:15:11.307] [info]  Sending queued message {\"channel\":\"log-message\",\"data\":\"eference\\\" \\\"only-managed\\\"\\u001b[?2004l\\r\\r\\n\"}\n[2026-05-08 11:15:11.786] [MAI] [2026-05-08 11:15:11.786] [info]  cpython-3.12.11-macos-aarch64-none (download) ------------------------------     0 B/14.90 MiB                                                                  \n[2026-05-08 11:15:11.794] [MAI] [2026-05-08 11:15:11.794] [info]  \n[2026-05-08 11:15:11.794] [MAI] \n[2026-05-08 11:15:11.794] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 16.00 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.817] [MAI] [2026-05-08 11:15:11.817] [info]  \n[2026-05-08 11:15:11.817] [MAI] \n[2026-05-08 11:15:11.817] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 32.00 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.824] [MAI] [2026-05-08 11:15:11.824] [info]  \n[2026-05-08 11:15:11.824] [MAI] \n[2026-05-08 11:15:11.824] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 48.00 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.834] [MAI] [2026-05-08 11:15:11.834] [info]  \n[2026-05-08 11:15:11.834] [MAI] \n[2026-05-08 11:15:11.834] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 60.46 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.837] [MAI] [2026-05-08 11:15:11.837] [info]  \n[2026-05-08 11:15:11.837] [MAI] \n[2026-05-08 11:15:11.837] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 76.46 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.840] [MAI] [2026-05-08 11:15:11.840] [info]  \n[2026-05-08 11:15:11.840] [MAI] \n[2026-05-08 11:15:11.840] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 92.46 KiB/14.90 MiB                                                                \n[2026-05-08 11:15:11.848] [MAI] [2026-05-08 11:15:11.848] [info]  \n[2026-05-08 11:15:11.848] [MAI] \n[2026-05-08 11:15:11.848] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 108.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.851] [MAI] [2026-05-08 11:15:11.851] [info]  \n[2026-05-08 11:15:11.851] [MAI] \n[2026-05-08 11:15:11.851] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 124.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.854] [MAI] [2026-05-08 11:15:11.854] [info]  \n[2026-05-08 11:15:11.854] [MAI] \n[2026-05-08 11:15:11.854] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 140.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.855] [MAI] [2026-05-08 11:15:11.855] [info]  \n[2026-05-08 11:15:11.855] [MAI] \n[2026-05-08 11:15:11.855] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 156.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.857] [MAI] [2026-05-08 11:15:11.857] [info]  \n[2026-05-08 11:15:11.857] [MAI] \n[2026-05-08 11:15:11.857] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 172.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.863] [MAI] [2026-05-08 11:15:11.863] [info]  \n[2026-05-08 11:15:11.863] [MAI] \n[2026-05-08 11:15:11.863] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 188.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.865] [MAI] [2026-05-08 11:15:11.865] [info]  \n[2026-05-08 11:15:11.865] [MAI] \n[2026-05-08 11:15:11.865] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 204.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.868] [MAI] [2026-05-08 11:15:11.868] [info]  \n[2026-05-08 11:15:11.868] [MAI] \n[2026-05-08 11:15:11.868] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 220.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.870] [MAI] [2026-05-08 11:15:11.870] [info]  \n[2026-05-08 11:15:11.870] [MAI] \n[2026-05-08 11:15:11.870] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 236.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.872] [MAI] [2026-05-08 11:15:11.872] [info]  \n[2026-05-08 11:15:11.872] [MAI] \n[2026-05-08 11:15:11.872] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 252.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.873] [MAI] [2026-05-08 11:15:11.873] [info]  \n[2026-05-08 11:15:11.873] [MAI] \n[2026-05-08 11:15:11.873] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 268.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.875] [MAI] [2026-05-08 11:15:11.875] [info]  \n[2026-05-08 11:15:11.875] [MAI] \n[2026-05-08 11:15:11.875] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 284.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.877] [MAI] [2026-05-08 11:15:11.877] [info]  \n[2026-05-08 11:15:11.877] [MAI] \n[2026-05-08 11:15:11.877] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 300.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.877] [MAI] \n[2026-05-08 11:15:11.877] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 316.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.878] [MAI] [2026-05-08 11:15:11.878] [info]  \n[2026-05-08 11:15:11.878] [MAI] \n[2026-05-08 11:15:11.878] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 332.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.878] [MAI] \n[2026-05-08 11:15:11.878] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 348.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.880] [MAI] [2026-05-08 11:15:11.880] [info]  \n[2026-05-08 11:15:11.880] [MAI] \n[2026-05-08 11:15:11.880] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 428.46 KiB/14.90 MiB                                                               \n[2026-05-08 11:15:11.931] [MAI] [2026-05-08 11:15:11.931] [info]  \n[2026-05-08 11:15:11.931] [MAI] \n[2026-05-08 11:15:11.931] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 4.12 MiB/14.90 MiB                                                                 \n[2026-05-08 11:15:11.980] [MAI] [2026-05-08 11:15:11.980] [info]  \n[2026-05-08 11:15:11.980] [MAI] \n[2026-05-08 11:15:11.980] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 7.75 MiB/14.90 MiB                                                                 \n[2026-05-08 11:15:12.031] [MAI] [2026-05-08 11:15:12.031] [info]  \n[2026-05-08 11:15:12.031] [MAI] \n[2026-05-08 11:15:12.031] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 9.31 MiB/14.90 MiB                                                                 \n[2026-05-08 11:15:12.080] [MAI] [2026-05-08 11:15:12.080] [info]  \n[2026-05-08 11:15:12.080] [MAI] \n[2026-05-08 11:15:12.080] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 11.07 MiB/14.90 MiB                                                                \n[2026-05-08 11:15:12.131] [MAI] [2026-05-08 11:15:12.131] [info]  \n[2026-05-08 11:15:12.131] [MAI] \n[2026-05-08 11:15:12.131] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 12.34 MiB/14.90 MiB                                                                \n[2026-05-08 11:15:12.180] [MAI] [2026-05-08 11:15:12.180] [info]  \n[2026-05-08 11:15:12.180] [MAI] \n[2026-05-08 11:15:12.180] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 13.39 MiB/14.90 MiB                                                                \n[2026-05-08 11:15:12.231] [MAI] [2026-05-08 11:15:12.231] [info]  \n[2026-05-08 11:15:12.231] [MAI] \n[2026-05-08 11:15:12.231] [MAI] cpython-3.12.11-macos-aarch64-none (download) ------------------------------ 14.36 MiB/14.90 MiB                                                                \n[2026-05-08 11:15:12.257] [MAI] [2026-05-08 11:15:12.257] [info]  \n[2026-05-08 11:15:12.257] [MAI] \n[2026-05-08 11:15:13.318] [MAI] [2026-05-08 11:15:13.318] [info]  Using CPython \n[2026-05-08 11:15:13.319] [MAI] [2026-05-08 11:15:13.319] [info]  3.12.11\n[2026-05-08 11:15:13.319] [MAI] Creating virtual environment at: \n[2026-05-08 11:15:13.320] [MAI] [2026-05-08 11:15:13.320] [info]  .venv\n[2026-05-08 11:15:13.320] [MAI] \n[2026-05-08 11:15:13.322] [MAI] [2026-05-08 11:15:13.322] [info]  Activate with: source .venv/bin/activate\n[2026-05-08 11:15:13.322] [MAI] \n[2026-05-08 11:15:13.328] [MAI] [2026-05-08 11:15:13.328] [info]  %                                                                               \n[2026-05-08 11:15:13.328] [MAI]  \n[2026-05-08 11:15:13.328] [MAI] [2026-05-08 11:15:13.328] [info]  \n[2026-05-08 11:15:13.328] [MAI] sat12-bq167-532d87b4-ddc2-4bfd-9b08-f0d67a86f360-16BBB72E5298% e\becho \"_-end-17782 \n[2026-05-08 11:15:13.328] [MAI] 3\n[2026-05-08 11:15:13.328] [MAI] 38911247:$?\"\n[2026-05-08 11:15:13.328] [MAI] \n[2026-05-08 11:15:13.328] [MAI] \n[2026-05-08 11:15:13.329] [MAI] [2026-05-08 11:15:13.329] [info]  _-end-1778238911247:0\n[2026-05-08 11:15:13.329] [MAI] \n[2026-05-08 11:15:13.330] [MAI] [2026-05-08 11:15:13.330] [info]  Running command: /Users/runner/Documents/ComfyUI/.venv/bin/python -m ensurepip --upgrade in /Users/runner/Documents/ComfyUI\n[2026-05-08 11:15:14.762] [MAI] [2026-05-08 11:15:14.762] [info]  Looking in links: /var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/tmp8b68b72o\n[2026-05-08 11:15:14.762] [MAI] \n[2026-05-08 11:15:14.765] [MAI] [2026-05-08 11:15:14.765] [info]  Processing /var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/tmp8b68b72o/pip-25.0.1-py3-none-any.whl\n[2026-05-08 11:15:14.765] [MAI] \n[2026-05-08 11:15:14.773] [MAI] [2026-05-08 11:15:14.773] [info]  Installing collected packages: pip\n[2026-05-08 11:15:14.773] [MAI] \n[2026-05-08 11:15:15.414] [MAI] [2026-05-08 11:15:15.414] [info]  Successfully installed pip-25.0.1\n[2026-05-08 11:15:15.414] [MAI] \n[2026-05-08 11:15:15.495] [MAI] [2026-05-08 11:15:15.495] [info]  Running uv command: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/uv/macos/uv \"pip\" \"install\" \"-r\" \"/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/Resources/requirements/macos.compiled\" \"--index-url\" \"https://pypi.org/simple/\" \"--extra-index-url\" \"https://mirrors.aliyun.com/pypi/simple/\" \"--extra-index-url\" \"https://mirrors.cloud.tencent.com/pypi/simple/\" \"--index-strategy\" \"unsafe-best-match\"\n[2026-05-08 11:15:15.499] [MAI] [2026-05-08 11:15:15.499] [info]  /\b/Users/runner/wor \n[2026-05-08 11:15:15.499] [MAI] k\n[2026-05-08 11:15:15.499] [MAI] k/comfy-gpu-ci/comfy-gpu-ci/ComfyUI\n[2026-05-08 11:15:15.499] [MAI] [2026-05-08 11:15:15.499] [info]  .app/Contents/Resources/uv/macos/uv \"pip\" \"\n[2026-05-08 11:15:15.500] [MAI] [2026-05-08 11:15:15.500] [info]  in \n[2026-05-08 11:15:15.500] [MAI] s\n[2026-05-08 11:15:15.500] [MAI] stall\" \"-r\" \"/Users/runner/work/com\n[2026-05-08 11:15:15.500] [MAI] [2026-05-08 11:15:15.500] [info]  fy-gpu-ci/comfy-gpu-ci/ComfyUI.app/Contents/\n[2026-05-08 11:15:15.501] [MAI] [2026-05-08 11:15:15.501] [info]  R \n[2026-05-08 11:15:15.501] [MAI] e\n[2026-05-08 11:15:15.501] [MAI] esources/requirements/macos.co\n[2026-05-08 11:15:15.501] [MAI] [2026-05-08 11:15:15.501] [info]  mpiled\" \"--index-url\" \n[2026-05-08 11:15:15.502] [MAI] [2026-05-08 11:15:15.502] [info]  \"https://pypi.org/simple/\" \" \n[2026-05-08 11:15:15.502] [MAI] -\n[2026-05-08 11:15:15.502] [MAI] --ex\n[2026-05-08 11:15:15.502] [MAI] [2026-05-08 11:15:15.502] [info]  tra-index-url\" \"https://mirrors.\n[2026-05-08 11:15:15.503] [MAI] [2026-05-08 11:15:15.503] [info]  aliyun.com/pypi/simple/\" \"--extra-index-url\" \n[2026-05-08 11:15:15.503] [MAI]  \n[2026-05-08 11:15:15.503] [MAI]  \"http\n[2026-05-08 11:15:15.503] [MAI] [2026-05-08 11:15:15.503] [info]  s://mirrors.cloud.\n[2026-05-08 11:15:15.503] [MAI] [2026-05-08 11:15:15.503] [info]  t\n[2026-05-08 11:15:15.504] [MAI] [2026-05-08 11:15:15.504] [info]  encent.c\n[2026-05-08 11:15:15.504] [MAI] [2026-05-08 11:15:15.504] [info]  om/pypi/simp\n[2026-05-08 11:15:15.505] [MAI] [2026-05-08 11:15:15.505] [info]  le/\" \"--index-strate\n[2026-05-08 11:15:15.505] [MAI] [2026-05-08 11:15:15.505] [info]  gy\" \"u\n[2026-05-08 11:15:15.505] [MAI] [2026-05-08 11:15:15.505] [info]  nsafe-bes \n[2026-05-08 11:15:15.505] [MAI] t\n[2026-05-08 11:15:15.505] [MAI] t-match\"\n[2026-05-08 11:15:15.505] [MAI] \n[2026-05-08 11:15:15.505] [MAI] \n[2026-05-08 11:15:15.634] [MAI] [2026-05-08 11:15:15.634] [info]  \u280b Resolving dependencies...                                                     \n[2026-05-08 11:15:15.635] [MAI] [2026-05-08 11:15:15.635] [info]  \n[2026-05-08 11:15:15.635] [MAI] \u2819 Resolving dependencies...                                                     \n[2026-05-08 11:15:15.637] [MAI] [2026-05-08 11:15:15.637] [info]  \n[2026-05-08 11:15:15.638] [MAI] [2026-05-08 11:15:15.638] [info]  \u280b Resolving dependencies...                                                     \n[2026-05-08 11:15:15.638] [MAI] [2026-05-08 11:15:15.638] [info]  \n[2026-05-08 11:15:15.638] [MAI] \u2819 Resolving dependencies...                                                     \n[2026-05-08 11:15:15.841] [MAI] [2026-05-08 11:15:15.841] [info]  \n[2026-05-08 11:15:15.841] [MAI] \u2839 Resolving dependencies...                                                     \n[2026-05-08 11:15:16.044] [MAI] [2026-05-08 11:15:16.044] [info]  \n[2026-05-08 11:15:16.044] [MAI] \u2838 Resolving dependencies...                                                     \n[2026-05-08 11:15:16.254] [MAI] [2026-05-08 11:15:16.254] [info]  \n[2026-05-08 11:15:16.254] [MAI] \u283c Resolving dependencies...                                                     \n[2026-05-08 11:15:16.464] [MAI] [2026-05-08 11:15:16.464] [info]  \n[2026-05-08 11:15:16.464] [MAI] \u2834 Resolving dependencies...                                                     \n[2026-05-08 11:15:16.669] [MAI] [2026-05-08 11:15:16.669] [info]  \n[2026-05-08 11:15:16.669] [MAI] \u2826 Resolving dependencies...                                                     \n[2026-05-08 11:15:16.878] [MAI] [2026-05-08 11:15:16.878] [info]  \n[2026-05-08 11:15:16.878] [MAI] \u2827 Resolving dependencies...                                                     \n[2026-05-08 11:15:17.010] [MAI] [2026-05-08 11:15:17.010] [info]  \n[2026-05-08 11:15:17.010] [MAI] \u2827 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:17.081] [MAI] [2026-05-08 11:15:17.081] [info]  \n[2026-05-08 11:15:17.081] [MAI] \u2807 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:17.284] [MAI] [2026-05-08 11:15:17.284] [info]  \n[2026-05-08 11:15:17.284] [MAI] \u280b aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:17.492] [MAI] [2026-05-08 11:15:17.492] [info]  \n[2026-05-08 11:15:17.492] [MAI] \u2819 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:17.697] [MAI] [2026-05-08 11:15:17.697] [info]  \n[2026-05-08 11:15:17.697] [MAI] \u2839 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:17.909] [MAI] [2026-05-08 11:15:17.909] [info]  \n[2026-05-08 11:15:17.909] [MAI] \u2838 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:18.110] [MAI] [2026-05-08 11:15:18.110] [info]  \n[2026-05-08 11:15:18.110] [MAI] \u283c aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:18.313] [MAI] [2026-05-08 11:15:18.313] [info]  \n[2026-05-08 11:15:18.313] [MAI] \u2834 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:18.521] [MAI] [2026-05-08 11:15:18.521] [info]  \n[2026-05-08 11:15:18.521] [MAI] \u2826 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:18.726] [MAI] [2026-05-08 11:15:18.726] [info]  \n[2026-05-08 11:15:18.726] [MAI] \u2827 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:18.938] [MAI] [2026-05-08 11:15:18.938] [info]  \n[2026-05-08 11:15:18.938] [MAI] \u2807 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:19.143] [MAI] [2026-05-08 11:15:19.143] [info]  \n[2026-05-08 11:15:19.143] [MAI] \u280b aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:19.345] [MAI] [2026-05-08 11:15:19.345] [info]  \n[2026-05-08 11:15:19.345] [MAI] \u2819 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:19.550] [MAI] [2026-05-08 11:15:19.550] [info]  \n[2026-05-08 11:15:19.550] [MAI] \u2839 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:19.754] [MAI] [2026-05-08 11:15:19.754] [info]  \n[2026-05-08 11:15:19.754] [MAI] \u2838 aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:19.961] [MAI] [2026-05-08 11:15:19.961] [info]  \n[2026-05-08 11:15:19.961] [MAI] \u283c aiohappyeyeballs==2.6.1                                                       \n[2026-05-08 11:15:20.164] [MAI] [2026-05-08 11:15:20.164] [info]  \n[2026-05-08 11:15:20.164] [MAI] \u283c aiohttp==3.13.3                                                               \n[2026-05-08 11:15:20.166] [MAI] [2026-05-08 11:15:20.166] [info]  \n[2026-05-08 11:15:20.166] [MAI] \u2834 aiohttp==3.13.3                                                               \n[2026-05-08 11:15:20.323] [MAI] [2026-05-08 11:15:20.323] [info]  \n[2026-05-08 11:15:20.323] [MAI] \u2834 aiosignal==1.4.0                                                              \n[2026-05-08 11:15:20.323] [MAI] \u2834 alembic==1.18.3                                                               \n[2026-05-08 11:15:20.323] [MAI] \u2834 annotated-types==0.7.0                                                        \n[2026-05-08 11:15:20.323] [MAI] \u2834 anyio==4.12.1                                                                 \n[2026-05-08 11:15:20.323] [MAI] \u2834 attrs==25.4.0                                                                 \n[2026-05-08 11:15:20.324] [MAI] [2026-05-08 11:15:20.324] [info]  \n[2026-05-08 11:15:20.324] [MAI] \u2834 av==16.1.0                                                                    \n[2026-05-08 11:15:20.324] [MAI] \u2834 blake3==1.0.8                                                                 \n[2026-05-08 11:15:20.324] [MAI] \u2834 certifi==2026.1.4                                                             \n[2026-05-08 11:15:20.324] [MAI] \u2834 cffi==2.0.0                                                                   \n[2026-05-08 11:15:20.324] [MAI] \u2834 chardet==5.2.0                                                                \n[2026-05-08 11:15:20.324] [MAI] \u2834 charset-normalizer==3.4.4                                                     \n[2026-05-08 11:15:20.324] [MAI] \u2834 click==8.3.1                                                                  \n[2026-05-08 11:15:20.324] [MAI] \u2834 comfy-aimdo==0.2.14                                                           \n[2026-05-08 11:15:20.324] [MAI] \u2834 comfy-kitchen==0.2.8                                                          \n[2026-05-08 11:15:20.324] [MAI] \u2834 comfyui-embedded-docs==0.4.4                                      \n[2026-05-08 11:15:20.327] [MAI] [2026-05-08 11:15:20.327] [info]              \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-manager==4.2.1                                                        \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-workflow-templates==0.9.63                                            \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-workflow-templates-core==0.3.216                                      \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-workflow-templates-media-api==0.3.70                                  \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-workflow-templates-media-image==0.3.132                               \n[2026-05-08 11:15:20.327] [MAI] \u2834 comfyui-workflow-templates-media-other==0.3.182                               \n[2026-05-08 11:15:20.368] [MAI] [2026-05-08 11:15:20.368] [info]  \n[2026-05-08 11:15:20.368] [MAI] \u2826 mpmath==1.3.0                                                                 \n[2026-05-08 11:15:20.579] [MAI] [2026-05-08 11:15:20.579] [info]  \n[2026-05-08 11:15:20.579] [MAI] \u2827 mpmath==1.3.0                                                                 \n[2026-05-08 11:15:20.731] [MAI] [2026-05-08 11:15:20.731] [info]  \n[2026-05-08 11:15:20.731] [MAI] \u2827 multidict==6.7.1                                                              \n[2026-05-08 11:15:20.786] [MAI] [2026-05-08 11:15:20.786] [info]  \n[2026-05-08 11:15:20.786] [MAI] \u2807 multidict==6.7.1                                                              \n[2026-05-08 11:15:20.975] [MAI] [2026-05-08 11:15:20.975] [info]  \n[2026-05-08 11:15:20.975] [MAI] \u2807 networkx==3.6.1                                                               \n[2026-05-08 11:15:20.975] [MAI] \u2807 numpy==2.4.1                                                                  \n[2026-05-08 11:15:20.997] [MAI] [2026-05-08 11:15:20.997] [info]  \n[2026-05-08 11:15:20.997] [MAI] \u280b numpy==2.4.1                                                                  \n[2026-05-08 11:15:21.206] [MAI] [2026-05-08 11:15:21.206] [info]  \n[2026-05-08 11:15:21.206] [MAI] \u280b packaging==26.0                                                               \n[2026-05-08 11:15:21.206] [MAI] \u280b pillow==12.1.0                                                                \n[2026-05-08 11:15:21.206] [MAI] \u280b propcache==0.4.1                                                              \n[2026-05-08 11:15:21.206] [MAI] \u280b psutil==7.2.2                                                                 \n[2026-05-08 11:15:21.206] [MAI] [2026-05-08 11:15:21.206] [info]  \n[2026-05-08 11:15:21.206] [MAI] \u280b pycparser==3.0                                                                \n[2026-05-08 11:15:21.206] [MAI] \u280b pycparser==3.0                                                                \n[2026-05-08 11:15:21.206] [MAI] \u280b pydantic==2.12.5                                                              \n[2026-05-08 11:15:21.206] [MAI] \u280b pydantic-core==2.41.5                                                         \n[2026-05-08 11:15:21.206] [MAI] \u280b pydantic-settings==2.12.0                                                     \n[2026-05-08 11:15:21.206] [MAI] \u280b pygithub==2.8.1                                                               \n[2026-05-08 11:15:21.206] [MAI] \u280b pygments==2.19.2                                                              \n[2026-05-08 11:15:21.418] [MAI] [2026-05-08 11:15:21.418] [info]  \n[2026-05-08 11:15:21.418] [MAI] \u2839 pyyaml==6.0.3                                                                 \n[2026-05-08 11:15:21.625] [MAI] [2026-05-08 11:15:21.625] [info]  \n[2026-05-08 11:15:21.625] [MAI] \u2838 pyyaml==6.0.3                                                                 \n[2026-05-08 11:15:21.802] [MAI] [2026-05-08 11:15:21.802] [info]  \n[2026-05-08 11:15:21.802] [MAI] \u2838 regex==2026.1.15                                                              \n[2026-05-08 11:15:21.834] [MAI] [2026-05-08 11:15:21.834] [info]  \n[2026-05-08 11:15:21.834] [MAI] \u283c regex==2026.1.15                                                              \n[2026-05-08 11:15:21.984] [MAI] [2026-05-08 11:15:21.984] [info]  \n[2026-05-08 11:15:21.984] [MAI] \u283c requests==2.32.5                                                              \n[2026-05-08 11:15:21.984] [MAI] \u283c rich==14.3.1                                                                  \n[2026-05-08 11:15:21.984] [MAI] \u283c safetensors==0.7.0                                                            \n[2026-05-08 11:15:21.988] [MAI] [2026-05-08 11:15:21.988] [info]  \n[2026-05-08 11:15:21.988] [MAI] \u283c scipy==1.17.0                                                                 \n[2026-05-08 11:15:21.988] [MAI] \u283c sentencepiece==0.2.1                                                          \n[2026-05-08 11:15:21.988] [MAI] \u283c setuptools==80.10.2                                                           \n[2026-05-08 11:15:21.988] [MAI] \u283c shellingham==1.5.4                                                            \n[2026-05-08 11:15:21.988] [MAI] \u283c simpleeval==1.0.3                                                             \n[2026-05-08 11:15:21.988] [MAI] \u283c smmap==5.0.2                                                                  \n[2026-05-08 11:15:21.989] [MAI] [2026-05-08 11:15:21.989] [info]  \n[2026-05-08 11:15:21.989] [MAI] \u283c spandrel==0.4.1                                                               \n[2026-05-08 11:15:22.041] [MAI] [2026-05-08 11:15:22.041] [info]  \n[2026-05-08 11:15:22.041] [MAI] \u2834 spandrel==0.4.1                                                               \n[2026-05-08 11:15:22.249] [MAI] [2026-05-08 11:15:22.249] [info]  \n[2026-05-08 11:15:22.249] [MAI] \u2826 spandrel==0.4.1                                                               \n[2026-05-08 11:15:22.441] [MAI] [2026-05-08 11:15:22.441] [info]  \n[2026-05-08 11:15:22.441] [MAI] \u2826 sqlalchemy==2.0.46                                                            \n[2026-05-08 11:15:22.459] [MAI] [2026-05-08 11:15:22.459] [info]  \n[2026-05-08 11:15:22.459] [MAI] \u2827 sqlalchemy==2.0.46                                                            \n[2026-05-08 11:15:22.670] [MAI] [2026-05-08 11:15:22.670] [info]  \n[2026-05-08 11:15:22.670] [MAI] \u2807 sqlalchemy==2.0.46                                                            \n[2026-05-08 11:15:22.681] [MAI] [2026-05-08 11:15:22.681] [info]  \n[2026-05-08 11:15:22.681] [MAI] \u2807 sympy==1.14.0                                                                 \n[2026-05-08 11:15:22.681] [MAI] \u2807 tokenizers==0.22.2                                                            \n[2026-05-08 11:15:22.681] [MAI] \u2807 toml==0.10.2                                                                  \n[2026-05-08 11:15:22.682] [MAI] [2026-05-08 11:15:22.682] [info]  \n[2026-05-08 11:15:22.682] [MAI] \u2807 torch==2.10.0                                                                 \n[2026-05-08 11:15:22.875] [MAI] [2026-05-08 11:15:22.875] [info]  \n[2026-05-08 11:15:22.875] [MAI] \u280b torch==2.10.0                                                                 \n[2026-05-08 11:15:23.087] [MAI] [2026-05-08 11:15:23.087] [info]  \n[2026-05-08 11:15:23.087] [MAI] \u2819 torch==2.10.0                                                                 \n[2026-05-08 11:15:23.137] [MAI] [2026-05-08 11:15:23.137] [info]  \n[2026-05-08 11:15:23.137] [MAI] \u2819 setuptools==80.10.2                                                           \n[2026-05-08 11:15:23.137] [MAI] \u2819 torchaudio==2.10.0                                                            \n[2026-05-08 11:15:23.297] [MAI] [2026-05-08 11:15:23.297] [info]  \n[2026-05-08 11:15:23.297] [MAI] \u2839 torchaudio==2.10.0                                                            \n[2026-05-08 11:15:23.325] [MAI] [2026-05-08 11:15:23.325] [info]  \n[2026-05-08 11:15:23.325] [MAI] \u2839 torchsde==0.2.6                                                               \n[2026-05-08 11:15:23.325] [MAI] \u2839 torchvision==0.25.0                                                           \n[2026-05-08 11:15:23.507] [MAI] [2026-05-08 11:15:23.507] [info]  \n[2026-05-08 11:15:23.507] [MAI] \u2838 torchvision==0.25.0                                                           \n[2026-05-08 11:15:23.637] [MAI] [2026-05-08 11:15:23.637] [info]  \n[2026-05-08 11:15:23.637] [MAI] \u2838 tqdm==4.67.1                                                                  \n[2026-05-08 11:15:23.637] [MAI] \u2838 trampoline==0.1.2                                                             \n[2026-05-08 11:15:23.637] [MAI] \u2838 transformers==5.0.0                                                           \n[2026-05-08 11:15:23.637] [MAI] \u2838 typer==0.21.1                                                                 \n[2026-05-08 11:15:23.638] [MAI] [2026-05-08 11:15:23.638] [info]  \n[2026-05-08 11:15:23.638] [MAI] \u2838 typer-slim==0.21.1                                                            \n[2026-05-08 11:15:23.638] [MAI] \u2838 typing-extensions==4.15.0                                                     \n[2026-05-08 11:15:23.638] [MAI] \u2838 typing-extensions==4.15.0                                                     \n[2026-05-08 11:15:23.638] [MAI] \u2838 typing-inspection==0.4.2                                                      \n[2026-05-08 11:15:23.638] [MAI] \u2838 urllib3==2.6.3                                                                \n[2026-05-08 11:15:23.638] [MAI] \u2838 uv==0.9.28                                                                    \n[2026-05-08 11:15:23.638] [MAI] \u2838 yarl==1.22.0                                                                  \n[2026-05-08 11:15:23.643] [MAI] [2026-05-08 11:15:23.643] [info]  \n[2026-05-08 11:15:23.643] [MAI] \u2838                                                                               \n[2026-05-08 11:15:23.645] [MAI] [2026-05-08 11:15:23.645] [info]  Resolved 93 packages in 8.00s\n[2026-05-08 11:15:23.645] [MAI] \n[2026-05-08 11:15:23.652] [MAI] [2026-05-08 11:15:23.652] [info]  \u280b Preparing packages... (0/0)                                                   \n[2026-05-08 11:15:23.652] [MAI] \u2819 Preparing packages... (0/0)                                                   \n[2026-05-08 11:15:23.652] [MAI] \u2819 Preparing packages... (0/93)                                                  \n[2026-05-08 11:15:23.814] [MAI] [2026-05-08 11:15:23.814] [info]  \n[2026-05-08 11:15:23.814] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.814] [MAI] spandrel             ------------------------------     0 B/298.06 KiB          \n[2026-05-08 11:15:23.815] [MAI] [2026-05-08 11:15:23.815] [info]  \n[2026-05-08 11:15:23.815] [MAI] \n[2026-05-08 11:15:23.815] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.815] [MAI] spandrel             ------------------------------ 8.00 KiB/298.06 KiB         \n[2026-05-08 11:15:23.817] [MAI] [2026-05-08 11:15:23.817] [info]  \n[2026-05-08 11:15:23.817] [MAI] \n[2026-05-08 11:15:23.817] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.817] [MAI] spandrel             ------------------------------ 16.00 KiB/298.06 KiB        \n[2026-05-08 11:15:23.819] [MAI] [2026-05-08 11:15:23.819] [info]  \n[2026-05-08 11:15:23.819] [MAI] \n[2026-05-08 11:15:23.819] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.819] [MAI] spandrel             ------------------------------ 24.00 KiB/298.06 KiB        \n[2026-05-08 11:15:23.820] [MAI] [2026-05-08 11:15:23.820] [info]  \n[2026-05-08 11:15:23.820] [MAI] \n[2026-05-08 11:15:23.820] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.820] [MAI] spandrel             ------------------------------ 31.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.821] [MAI] [2026-05-08 11:15:23.821] [info]  \n[2026-05-08 11:15:23.821] [MAI] \n[2026-05-08 11:15:23.821] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.821] [MAI] spandrel             ------------------------------ 39.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.822] [MAI] [2026-05-08 11:15:23.822] [info]  \n[2026-05-08 11:15:23.822] [MAI] \n[2026-05-08 11:15:23.822] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.822] [MAI] spandrel             ------------------------------ 47.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.823] [MAI] [2026-05-08 11:15:23.823] [info]  \n[2026-05-08 11:15:23.823] [MAI] \n[2026-05-08 11:15:23.823] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.823] [MAI] spandrel             ------------------------------ 55.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.824] [MAI] [2026-05-08 11:15:23.824] [info]  \n[2026-05-08 11:15:23.824] [MAI] \n[2026-05-08 11:15:23.824] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.824] [MAI] spandrel             ------------------------------ 63.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.825] [MAI] [2026-05-08 11:15:23.825] [info]  \n[2026-05-08 11:15:23.825] [MAI] \n[2026-05-08 11:15:23.825] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.825] [MAI] spandrel             ------------------------------ 71.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.827] [MAI] [2026-05-08 11:15:23.827] [info]  \n[2026-05-08 11:15:23.827] [MAI] \n[2026-05-08 11:15:23.827] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.827] [MAI] spandrel             ------------------------------ 79.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.827] [MAI] [2026-05-08 11:15:23.827] [info]  \n[2026-05-08 11:15:23.827] [MAI] \n[2026-05-08 11:15:23.827] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.827] [MAI] spandrel             ------------------------------ 87.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.828] [MAI] [2026-05-08 11:15:23.828] [info]  \n[2026-05-08 11:15:23.828] [MAI] \n[2026-05-08 11:15:23.828] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.828] [MAI] spandrel             ------------------------------ 95.27 KiB/298.06 KiB        \n[2026-05-08 11:15:23.828] [MAI] [2026-05-08 11:15:23.828] [info]  \n[2026-05-08 11:15:23.828] [MAI] \n[2026-05-08 11:15:23.828] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.828] [MAI] spandrel             ------------------------------ 103.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.829] [MAI] [2026-05-08 11:15:23.829] [info]  \n[2026-05-08 11:15:23.829] [MAI] \n[2026-05-08 11:15:23.829] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.829] [MAI] spandrel             ------------------------------ 111.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.829] [MAI] [2026-05-08 11:15:23.829] [info]  \n[2026-05-08 11:15:23.829] [MAI] \n[2026-05-08 11:15:23.829] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.829] [MAI] spandrel             ------------------------------ 119.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.830] [MAI] [2026-05-08 11:15:23.830] [info]  \n[2026-05-08 11:15:23.830] [MAI] \n[2026-05-08 11:15:23.830] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.830] [MAI] spandrel             ------------------------------ 127.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.830] [MAI] [2026-05-08 11:15:23.830] [info]  \n[2026-05-08 11:15:23.830] [MAI] \n[2026-05-08 11:15:23.830] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.830] [MAI] spandrel             ------------------------------ 135.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.832] [MAI] [2026-05-08 11:15:23.832] [info]  \n[2026-05-08 11:15:23.832] [MAI] \n[2026-05-08 11:15:23.832] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.832] [MAI] spandrel             ------------------------------ 143.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.834] [MAI] [2026-05-08 11:15:23.834] [info]  \n[2026-05-08 11:15:23.834] [MAI] \n[2026-05-08 11:15:23.834] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.834] [MAI] spandrel             ------------------------------ 143.27 KiB/298.06 KiB       \n[2026-05-08 11:15:23.848] [MAI] [2026-05-08 11:15:23.848] [info]  \n[2026-05-08 11:15:23.848] [MAI] \n[2026-05-08 11:15:23.848] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.848] [MAI] spandrel                               ------------------------------ 207.27 KiB/298.06 KiB\n[2026-05-08 11:15:23.848] [MAI] comfyui-workflow-templates-media-image ------------------------------ 95.24 KiB/70.02 MiB                                                                       \n[2026-05-08 11:15:23.852] [MAI] [2026-05-08 11:15:23.852] [info]  \n[2026-05-08 11:15:23.852] [MAI] \n[2026-05-08 11:15:23.852] [MAI] \n[2026-05-08 11:15:23.852] [MAI] \n[2026-05-08 11:15:23.852] [MAI] \n[2026-05-08 11:15:23.852] [MAI] \u2819 Preparing packages... (0/93)\n[2026-05-08 11:15:23.852] [MAI] spandrel                               ------------------------------ 223.27 KiB/298.06 KiB\n[2026-05-08 11:15:23.852] [MAI] comfyui-workflow-templates-media-image ------------------------------ 95.24 KiB/70.02 MiB                                                                       \n[2026-05-08 11:15:23.857] [MAI] [2026-05-08 11:15:23.857] [info]  \n[2026-05-08 11:15:23.857] [MAI] \n[2026-05-08 11:15:23.857] [MAI] \n[2026-05-08 11:15:23.857] [MAI] \n[2026-05-08 11:15:23.857] [MAI] \n[2026-05-08 11:15:23.857] [MAI] \u2839 Preparing packages... (1/93)\n[2026-05-08 11:15:23.857] [MAI] comfyui-workflow-templates-media-image ------------------------------ 95.24 KiB/70.02 MiB                                                                       \n[2026-05-08 11:15:23.903] [MAI] [2026-05-08 11:15:23.903] [info]  \n[2026-05-08 11:15:23.903] [MAI] \n[2026-05-08 11:15:23.903] [MAI] \n[2026-05-08 11:15:23.903] [MAI] \u2839 Preparing packages... (1/93)\n[2026-05-08 11:15:23.903] [MAI] trampoline                             ------------------------------     0 B/5.05 KiB\n[2026-05-08 11:15:23.903] [MAI] mdurl                                  ------------------------------     0 B/9.75 KiB\n[2026-05-08 11:15:23.903] [MAI] markupsafe                             ------------------------------ 11.74 KiB/11.74 KiB\n[2026-05-08 11:15:23.903] [MAI] annotated-types                        ------------------------------     0 B/13.32 KiB\n[2026-05-08 11:15:23.903] [MAI] filelock                               ------------------------------ 16.31 KiB/16.31 KiB\n[2026-05-08 11:15:23.903] [MAI] comfy-aimdo                            ------------------------------     0 B/19.39 KiB\n[2026-05-08 11:15:23.903] [MAI] python-dotenv                          ------------------------------     0 B/20.73 KiB\n[2026-05-08 11:15:23.903] [MAI] smmap                                  ------------------------------     0 B/23.73 KiB\n[2026-05-08 11:15:23.903] [MAI] multidict               \n[2026-05-08 11:15:23.904] [MAI] [2026-05-08 11:15:23.904] [info]                 ------------------------------     0 B/42.84 KiB\n[2026-05-08 11:15:23.904] [MAI] propcache                              ------------------------------     0 B/46.21 KiB\n[2026-05-08 11:15:23.904] [MAI] typer                                  ------------------------------     0 B/46.27 KiB\n[2026-05-08 11:15:23.953] [MAI] [2026-05-08 11:15:23.953] [info]  \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \n[2026-05-08 11:15:23.953] [MAI] \u2839 Preparing packages... (1/93)\n[2026-05-08 11:15:23.953] [MAI] trampoline                             ------------------------------     0 B/5.05 KiB\n[2026-05-08 11:15:23.953] [MAI] mdurl                                  ------------------------------     0 B/9.75 KiB\n[2026-05-08 11:15:23.953] [MAI] markupsafe                             ------------------------------ 11.74 KiB/11.74 KiB\n[2026-05-08 11:15:23.953] [MAI] annotated-types                        ------------------------------     0 B/13.32 KiB\n[2026-05-08 11:15:23.953] [MAI] filelock                               ------------------------------ 16.31 KiB/16.31 KiB\n[2026-05-08 11:15:23.953] [MAI] comfy\n... (truncated)", "hardware": null}};
+        const workflowNames = Object.keys(workflowData);
+        const videoData = {"system": {"mp4": "driver.mp4", "duration_seconds": 0, "status": "pass"}};
+
+        const inIframe = window !== window.top;
+        let currentWorkflow = null;
+        let playInterval = null;
+        let originalLogContent = '';
+        let currentFrameIndex = 0;
+        let currentFrames = [];
+        let currentTotalTime = 0;
+
+        function openLightboxByName(name) {
+            const w = workflowData[name];
+            if (w) openLightbox(w.src, w.title, w.status, w.duration, w.log, w.hardware);
+        }
+
+        function openLightbox(src, title, status, duration, logContent, hardware) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-title').textContent = title;
+            currentWorkflow = title;
+            originalLogContent = logContent;
+
+            const badge = document.getElementById('lightbox-badge');
+            badge.textContent = status;
+            badge.className = 'lightbox-badge ' + status;
+
+            document.getElementById('lightbox-duration').textContent = duration + 's';
+            document.getElementById('lightbox-log').textContent = logContent || '(No log available)';
+
+            const hwEl = document.getElementById('lightbox-hardware');
+            if (hardware) {
+                const parts = [];
+                if (hardware.os) parts.push(hardware.os);
+                if (hardware.cpu) parts.push(hardware.cpu);
+                if (hardware.gpu) parts.push(hardware.gpu);
+                hwEl.textContent = parts.join(' | ');
+            } else {
+                hwEl.textContent = status === 'skipped' ? '(Did not run on this machine)' : '';
+            }
+
+            const data = videoData[title];
+            const videoPlayer = document.getElementById('video-player');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxVideo = document.getElementById('lightbox-video');
+
+            // Reset both modes; the branch below activates one.
+            videoPlayer.classList.remove('active');
+            lightboxVideo.style.display = 'none';
+            lightboxVideo.removeAttribute('src');
+            lightboxImg.style.display = '';
+
+            if (data && data.mp4) {
+                // Playable mp4 (desktop runs). Show <video>, hide the
+                // frame-slideshow img + slider.
+                lightboxVideo.src = 'videos/' + encodeURIComponent(title) + '/' + data.mp4;
+                lightboxVideo.style.display = '';
+                lightboxImg.style.display = 'none';
+            } else if (data && data.frames && data.frames.length > 1) {
+                currentFrames = data.frames;
+                currentTotalTime = data.total_time || data.frames[data.frames.length - 1].time;
+                setupVideoSlider(data.frames, currentTotalTime);
+                updateVideoFrameByIndex(title, data.frames.length - 1);
+                videoPlayer.classList.add('active');
+            }
+
+            loadResourceGraph(title);
+
+            // Close image overlay if open
+            closeImgOverlay();
+
+            document.getElementById('lightbox').classList.add('active');
+            history.replaceState(null, '', '#' + encodeURIComponent(title));
+
+            // Notify parent frames for deep linking
+            if (inIframe) {
+                window.parent.postMessage({ type: 'comfytest-open', name: title }, '*');
+            }
+        }
+
+        function buildSliderRange(frames, totalTime) {
+            const range = { 'min': frames[0].time };
+            frames.forEach((frame, idx) => {
+                if (idx > 0 && idx < frames.length - 1) {
+                    const pct = (frame.time / totalTime * 100).toFixed(1) + '%';
+                    range[pct] = frame.time;
+                }
+            });
+            range['max'] = frames[frames.length - 1].time;
+            return range;
+        }
+
+        function setupVideoSlider(frames, totalTime) {
+            const sliderEl = document.getElementById('video-slider');
+
+            if (sliderEl.noUiSlider) {
+                sliderEl.noUiSlider.destroy();
+            }
+
+            const range = buildSliderRange(frames, totalTime);
+
+            noUiSlider.create(sliderEl, {
+                start: frames[frames.length - 1].time,
+                snap: true,
+                range: range,
+                pips: {
+                    mode: 'range',
+                    density: 100
+                }
+            });
+
+            sliderEl.noUiSlider.on('update', function(values) {
+                const time = parseFloat(values[0]);
+                const frameIdx = frames.findIndex(f => Math.abs(f.time - time) < 0.01);
+                if (frameIdx >= 0 && frameIdx !== currentFrameIndex) {
+                    currentFrameIndex = frameIdx;
+                    showFrame(currentWorkflow, frameIdx);
+                }
+            });
+        }
+
+        function showFrame(workflowName, frameIndex) {
+            const data = videoData[workflowName];
+            if (!data || !data.frames) return;
+
+            const frame = data.frames[frameIndex];
+            const img = document.getElementById('lightbox-img');
+
+            const isLastFrame = frameIndex === data.frames.length - 1;
+            if (isLastFrame && workflowData[workflowName] && workflowData[workflowName].src) {
+                img.src = workflowData[workflowName].src;
+            } else {
+                img.src = 'videos/' + workflowName + '/' + frame.file;
+            }
+
+            const counter = document.getElementById('video-frame-counter');
+            const totalTime = data.total_time || data.frames[data.frames.length - 1].time;
+            counter.textContent = frame.time.toFixed(1) + 's / ' + totalTime.toFixed(1) + 's';
+
+            const logEl = document.getElementById('lightbox-log');
+            if (frame.log) {
+                logEl.textContent = frame.log;
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+        }
+
+        function updateVideoFrameByIndex(workflowName, frameIndex) {
+            currentFrameIndex = frameIndex;
+            showFrame(workflowName, frameIndex);
+
+            const sliderEl = document.getElementById('video-slider');
+            if (sliderEl.noUiSlider && currentFrames[frameIndex]) {
+                sliderEl.noUiSlider.set(currentFrames[frameIndex].time);
+            }
+        }
+
+        function toggleVideoPlay() {
+            const btn = document.getElementById('video-play-btn');
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+                btn.innerHTML = '&#9654; Play';
+            } else {
+                btn.innerHTML = '&#9632; Stop';
+                playInterval = setInterval(() => {
+                    if (!currentFrames.length) return;
+                    currentFrameIndex = (currentFrameIndex + 1) % currentFrames.length;
+                    updateVideoFrameByIndex(currentWorkflow, currentFrameIndex);
+                }, 500);
+            }
+        }
+
+        let resourceGraphState = null;
+
+        async function loadResourceGraph(workflowName) {
+            const graphContainer = document.getElementById('resource-graph');
+            const canvas = document.getElementById('resource-canvas');
+            const gpuLegend = document.getElementById('gpu-legend');
+
+            resourceGraphState = null;
+
+            try {
+                const csvResponse = await fetch('logs/' + workflowName + '_resources.csv');
+
+                if (!csvResponse.ok) {
+                    graphContainer.classList.remove('active');
+                    return;
+                }
+
+                const text = await csvResponse.text();
+                const allLines = text.trim().split('\n');
+
+                let totalRamGb = 32;
+                if (allLines[0].startsWith('#')) {
+                    const metaMatch = allLines[0].match(/total_ram_gb=([\d.]+)/);
+                    if (metaMatch) {
+                        totalRamGb = parseFloat(metaMatch[1]);
+                    }
+                }
+
+                const dataLines = allLines.slice(2);
+
+                if (dataLines.length < 2) {
+                    graphContainer.classList.remove('active');
+                    return;
+                }
+
+                const data = dataLines.map(line => {
+                    const [t, ram, vram] = line.split(',');
+                    return {
+                        t: parseFloat(t),
+                        ram: parseFloat(ram),
+                        vram: vram ? parseFloat(vram) : null
+                    };
+                });
+
+                const hasVram = data.some(d => d.vram !== null);
+                gpuLegend.style.display = hasVram ? 'flex' : 'none';
+
+                graphContainer.classList.add('active');
+                await new Promise(r => setTimeout(r, 10));
+
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+
+                const w = rect.width;
+                const h = rect.height;
+                const padding = { top: 10, right: 40, bottom: 20, left: 45 };
+                const graphW = w - padding.left - padding.right;
+                const graphH = h - padding.top - padding.bottom;
+
+                const maxRam = Math.max(...data.map(d => d.ram), 0.5);
+                const maxVram = hasVram ? Math.max(...data.filter(d => d.vram !== null).map(d => d.vram), 0.5) : 1;
+                const maxTime = data[data.length - 1].t;
+
+                resourceGraphState = { data, padding, w, h, graphW, graphH, maxRam, maxVram, maxTime, hasVram, dpr };
+
+                drawResourceGraph();
+            } catch (e) {
+                console.error('Resource graph error:', e);
+                graphContainer.classList.remove('active');
+            }
+        }
+
+        function drawResourceGraph(hoverX) {
+            if (!resourceGraphState) return;
+            const { data, padding, w, h, graphW, graphH, maxRam, maxVram, maxTime, hasVram, dpr } = resourceGraphState;
+
+            const canvas = document.getElementById('resource-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+
+            // Grid lines
+            ctx.strokeStyle = '#1c2d44';
+            ctx.lineWidth = 0.5;
+            for (let i = 1; i < 4; i++) {
+                const y = padding.top + (graphH * i / 4);
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(w - padding.right, y);
+                ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#243656';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, padding.top);
+            ctx.lineTo(padding.left, h - padding.bottom);
+            ctx.lineTo(w - padding.right, h - padding.bottom);
+            ctx.lineTo(w - padding.right, padding.top);
+            ctx.stroke();
+
+            // Left axis: RAM
+            ctx.fillStyle = '#3fb950';
+            ctx.font = '9px sans-serif';
+            ctx.textAlign = 'right';
+            const ramMax = Math.ceil(maxRam * 10) / 10;
+            ctx.fillText(ramMax.toFixed(1) + ' GB', padding.left - 3, padding.top + 4);
+            ctx.fillText('0', padding.left - 3, h - padding.bottom + 4);
+
+            // Right axis: VRAM (if present)
+            if (hasVram) {
+                ctx.fillStyle = '#d29922';
+                ctx.textAlign = 'left';
+                const vramMax = Math.ceil(maxVram * 10) / 10;
+                ctx.fillText(vramMax.toFixed(1) + ' GB', w - padding.right + 3, padding.top + 4);
+                ctx.fillText('0', w - padding.right + 3, h - padding.bottom + 4);
+            }
+
+            // Time labels
+            ctx.fillStyle = '#4a6282';
+            ctx.textAlign = 'center';
+            ctx.fillText('0s', padding.left, h - padding.bottom + 12);
+            ctx.fillText(maxTime.toFixed(0) + 's', w - padding.right, h - padding.bottom + 12);
+
+            function drawLine(values, maxVal, color) {
+                if (values.every(v => v === null || isNaN(v))) return;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                let started = false;
+                data.forEach((d, i) => {
+                    const val = values[i];
+                    if (val === null || isNaN(val)) return;
+                    const x = padding.left + (d.t / maxTime) * graphW;
+                    const y = padding.top + (1 - val / maxVal) * graphH;
+                    if (!started) { ctx.moveTo(x, y); started = true; }
+                    else { ctx.lineTo(x, y); }
+                });
+                ctx.stroke();
+            }
+
+            drawLine(data.map(d => d.ram), ramMax, '#3fb950');
+            if (hasVram) {
+                drawLine(data.map(d => d.vram), Math.ceil(maxVram * 10) / 10, '#d29922');
+            }
+
+            // Hover crosshair
+            if (hoverX !== undefined && hoverX >= padding.left && hoverX <= w - padding.right) {
+                const timeAtCursor = ((hoverX - padding.left) / graphW) * maxTime;
+                let closest = data[0], closestDist = Infinity;
+                for (const d of data) {
+                    const dist = Math.abs(d.t - timeAtCursor);
+                    if (dist < closestDist) { closestDist = dist; closest = d; }
+                }
+
+                const snapX = padding.left + (closest.t / maxTime) * graphW;
+
+                // Vertical line
+                ctx.strokeStyle = 'rgba(230,237,243,0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(snapX, padding.top);
+                ctx.lineTo(snapX, h - padding.bottom);
+                ctx.stroke();
+
+                // Readout
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'left';
+                const readoutX = snapX + 6;
+                let readoutY = padding.top + 14;
+
+                ctx.fillStyle = '#8ba3c1';
+                ctx.fillText(closest.t.toFixed(1) + 's', readoutX, readoutY);
+                readoutY += 13;
+
+                ctx.fillStyle = '#3fb950';
+                ctx.fillText('RAM: ' + closest.ram.toFixed(2) + ' GB', readoutX, readoutY);
+                readoutY += 13;
+
+                if (hasVram && closest.vram !== null) {
+                    ctx.fillStyle = '#d29922';
+                    ctx.fillText('VRAM: ' + closest.vram.toFixed(2) + ' GB', readoutX, readoutY);
+                }
+            }
+        }
+
+        // Canvas hover handler
+        document.getElementById('resource-canvas').addEventListener('mousemove', function(e) {
+            if (!resourceGraphState) return;
+            const rect = this.getBoundingClientRect();
+            drawResourceGraph(e.clientX - rect.left);
+        });
+        document.getElementById('resource-canvas').addEventListener('mouseleave', function() {
+            drawResourceGraph();
+        });
+
+        function closeImgOverlay() {
+            const overlay = document.getElementById('img-overlay');
+            overlay.classList.remove('active', 'zoomed');
+        }
+
+        function closeLightbox() {
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+                document.getElementById('video-play-btn').innerHTML = '&#9654; Play';
+            }
+            closeImgOverlay();
+            document.getElementById('resource-graph').classList.remove('active');
+            document.getElementById('lightbox').classList.remove('active');
+            history.replaceState(null, '', window.location.pathname);
+
+            if (inIframe) {
+                window.parent.postMessage({ type: 'comfytest-close' }, '*');
+            }
+        }
+
+        document.getElementById('lightbox').onclick = (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        };
+
+        function navigateLightbox(delta) {
+            if (workflowNames.length === 0) return;
+            const idx = workflowNames.indexOf(currentWorkflow);
+            if (idx === -1) return;
+            const newIdx = (idx + delta + workflowNames.length) % workflowNames.length;
+            openLightboxByName(workflowNames[newIdx]);
+        }
+
+        function handleKey(key) {
+            const overlay = document.getElementById('img-overlay');
+            if (key === 'Escape') {
+                if (overlay.classList.contains('active')) {
+                    closeImgOverlay();
+                } else {
+                    closeLightbox();
+                }
+                return;
+            }
+            if (document.getElementById('lightbox').classList.contains('active') && !overlay.classList.contains('active')) {
+                if (key === 'ArrowLeft') { navigateLightbox(-1); }
+                if (key === 'ArrowRight') { navigateLightbox(1); }
+            }
+        }
+
+        document.onkeydown = (e) => {
+            if (['Escape', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                handleKey(e.key);
+            }
+        };
+
+        // Click lightbox image -> open in fullscreen overlay (fit mode)
+        document.getElementById('lightbox-img').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const overlay = document.getElementById('img-overlay');
+            const overlayImg = document.getElementById('img-overlay-content');
+            overlayImg.src = this.src;
+            overlay.classList.add('active');
+            overlay.classList.remove('zoomed');
+        });
+
+        // Click overlay image: fit -> zoomed -> close
+        document.getElementById('img-overlay-content').addEventListener('click', function(e) {
+            e.stopPropagation();
+            const overlay = document.getElementById('img-overlay');
+            if (overlay.classList.contains('zoomed')) {
+                closeImgOverlay();
+            } else {
+                overlay.classList.add('zoomed');
+            }
+        });
+
+        // Click overlay background -> close overlay
+        document.getElementById('img-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeImgOverlay();
+        });
+
+        function openFromHash() {
+            const hash = decodeURIComponent(window.location.hash.slice(1));
+            if (hash && workflowData[hash]) {
+                const w = workflowData[hash];
+                openLightbox(w.src, w.title, w.status, w.duration, w.log, w.hardware);
+            }
+        }
+
+        window.addEventListener('hashchange', openFromHash);
+        window.addEventListener('load', openFromHash);
+
+        // Listen for messages from parent frames
+        window.addEventListener('message', function(e) {
+            if (!e.data || !e.data.type) return;
+            if (e.data.type === 'comfytest-open' && e.data.name) {
+                openLightboxByName(e.data.name);
+            }
+            if (e.data.type === 'comfytest-key') {
+                handleKey(e.data.key);
+            }
+        });
+
+        // Detect iframe: hide header and move meta chips into summary
+        if (inIframe) {
+            document.body.classList.add('in-iframe');
+            const chips = document.querySelector('.meta-chips');
+            const summary = document.querySelector('.summary');
+            if (chips && summary) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'summary-meta';
+                while (chips.firstChild) wrapper.appendChild(chips.firstChild);
+                summary.insertBefore(wrapper, summary.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+[00:00] Crash dump logging enabled: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/crash_dump.log
+[00:00] 
+[00:00] [1/5] REGISTRATION
+[00:00] ----------------------------------------
+[00:00] 
+[DEBUG] server=None, server_url=http://127.0.0.1:8188, api=None
+[00:00] 
+Connecting to existing server at http://127.0.0.1:8188...
+[00:00] Connecting to existing server at http://127.0.0.1:8188...
+[00:00] Connected to server! (attempt 1, 0.0s)
+[00:00] Checking for import errors in server logs...
+[00:00] No import errors detected
+[00:00] Found 1112 registered nodes
+[00:00] [REGISTRATION] PASSED
+[00:00] 
+[00:00] [2/5] INSTANTIATION
+[00:00] ----------------------------------------
+[00:00] 
+[DEBUG] server=<comfy_test.comfyui.server.ExternalComfyUIServer object at 0x1054a7c80>, server_url=http://127.0.0.1:8188, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x106986000>
+[00:00] Testing node constructors...
+[00:03] All 15 node(s) instantiated successfully!
+[00:03] [INSTANTIATION] PASSED
+[00:03] 
+[00:03] [3/5] STATIC_CAPTURE
+[00:03] ----------------------------------------
+[00:03] 
+[DEBUG] server=<comfy_test.comfyui.server.ExternalComfyUIServer object at 0x1054a7c80>, server_url=http://127.0.0.1:8188, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x106986000>
+[00:03] Capturing 7 static screenshot(s)...
+[00:04] Starting headless browser...
+[00:04]   macOS — using Apple Metal GPU via ANGLE
+[00:07]   [1/7] STATIC advanced.json
+[00:07] Capturing: advanced.json
+[00:16]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/advanced.png
+[00:16]   [2/7] STATIC advanced_3d.json
+[00:16] Capturing: advanced_3d.json
+[00:23]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/advanced_3d.png
+[00:23]   [3/7] STATIC advanced_3d_multiview.json
+[00:23] Capturing: advanced_3d_multiview.json
+[00:29]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/advanced_3d_multiview.png
+[00:29]   [4/7] STATIC bas_relief.json
+[00:29] Capturing: bas_relief.json
+[00:37]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/bas_relief.png
+[00:37]   [5/7] STATIC da3_streaming.json
+[00:37] Capturing: da3_streaming.json
+[00:44]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/da3_streaming.png
+[00:44]   [6/7] STATIC simple.json
+[00:44] Capturing: simple.json
+[00:51]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/simple.png
+[00:51]   [7/7] STATIC video_multiview_depth.json
+[00:51] Capturing: video_multiview_depth.json
+[00:58]   Saved: /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1505/macos-cpu/screenshots/video_multiview_depth.png
+[00:59] [STATIC_CAPTURE] PASSED
+[00:59] 
+[00:59] [4/5] VALIDATION
+[00:59] ----------------------------------------
+[00:59] 
+[DEBUG] server=<comfy_test.comfyui.server.ExternalComfyUIServer object at 0x1054a7c80>, server_url=http://127.0.0.1:8188, api=<comfy_test.comfyui.api.ComfyUIAPI object at 0x106986000>
+[00:59] Validating 7 workflow(s)...
+[00:59]   [1/7] Validating advanced.json
+[00:59]     FAILED: 2 error(s)
+[00:59]       [schema] Node 12 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 12 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+[00:59]   [2/7] Validating advanced_3d.json
+[00:59]     FAILED: 4 error(s)
+[00:59]       [schema] Node 22 (DA3_ToPointCloud): 'intrinsics': expected STRING, got float
+[00:59]       [schema] Node 22 (DA3_ToPointCloud): 'filter_outliers': expected BOOLEAN, got int
+[00:59]       [schema] Node 21 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 21 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+[00:59]   [3/7] Validating advanced_3d_multiview.json
+[00:59]     FAILED: 2 error(s)
+[00:59]       [schema] Node 39 (DepthAnythingV3_MultiView): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 39 (DepthAnythingV3_MultiView): 'keep_model_size': expected BOOLEAN, got str
+[00:59]   [4/7] Validating bas_relief.json
+[00:59]     FAILED: 6 error(s)
+[00:59]       [schema] Node 21 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 21 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+[00:59]       [schema] Node 32 (DA3_ToMesh): 'intrinsics': expected STRING, got float
+[00:59]       [schema] Node 32 (DA3_ToMesh): 'downsample': 100000 > maximum 16
+[00:59]       [schema] Node 32 (DA3_ToMesh): 'target_faces': expected INT, got str
+[00:59]       ... and 1 more
+[00:59]   [5/7] Validating da3_streaming.json
+[00:59]     FAILED: 5 error(s)
+[00:59]       [schema] Node 6 (DepthAnythingV3_Streaming): 'chunk_size': expected INT, got str
+[00:59]       [schema] Node 6 (DepthAnythingV3_Streaming): 'invert_depth': expected BOOLEAN, got int
+[00:59]       [schema] Node 6 (DepthAnythingV3_Streaming): 'save_pointcloud': expected BOOLEAN, got str
+[00:59]       [schema] Node 6 (DepthAnythingV3_Streaming): 'sample_ratio': expected FLOAT, got str
+[00:59]       [schema] Node 6 (DepthAnythingV3_Streaming): 'conf_threshold_coef': expected FLOAT, got str
+[00:59]   [6/7] Validating simple.json
+[00:59]     FAILED: 2 error(s)
+[00:59]       [schema] Node 14 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 14 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+[00:59]   [7/7] Validating video_multiview_depth.json
+[00:59]     FAILED: 4 error(s)
+[00:59]       [schema] Node 61 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 61 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+[00:59]       [schema] Node 62 (DepthAnythingV3_MultiView): 'invert_depth': expected BOOLEAN, got str
+[00:59]       [schema] Node 62 (DepthAnythingV3_MultiView): 'keep_model_size': expected BOOLEAN, got str
+[00:59] 
+macos: FAILED
+[00:59] Error: Workflow validation failed (7 error(s))
+[00:59] Details:   - advanced.json: [schema] Node 12 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str; [schema] Node 12 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+  - advanced_3d.json: [schema] Node 22 (DA3_ToPointCloud): 'intrinsics': expected STRING, got float; [schema] Node 22 (DA3_ToPointCloud): 'filter_outliers': expected BOOLEAN, got int; [schema] Node 21 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str; [schema] Node 21 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+  - advanced_3d_multiview.json: [schema] Node 39 (DepthAnythingV3_MultiView): 'invert_depth': expected BOOLEAN, got str; [schema] Node 39 (DepthAnythingV3_MultiView): 'keep_model_size': expected BOOLEAN, got str
+  - bas_relief.json: [schema] Node 21 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str; [schema] Node 21 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str; [schema] Node 32 (DA3_ToMesh): 'intrinsics': expected STRING, got float; [schema] Node 32 (DA3_ToMesh): 'downsample': 100000 > maximum 16; [schema] Node 32 (DA3_ToMesh): 'target_faces': expected INT, got str; [schema] Node 32 (DA3_ToMesh): 'filename_prefix': expected STRING, got bool
+  - da3_streaming.json: [schema] Node 6 (DepthAnythingV3_Streaming): 'chunk_size': expected INT, got str; [schema] Node 6 (DepthAnythingV3_Streaming): 'invert_depth': expected BOOLEAN, got int; [schema] Node 6 (DepthAnythingV3_Streaming): 'save_pointcloud': expected BOOLEAN, got str; [schema] Node 6 (DepthAnythingV3_Streaming): 'sample_ratio': expected FLOAT, got str; [schema] Node 6 (DepthAnythingV3_Streaming): 'conf_threshold_coef': expected FLOAT, got str
+  - simple.json: [schema] Node 14 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str; [schema] Node 14 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str
+  - video_multiview_depth.json: [schema] Node 61 (DepthAnything_V3): 'invert_depth': expected BOOLEAN, got str; [schema] Node 61 (DepthAnything_V3): 'keep_model_size': expected BOOLEAN, got str; [schema] Node 62 (DepthAnythingV3_MultiView): 'invert_depth': expected BOOLEAN, got str; [schema] Node 62 (DepthAnythingV3_MultiView): 'keep_model_size': expected BOOLEAN, got str
