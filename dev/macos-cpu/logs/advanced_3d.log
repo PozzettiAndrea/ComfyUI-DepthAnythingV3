@@ -16,7 +16,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI]     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["22", 0]}
   [ComfyUI]   Node 25: DA3_PreviewPointCloud
   [ComfyUI]     Inputs: {"file_path": ["23", 0], "color_mode": "RGB", "preview_vtk": ""}
-  [ComfyUI] Generated prompt_id: 5961f3ff-a56e-40ee-8bd3-267a3381c5b5
+  [ComfyUI] Generated prompt_id: 3e84b747-3322-48f2-ba1f-b61310248e92
   [ComfyUI] Calling execution.validate_prompt()...
   [ComfyUI] Validation result: valid=True
   [ComfyUI] === Validation PASSED ===
@@ -33,7 +33,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=3 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (0.49s): result: NodeOutput
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (0.17s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'Raw', resize_method: 'resize', invert_depth: False, keep_model_size: False, da3_model: dict, images: torch.float32 [1,533,800,3] cpu
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -49,16 +49,16 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 533, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 533, 800, 3])
   [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=4
-  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 1.28GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 1.28GB
+  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 1.31GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 1.31GB
   Frame 2 saved (frame_001.jpg, t=2.4s)
-  [capture-periodic] freeze=5ms shot=1381ms unfreeze=3ms saved=True
-  Frame 3 saved (frame_002.jpg, t=5.8s)
-  [capture-periodic] freeze=5ms shot=216ms unfreeze=3ms saved=True
-  [capture-loop] iter=50 t=7.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=5.3/7.0GB (83%) swap=0.4/1.0GB (41%) cpu=81% browser_rss=0.60GB
+  [capture-periodic] freeze=3ms shot=1293ms unfreeze=4ms saved=True
+  Frame 3 saved (frame_002.jpg, t=5.9s)
+  [capture-periodic] freeze=2ms shot=144ms unfreeze=4ms saved=True
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=4
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (7.18s): result: NodeOutput
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (6.77s): result: NodeOutput
+  [capture-loop] iter=50 t=7.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=5.3/7.0GB (83%) swap=0.5/1.0GB (50%) cpu=88% browser_rss=0.59GB
   [ComfyUI] [comfy-env] Running DA3_ToPointCloud: confidence_threshold: 0.2, downsample: 1, allow_around_1: True, filter_outliers: False, outlier_percentage: 5.0, depth_raw: torch.float32 [1,532,800,3] cpu, confidence: torch.float32 [1,532,800,3] cpu, intrinsics: '{\n  "intrinsics": [\n    {\n      "image_0": [\n       ..., sky_mask: torch.float32 [1,532,800] cpu, source_image: torch.float32 [1,532,800,3] cpu
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_ToPointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -86,7 +86,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 532, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 532, 800, 3])
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.21s): result: NodeOutput
+  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.25s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DA3_SavePointCloud: filename_prefix: 'pointcloud', pointcloud: list[1]
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_SavePointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -106,12 +106,12 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'manager_path', 'storage_key', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[311035, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([311035, 3])
-  Frame 4 saved (frame_003.jpg, t=8.2s)
-  [capture-periodic] freeze=9ms shot=336ms unfreeze=6ms saved=True
-  Frame 5 saved (frame_004.jpg, t=10.7s)
-  [capture-periodic] freeze=2ms shot=209ms unfreeze=3ms saved=True
+  Frame 4 saved (frame_003.jpg, t=8.1s)
+  [capture-periodic] freeze=2ms shot=130ms unfreeze=3ms saved=True
+  Frame 5 saved (frame_004.jpg, t=10.4s)
+  [capture-periodic] freeze=4ms shot=111ms unfreeze=3ms saved=True
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_SavePointCloud done (3.21s): result: NodeOutput
+  [ComfyUI] [comfy-env] DA3_SavePointCloud done (3.09s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DA3_PreviewPointCloud: file_path: '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_worksp..., color_mode: 'RGB'
   [ComfyUI] [SubprocessWorker] call_method: nodes.preview_nodes.DA3_PreviewPointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -123,15 +123,15 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=7 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_PreviewPointCloud done (0.01s): result: NodeOutput
-  [ComfyUI] Prompt executed in 11.43 seconds
+  [ComfyUI] [comfy-env] DA3_PreviewPointCloud done (0.00s): result: NodeOutput
+  [ComfyUI] Prompt executed in 10.59 seconds
   Node executed (2 total), capturing...
-  Frame 6 saved (frame_005.jpg, t=12.0s)
-  [capture-node] freeze=5ms shot=118ms unfreeze=0ms saved=True
-  Execution complete (t=12.0s)
-  Captured 6 unique frames over 12.17s
+  Frame 6 saved (frame_005.jpg, t=11.0s)
+  [capture-node] freeze=6ms shot=125ms unfreeze=0ms saved=True
+  Execution complete (t=11.0s)
+  Captured 6 unique frames over 11.2s
   [debug] iframes: 1
-  [debug]   iframe[0]: src=http://127.0.0.1:41881/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=1778, canvas=486x430, rafFrozen=True
+  [debug]   iframe[0]: src=http://127.0.0.1:41887/extensions/ComfyUI-DepthAnythingV3/viewer_vtk.html?v=1778, canvas=486x430, rafFrozen=True
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_3d_executed.png
   [timing] final_screenshot: 0.2s
