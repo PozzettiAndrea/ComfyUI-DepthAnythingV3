@@ -1,7 +1,232 @@
 Capturing execution frames: simple.json
   Frame 1 saved (frame_000.jpg, t=0.0s)
   Validating workflow...
-  Validation failed: graphToPrompt produced nodes without class_type: graphToPrompt: 4 nodes, missing class_type: [3,14], sample: {"inputs":{"image":"bridge.jpg"},"class_type":"LoadImage","_meta":{"title":"Load Image"}}
+  [ComfyUI] === /validate endpoint called ===
+  [ComfyUI] === /validate endpoint called ===
+  [ComfyUI] === /validate endpoint called ===
+  [ComfyUI] Received JSON with keys: ['prompt']
+  [ComfyUI] Received JSON with keys: ['prompt']
+  [ComfyUI] Received JSON with keys: ['prompt']
+  [ComfyUI] Prompt has 4 nodes
+  [ComfyUI] Prompt has 4 nodes
+  [ComfyUI] Prompt has 4 nodes
+  [ComfyUI]   Node 2: LoadImage
+  [ComfyUI]   Node 2: LoadImage
+  [ComfyUI]   Node 2: LoadImage
+  [ComfyUI]     Inputs: {"image": "bridge.jpg"}
+  [ComfyUI]     Inputs: {"image": "bridge.jpg"}
+  [ComfyUI]     Inputs: {"image": "bridge.jpg"}
+  [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+  [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+  [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
+  Queuing workflow for execution...
+  [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+  [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+  [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+  [ComfyUI]   Node 4: PreviewImage
+  [ComfyUI]   Node 4: PreviewImage
+  [ComfyUI]   Node 4: PreviewImage
+  [ComfyUI]     Inputs: {"images": ["14", 0]}
+  [ComfyUI]     Inputs: {"images": ["14", 0]}
+  [ComfyUI]     Inputs: {"images": ["14", 0]}
+  [ComfyUI]   Node 14: DepthAnything_V3
+  [ComfyUI]   Node 14: DepthAnything_V3
+  [ComfyUI]   Node 14: DepthAnything_V3
+  [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+  [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+  [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
+  [ComfyUI] Generated prompt_id: 73ad87c4-fc99-45bf-9f1d-99b2db26c542
+  [ComfyUI] Generated prompt_id: 73ad87c4-fc99-45bf-9f1d-99b2db26c542
+  [ComfyUI] Generated prompt_id: 73ad87c4-fc99-45bf-9f1d-99b2db26c542
+  [ComfyUI] Calling execution.validate_prompt()...
+  [ComfyUI] Calling execution.validate_prompt()...
+  [ComfyUI] Calling execution.validate_prompt()...
+  [ComfyUI] Validation result: valid=True
+  [ComfyUI] Validation result: valid=True
+  [ComfyUI] Validation result: valid=True
+  [ComfyUI] === Validation PASSED ===
+  [ComfyUI] === Validation PASSED ===
+  [ComfyUI] === Validation PASSED ===
+  [ComfyUI] got prompt
+  [ComfyUI] got prompt
+  [ComfyUI] got prompt
+  [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
+  [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
+  [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
+  [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
+  [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
+  [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
+  [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
+  [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
+  [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
+  [ComfyUI] [SubprocessWorker] worker started/confirmed
+  [ComfyUI] [SubprocessWorker] worker started/confirmed
+  [ComfyUI] [SubprocessWorker] worker started/confirmed
+  [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
+  [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
+  [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
+  [ComfyUI] [SubprocessWorker] created 0 shm blocks
+  [ComfyUI] [SubprocessWorker] created 0 shm blocks
+  [ComfyUI] [SubprocessWorker] created 0 shm blocks
+  [ComfyUI] [SubprocessWorker] sending request via socket...
+  [ComfyUI] [SubprocessWorker] sending request via socket...
+  [ComfyUI] [SubprocessWorker] sending request via socket...
+  [ComfyUI] [SubprocessWorker] call_id=4 sending call_method
+  [ComfyUI] [SubprocessWorker] call_id=4 sending call_method
+  [ComfyUI] [SubprocessWorker] call_id=4 sending call_method
+  [ComfyUI] [SubprocessWorker] got response: error
+  [ComfyUI] [SubprocessWorker] got response: error
+  [ComfyUI] [SubprocessWorker] got response: error
+  [ComfyUI] !!! Exception during processing !!! No module named 'comfy_aimdo'
+  [ComfyUI] !!! Exception during processing !!! No module named 'comfy_aimdo'
+  [ComfyUI] !!! Exception during processing !!! No module named 'comfy_aimdo'
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 535, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 535, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 535, in execute
+  [ComfyUI]     output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]     output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]     output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 335, in get_output_data
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 335, in get_output_data
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 335, in get_output_data
+  [ComfyUI]     return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]     return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]     return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+  [ComfyUI]     await process_inputs(input_dict, i)
+  [ComfyUI]     await process_inputs(input_dict, i)
+  [ComfyUI]     await process_inputs(input_dict, i)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 297, in process_inputs
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 297, in process_inputs
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 297, in process_inputs
+  [ComfyUI]     result = f(**inputs)
+  [ComfyUI]     result = f(**inputs)
+  [ComfyUI]     result = f(**inputs)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py", line 536, in proxy
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py", line 536, in proxy
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py", line 536, in proxy
+  [ComfyUI]     result = worker.call_method(
+  [ComfyUI]     result = worker.call_method(
+  [ComfyUI]     result = worker.call_method(
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method
+  [ComfyUI]     raise WorkerError(
+  [ComfyUI]     raise WorkerError(
+  [ComfyUI]     raise WorkerError(
+  [ComfyUI] comfy_env.isolation.workers.base.WorkerError: No module named 'comfy_aimdo'
+  [ComfyUI] comfy_env.isolation.workers.base.WorkerError: No module named 'comfy_aimdo'
+  [ComfyUI] comfy_env.isolation.workers.base.WorkerError: No module named 'comfy_aimdo'
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]   File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]     device = _mm().get_torch_device()
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]     import comfy.model_management
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI]     import comfy_aimdo.vram_buffer
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] ModuleNotFoundError: No module named 'comfy_aimdo'
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] 
+  [ComfyUI] Prompt executed in 0.02 seconds
+  [ComfyUI] Prompt executed in 0.02 seconds
+  [ComfyUI] Prompt executed in 0.02 seconds
+  Execution complete (t=0.2s)
+  Execution error: {'prompt_id': '03ba6811-f893-4609-834d-b07d032a5209', 'node_id': '3', 'node_type': 'DownloadAndLoadDepthAnythingV3Model', 'executed': ['2'], 'exception_message': 'No module named \'comfy_aimdo\'\n\nWorker traceback:\nTraceback (most recent call last):\n  File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main\n    result = method(**inputs)\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute\n    device = _mm().get_torch_device()\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm\n    import comfy.model_management\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>\n    import comfy_aimdo.vram_buffer\nModuleNotFoundError: No module named \'comfy_aimdo\'\n\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 297, in process_inputs\n    result = f(**inputs)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py", line 536, in proxy\n    result = worker.call_method(\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method\n    raise WorkerError(\n'], 'current_inputs': {'model': ['da3_large.safetensors'], 'precision': ['auto'], 'attention': ['auto']}, 'current_outputs': ['4', '3', '14', '2'], 'timestamp': 1778445576146}
     Status: FAILED
-    Error: Workflow validation failed
-    Details: graphToPrompt produced nodes without class_type: graphToPrompt: 4 nodes, missing class_type: [3,14], sample: {"inputs":{"image":"bridge.jpg"},"class_type":"LoadImage","_meta":{"title":"Load Image"}}
+    Error: Workflow execution failed: {'prompt_id': '03ba6811-f893-4609-834d-b07d032a5209', 'node_id': '3', 'node_type': 'DownloadAndLoadDepthAnythingV3Model', 'executed': ['2'], 'exception_message': 'No module named \'comfy_aimdo\'\n\nWorker traceback:\nTraceback (most recent call last):\n  File "/tmp/comfyui_pvenv_a5mhs2tp/persistent_worker.py", line 1762, in main\n    result = method(**inputs)\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 602, in execute\n    device = _mm().get_torch_device()\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py", line 19, in _mm\n    import comfy.model_management\n  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/comfy/model_management.py", line 34, in <module>\n    import comfy_aimdo.vram_buffer\nModuleNotFoundError: No module named \'comfy_aimdo\'\n\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/ComfyUI/execution.py", line 297, in process_inputs\n    result = f(**inputs)\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/metadata.py", line 536, in proxy\n    result = worker.call_method(\n', '  File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2036/.venv/lib/python3.10/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method\n    raise WorkerError(\n'], 'current_inputs': {'model': ['da3_large.safetensors'], 'precision': ['auto'], 'attention': ['auto']}, 'current_outputs': ['4', '3', '14', '2'], 'timestamp': 1778445576146}
+    Details: Workflow: /tmp/comfy-test-run-zkca2jx0/ComfyUI-DepthAnythingV3/workflows/simple.json
+Node error: DownloadAndLoadDepthAnythingV3Model
