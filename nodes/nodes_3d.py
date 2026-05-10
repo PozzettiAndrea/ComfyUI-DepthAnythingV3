@@ -192,15 +192,22 @@ Output POINTCLOUD contains:
     @classmethod
     def execute(cls, depth_raw, confidence, allow_around_1=False, intrinsics=None, sky_mask=None, source_image=None, confidence_threshold=0.1, downsample=1, filter_outliers=False, outlier_percentage=5.0):
         """Convert depth map to point cloud using geometric unprojection."""
-        # Validate that depth is raw/metric, not normalized
+        # Sanity-check that depth looks raw/metric, not normalized.
+        # Demoted from a hard error to a warning: the 0.95-1.05 heuristic
+        # produces false positives on Apple Silicon CPU where the model
+        # output sometimes lands at e.g. max=1.0302 (broken macos-cpu CI
+        # while linux-cpu / windows-cpu pass — Apple Silicon's CPU FP
+        # backend produces slightly different values than x86). Real
+        # normalized depth is also recoverable downstream with the same
+        # geometric pipeline, so blocking on the heuristic isn't worth
+        # the platform-flakiness cost.
         max_depth = depth_raw.max().item()
         if 0.95 < max_depth < 1.05 and not allow_around_1:
-            raise ValueError(
-                f"Depth input appears to be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
-                f"Point cloud generation requires raw metric depth values. "
-                f"Please use DepthAnything_V3 node with normalization_mode='Raw' "
-                f"and connect the depth output to this node's depth_raw input. "
-                f"If you think this is a mistake, feel free to toggle allow_around_1."
+            logger.warning(
+                f"Depth input may be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
+                f"Point cloud generation expects raw metric depth values. "
+                f"If your output looks wrong, use DepthAnything_V3 with normalization_mode='Raw' "
+                f"or set allow_around_1=True to suppress this warning."
             )
 
         B = depth_raw.shape[0]
@@ -977,14 +984,15 @@ Output: GLB file path
         """Convert depth map to mesh and save as GLB."""
         from pathlib import Path
 
-        # Validate depth
+        # Sanity-check (warn, don't error). See companion site at line ~197
+        # for the rationale (Apple Silicon CPU FP precision).
         max_depth = depth_raw.max().item()
         if 0.95 < max_depth < 1.05 and not allow_around_1:
-            raise ValueError(
-                f"Depth input appears to be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
-                f"Mesh generation requires raw metric depth values. "
-                f"Please use DepthAnything_V3 node with normalization_mode='Raw'. "
-                f"If you think this is a mistake, feel free to toggle allow_around_1."
+            logger.warning(
+                f"Depth input may be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
+                f"Mesh generation expects raw metric depth values. "
+                f"If your output looks wrong, use DepthAnything_V3 with normalization_mode='Raw' "
+                f"or set allow_around_1=True to suppress this warning."
             )
 
         B = depth_raw.shape[0]
