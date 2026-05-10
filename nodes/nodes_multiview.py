@@ -684,15 +684,17 @@ Requires Main series or Nested model (with camera pose prediction).""",
 
         logger.info(f"Fusing {N} views into world-space point cloud")
 
-        # Validate that depth is raw/metric, not normalized
+        # Sanity-check (warn, don't error). The 0.95-1.05 heuristic
+        # produces false positives on Apple Silicon CPU where the model
+        # output sometimes lands at e.g. max=1.0302 (broke macos-cpu CI
+        # while linux-cpu / windows-cpu pass).
         max_depth = depths.max().item()
         if 0.95 < max_depth < 1.05 and not allow_around_1:
-            raise ValueError(
-                f"Depth input appears to be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
-                f"Multi-view point cloud fusion requires raw metric depth values. "
-                f"Please use DepthAnythingV3_MultiView node with normalization_mode='Raw' "
-                f"and connect the depth output to this node's depths input. "
-                f"If you think this is a mistake, feel free to toggle allow_around_1."
+            logger.warning(
+                f"Depth input may be normalized (max={max_depth:.4f}) instead of raw/metric depth. "
+                f"Multi-view point cloud fusion expects raw metric depth values. "
+                f"If your output looks wrong, use DepthAnythingV3_MultiView with normalization_mode='Raw' "
+                f"or set allow_around_1=True to suppress this warning."
             )
 
         # Validate that all inputs have matching dimensions
