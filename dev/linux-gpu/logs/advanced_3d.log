@@ -1,14 +1,14 @@
 Capturing execution frames: advanced_3d.json
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 3054 / 7703 MB
+  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 3623 / 24124 MB
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] call_id=3 sending model_to_device
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -280MB (now 359MB) reserved=2560MB peak=1505MB
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 558 / 7703 MB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -290MB (now 591MB) reserved=2976MB peak=1172MB
+  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 711 / 24124 MB
   Frame 1 saved (frame_000.jpg, t=0.0s)
   Validating workflow...
-  Queuing workflow for execution...
   [ComfyUI] === /validate endpoint called ===
+  Queuing workflow for execution...
   [ComfyUI] Received JSON with keys: ['prompt']
   [ComfyUI] Prompt has 6 nodes
   [ComfyUI]   Node 2: LoadImage
@@ -16,33 +16,33 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
   [ComfyUI]   Node 21: DepthAnything_V3
-  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI]     Inputs: {"normalization_mode": "Raw", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
-  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-0307/ComfyUI', '/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages', '/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
   [ComfyUI]   Node 22: DA3_ToPointCloud
-  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI]     Inputs: {"confidence_threshold": 0.2, "downsample": 1, "allow_around_1": 1, "filter_outliers": false, "outlier_percentage": 5, "depth_raw": ["21", 0], "confidence": ["21", 1], "intrinsics": ["21", 6], "sky_ma
-  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_4rmut23q/persistent_worker.py', 'abstract://comfy_worker_cbac5d477bb0']...
   [ComfyUI]   Node 23: DA3_SavePointCloud
-  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_cbac5d477bb0 (abstract, no filesystem path)
   [ComfyUI]     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["22", 0]}
   [ComfyUI]   Node 25: DA3_PreviewPointCloud
   [ComfyUI]     Inputs: {"file_path": ["23", 0], "color_mode": "RGB", "preview_vtk": ""}
-  [ComfyUI] Generated prompt_id: a9ed4e9b-bb81-421f-a566-88d6f0cc5b7b
+  [ComfyUI] Generated prompt_id: e812d6fe-b4f3-4d6e-8699-c4d41e411f53
   [ComfyUI] Calling execution.validate_prompt()...
   [ComfyUI] Validation result: valid=True
   [ComfyUI] === Validation PASSED ===
   [ComfyUI] got prompt
   [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
-  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 558 / 7703 MB
+  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 711 / 24124 MB
+  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /workspaces/DepthAnythingV3-0759/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-0759/ComfyUI', '/workspaces/DepthAnythingV3-0759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/workspaces/DepthAnythingV3-0759/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.1/site-packages', '/workspaces/DepthAnythingV3-0759/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
+  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/workspaces/DepthAnythingV3-0759/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/workspaces/DepthAnythingV3-0759/ComfyUI/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_h_nkff2u/persistent_worker.py', 'abstract://comfy_worker_edfdb6ef60c5']...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: failed
+  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_edfdb6ef60c5 (abstract, no filesystem path)
   [ComfyUI] [ComfyUI-DepthAnythingV3] Socket unhealthy, restarting worker...
   [ComfyUI] [comfy-env] Invalidated 1 stale model patchers (will be cleaned up during next unload)
-  Frame 2 saved (frame_001.jpg, t=2.4s)
-  [capture-periodic] freeze=1ms shot=139ms unfreeze=4ms saved=True
+  Frame 2 saved (frame_001.jpg, t=2.5s)
+  [capture-periodic] freeze=3ms shot=200ms unfreeze=6ms saved=True
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: WARNING: You need pytorch with cu130 or higher to use optimized CUDA operations.
   [ComfyUI] [SubprocessWorker] worker started/confirmed
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
@@ -50,16 +50,16 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=4 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 386 / 7703 MB
+  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 563 / 24124 MB
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] call_id=5 sending model_to_device
   [ComfyUI] Model 'DepthAnything3Net_1' gone from worker (restarted?), treating as offloaded
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 386 / 7703 MB
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (3.71s): result: NodeOutput
-  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 386 / 7703 MB
+  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 563 / 24124 MB
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (3.45s): result: NodeOutput
+  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 563 / 24124 MB
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'Raw', resize_method: 'resize', invert_depth: False, keep_model_size: False, da3_model: dict, images: torch.float32 [1,533,800,3] cpu
-  [ComfyUI] [VRAM] Before DepthAnything_V3: 386 / 7703 MB
+  [ComfyUI] [VRAM] Before DepthAnything_V3: 563 / 24124 MB
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
@@ -73,21 +73,22 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 533, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 533, 800, 3])
-  Frame 3 saved (frame_002.jpg, t=4.7s)
-  [capture-periodic] freeze=2ms shot=137ms unfreeze=5ms saved=True
+  Frame 3 saved (frame_002.jpg, t=4.8s)
+  [capture-periodic] freeze=3ms shot=195ms unfreeze=7ms saved=True
   [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=6
-  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 7.67GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 7.67GB
+  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 24.71GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 24.71GB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +474MB (now 474MB) reserved=480MB peak=474MB
-  [capture-loop] iter=50 t=5.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=6.0/31.3GB (19%) swap=0.0/32.0GB (0%) cpu=12% browser_rss=0.92GB
+  [capture-loop] iter=50 t=6.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=4.2/31.2GB (14%) swap=0.5/32.0GB (2%) cpu=4% browser_rss=0.94GB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +355MB (now 829MB) reserved=864MB peak=829MB
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=6
   [ComfyUI] [SubprocessWorker] got response: ok
   [ComfyUI] [comfy-env] Created 1 model patchers: ['DepthAnything3Net_1']
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (2.44s): result: NodeOutput
-  [ComfyUI] [VRAM] After DepthAnything_V3: 2380 / 7703 MB
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (3.66s): result: NodeOutput
+  [ComfyUI] [VRAM] After DepthAnything_V3: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   [ComfyUI] [comfy-env] Running DA3_ToPointCloud: confidence_threshold: 0.2, downsample: 1, allow_around_1: True, filter_outliers: False, outlier_percentage: 5.0, depth_raw: torch.float32 [1,532,800,3] cpu, confidence: torch.float32 [1,532,800,3] cpu, intrinsics: '{\n  "intrinsics": [\n    {\n      "image_0": [\n       ..., sky_mask: torch.float32 [1,532,800] cpu, source_image: torch.float32 [1,532,800,3] cpu
-  [ComfyUI] [VRAM] Before DA3_ToPointCloud: 2380 / 7703 MB
+  [ComfyUI] [VRAM] Before DA3_ToPointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_ToPointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -102,7 +103,6 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=7 sending call_method
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +318MB (now 792MB) reserved=1888MB peak=1022MB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 532, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 532, 800, 3])
@@ -116,11 +116,11 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 532, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 532, 800, 3])
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.48s): result: NodeOutput
-  [ComfyUI] [VRAM] After DA3_ToPointCloud: 2380 / 7703 MB
+  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.25s): result: NodeOutput
+  [ComfyUI] [VRAM] After DA3_ToPointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   [ComfyUI] [comfy-env] Running DA3_SavePointCloud: filename_prefix: 'pointcloud', pointcloud: list[1]
-  [ComfyUI] [VRAM] Before DA3_SavePointCloud: 2380 / 7703 MB
+  [ComfyUI] [VRAM] Before DA3_SavePointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_SavePointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -130,26 +130,27 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
-  Frame 4 saved (frame_003.jpg, t=7.0s)
   [ComfyUI] [SubprocessWorker] call_id=8 sending call_method
-  [capture-periodic] freeze=2ms shot=127ms unfreeze=4ms saved=True
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[311395, 3]
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([311395, 3])
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[310685, 3]
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([310685, 3])
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[311395]
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([311395])
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[310685]
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([310685])
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[311395, 3]
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([311395, 3])
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[310685, 3]
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([310685, 3])
+  Frame 4 saved (frame_003.jpg, t=9.3s)
+  [capture-periodic] freeze=3ms shot=197ms unfreeze=6ms saved=True
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_SavePointCloud done (2.35s): result: NodeOutput
-  [ComfyUI] [VRAM] After DA3_SavePointCloud: 2380 / 7703 MB
+  [ComfyUI] [comfy-env] DA3_SavePointCloud done (3.26s): result: NodeOutput
+  [ComfyUI] [VRAM] After DA3_SavePointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
-  [ComfyUI] [comfy-env] Running DA3_PreviewPointCloud: file_path: '/workspaces/DepthAnythingV3-0307/ComfyUI/output/pointclo..., color_mode: 'RGB'
-  [ComfyUI] [VRAM] Before DA3_PreviewPointCloud: 2380 / 7703 MB
+  [ComfyUI] [comfy-env] Running DA3_PreviewPointCloud: file_path: '/workspaces/DepthAnythingV3-0759/ComfyUI/output/pointclo..., color_mode: 'RGB'
+  [ComfyUI] [VRAM] Before DA3_PreviewPointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   [ComfyUI] [SubprocessWorker] call_method: nodes.preview_nodes.DA3_PreviewPointCloud.EXECUTE_NORMALIZED
+  Node executed (1 total), capturing...
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
@@ -159,24 +160,25 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=9 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_PreviewPointCloud done (0.13s): result: NodeOutput
-  [ComfyUI] [VRAM] After DA3_PreviewPointCloud: 2380 / 7703 MB
+  [ComfyUI] [comfy-env] DA3_PreviewPointCloud done (0.06s): result: NodeOutput
+  [ComfyUI] [VRAM] After DA3_PreviewPointCloud: 2535 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
-  [ComfyUI] Prompt executed in 9.19 seconds
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 2380 / 7703 MB
+  [ComfyUI] Prompt executed in 10.74 seconds
+  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 2535 / 24124 MB
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] call_id=10 sending model_to_device
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -366MB (now 463MB) reserved=1888MB peak=1219MB
+  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 711 / 24124 MB
+  Frame 5 saved (frame_004.jpg, t=11.2s)
+  [capture-node] freeze=37ms shot=1647ms unfreeze=3ms saved=True
   Node executed (2 total), capturing...
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -298MB (now 495MB) reserved=1888MB peak=1022MB
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 556 / 7703 MB
-  Frame 5 saved (frame_004.jpg, t=9.7s)
-  [capture-node] freeze=1213ms shot=85ms unfreeze=0ms saved=True
-  Execution complete (t=9.7s)
-  Captured 5 unique frames over 11.05s
+  [capture-node] freeze=3ms shot=184ms unfreeze=0ms saved=False
+  Execution complete (t=13.2s)
+  Captured 5 unique frames over 13.41s
   [debug] iframes: 1
-  [debug]   iframe[0]: src=http://127.0.0.1:41886/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1778382, canvas=486x394, rafFrozen=True
+  [debug]   iframe[0]: src=http://127.0.0.1:41889/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1778400, canvas=486x394, rafFrozen=True
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_3d_executed.png
-  [timing] final_screenshot: 0.3s
+  [timing] final_screenshot: 0.5s
     Captured 6 video frames

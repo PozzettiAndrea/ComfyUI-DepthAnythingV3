@@ -1,177 +1,177 @@
 {
-  "timestamp": "2026-05-10T03:16:29.772341+00:00",
+  "timestamp": "2026-05-10T08:11:25.418213+00:00",
   "platform": "linux",
   "hardware": {
     "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-    "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-    "gpu": "NVIDIA GeForce RTX 5060"
+    "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+    "gpu": "NVIDIA GeForce RTX 3090"
   },
   "commit_hash": "1a25712cb767ece23a4983a3006615d2be331ac9",
-  "success": false,
+  "success": true,
   "summary": {
     "total": 7,
-    "passed": 6,
-    "failed": 1
+    "passed": 7,
+    "failed": 0
   },
   "workflows": [
     {
       "name": "advanced",
       "status": "pass",
-      "duration_seconds": 37.27,
+      "duration_seconds": 37.66,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 3.32,
-          "avg": 2.05
+          "peak": 3.19,
+          "avg": 2.06
         },
-        "total_ram_gb": 31.3,
+        "total_ram_gb": 31.2,
         "samples": 37,
         "vram": {
-          "peak": 2.82,
-          "avg": 0.49
+          "peak": 3.49,
+          "avg": 0.85
         }
       }
     },
     {
       "name": "advanced_3d",
       "status": "pass",
-      "duration_seconds": 18.74,
+      "duration_seconds": 22.79,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 3.95,
+          "peak": 3.89,
           "avg": 3.1
         },
-        "total_ram_gb": 31.3,
-        "samples": 19,
+        "total_ram_gb": 31.2,
+        "samples": 23,
         "vram": {
-          "peak": 2.82,
-          "avg": 0.78
+          "peak": 3.49,
+          "avg": 1.08
         }
       }
     },
     {
       "name": "advanced_3d_multiview",
       "status": "pass",
-      "duration_seconds": 22.37,
+      "duration_seconds": 20.85,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 3.71,
-          "avg": 2.48
+          "peak": 4.21,
+          "avg": 3.09
         },
-        "total_ram_gb": 31.3,
-        "samples": 22,
+        "total_ram_gb": 31.2,
+        "samples": 21,
         "vram": {
-          "peak": 3.1,
-          "avg": 0.53
+          "peak": 3.46,
+          "avg": 1.53
         }
       }
     },
     {
       "name": "bas_relief",
       "status": "pass",
-      "duration_seconds": 80.52,
+      "duration_seconds": 91.92,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 4.61,
-          "avg": 3.95
+          "peak": 3.86,
+          "avg": 2.96
         },
-        "total_ram_gb": 31.3,
-        "samples": 78,
+        "total_ram_gb": 31.2,
+        "samples": 90,
         "vram": {
-          "peak": 7.23,
-          "avg": 6.41
+          "peak": 3.46,
+          "avg": 1.2
         }
       }
     },
     {
       "name": "da3_streaming",
-      "status": "fail",
-      "duration_seconds": 47.82,
-      "error": "Workflow execution failed: {'prompt_id': '0f8f770a-2093-4692-88a4-c73e63dc11b5', 'node_id': '6', 'node_type': 'DepthAnythingV3_Streaming', 'executed': ['3', '5', '2'], 'exception_message': 'Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 4.92 GiB\\nRequested               : 286.44 MiB\\nDevice limit            : 7.52 GiB\\nFree (according to CUDA): 11.19 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\n\\nWorker traceback:\\nTraceback (most recent call last):\\n  File \"/tmp/comfyui_pvenv_4rmut23q/persistent_worker.py\", line 1762, in main\\n    result = method(**inputs)\\n             ^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\\n    to_return = cls.execute(*args, **kwargs)\\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/node.py\", line 249, in execute\\n    result = pipeline.run(normalized_images, pbar=pbar,\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 277, in run\\n    result = self._process_chunk(normalized_images, start, end)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/streaming/pipeline.py\", line 330, in _process_chunk\\n    output = self.model(chunk_input)\\n             ^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1577, in forward\\n    output = self._process_depth_head(feats, H, W)\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1591, in _process_depth_head\\n    return self.head(feats, H, W, patch_start_idx=0)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\\n    return self._call_impl(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\\n    return forward_call(*args, **kwargs)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1379, in forward\\n    self._forward_impl([feat[s0:s1] for feat in feats], H, W, patch_start_idx)\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1419, in _forward_impl\\n    fused_main = self._add_pos_embed(fused_main, W, H)\\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py\", line 1477, in _add_pos_embed\\n    pe = position_grid_to_embed(pe, x.shape[1]) * ratio\\n         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~\\ntorch.OutOfMemoryError: Allocation on device 0 would exceed allowed memory. (out of memory)\\nCurrently allocated     : 4.92 GiB\\nRequested               : 286.44 MiB\\nDevice limit            : 7.52 GiB\\nFree (according to CUDA): 11.19 MiB\\nPyTorch limit (set by user-supplied memory fraction)\\n                        : 17179869184.00 GiB\\n\\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/execution.py\", line 535, in execute\\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/execution.py\", line 335, in get_output_data\\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n', '  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\\n    await process_inputs(input_dict, i)\\n', '  File \"/workspaces/DepthAnythingV3-0307/ComfyUI/execution.py\", line 297, in process_inputs\\n    result = f(**inputs)\\n             ^^^^^^^^^^^\\n', '  File \"/workspaces/DepthAnythingV3-0307/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py\", line 536, in proxy\\n    result = worker.call_method(\\n             ^^^^^^^^^^^^^^^^^^^\\n', '  File \"/workspaces/DepthAnythingV3-0307/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\\n    raise WorkerError(\\n'], 'current_inputs': {'normalization_mode': ['Standard'], 'chunk_size': [30], 'overlap': [8], 'align_lib': ['auto'], 'align_method': ['sim3'], 'resize_method': ['resize'], 'invert_depth': [True], 'save_pointcloud': [False], 'sample_ratio': [0.015], 'conf_threshold_coef': [0.75], 'da3_model': [\"{'model_path': '/workspaces/DepthAnythingV3-0307/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}\"], 'video': ['<comfy_api.latest._input_impl.video_types.VideoFromFile object at 0x76a9032cde90>'], 'salad_model': [\"{'checkpoint_path': '/workspaces/DepthAnythingV3-0307/ComfyUI/models/salad/dino_salad.safetensors'}\"]}, 'current_outputs': ['4', '6', '3', '5', '2'], 'timestamp': 1778382949205}\n\nDetails:\nWorkflow: /node/ComfyUI-DepthAnythingV3/workflows/da3_streaming.json\nNode error: DepthAnythingV3_Streaming",
+      "status": "pass",
+      "duration_seconds": 162.13,
+      "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 8.24,
-          "avg": 4.99
+          "peak": 9.49,
+          "avg": 6.07
         },
-        "total_ram_gb": 31.3,
-        "samples": 46,
+        "total_ram_gb": 31.2,
+        "samples": 158,
         "vram": {
-          "peak": 7.23,
-          "avg": 3.84
+          "peak": 7.77,
+          "avg": 3.33
         }
       }
     },
     {
       "name": "simple",
       "status": "pass",
-      "duration_seconds": 13.19,
+      "duration_seconds": 17.88,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 3.99,
-          "avg": 3.23
+          "peak": 7.38,
+          "avg": 4.25
         },
-        "total_ram_gb": 31.3,
-        "samples": 13,
+        "total_ram_gb": 31.2,
+        "samples": 18,
         "vram": {
-          "peak": 7.35,
-          "avg": 4.12
+          "peak": 3.11,
+          "avg": 0.86
         }
       }
     },
     {
       "name": "video_multiview_depth",
       "status": "pass",
-      "duration_seconds": 26.56,
+      "duration_seconds": 32.89,
       "error": null,
       "hardware": {
         "os": "Linux-6.8.0-107-generic-x86_64-with-glibc2.35",
-        "cpu": "AMD Ryzen 5 3600 6-Core Processor",
-        "gpu": "NVIDIA GeForce RTX 5060"
+        "cpu": "Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz",
+        "gpu": "NVIDIA GeForce RTX 3090"
       },
       "resources": {
         "ram": {
-          "peak": 5.08,
-          "avg": 3.35
+          "peak": 5.09,
+          "avg": 3.47
         },
-        "total_ram_gb": 31.3,
-        "samples": 26,
+        "total_ram_gb": 31.2,
+        "samples": 32,
         "vram": {
-          "peak": 3.11,
-          "avg": 0.83
+          "peak": 3.08,
+          "avg": 1.14
         }
       }
     }
