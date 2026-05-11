@@ -5,220 +5,218 @@
 [   3s]   wizard: COMFY_TEST_GPU=0 platform=win32 preferred=['CPU']
 [   6s]   clicked [BTN|Continue]
 [   9s]   url: file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/not-supported -> file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/install
-[  10s]   clicked [TILE|CPU]
-[  14s]   clicked [BTN|Next]
-[  21s]   clicked [BTN|Next]
-[  25s]   clicked [BTN|Install]
-[  29s]   url: file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/install -> file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/server-start
-[ 160s]   /system_stats up after 157s
-[ 160s]   app: waiting for backend stability (continuous /system_stats up for 30s)
-[ 160s]   app: /system_stats up; awaiting 30s of stability
-[ 191s]   app: backend stable for 30s; proceeding
-[ 191s]   capturing canvas load...
-[ 200s]   post: waiting for Cloud upsell
-[ 233s]   post: Cloud upsell not found, skipping
-[ 233s]   post: pressed Escape (Cloud upsell fallback)
-[ 235s]   post: waiting for Close Templates
-[ 247s]   post: Close Templates not found, skipping
-[ 247s]   post: pressed Escape (Close Templates fallback)
-[ 249s]   post: waiting for Extensions
-[ 250s]   post: clicked Extensions via [button[aria-label="Extensions"]:visible]
-[ 252s]   ext: node meta = display='Depth Anything V3' publisher='pznodes' version='0.1.15'
-[ 255s]   ext: searching "Depth Anything V3"
-[ 260s]   ext: clicking Depth Anything V3 by pznodes tile
-[ 263s]   ext: scrolling to + opening version selector
-[ 266s]   ext: selected 0.1.15
-[ 268s]   ext: clicking right-panel Install
-[ 269s]   ext: clicked Install (last of 4 visible)
-[ 277s]   ext: waiting for "Apply Changes" toast
-[ 278s]   ext: clicked Apply Changes
-[ 283s]   app: Apply Changes already triggered in-app restart, skipping pkill
-[ 288s]   app: relaunching with CDP
-[ 288s]   app: waiting for CDP
-[ 289s]   app: CDP up after 1s
-[ 289s]   app: reconnecting Playwright
-[ 290s]   app: attached to http://127.0.0.1:8000/
-[ 624s]   app: server ready after 81s
-[ 624s]   app: waiting for main canvas (window.app.graph)
-[ 624s]   app: canvas ready after 1s (http://127.0.0.1:8000/)
-[ 629s]   app: forcing renderer reload to refresh node-pack manifest
-[ 634s]   app: canvas re-ready after reload in 4s
-[ 637s]   ext: closing Nodes Manager dialog
-[ 637s]   ext: dismissing What's New popup
-[ 638s]   ext: closed What's New popup
-[ 640s]   ext: dismissing Node Pack Issues modal (if present)
-[ 641s]   ext: closed Node Pack Issues modal
-[ 643s]   ext: opening Templates sidebar
-[ 643s]   ext: clicked Templates
-[ 648s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 649s]   ext: clicked comfyui-depthanythingv3 section
-[ 652s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
-[ 652s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 652s]   ext: picking first matching comfyui-depthanythingv3 template
-[ 652s]   ext: 7 visible cards
-[ 657s]   ext: template click failed: Locator.click: Timeout 3000ms exceeded.
-Call log:
-  - waiting for locator("[data-testid^=\"template-workflow-\"]:visible").first
-    - locator resolved to <div data-testid="template-workflow-advanced" class="flex flex-col overflow-hidden rounded-lg cursor-pointer p-2 transition-colors duration-200 aspect-256/353 hover:bg-base-background">…</div>
-  - attempting click action
-    - waiting for element to be visible, enabled and stable
-    - element is visible, enabled and stable
-    - scrolling into view if needed
-    - done scrolling
-    - performing click action
-    - click action done
-    - waiting for scheduled navigations to finish
-
-[ 657s]   ext: installing WS execution listener
-[ 657s]   ext: clicking Run
-[ 658s]   ext: clicked Run
-[ 658s]   ext: waiting for execution_success / execution_error
-[ 772s]   ext: WS events=102 elapsed=113s
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029678}
-[ 772s]     ws: {'type': 'executing', 'ts': 1778492029679}
-[ 772s]     ws: {'type': 'executed', 'ts': 1778492029742}
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029744}
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029763}
-[ 772s]     ws: {'type': 'executing', 'ts': 1778492029782}
-[ 772s]     ws: {'type': 'executed', 'ts': 1778492029825}
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029828}
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029831}
-[ 772s]     ws: {'type': 'executing', 'ts': 1778492029832}
-[ 772s]     ws: {'type': 'executed', 'ts': 1778492029915}
-[ 772s]     ws: {'type': 'progress_state', 'ts': 1778492029929}
-[ 772s]     ws: {'type': 'execution_success', 'ts': 1778492029950}
-[ 772s]     ws: {'type': 'status', 'ts': 1778492029952}
-[ 772s]     ws: {'type': 'executing', 'ts': 1778492029952}
-[ 772s]   ext: execution_success after 113s
-[ 777s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
-[ 777s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 777s]   loop: spec=include items=['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple'] -> 4 workflow(s) ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 777s]   loop: matching=4 first_ran='advanced' remaining=3 -> ['advanced_3d_multiview', 'advanced_3d', 'simple']
-[ 777s]   loop: full restart for workflow 2/4 (advanced_3d_multiview)
-[ 777s]   loop: closing current browser
-[ 777s]   loop: killing ComfyUI process
-[ 782s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 782s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
-[ 784s]   loop: DevToolsActivePort -> 53704 after 3s
-[ 784s]   loop: reconnecting Playwright on port 53704
-[ 785s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
-[ 785s]   loop: server ready after 1s
-[ 812s]   loop: canvas ready after 22s
-[ 812s]   loop: forcing renderer reload
-[ 815s]   loop: canvas ready after 3s
-[ 818s]   ext: closing Nodes Manager dialog
-[ 818s]   ext: dismissing What's New popup
-[ 818s]   ext: What's New popup not present
-[ 818s]   ext: dismissing Node Pack Issues modal (if present)
-[ 818s]   ext: Node Pack Issues modal not present
-[ 818s]   ext: opening Templates sidebar
-[ 819s]   ext: clicked Templates
-[ 823s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 825s]   ext: clicked comfyui-depthanythingv3 section
-[ 827s]   ext: clicking template advanced_3d_multiview
-[ 832s]   ext: template click failed: Locator.click: Timeout 3000ms exceeded.
-Call log:
-  - waiting for locator("[data-testid=\"template-workflow-advanced_3d_multiview\"]").first
-    - locator resolved to <div data-testid="template-workflow-advanced_3d_multiview" class="flex flex-col overflow-hidden rounded-lg cursor-pointer p-2 transition-colors duration-200 aspect-256/353 hover:bg-base-background">…</div>
-  - attempting click action
-    - waiting for element to be visible, enabled and stable
-    - element is visible, enabled and stable
-    - scrolling into view if needed
-    - done scrolling
-    - performing click action
-    - click action done
-    - waiting for scheduled navigations to finish
-
-[ 832s]   loop: full restart for workflow 3/4 (advanced_3d)
-[ 832s]   loop: closing current browser
-[ 832s]   loop: killing ComfyUI process
-[ 837s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 837s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
-[ 838s]   loop: DevToolsActivePort -> 53826 after 2s
-[ 838s]   loop: reconnecting Playwright on port 53826
-[ 839s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
-[ 839s]   loop: server ready after 1s
-[ 866s]   loop: canvas ready after 23s
-[ 866s]   loop: forcing renderer reload
-[ 869s]   loop: canvas ready after 3s
-[ 872s]   ext: closing Nodes Manager dialog
-[ 872s]   ext: dismissing What's New popup
-[ 872s]   ext: What's New popup not present
-[ 872s]   ext: dismissing Node Pack Issues modal (if present)
-[ 872s]   ext: Node Pack Issues modal not present
-[ 872s]   ext: opening Templates sidebar
-[ 873s]   ext: clicked Templates
-[ 877s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 879s]   ext: clicked comfyui-depthanythingv3 section
-[ 881s]   ext: clicking template advanced_3d
-[ 883s]   ext: clicked template advanced_3d
-[ 889s]   ext: installing WS execution listener
-[ 889s]   ext: clicking Run
-[ 889s]   ext: clicked Run
-[ 889s]   ext: waiting for execution_success / execution_error
-[ 948s]   ext: WS events=29 elapsed=59s
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492198285}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492198289}
-[ 948s]     ws: {'type': 'executing', 'ts': 1778492198300}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492200202}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492200204}
-[ 948s]     ws: {'type': 'executing', 'ts': 1778492200204}
-[ 948s]     ws: {'type': 'executed', 'ts': 1778492206385}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492206387}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492206403}
-[ 948s]     ws: {'type': 'executing', 'ts': 1778492206403}
-[ 948s]     ws: {'type': 'executed', 'ts': 1778492206498}
-[ 948s]     ws: {'type': 'progress_state', 'ts': 1778492206501}
-[ 948s]     ws: {'type': 'execution_success', 'ts': 1778492206507}
-[ 948s]     ws: {'type': 'status', 'ts': 1778492206508}
-[ 948s]     ws: {'type': 'executing', 'ts': 1778492206508}
-[ 948s]   ext: execution_success after 59s
-[ 954s]   loop: full restart for workflow 4/4 (simple)
-[ 954s]   loop: closing current browser
-[ 954s]   loop: killing ComfyUI process
-[ 959s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 959s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
-[ 961s]   loop: DevToolsActivePort -> 54072 after 3s
-[ 961s]   loop: reconnecting Playwright on port 54072
-[ 961s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
-[ 961s]   loop: server ready after 1s
-[ 989s]   loop: canvas ready after 23s
-[ 989s]   loop: forcing renderer reload
-[ 992s]   loop: canvas ready after 3s
-[ 995s]   ext: closing Nodes Manager dialog
-[ 995s]   ext: dismissing What's New popup
-[ 995s]   ext: What's New popup not present
-[ 995s]   ext: dismissing Node Pack Issues modal (if present)
-[ 995s]   ext: Node Pack Issues modal not present
-[ 995s]   ext: opening Templates sidebar
-[ 996s]   ext: clicked Templates
-[1000s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[1002s]   ext: clicked comfyui-depthanythingv3 section
-[1004s]   ext: clicking template simple
-[1006s]   ext: clicked template simple
-[1011s]   ext: installing WS execution listener
-[1011s]   ext: clicking Run
-[1012s]   ext: clicked Run
-[1012s]   ext: waiting for execution_success / execution_error
-[1098s]   ext: WS events=22 elapsed=86s
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492270278}
-[1098s]     ws: {'type': 'executing', 'ts': 1778492270278}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492275137}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492275139}
-[1098s]     ws: {'type': 'executing', 'ts': 1778492275140}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492355772}
-[1098s]     ws: {'type': 'progress', 'ts': 1778492355782}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492356005}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492356008}
-[1098s]     ws: {'type': 'executing', 'ts': 1778492356020}
-[1098s]     ws: {'type': 'executed', 'ts': 1778492356057}
-[1098s]     ws: {'type': 'progress_state', 'ts': 1778492356059}
-[1098s]     ws: {'type': 'execution_success', 'ts': 1778492356076}
-[1098s]     ws: {'type': 'status', 'ts': 1778492356077}
-[1098s]     ws: {'type': 'executing', 'ts': 1778492356078}
-[1098s]   ext: execution_success after 86s
-[1103s] Captured 1033 frames
-[1104s] Wrote D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\results.json (4 workflow(s), sha=1fb3431232ab)
+[   9s]   clicked [TILE|CPU]
+[  13s]   clicked [BTN|Next]
+[  20s]   clicked [BTN|Next]
+[  24s]   clicked [BTN|Install]
+[  27s]   url: file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/install -> file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/server-start
+[ 119s]   /system_stats up after 116s
+[ 119s]   app: waiting for backend stability (continuous /system_stats up for 30s)
+[ 119s]   app: /system_stats up; awaiting 30s of stability
+[ 149s]   app: backend stable for 30s; proceeding
+[ 149s]   capturing canvas load...
+[ 158s]   post: waiting for Cloud upsell
+[ 191s]   post: Cloud upsell not found, skipping
+[ 191s]   post: pressed Escape (Cloud upsell fallback)
+[ 193s]   post: waiting for Close Templates
+[ 205s]   post: Close Templates not found, skipping
+[ 205s]   post: pressed Escape (Close Templates fallback)
+[ 207s]   post: waiting for Extensions
+[ 208s]   post: clicked Extensions via [button[aria-label="Extensions"]:visible]
+[ 210s]   ext: node meta = display='Depth Anything V3' publisher='pznodes' version='0.1.16'
+[ 213s]   ext: searching "Depth Anything V3"
+[ 217s]   ext: clicking Depth Anything V3 by pznodes tile
+[ 221s]   ext: scrolling to + opening version selector
+[ 224s]   ext: selected 0.1.16
+[ 226s]   ext: clicking right-panel Install
+[ 227s]   ext: clicked Install (last of 4 visible)
+[ 235s]   ext: waiting for "Apply Changes" toast
+[ 236s]   ext: clicked Apply Changes
+[ 241s]   app: Apply Changes already triggered in-app restart, skipping pkill
+[ 246s]   app: relaunching with CDP
+[ 246s]   app: waiting for CDP
+[ 247s]   app: CDP up after 1s
+[ 247s]   app: reconnecting Playwright
+[ 248s]   app: attached to http://127.0.0.1:8000/
+[ 468s]   app: server ready after 54s
+[ 468s]   app: waiting for main canvas (window.app.graph)
+[ 468s]   app: canvas ready after 1s (http://127.0.0.1:8000/)
+[ 473s]   app: forcing renderer reload to refresh node-pack manifest
+[ 477s]   app: canvas re-ready after reload in 3s
+[ 480s]   ext: closing Nodes Manager dialog
+[ 480s]   ext: dismissing What's New popup
+[ 480s]   ext: closed What's New popup
+[ 483s]   ext: dismissing Node Pack Issues modal (if present)
+[ 483s]   ext: closed Node Pack Issues modal
+[ 485s]   ext: opening Templates sidebar
+[ 486s]   ext: clicked Templates
+[ 490s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 492s]   ext: clicked comfyui-depthanythingv3 section
+[ 494s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
+[ 494s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 494s]   ext: picking first matching comfyui-depthanythingv3 template
+[ 494s]   ext: 7 visible cards
+[ 496s]   ext: clicked template advanced
+[ 501s]   ext: installing WS execution listener
+[ 501s]   ext: clicking Run
+[ 502s]   ext: clicked Run
+[ 502s]   ext: waiting for execution_success / execution_error
+[ 603s]   ext: WS events=100 elapsed=100s
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889506}
+[ 603s]     ws: {'type': 'executing', 'ts': 1778494889506}
+[ 603s]     ws: {'type': 'executed', 'ts': 1778494889570}
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889573}
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889576}
+[ 603s]     ws: {'type': 'executing', 'ts': 1778494889577}
+[ 603s]     ws: {'type': 'executed', 'ts': 1778494889611}
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889630}
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889634}
+[ 603s]     ws: {'type': 'executing', 'ts': 1778494889634}
+[ 603s]     ws: {'type': 'executed', 'ts': 1778494889640}
+[ 603s]     ws: {'type': 'progress_state', 'ts': 1778494889643}
+[ 603s]     ws: {'type': 'execution_success', 'ts': 1778494889647}
+[ 603s]     ws: {'type': 'status', 'ts': 1778494889663}
+[ 603s]     ws: {'type': 'executing', 'ts': 1778494889664}
+[ 603s]   ext: execution_success after 100s
+[ 608s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
+[ 608s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 608s]   loop: spec=include items=['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple'] -> 4 workflow(s) ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 608s]   loop: matching=4 first_ran='advanced' remaining=3 -> ['advanced_3d_multiview', 'advanced_3d', 'simple']
+[ 608s]   loop: full restart for workflow 2/4 (advanced_3d_multiview)
+[ 608s]   loop: closing current browser
+[ 608s]   loop: killing ComfyUI process
+[ 613s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 613s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
+[ 615s]   loop: DevToolsActivePort -> 49521 after 3s
+[ 615s]   loop: reconnecting Playwright on port 49521
+[ 616s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
+[ 616s]   loop: server ready after 1s
+[ 639s]   loop: canvas ready after 20s
+[ 639s]   loop: forcing renderer reload
+[ 643s]   loop: canvas ready after 3s
+[ 646s]   ext: closing Nodes Manager dialog
+[ 646s]   ext: dismissing What's New popup
+[ 646s]   ext: What's New popup not present
+[ 646s]   ext: dismissing Node Pack Issues modal (if present)
+[ 646s]   ext: Node Pack Issues modal not present
+[ 646s]   ext: opening Templates sidebar
+[ 647s]   ext: clicked Templates
+[ 651s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 653s]   ext: clicked comfyui-depthanythingv3 section
+[ 655s]   ext: clicking template advanced_3d_multiview
+[ 657s]   ext: clicked template advanced_3d_multiview
+[ 662s]   ext: installing WS execution listener
+[ 662s]   ext: clicking Run
+[ 663s]   ext: clicked Run
+[ 663s]   ext: waiting for execution_success / execution_error
+[ 832s]   ext: WS events=38 elapsed=169s
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495117921}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495117924}
+[ 832s]     ws: {'type': 'executing', 'ts': 1778495117936}
+[ 832s]     ws: {'type': 'executed', 'ts': 1778495119332}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495119342}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495119344}
+[ 832s]     ws: {'type': 'executing', 'ts': 1778495119344}
+[ 832s]     ws: {'type': 'executed', 'ts': 1778495119389}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495119394}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495119396}
+[ 832s]     ws: {'type': 'executing', 'ts': 1778495119396}
+[ 832s]     ws: {'type': 'executed', 'ts': 1778495119451}
+[ 832s]     ws: {'type': 'progress_state', 'ts': 1778495119474}
+[ 832s]     ws: {'type': 'execution_success', 'ts': 1778495119479}
+[ 832s]     ws: {'type': 'status', 'ts': 1778495119480}
+[ 832s]   ext: execution_success after 169s
+[ 838s]   loop: full restart for workflow 3/4 (advanced_3d)
+[ 838s]   loop: closing current browser
+[ 838s]   loop: killing ComfyUI process
+[ 843s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 843s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
+[ 844s]   loop: DevToolsActivePort -> 50032 after 2s
+[ 844s]   loop: reconnecting Playwright on port 50032
+[ 847s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
+[ 847s]   loop: server ready after 1s
+[ 871s]   loop: canvas ready after 20s
+[ 871s]   loop: forcing renderer reload
+[ 876s]   loop: canvas ready after 3s
+[ 879s]   ext: closing Nodes Manager dialog
+[ 879s]   ext: dismissing What's New popup
+[ 879s]   ext: What's New popup not present
+[ 879s]   ext: dismissing Node Pack Issues modal (if present)
+[ 879s]   ext: Node Pack Issues modal not present
+[ 879s]   ext: opening Templates sidebar
+[ 879s]   ext: clicked Templates
+[ 884s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 885s]   ext: clicked comfyui-depthanythingv3 section
+[ 888s]   ext: clicking template advanced_3d
+[ 890s]   ext: clicked template advanced_3d
+[ 895s]   ext: installing WS execution listener
+[ 895s]   ext: clicking Run
+[ 896s]   ext: clicked Run
+[ 896s]   ext: waiting for execution_success / execution_error
+[ 945s]   ext: WS events=29 elapsed=49s
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495224366}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495224368}
+[ 945s]     ws: {'type': 'executing', 'ts': 1778495224368}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495224787}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495224789}
+[ 945s]     ws: {'type': 'executing', 'ts': 1778495224789}
+[ 945s]     ws: {'type': 'executed', 'ts': 1778495229245}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495229251}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495229253}
+[ 945s]     ws: {'type': 'executing', 'ts': 1778495229253}
+[ 945s]     ws: {'type': 'executed', 'ts': 1778495229468}
+[ 945s]     ws: {'type': 'progress_state', 'ts': 1778495229470}
+[ 945s]     ws: {'type': 'execution_success', 'ts': 1778495229490}
+[ 945s]     ws: {'type': 'status', 'ts': 1778495229756}
+[ 945s]     ws: {'type': 'executing', 'ts': 1778495229757}
+[ 945s]   ext: execution_success after 49s
+[ 950s]   loop: full restart for workflow 4/4 (simple)
+[ 950s]   loop: closing current browser
+[ 950s]   loop: killing ComfyUI process
+[ 955s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 955s]   loop: waiting for DevToolsActivePort at C:\Users\runneradmin\AppData\Roaming\ComfyUI\DevToolsActivePort
+[ 956s]   loop: DevToolsActivePort parse err: [Errno 13] Permission denied: 'C:\\Users\\runneradmin\\AppData\\Roaming\\ComfyUI\\DevToolsActivePort'
+[ 957s]   loop: DevToolsActivePort -> 50269 after 3s
+[ 957s]   loop: reconnecting Playwright on port 50269
+[ 958s]   loop: attached to file:///C:/Users/runneradmin/.comfy-test-cache/desktop/ComfyUI/resources/desktop-ui/index.html#/desktop-start
+[ 958s]   loop: server ready after 1s
+[ 981s]   loop: canvas ready after 20s
+[ 981s]   loop: forcing renderer reload
+[ 986s]   loop: canvas ready after 3s
+[ 989s]   ext: closing Nodes Manager dialog
+[ 989s]   ext: dismissing What's New popup
+[ 989s]   ext: What's New popup not present
+[ 989s]   ext: dismissing Node Pack Issues modal (if present)
+[ 989s]   ext: Node Pack Issues modal not present
+[ 989s]   ext: opening Templates sidebar
+[ 989s]   ext: clicked Templates
+[ 994s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 995s]   ext: clicked comfyui-depthanythingv3 section
+[ 997s]   ext: clicking template simple
+[1000s]   ext: clicked template simple
+[1005s]   ext: installing WS execution listener
+[1005s]   ext: clicking Run
+[1005s]   ext: clicked Run
+[1005s]   ext: waiting for execution_success / execution_error
+[1082s]   ext: WS events=21 elapsed=76s
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495292843}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495292845}
+[1082s]     ws: {'type': 'executing', 'ts': 1778495292845}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495297724}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495297727}
+[1082s]     ws: {'type': 'executing', 'ts': 1778495297727}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495368824}
+[1082s]     ws: {'type': 'progress', 'ts': 1778495368828}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495369058}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495369061}
+[1082s]     ws: {'type': 'executing', 'ts': 1778495369061}
+[1082s]     ws: {'type': 'executed', 'ts': 1778495369103}
+[1082s]     ws: {'type': 'progress_state', 'ts': 1778495369105}
+[1082s]     ws: {'type': 'execution_success', 'ts': 1778495369109}
+[1082s]     ws: {'type': 'status', 'ts': 1778495369111}
+[1082s]   ext: execution_success after 76s
+[1087s] Captured 1288 frames
+[1087s] Wrote D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\results.json (4 workflow(s), sha=7839628da8a1)
 ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
   built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -230,16 +228,16 @@ ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFm
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
-  Duration: 00:03:26.60, start: 0.000000, bitrate: N/A
+Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
+  Duration: 00:04:17.60, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1008x681, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 000001e1aede1100] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 000001e1aede1100] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 000001e1aede1100] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\driver.mp4':
+[libx264 @ 0000021dadc45c80] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0000021dadc45c80] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0000021dadc45c80] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1008x682, q=2-31, 5 fps, 10240 tbn
@@ -247,57 +245,58 @@ Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnything
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
-frame=   11 fps=0.0 q=23.0 size=       0KiB time=00:00:01.80 bitrate=   0.2kbits/s speed=3.41x    
-frame=   51 fps= 49 q=23.0 size=     256KiB time=00:00:09.80 bitrate= 214.0kbits/s speed=9.48x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=  104 fps= 67 q=23.0 size=     256KiB time=00:00:20.40 bitrate= 102.8kbits/s speed=13.2x    
-frame=  157 fps= 76 q=23.0 size=     512KiB time=00:00:31.00 bitrate= 135.3kbits/s speed=14.9x    
-frame=  213 fps= 81 q=23.0 size=     512KiB time=00:00:42.20 bitrate=  99.4kbits/s speed=16.1x    
-frame=  280 fps= 89 q=23.0 size=     512KiB time=00:00:55.60 bitrate=  75.4kbits/s speed=17.6x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=  330 fps= 90 q=23.0 size=     512KiB time=00:01:05.60 bitrate=  63.9kbits/s speed=17.9x    
-frame=  366 fps= 88 q=23.0 size=     768KiB time=00:01:12.80 bitrate=  86.4kbits/s speed=17.4x    
-frame=  418 fps= 89 q=23.0 size=    1024KiB time=00:01:23.20 bitrate= 100.8kbits/s speed=17.7x    
-frame=  476 fps= 91 q=23.0 size=    1024KiB time=00:01:34.80 bitrate=  88.5kbits/s speed=18.2x    
-frame=  535 fps= 93 q=23.0 size=    1024KiB time=00:01:46.60 bitrate=  78.7kbits/s speed=18.5x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=  577 fps= 92 q=23.0 size=    1024KiB time=00:01:55.00 bitrate=  72.9kbits/s speed=18.4x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
-frame=  614 fps= 91 q=23.0 size=    1536KiB time=00:02:02.40 bitrate= 102.8kbits/s speed=18.1x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=  649 fps= 89 q=23.0 size=    1792KiB time=00:02:09.40 bitrate= 113.5kbits/s speed=17.8x    
-frame=  699 fps= 89 q=23.0 size=    2048KiB time=00:02:19.40 bitrate= 120.4kbits/s speed=17.8x    
-frame=  774 fps= 93 q=23.0 size=    2048KiB time=00:02:34.40 bitrate= 108.7kbits/s speed=18.5x    
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
-[vf#0:0 @ 000001e1aea436c0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=  822 fps= 92 q=23.0 size=    2304KiB time=00:02:44.00 bitrate= 115.1kbits/s speed=18.4x    
-frame=  868 fps= 92 q=23.0 size=    2560KiB time=00:02:53.20 bitrate= 121.1kbits/s speed=18.3x    
-frame=  929 fps= 93 q=23.0 size=    2560KiB time=00:03:05.40 bitrate= 113.1kbits/s speed=18.5x    
-frame=  998 fps= 95 q=23.0 size=    2560KiB time=00:03:19.20 bitrate= 105.3kbits/s speed=18.9x    
-[out#0/mp4 @ 000001e1aea44e80] video:2672KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.475119%
-frame= 1033 fps= 96 q=-1.0 Lsize=    2685KiB time=00:03:26.20 bitrate= 106.7kbits/s speed=19.3x    
-[libx264 @ 000001e1aede1100] frame I:23    Avg QP: 7.95  size: 38878
-[libx264 @ 000001e1aede1100] frame P:300   Avg QP:15.50  size:  4206
-[libx264 @ 000001e1aede1100] frame B:710   Avg QP:21.99  size:   816
-[libx264 @ 000001e1aede1100] consecutive B-frames:  6.3%  4.8%  4.1% 84.8%
-[libx264 @ 000001e1aede1100] mb I  I16..4: 57.9% 15.4% 26.7%
-[libx264 @ 000001e1aede1100] mb P  I16..4:  2.8%  2.6%  2.6%  P16..4:  1.8%  0.7%  0.5%  0.0%  0.0%    skip:88.9%
-[libx264 @ 000001e1aede1100] mb B  I16..4:  0.2%  0.3%  0.2%  B16..8:  3.6%  0.5%  0.2%  direct: 0.2%  skip:94.8%  L0:58.1% L1:38.4% BI: 3.5%
-[libx264 @ 000001e1aede1100] 8x8 transform intra:26.5% inter:50.3%
-[libx264 @ 000001e1aede1100] coded y,uvDC,uvAC intra: 34.8% 17.7% 14.3% inter: 1.0% 0.7% 0.2%
-[libx264 @ 000001e1aede1100] i16 v,h,dc,p: 68% 28%  2%  2%
-[libx264 @ 000001e1aede1100] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 20% 33%  2%  2%  2%  2%  2%  4%
-[libx264 @ 000001e1aede1100] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 36% 31% 14%  2%  3%  3%  4%  3%  4%
-[libx264 @ 000001e1aede1100] i8c dc,h,v,p: 81% 11%  6%  3%
-[libx264 @ 000001e1aede1100] Weighted P-Frames: Y:1.7% UV:1.3%
-[libx264 @ 000001e1aede1100] ref P L0: 65.9%  2.7% 20.4% 10.5%  0.4%
-[libx264 @ 000001e1aede1100] ref B L0: 62.1% 35.7%  2.1%
-[libx264 @ 000001e1aede1100] ref B L1: 97.1%  2.9%
-[libx264 @ 000001e1aede1100] kb/s:105.92
-[1115s] Wrote D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\driver.mp4
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
+frame=   14 fps=0.0 q=23.0 size=       0KiB time=00:00:02.40 bitrate=   0.2kbits/s speed=4.43x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame=   61 fps= 57 q=23.0 size=     256KiB time=00:00:11.80 bitrate= 177.8kbits/s speed=  11x    
+frame=  118 fps= 73 q=23.0 size=     256KiB time=00:00:23.20 bitrate=  90.4kbits/s speed=14.4x    
+frame=  168 fps= 79 q=23.0 size=     512KiB time=00:00:33.20 bitrate= 126.3kbits/s speed=15.7x    
+frame=  242 fps= 91 q=23.0 size=     512KiB time=00:00:48.00 bitrate=  87.4kbits/s speed=  18x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame=  295 fps= 93 q=23.0 size=     512KiB time=00:00:58.60 bitrate=  71.6kbits/s speed=18.4x    
+frame=  331 fps= 90 q=23.0 size=     768KiB time=00:01:05.80 bitrate=  95.6kbits/s speed=17.8x    
+frame=  382 fps= 91 q=23.0 size=    1024KiB time=00:01:16.00 bitrate= 110.4kbits/s speed=  18x    
+frame=  447 fps= 94 q=23.0 size=    1024KiB time=00:01:29.00 bitrate=  94.3kbits/s speed=18.6x    
+frame=  508 fps= 96 q=23.0 size=    1024KiB time=00:01:41.20 bitrate=  82.9kbits/s speed=  19x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame=  543 fps= 93 q=23.0 size=    1024KiB time=00:01:48.20 bitrate=  77.5kbits/s speed=18.6x    
+frame=  581 fps= 91 q=23.0 size=    1536KiB time=00:01:55.80 bitrate= 108.7kbits/s speed=18.2x    
+frame=  644 fps= 94 q=23.0 size=    1536KiB time=00:02:08.40 bitrate=  98.0kbits/s speed=18.7x    
+frame=  735 fps= 99 q=23.0 size=    1536KiB time=00:02:26.60 bitrate=  85.8kbits/s speed=19.8x    
+frame=  831 fps=105 q=23.0 size=    1536KiB time=00:02:45.80 bitrate=  75.9kbits/s speed=  21x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame=  907 fps=108 q=23.0 size=    1536KiB time=00:03:01.00 bitrate=  69.5kbits/s speed=21.5x    
+frame=  963 fps=108 q=23.0 size=    2048KiB time=00:03:12.20 bitrate=  87.3kbits/s speed=21.5x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgba(pc, gbr), 1008x681
+frame= 1051 fps=111 q=23.0 size=    2048KiB time=00:03:29.80 bitrate=  80.0kbits/s speed=22.2x    
+[vf#0:0 @ 0000021dadc43f40] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame= 1112 fps=111 q=23.0 size=    2304KiB time=00:03:42.00 bitrate=  85.0kbits/s speed=22.2x    
+frame= 1176 fps=112 q=23.0 size=    2560KiB time=00:03:54.80 bitrate=  89.3kbits/s speed=22.4x    
+frame= 1282 fps=116 q=23.0 size=    2560KiB time=00:04:16.00 bitrate=  81.9kbits/s speed=23.2x    
+[out#0/mp4 @ 0000021dadc44e80] video:2717KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.580338%
+frame= 1288 fps=117 q=-1.0 Lsize=    2733KiB time=00:04:17.20 bitrate=  87.0kbits/s speed=23.3x    
+[libx264 @ 0000021dadc45c80] frame I:26    Avg QP: 6.75  size: 37120
+[libx264 @ 0000021dadc45c80] frame P:355   Avg QP:15.71  size:  3363
+[libx264 @ 0000021dadc45c80] frame B:907   Avg QP:22.21  size:   686
+[libx264 @ 0000021dadc45c80] consecutive B-frames:  4.7%  3.6%  2.3% 89.4%
+[libx264 @ 0000021dadc45c80] mb I  I16..4: 64.6% 11.2% 24.1%
+[libx264 @ 0000021dadc45c80] mb P  I16..4:  2.1%  1.9%  2.0%  P16..4:  1.5%  0.5%  0.4%  0.0%  0.0%    skip:91.6%
+[libx264 @ 0000021dadc45c80] mb B  I16..4:  0.1%  0.3%  0.2%  B16..8:  2.8%  0.4%  0.2%  direct: 0.1%  skip:96.0%  L0:56.0% L1:40.1% BI: 3.9%
+[libx264 @ 0000021dadc45c80] 8x8 transform intra:23.0% inter:51.7%
+[libx264 @ 0000021dadc45c80] coded y,uvDC,uvAC intra: 33.3% 18.2% 14.8% inter: 0.8% 0.6% 0.2%
+[libx264 @ 0000021dadc45c80] i16 v,h,dc,p: 71% 25%  2%  2%
+[libx264 @ 0000021dadc45c80] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 32% 20% 32%  2%  2%  2%  3%  2%  4%
+[libx264 @ 0000021dadc45c80] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 36% 32% 14%  2%  3%  3%  4%  3%  4%
+[libx264 @ 0000021dadc45c80] i8c dc,h,v,p: 80% 12%  6%  3%
+[libx264 @ 0000021dadc45c80] Weighted P-Frames: Y:2.0% UV:1.4%
+[libx264 @ 0000021dadc45c80] ref P L0: 62.0%  4.4% 18.4% 14.9%  0.4%
+[libx264 @ 0000021dadc45c80] ref B L0: 59.1% 38.7%  2.3%
+[libx264 @ 0000021dadc45c80] ref B L1: 95.9%  4.1%
+[libx264 @ 0000021dadc45c80] kb/s:86.39
+[1099s] Wrote D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\driver.mp4
 ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
   built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -309,16 +308,16 @@ ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFm
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
-  Duration: 00:02:09.20, start: 0.000000, bitrate: N/A
+Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
+  Duration: 00:03:04.20, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1008x681, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 000001e13b264b80] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 000001e13b264b80] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 000001e13b264b80] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\videos\advanced\driver.mp4':
+[libx264 @ 000001c3ab463540] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 000001c3ab463540] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 000001c3ab463540] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\videos\advanced\driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1008x682, q=2-31, 5 fps, 10240 tbn
@@ -326,31 +325,30 @@ Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnything
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-frame=    4 fps=0.0 q=23.0 size=       0KiB time=00:00:00.40 bitrate=   1.0kbits/s speed=0.726x    
-frame=   56 fps= 52 q=23.0 size=       0KiB time=00:00:10.80 bitrate=   0.0kbits/s speed=  10x    
-frame=  116 fps= 71 q=23.0 size=       0KiB time=00:00:22.80 bitrate=   0.0kbits/s speed=13.9x    
-[out#0/mp4 @ 000001e13b26bb40] video:119KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.595965%
-frame=  192 fps= 92 q=-1.0 Lsize=     122KiB time=00:00:38.00 bitrate=  26.4kbits/s speed=18.2x    
-[libx264 @ 000001e13b264b80] frame I:1     Avg QP:10.48  size: 49638
-[libx264 @ 000001e13b264b80] frame P:49    Avg QP:13.55  size:   972
-[libx264 @ 000001e13b264b80] frame B:142   Avg QP:23.43  size:   169
-[libx264 @ 000001e13b264b80] consecutive B-frames:  1.0%  1.0%  0.0% 97.9%
-[libx264 @ 000001e13b264b80] mb I  I16..4: 59.0% 13.1% 27.9%
-[libx264 @ 000001e13b264b80] mb P  I16..4:  0.4%  0.1%  0.3%  P16..4:  1.0%  0.1%  0.1%  0.0%  0.0%    skip:97.9%
-[libx264 @ 000001e13b264b80] mb B  I16..4:  0.0%  0.1%  0.0%  B16..8:  3.8%  0.2%  0.0%  direct: 0.0%  skip:95.9%  L0:48.8% L1:50.9% BI: 0.3%
-[libx264 @ 000001e13b264b80] 8x8 transform intra:17.9% inter:51.1%
-[libx264 @ 000001e13b264b80] coded y,uvDC,uvAC intra: 31.2% 14.7% 11.0% inter: 0.1% 0.1% 0.0%
-[libx264 @ 000001e13b264b80] i16 v,h,dc,p: 59% 41%  0%  0%
-[libx264 @ 000001e13b264b80] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 11% 57%  0%  0%  1%  0%  0%  1%
-[libx264 @ 000001e13b264b80] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 34% 34% 13%  2%  3%  3%  4%  3%  4%
-[libx264 @ 000001e13b264b80] i8c dc,h,v,p: 68% 22%  9%  1%
-[libx264 @ 000001e13b264b80] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 000001e13b264b80] ref P L0: 80.2%  0.6% 13.0%  6.1%
-[libx264 @ 000001e13b264b80] ref B L0: 60.4% 37.6%  1.9%
-[libx264 @ 000001e13b264b80] ref B L1: 97.8%  2.2%
-[libx264 @ 000001e13b264b80] kb/s:25.27
-[1117s]   videos/advanced/driver.mp4 placed (frames 388..579)
-[1117s]   screenshots/advanced_executed.png placed
+frame=   36 fps=0.0 q=23.0 size=       0KiB time=00:00:06.80 bitrate=   0.1kbits/s speed=13.4x    
+frame=  112 fps=108 q=23.0 size=       0KiB time=00:00:22.00 bitrate=   0.0kbits/s speed=21.3x    
+[out#0/mp4 @ 000001c3ab46bcc0] video:115KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.484276%
+frame=  172 fps=137 q=-1.0 Lsize=     118KiB time=00:00:34.00 bitrate=  28.3kbits/s speed=27.1x    
+[libx264 @ 000001c3ab463540] frame I:1     Avg QP:10.63  size: 51043
+[libx264 @ 000001c3ab463540] frame P:43    Avg QP:13.44  size:   895
+[libx264 @ 000001c3ab463540] frame B:128   Avg QP:23.23  size:   213
+[libx264 @ 000001c3ab463540] consecutive B-frames:  0.6%  0.0%  1.7% 97.7%
+[libx264 @ 000001c3ab463540] mb I  I16..4: 56.0% 15.7% 28.3%
+[libx264 @ 000001c3ab463540] mb P  I16..4:  0.4%  0.1%  0.3%  P16..4:  1.1%  0.1%  0.0%  0.0%  0.0%    skip:97.9%
+[libx264 @ 000001c3ab463540] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  5.3%  0.2%  0.0%  direct: 0.0%  skip:94.5%  L0:45.1% L1:54.7% BI: 0.2%
+[libx264 @ 000001c3ab463540] 8x8 transform intra:14.8% inter:58.9%
+[libx264 @ 000001c3ab463540] coded y,uvDC,uvAC intra: 33.8% 14.8% 11.1% inter: 0.1% 0.1% 0.0%
+[libx264 @ 000001c3ab463540] i16 v,h,dc,p: 61% 38%  0%  0%
+[libx264 @ 000001c3ab463540] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 49% 17% 31%  0%  1%  1%  1%  1%  1%
+[libx264 @ 000001c3ab463540] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 35% 34% 12%  2%  3%  3%  4%  3%  4%
+[libx264 @ 000001c3ab463540] i8c dc,h,v,p: 69% 22%  8%  1%
+[libx264 @ 000001c3ab463540] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 000001c3ab463540] ref P L0: 82.6%  0.5% 13.4%  3.5%
+[libx264 @ 000001c3ab463540] ref B L0: 65.9% 33.7%  0.5%
+[libx264 @ 000001c3ab463540] ref B L1: 98.6%  1.4%
+[libx264 @ 000001c3ab463540] kb/s:27.17
+[1100s]   videos/advanced/driver.mp4 placed (frames 368..539)
+[1100s]   screenshots/advanced_executed.png placed
 ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
   built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -362,16 +360,16 @@ ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFm
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
-  Duration: 00:01:21.00, start: 0.000000, bitrate: N/A
+Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
+  Duration: 00:02:19.60, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1008x681, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0000019bcbd9d000] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 0000019bcbd9d000] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0000019bcbd9d000] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\videos\advanced_3d_multiview\driver.mp4':
+[libx264 @ 000001b10ebc4540] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 000001b10ebc4540] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 000001b10ebc4540] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\videos\advanced_3d_multiview\driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1008x682, q=2-31, 5 fps, 10240 tbn
@@ -379,23 +377,31 @@ Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnything
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[out#0/mp4 @ 0000019bcbd7bd00] video:32KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.679411%
-frame=    3 fps=0.0 q=-1.0 Lsize=      33KiB time=00:00:00.20 bitrate=1353.5kbits/s speed=2.21x    
-[libx264 @ 0000019bcbd9d000] frame I:1     Avg QP:18.60  size: 26933
-[libx264 @ 0000019bcbd9d000] frame P:2     Avg QP:19.50  size:  2667
-[libx264 @ 0000019bcbd9d000] mb I  I16..4: 27.2% 48.7% 24.1%
-[libx264 @ 0000019bcbd9d000] mb P  I16..4: 11.3%  4.6%  0.9%  P16..4:  4.5%  0.7%  0.5%  0.0%  0.0%    skip:77.5%
-[libx264 @ 0000019bcbd9d000] 8x8 transform intra:43.3% inter:70.0%
-[libx264 @ 0000019bcbd9d000] coded y,uvDC,uvAC intra: 16.1% 25.1% 17.9% inter: 1.7% 3.3% 0.2%
-[libx264 @ 0000019bcbd9d000] i16 v,h,dc,p: 32% 50%  1% 18%
-[libx264 @ 0000019bcbd9d000] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 38% 25% 32%  0%  3%  2%  1%  0%  1%
-[libx264 @ 0000019bcbd9d000] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 39% 33% 14%  2%  3%  2%  3%  2%  3%
-[libx264 @ 0000019bcbd9d000] i8c dc,h,v,p: 67% 13%  9% 10%
-[libx264 @ 0000019bcbd9d000] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0000019bcbd9d000] ref P L0: 79.1%  2.9% 17.9%
-[libx264 @ 0000019bcbd9d000] kb/s:430.23
-[1117s]   videos/advanced_3d_multiview/driver.mp4 placed (frames 629..631)
-[1117s]   screenshots/advanced_3d_multiview_executed.png placed
+frame=   41 fps=0.0 q=23.0 size=       0KiB time=00:00:07.80 bitrate=   0.0kbits/s speed=15.2x    
+frame=  137 fps=134 q=23.0 size=       0KiB time=00:00:27.00 bitrate=   0.0kbits/s speed=26.3x    
+frame=  233 fps=150 q=23.0 size=       0KiB time=00:00:46.20 bitrate=   0.0kbits/s speed=29.8x    
+[out#0/mp4 @ 000001b10ebcbd00] video:160KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.842144%
+frame=  318 fps=173 q=-1.0 Lsize=     165KiB time=00:01:03.20 bitrate=  21.4kbits/s speed=34.3x    
+[libx264 @ 000001b10ebc4540] frame I:3     Avg QP: 9.46  size: 37174
+[libx264 @ 000001b10ebc4540] frame P:81    Avg QP:13.84  size:   470
+[libx264 @ 000001b10ebc4540] frame B:234   Avg QP:23.68  size:    60
+[libx264 @ 000001b10ebc4540] consecutive B-frames:  1.6%  0.6%  0.9% 96.9%
+[libx264 @ 000001b10ebc4540] mb I  I16..4: 54.2% 23.3% 22.5%
+[libx264 @ 000001b10ebc4540] mb P  I16..4:  0.3%  0.2%  0.2%  P16..4:  0.5%  0.0%  0.0%  0.0%  0.0%    skip:98.9%
+[libx264 @ 000001b10ebc4540] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  0.3%  0.0%  0.0%  direct: 0.0%  skip:99.6%  L0:59.4% L1:39.7% BI: 0.9%
+[libx264 @ 000001b10ebc4540] 8x8 transform intra:24.9% inter:66.5%
+[libx264 @ 000001b10ebc4540] coded y,uvDC,uvAC intra: 16.5% 18.6% 15.9% inter: 0.1% 0.1% 0.0%
+[libx264 @ 000001b10ebc4540] i16 v,h,dc,p: 66% 30%  0%  4%
+[libx264 @ 000001b10ebc4540] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 45% 20% 31%  0%  1%  1%  1%  0%  0%
+[libx264 @ 000001b10ebc4540] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 37% 14%  2%  3%  2%  3%  2%  3%
+[libx264 @ 000001b10ebc4540] i8c dc,h,v,p: 72% 17%  7%  4%
+[libx264 @ 000001b10ebc4540] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 000001b10ebc4540] ref P L0: 86.5%  1.1%  8.5%  3.9%
+[libx264 @ 000001b10ebc4540] ref B L0: 68.0% 29.2%  2.8%
+[libx264 @ 000001b10ebc4540] ref B L1: 93.8%  6.2%
+[libx264 @ 000001b10ebc4540] kb/s:20.57
+[1102s]   videos/advanced_3d_multiview/driver.mp4 placed (frames 591..908)
+[1102s]   screenshots/advanced_3d_multiview_executed.png placed
 ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
   built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -407,16 +413,16 @@ ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFm
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
-  Duration: 00:01:10.00, start: 0.000000, bitrate: N/A
+Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
+  Duration: 00:01:05.80, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgba(pc, gbr/bt709/iec61966-2-1), 1008x681, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0000015bfe8d68c0] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 0000015bfe8d68c0] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0000015bfe8d68c0] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\videos\advanced_3d\driver.mp4':
+[libx264 @ 0000020908484d80] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0000020908484d80] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0000020908484d80] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\videos\advanced_3d\driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1008x682, q=2-31, 5 fps, 10240 tbn
@@ -424,30 +430,30 @@ Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnything
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[vf#0:0 @ 0000015bfe1e4bc0] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
-frame=   19 fps=0.0 q=23.0 size=       0KiB time=00:00:03.40 bitrate=   0.1kbits/s speed=6.32x    
-[out#0/mp4 @ 0000015bfe1ebb40] video:96KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.353288%
-frame=  121 fps=117 q=-1.0 Lsize=      98KiB time=00:00:23.80 bitrate=  33.8kbits/s speed=  23x    
-[libx264 @ 0000015bfe8d68c0] frame I:2     Avg QP:12.46  size: 33192
-[libx264 @ 0000015bfe8d68c0] frame P:31    Avg QP:15.40  size:   812
-[libx264 @ 0000015bfe8d68c0] frame B:88    Avg QP:23.74  size:    70
-[libx264 @ 0000015bfe8d68c0] consecutive B-frames:  2.5%  1.7%  0.0% 95.9%
-[libx264 @ 0000015bfe8d68c0] mb I  I16..4: 47.3% 30.7% 22.0%
-[libx264 @ 0000015bfe8d68c0] mb P  I16..4:  0.4%  0.3%  0.3%  P16..4:  0.7%  0.1%  0.1%  0.0%  0.0%    skip:98.2%
-[libx264 @ 0000015bfe8d68c0] mb B  I16..4:  0.1%  0.0%  0.0%  B16..8:  0.6%  0.0%  0.0%  direct: 0.0%  skip:99.2%  L0:47.3% L1:52.3% BI: 0.4%
-[libx264 @ 0000015bfe8d68c0] 8x8 transform intra:30.4% inter:62.7%
-[libx264 @ 0000015bfe8d68c0] coded y,uvDC,uvAC intra: 18.0% 20.4% 16.7% inter: 0.1% 0.1% 0.0%
-[libx264 @ 0000015bfe8d68c0] i16 v,h,dc,p: 59% 36%  0%  5%
-[libx264 @ 0000015bfe8d68c0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 63% 15% 17%  0%  2%  1%  1%  0%  1%
-[libx264 @ 0000015bfe8d68c0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 35% 34% 14%  2%  3%  3%  3%  2%  3%
-[libx264 @ 0000015bfe8d68c0] i8c dc,h,v,p: 71% 15%  8%  5%
-[libx264 @ 0000015bfe8d68c0] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0000015bfe8d68c0] ref P L0: 88.3%  0.3% 10.3%  1.0%
-[libx264 @ 0000015bfe8d68c0] ref B L0: 83.3% 14.1%  2.6%
-[libx264 @ 0000015bfe8d68c0] ref B L1: 95.5%  4.5%
-[libx264 @ 0000015bfe8d68c0] kb/s:32.29
-[1118s]   videos/advanced_3d/driver.mp4 placed (frames 684..804)
-[1118s]   screenshots/advanced_3d_executed.png placed
+[vf#0:0 @ 0000020908485440] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1008x681
+frame=   40 fps=0.0 q=23.0 size=       0KiB time=00:00:07.60 bitrate=   0.1kbits/s speed=14.4x    
+[out#0/mp4 @ 000002090848bcc0] video:102KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.168226%
+frame=  118 fps=0.0 q=-1.0 Lsize=     105KiB time=00:00:23.20 bitrate=  36.9kbits/s speed=30.9x    
+[libx264 @ 0000020908484d80] frame I:2     Avg QP:11.63  size: 33681
+[libx264 @ 0000020908484d80] frame P:30    Avg QP:14.65  size:   927
+[libx264 @ 0000020908484d80] frame B:86    Avg QP:23.70  size:   103
+[libx264 @ 0000020908484d80] consecutive B-frames:  2.5%  0.0%  2.5% 94.9%
+[libx264 @ 0000020908484d80] mb I  I16..4: 48.1% 30.2% 21.7%
+[libx264 @ 0000020908484d80] mb P  I16..4:  0.4%  0.3%  0.3%  P16..4:  0.6%  0.1%  0.0%  0.0%  0.0%    skip:98.2%
+[libx264 @ 0000020908484d80] mb B  I16..4:  0.1%  0.1%  0.0%  B16..8:  0.8%  0.0%  0.0%  direct: 0.0%  skip:99.0%  L0:47.6% L1:52.1% BI: 0.3%
+[libx264 @ 0000020908484d80] 8x8 transform intra:29.8% inter:61.4%
+[libx264 @ 0000020908484d80] coded y,uvDC,uvAC intra: 15.9% 19.7% 16.5% inter: 0.1% 0.2% 0.1%
+[libx264 @ 0000020908484d80] i16 v,h,dc,p: 59% 34%  0%  6%
+[libx264 @ 0000020908484d80] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 60% 16% 20%  0%  2%  1%  1%  0%  1%
+[libx264 @ 0000020908484d80] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 35% 16%  2%  3%  3%  3%  2%  3%
+[libx264 @ 0000020908484d80] i8c dc,h,v,p: 73% 14%  8%  5%
+[libx264 @ 0000020908484d80] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0000020908484d80] ref P L0: 88.4%  4.1%  6.5%  1.0%
+[libx264 @ 0000020908484d80] ref B L0: 69.7% 28.8%  1.5%
+[libx264 @ 0000020908484d80] ref B L1: 96.4%  3.6%
+[libx264 @ 0000020908484d80] kb/s:35.27
+[1103s]   videos/advanced_3d/driver.mp4 placed (frames 960..1077)
+[1103s]   screenshots/advanced_3d_executed.png placed
 ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers
   built with gcc 14.2.0 (Rev1, Built by MSYS2 project)
   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libharfbuzz --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-dxva2 --enable-d3d11va --enable-d3d12va --enable-ffnvcodec --enable-libvpl --enable-nvdec --enable-nvenc --enable-vaapi --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -459,16 +465,16 @@ ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFm
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
-  Duration: 00:00:35.60, start: 0.000000, bitrate: N/A
+Input #0, image2, from 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames\frame_%06d.png':
+  Duration: 00:00:32.00, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1008x681, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 00000216d8ff7ac0] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-[libx264 @ 00000216d8ff7ac0] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 00000216d8ff7ac0] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\videos\simple\driver.mp4':
+[libx264 @ 0000010895286d40] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 0000010895286d40] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0000010895286d40] 264 - core 164 r3192 c24e06c - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=6 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\videos\simple\driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1008x682, q=2-31, 5 fps, 10240 tbn
@@ -476,29 +482,28 @@ Output #0, mp4, to 'D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnything
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-frame=   15 fps=0.0 q=23.0 size=       0KiB time=00:00:02.60 bitrate=   0.1kbits/s speed=5.05x    
-frame=   61 fps= 60 q=23.0 size=       0KiB time=00:00:11.80 bitrate=   0.0kbits/s speed=11.6x    
-frame=  122 fps= 79 q=23.0 size=       0KiB time=00:00:24.00 bitrate=   0.0kbits/s speed=15.6x    
-[out#0/mp4 @ 00000216d8acbcc0] video:126KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.327007%
-frame=  178 fps= 98 q=-1.0 Lsize=     129KiB time=00:00:35.20 bitrate=  30.0kbits/s speed=19.3x    
-[libx264 @ 00000216d8ff7ac0] frame I:2     Avg QP:13.25  size: 38552
-[libx264 @ 00000216d8ff7ac0] frame P:45    Avg QP:13.39  size:   630
-[libx264 @ 00000216d8ff7ac0] frame B:131   Avg QP:22.42  size:   174
-[libx264 @ 00000216d8ff7ac0] consecutive B-frames:  1.1%  2.2%  0.0% 96.6%
-[libx264 @ 00000216d8ff7ac0] mb I  I16..4: 44.2% 33.4% 22.4%
-[libx264 @ 00000216d8ff7ac0] mb P  I16..4:  0.4%  0.1%  0.3%  P16..4:  0.7%  0.1%  0.0%  0.0%  0.0%    skip:98.4%
-[libx264 @ 00000216d8ff7ac0] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  5.4%  0.1%  0.0%  direct: 0.0%  skip:94.4%  L0:66.2% L1:33.7% BI: 0.0%
-[libx264 @ 00000216d8ff7ac0] 8x8 transform intra:30.7% inter:69.4%
-[libx264 @ 00000216d8ff7ac0] coded y,uvDC,uvAC intra: 32.6% 19.6% 15.7% inter: 0.1% 0.1% 0.0%
-[libx264 @ 00000216d8ff7ac0] i16 v,h,dc,p: 46% 48%  0%  6%
-[libx264 @ 00000216d8ff7ac0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 53% 19% 23%  0%  1%  1%  1%  0%  1%
-[libx264 @ 00000216d8ff7ac0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 37% 33% 13%  2%  4%  3%  3%  2%  3%
-[libx264 @ 00000216d8ff7ac0] i8c dc,h,v,p: 72% 15%  8%  5%
-[libx264 @ 00000216d8ff7ac0] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 00000216d8ff7ac0] ref P L0: 86.3%  1.0% 10.4%  2.3%
-[libx264 @ 00000216d8ff7ac0] ref B L0: 44.1% 55.6%  0.3%
-[libx264 @ 00000216d8ff7ac0] ref B L1: 99.2%  0.8%
-[libx264 @ 00000216d8ff7ac0] kb/s:28.81
-[1120s]   videos/simple/driver.mp4 placed (frames 856..1033)
-[1120s]   screenshots/simple_executed.png placed
-[1121s]   removed D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-0919\dev\windows-desktop\debug\electron_inspect\frames after successful encode
+frame=   30 fps=0.0 q=23.0 size=       0KiB time=00:00:05.60 bitrate=   0.1kbits/s speed=10.9x    
+frame=  110 fps=107 q=23.0 size=       0KiB time=N/A bitrate=N/A speed=N/A    
+[out#0/mp4 @ 0000010894d5bcc0] video:129KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.092234%
+frame=  160 fps=133 q=-1.0 Lsize=     132KiB time=00:00:31.60 bitrate=  34.2kbits/s speed=26.3x    
+[libx264 @ 0000010895286d40] frame I:2     Avg QP:12.27  size: 38163
+[libx264 @ 0000010895286d40] frame P:41    Avg QP:14.08  size:   709
+[libx264 @ 0000010895286d40] frame B:117   Avg QP:22.29  size:   224
+[libx264 @ 0000010895286d40] consecutive B-frames:  1.9%  1.2%  1.9% 95.0%
+[libx264 @ 0000010895286d40] mb I  I16..4: 42.1% 35.9% 22.0%
+[libx264 @ 0000010895286d40] mb P  I16..4:  0.7%  0.2%  0.3%  P16..4:  0.5%  0.1%  0.1%  0.0%  0.0%    skip:98.1%
+[libx264 @ 0000010895286d40] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  6.5%  0.2%  0.0%  direct: 0.0%  skip:93.2%  L0:68.2% L1:31.7% BI: 0.1%
+[libx264 @ 0000010895286d40] 8x8 transform intra:32.5% inter:75.0%
+[libx264 @ 0000010895286d40] coded y,uvDC,uvAC intra: 30.5% 18.0% 14.7% inter: 0.1% 0.1% 0.0%
+[libx264 @ 0000010895286d40] i16 v,h,dc,p: 49% 44%  0%  7%
+[libx264 @ 0000010895286d40] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 40% 19% 37%  0%  2%  1%  1%  0%  1%
+[libx264 @ 0000010895286d40] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 38% 32% 14%  2%  3%  3%  3%  2%  3%
+[libx264 @ 0000010895286d40] i8c dc,h,v,p: 74% 14%  7%  5%
+[libx264 @ 0000010895286d40] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0000010895286d40] ref P L0: 76.0%  1.5% 19.2%  3.4%
+[libx264 @ 0000010895286d40] ref B L0: 37.5% 62.2%  0.3%
+[libx264 @ 0000010895286d40] ref B L1: 99.2%  0.8%
+[libx264 @ 0000010895286d40] kb/s:32.89
+[1104s]   videos/simple/driver.mp4 placed (frames 1129..1288)
+[1104s]   screenshots/simple_executed.png placed
+[1104s]   removed D:\a\comfy-gpu-ci\comfy-gpu-ci\comfy-test-logs\DepthAnythingV3-1010\dev\windows-desktop\debug\electron_inspect\frames after successful encode
