@@ -1,22 +1,11 @@
 Capturing execution frames: simple.json
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'VPRModel_2' (335 MB) -> cpu: 2171 / 7703 MB
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
-  [ComfyUI] [SubprocessWorker] call_id=31 sending model_to_device
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -318MB (now 811MB) reserved=1728MB peak=4556MB
-  [ComfyUI] [comfy-env] [VRAM] After offload 'VPRModel_2' (335 MB): 1339 / 7703 MB
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 1339 / 7703 MB
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
-  [ComfyUI] [SubprocessWorker] call_id=32 sending model_to_device
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 539 / 7703 MB
   Frame 1 saved (frame_000.jpg, t=0.0s)
   Validating workflow...
   [ComfyUI] === /validate endpoint called ===
   [ComfyUI] Received JSON with keys: ['prompt']
+  Queuing workflow for execution...
   [ComfyUI] Prompt has 4 nodes
   [ComfyUI]   Node 2: LoadImage
-  Queuing workflow for execution...
   [ComfyUI]     Inputs: {"image": "bridge.jpg"}
   [ComfyUI]   Node 3: DownloadAndLoadDepthAnythingV3Model
   [ComfyUI]     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
@@ -24,47 +13,36 @@ Capturing execution frames: simple.json
   [ComfyUI]     Inputs: {"images": ["14", 0]}
   [ComfyUI]   Node 14: DepthAnything_V3
   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
-  [ComfyUI] Generated prompt_id: f5b62989-2d7a-45a4-8bd6-59c53611b63e
+  [ComfyUI] Generated prompt_id: 5f4eba2c-3b03-4087-9f28-6d42e460056e
   [ComfyUI] Calling execution.validate_prompt()...
   [ComfyUI] Validation result: valid=True
   [ComfyUI] === Validation PASSED ===
   [ComfyUI] got prompt
   [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
-  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 539 / 7703 MB
+  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 24102 / 24124 MB
+  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-1231/ComfyUI', '/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.1/site-packages', '/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
+  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
+  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/root/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_c1iflygq/persistent_worker.py', 'abstract://comfy_worker_b93678a055f5']...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_b93678a055f5 (abstract, no filesystem path)
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: failed
   [ComfyUI] [ComfyUI-DepthAnythingV3] Socket unhealthy, restarting worker...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
-  [ComfyUI] [comfy-env] Invalidated 2 stale model patchers (will be cleaned up during next unload)
-  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-0833/ComfyUI', '/workspaces/DepthAnythingV3-0833/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages', '/workspaces/DepthAnythingV3-0833/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
-  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
-  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/root/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_u36y2nop/persistent_worker.py', 'abstract://comfy_worker_b25beceff74c']...
-  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_b25beceff74c (abstract, no filesystem path)
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
+  Frame 2 saved (frame_001.jpg, t=2.5s)
+  [capture-periodic] freeze=3ms shot=209ms unfreeze=3ms saved=True
   [ComfyUI] [SubprocessWorker] worker started/confirmed
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
-  [ComfyUI] [SubprocessWorker] call_id=33 sending call_method
+  [ComfyUI] [SubprocessWorker] call_id=15 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'VPRModel_2' (335 MB) -> cpu: 269 / 7703 MB
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
-  [ComfyUI] [SubprocessWorker] call_id=34 sending model_to_device
-  [ComfyUI] Model 'VPRModel_2' gone from worker (restarted?), treating as offloaded
-  [ComfyUI] [comfy-env] [VRAM] After offload 'VPRModel_2' (335 MB): 269 / 7703 MB
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 269 / 7703 MB
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
-  [ComfyUI] [SubprocessWorker] call_id=35 sending model_to_device
-  [ComfyUI] Model 'DepthAnything3Net_1' gone from worker (restarted?), treating as offloaded
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 269 / 7703 MB
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (1.62s): result: NodeOutput
-  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 269 / 7703 MB
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (2.77s): result: NodeOutput
+  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 22614 / 24124 MB
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'V2-Style', resize_method: 'resize', invert_depth: True, keep_model_size: False, da3_model: dict, images: torch.float32 [1,683,1024,3] cpu
-  [ComfyUI] [VRAM] Before DepthAnything_V3: 269 / 7703 MB
+  [ComfyUI] [VRAM] Before DepthAnything_V3: 22614 / 24124 MB
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
@@ -74,41 +52,188 @@ Capturing execution frames: simple.json
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
-  [ComfyUI] [SubprocessWorker] call_id=36 sending call_method
+  [ComfyUI] [SubprocessWorker] call_id=16 sending call_method
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 683, 1024, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 683, 1024, 3])
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: No comfy kitchen, using old apply_rope functions.
-  Frame 2 saved (frame_001.jpg, t=2.3s)
-  [capture-periodic] freeze=2ms shot=135ms unfreeze=2ms saved=True
-  [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=36
-  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 7.80GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 7.80GB
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +394MB (now 394MB) reserved=416MB peak=394MB
+  Frame 3 saved (frame_002.jpg, t=4.8s)
+  [capture-periodic] freeze=3ms shot=210ms unfreeze=2ms saved=True
+  [capture-loop] iter=50 t=6.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=18.0/31.2GB (58%) swap=26.4/32.0GB (82%) cpu=8% browser_rss=1.03GB
+  [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=16
+  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 1.58GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 1.58GB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +202MB (now 202MB) reserved=224MB peak=202MB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
-  Frame 3 saved (frame_002.jpg, t=4.5s)
-  [capture-periodic] freeze=2ms shot=151ms unfreeze=2ms saved=True
-  [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=36
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +423MB (now 817MB) reserved=2560MB peak=1172MB
-  [capture-loop] iter=50 t=5.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=5 ram=5.1/31.3GB (16%) swap=0.0/32.0GB (0%) cpu=13% browser_rss=1.05GB
-  [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] Created 1 model patchers: ['DepthAnything3Net_1']
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (3.92s): result: NodeOutput
-  [ComfyUI] [VRAM] After DepthAnything_V3: 2937 / 7703 MB
-  [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
-  [ComfyUI] Prompt executed in 5.59 seconds
-  [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 2937 / 7703 MB
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
-  [ComfyUI] [SubprocessWorker] call_id=37 sending model_to_device
-  Node executed (1 total), capturing...
-  Frame 4 saved (frame_003.jpg, t=6.0s)
-  [capture-node] freeze=2ms shot=159ms unfreeze=0ms saved=True
-  [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 441 / 7703 MB
-  Execution complete (t=6.0s)
-  Captured 4 unique frames over 6.26s
-  [debug] iframes: 0
-  [timing] trigger_3d_previews: 0.0s
-  Saved high-quality screenshot: simple_executed.png
-  [timing] final_screenshot: 0.3s
-    Captured 5 video frames
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +205MB (now 408MB) reserved=512MB peak=408MB
+  [ComfyUI] [SubprocessWorker] got response: error
+  [ComfyUI] !!! Exception during processing !!! Allocation on device 0 would exceed allowed memory. (out of memory)
+  [ComfyUI] Currently allocated     : 936.80 MiB
+  [ComfyUI] Requested               : 223.56 MiB
+  [ComfyUI] Device limit            : 23.56 GiB
+  [ComfyUI] Free (according to CUDA): 18.25 MiB
+  [ComfyUI] PyTorch limit (set by user-supplied memory fraction)
+  [ComfyUI]                         : 17179869184.00 GiB
+  [ComfyUI] 
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/tmp/comfyui_pvenv_c1iflygq/persistent_worker.py", line 1762, in main
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156, in execute
+  [ComfyUI]     output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1577, in forward
+  [ComfyUI]     output = self._process_depth_head(feats, H, W)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1591, in _process_depth_head
+  [ComfyUI]     return self.head(feats, H, W, patch_start_idx=0)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1366, in forward
+  [ComfyUI]     out_dict = self._forward_impl(feats, H, W, patch_start_idx)
+  [ComfyUI]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1405, in _forward_impl
+  [ComfyUI]     fused_main, fused_aux_pyr = self._fuse(resized_feats)
+  [ComfyUI]                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1465, in _fuse
+  [ComfyUI]     out = self.scratch.refinenet1(out, l1_rn)
+  [ComfyUI]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 973, in forward
+  [ComfyUI]     y = self.out_conv(y)
+  [ComfyUI]         ^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 516, in forward
+  [ComfyUI]     return self.forward_comfy_cast_weights(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 509, in forward_comfy_cast_weights
+  [ComfyUI]     x = self._conv_forward(input, weight, bias)
+  [ComfyUI]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 548, in _conv_forward
+  [ComfyUI]     return F.conv2d(
+  [ComfyUI]            ^^^^^^^^^
+  [ComfyUI] torch.OutOfMemoryError: Allocation on device 0 would exceed allowed memory. (out of memory)
+  [ComfyUI] Currently allocated     : 936.80 MiB
+  [ComfyUI] Requested               : 223.56 MiB
+  [ComfyUI] Device limit            : 23.56 GiB
+  [ComfyUI] Free (according to CUDA): 18.25 MiB
+  [ComfyUI] PyTorch limit (set by user-supplied memory fraction)
+  [ComfyUI]                         : 17179869184.00 GiB
+  [ComfyUI] 
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 535, in execute
+  [ComfyUI]     output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 335, in get_output_data
+  [ComfyUI]     return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+  [ComfyUI]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+  [ComfyUI]     await process_inputs(input_dict, i)
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 297, in process_inputs
+  [ComfyUI]     result = f(**inputs)
+  [ComfyUI]              ^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py", line 556, in proxy
+  [ComfyUI]     result = worker.call_method(
+  [ComfyUI]              ^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method
+  [ComfyUI]     raise WorkerError(
+  [ComfyUI] comfy_env.isolation.workers.base.WorkerError: Allocation on device 0 would exceed allowed memory. (out of memory)
+  [ComfyUI] Currently allocated     : 936.80 MiB
+  [ComfyUI] Requested               : 223.56 MiB
+  [ComfyUI] Device limit            : 23.56 GiB
+  [ComfyUI] Free (according to CUDA): 18.25 MiB
+  [ComfyUI] PyTorch limit (set by user-supplied memory fraction)
+  [ComfyUI]                         : 17179869184.00 GiB
+  [ComfyUI] 
+  [ComfyUI] Worker traceback:
+  [ComfyUI] Traceback (most recent call last):
+  [ComfyUI]   File "/tmp/comfyui_pvenv_c1iflygq/persistent_worker.py", line 1762, in main
+  [ComfyUI]     result = method(**inputs)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+  [ComfyUI]     to_return = cls.execute(*args, **kwargs)
+  [ComfyUI]                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156, in execute
+  [ComfyUI]     output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1577, in forward
+  [ComfyUI]     output = self._process_depth_head(feats, H, W)
+  [ComfyUI]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1591, in _process_depth_head
+  [ComfyUI]     return self.head(feats, H, W, patch_start_idx=0)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1366, in forward
+  [ComfyUI]     out_dict = self._forward_impl(feats, H, W, patch_start_idx)
+  [ComfyUI]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1405, in _forward_impl
+  [ComfyUI]     fused_main, fused_aux_pyr = self._fuse(resized_feats)
+  Frame 4 saved (frame_003.jpg, t=9.3s)
+  [ComfyUI]                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  [capture-periodic] freeze=7ms shot=256ms unfreeze=8ms saved=True
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1465, in _fuse
+  Execution complete (t=9.3s)
+  [ComfyUI]     out = self.scratch.refinenet1(out, l1_rn)
+  Execution error: {'prompt_id': 'a0f1481b-5b89-44b7-b1bb-acbed3ea49c3', 'node_id': '14', 'node_type': 'DepthAnything_V3', 'executed': ['3', '2'], 'exception_message': 'Allocation on device 0 would exceed allowed memory. (out of memory)\nCurrently allocated     : 936.80 MiB\nRequested               : 223.56 MiB\nDevice limit            : 23.56 GiB\nFree (according to CUDA): 18.25 MiB\nPyTorch limit (set by user-supplied memory fraction)\n                        : 17179869184.00 GiB\n\nWorker traceback:\nTraceback (most recent call last):\n  File "/tmp/comfyui_pvenv_c1iflygq/persistent_worker.py", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156, in execute\n    output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1577, in forward\n    output = self._process_depth_head(feats, H, W)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1591, in _process_depth_head\n    return self.head(feats, H, W, patch_start_idx=0)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1366, in forward\n    out_dict = self._forward_impl(feats, H, W, patch_start_idx)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1405, in _forward_impl\n    fused_main, fused_aux_pyr = self._fuse(resized_feats)\n                                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1465, in _fuse\n    out = self.scratch.refinenet1(out, l1_rn)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 973, in forward\n    y = self.out_conv(y)\n        ^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 516, in forward\n    return self.forward_comfy_cast_weights(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 509, in forward_comfy_cast_weights\n    x = self._conv_forward(input, weight, bias)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 548, in _conv_forward\n    return F.conv2d(\n           ^^^^^^^^^\ntorch.OutOfMemoryError: Allocation on device 0 would exceed allowed memory. (out of memory)\nCurrently allocated     : 936.80 MiB\nRequested               : 223.56 MiB\nDevice limit            : 23.56 GiB\nFree (according to CUDA): 18.25 MiB\nPyTorch limit (set by user-supplied memory fraction)\n                        : 17179869184.00 GiB\n\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method\n    raise WorkerError(\n'], 'current_inputs': {'normalization_mode': ['V2-Style'], 'resize_method': ['resize'], 'invert_depth': [True], 'keep_model_size': [False], 'da3_model': ["{'model_path': '/workspaces/DepthAnythingV3-1231/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"], 'images': ['tensor([[[[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         ...,\n\n         [[0.1367, 0.1367, 0.1367],\n          [0.2500, 0.2500, 0.2500],\n          [0.0352, 0.0352, 0.0352],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.1250, 0.1250, 0.1250],\n          [0.1602, 0.1602, 0.1602],\n          [0.5234, 0.5234, 0.5234],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0195, 0.0195, 0.0195],\n          [0.2266, 0.2266, 0.2266],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]]]])']}, 'current_outputs': ['3', '14', '4', '2'], 'timestamp': 1778676086313}
+  [ComfyUI]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Status: FAILED
+    Error: Workflow execution failed: {'prompt_id': 'a0f1481b-5b89-44b7-b1bb-acbed3ea49c3', 'node_id': '14', 'node_type': 'DepthAnything_V3', 'executed': ['3', '2'], 'exception_message': 'Allocation on device 0 would exceed allowed memory. (out of memory)\nCurrently allocated     : 936.80 MiB\nRequested               : 223.56 MiB\nDevice limit            : 23.56 GiB\nFree (according to CUDA): 18.25 MiB\nPyTorch limit (set by user-supplied memory fraction)\n                        : 17179869184.00 GiB\n\nWorker traceback:\nTraceback (most recent call last):\n  File "/tmp/comfyui_pvenv_c1iflygq/persistent_worker.py", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156, in execute\n    output = model(img, extrinsics=ext_i, intrinsics=int_i, infer_gs=infer_gs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1577, in forward\n    output = self._process_depth_head(feats, H, W)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1591, in _process_depth_head\n    return self.head(feats, H, W, patch_start_idx=0)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1366, in forward\n    out_dict = self._forward_impl(feats, H, W, patch_start_idx)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1405, in _forward_impl\n    fused_main, fused_aux_pyr = self._fuse(resized_feats)\n                                ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1465, in _fuse\n    out = self.scratch.refinenet1(out, l1_rn)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 973, in forward\n    y = self.out_conv(y)\n        ^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 516, in forward\n    return self.forward_comfy_cast_weights(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 509, in forward_comfy_cast_weights\n    x = self._conv_forward(input, weight, bias)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/conv.py", line 548, in _conv_forward\n    return F.conv2d(\n           ^^^^^^^^^\ntorch.OutOfMemoryError: Allocation on device 0 would exceed allowed memory. (out of memory)\nCurrently allocated     : 936.80 MiB\nRequested               : 223.56 MiB\nDevice limit            : 23.56 GiB\nFree (according to CUDA): 18.25 MiB\nPyTorch limit (set by user-supplied memory fraction)\n                        : 17179869184.00 GiB\n\n', 'exception_type': 'comfy_env.isolation.workers.base.WorkerError', 'traceback': ['  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n', '  File "/workspaces/DepthAnythingV3-1231/ComfyUI/execution.py", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/metadata.py", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n', '  File "/workspaces/DepthAnythingV3-1231/.venv/lib/python3.11/site-packages/comfy_env/isolation/workers/subprocess.py", line 674, in call_method\n    raise WorkerError(\n'], 'current_inputs': {'normalization_mode': ['V2-Style'], 'resize_method': ['resize'], 'invert_depth': [True], 'keep_model_size': [False], 'da3_model': ["{'model_path': '/workspaces/DepthAnythingV3-1231/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"], 'images': ['tensor([[[[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         ...,\n\n         [[0.1367, 0.1367, 0.1367],\n          [0.2500, 0.2500, 0.2500],\n          [0.0352, 0.0352, 0.0352],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.1250, 0.1250, 0.1250],\n          [0.1602, 0.1602, 0.1602],\n          [0.5234, 0.5234, 0.5234],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0195, 0.0195, 0.0195],\n          [0.2266, 0.2266, 0.2266],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]]]])']}, 'current_outputs': ['3', '14', '4', '2'], 'timestamp': 1778676086313}
+    Details: Workflow: /node/ComfyUI-DepthAnythingV3/workflows/simple.json
+Node error: DepthAnything_V3
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 973, in forward
+  [ComfyUI]     y = self.out_conv(y)
+  [ComfyUI]         ^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+  [ComfyUI]     return self._call_impl(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+  [ComfyUI]     return forward_call(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 516, in forward
+  [ComfyUI]     return self.forward_comfy_cast_weights(*args, **kwargs)
+  [ComfyUI]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [ComfyUI]   File "/workspaces/DepthAnythingV3-1231/ComfyUI/comfy/ops.py", line 509, in forward_comfy_cast_weights
+  [ComfyUI]     x = self._conv_forward(input, weight, bias)
+  [ComfyUI]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
