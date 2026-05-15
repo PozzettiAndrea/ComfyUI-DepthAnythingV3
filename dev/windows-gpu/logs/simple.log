@@ -3,12 +3,20 @@ Capturing execution frames: simple.json
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] call_id=31 sending model_to_device
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -228MB (now 901MB) reserved=1568MB peak=4604MB
   [ComfyUI] [comfy-env] [VRAM] After offload 'VPRModel_2' (335 MB): 1239 / 24575 MB
   [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 1239 / 24575 MB
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: failed
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Socket unhealthy, restarting worker...
+  [ComfyUI] [comfy-env] Invalidated 2 stale model patchers (will be cleaned up during next unload)
+  [ComfyUI] [comfy-env] depthanythingv3-nodes: Library/bin has 236 DLLs
+  [ComfyUI] [ComfyUI-DepthAnythingV3] python: C:\Users\ContainerAdministrator\AppData\Local\Programs\comfy-env\.pixi\envs\depthanythingv3-nodes\python.exe
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['C:\\workspaces\\DepthAnythingV3-1428\\ComfyUI', 'C:\\workspaces\\DepthAnythingV3-1428\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Programs\\comfy-env\\.pixi\\envs\\depthanythingv3-nodes\\Lib\\site-packages', 'C:\\workspaces\\DepthAnythingV3-1428\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3']
+  [ComfyUI] [SubprocessWorker] is_pixi=True, python=C:\Users\ContainerAdministrator\AppData\Local\Programs\comfy-env\.pixi\envs\depthanythingv3-nodes\python.exe
+  [ComfyUI] [SubprocessWorker] launching cmd=['C:\\Users\\ContainerAdministrator\\.pixi\\bin\\pixi.exe', 'run', '--as-is', '--manifest-path', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Programs\\comfy-env\\pixi.toml', '-e', 'depthanythingv3-nodes', 'python', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Temp\\comfyui_pvenv_3obpzxid\\persistent_worker.py', 'tcp://127.0.0.1:62508']...
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
   [ComfyUI] [SubprocessWorker] call_id=32 sending model_to_device
+  [ComfyUI] Model 'DepthAnything3Net_1' gone from worker (restarted?), treating as offloaded
   [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 1239 / 24575 MB
   Frame 1 saved (frame_000.jpg, t=0.0s)
   Validating workflow...
@@ -24,7 +32,7 @@ Capturing execution frames: simple.json
   [ComfyUI]     Inputs: {"images": ["14", 0]}
   [ComfyUI]   Node 14: DepthAnything_V3
   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": true, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
-  [ComfyUI] Generated prompt_id: b9a6216f-4b60-42d1-9065-e2ef4c925ab3
+  [ComfyUI] Generated prompt_id: 41fa982b-ae18-4baf-901c-a2a19ff2c03c
   [ComfyUI] Calling execution.validate_prompt()...
   [ComfyUI] Validation result: valid=True
   [ComfyUI] === Validation PASSED ===
@@ -34,17 +42,7 @@ Capturing execution frames: simple.json
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: failed
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Socket unhealthy, restarting worker...
-  [ComfyUI] [comfy-env] Invalidated 2 stale model patchers (will be cleaned up during next unload)
-  [ComfyUI] [ComfyUI-DepthAnythingV3] python: C:\Users\ContainerAdministrator\AppData\Local\Programs\comfy-env\.pixi\envs\depthanythingv3-nodes\python.exe
-  [ComfyUI] [comfy-env] depthanythingv3-nodes: Library/bin has 236 DLLs
-  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['C:\\workspaces\\DepthAnythingV3-1318\\ComfyUI', 'C:\\workspaces\\DepthAnythingV3-1318\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Programs\\comfy-env\\.pixi\\envs\\depthanythingv3-nodes\\Lib\\site-packages', 'C:\\workspaces\\DepthAnythingV3-1318\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3']
-  [ComfyUI] [SubprocessWorker] is_pixi=True, python=C:\Users\ContainerAdministrator\AppData\Local\Programs\comfy-env\.pixi\envs\depthanythingv3-nodes\python.exe
-  [ComfyUI] [SubprocessWorker] launching cmd=['C:\\Users\\ContainerAdministrator\\.pixi\\bin\\pixi.exe', 'run', '--as-is', '--manifest-path', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Programs\\comfy-env\\pixi.toml', '-e', 'depthanythingv3-nodes', 'python', 'C:\\Users\\ContainerAdministrator\\AppData\\Local\\Temp\\comfyui_pvenv_cxzziuws\\persistent_worker.py', 'tcp://127.0.0.1:57749']...
-  Frame 2 saved (frame_001.jpg, t=2.3s)
-  [capture-periodic] freeze=4ms shot=111ms unfreeze=5ms saved=True
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] worker started/confirmed
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
@@ -63,7 +61,7 @@ Capturing execution frames: simple.json
   [ComfyUI] [SubprocessWorker] call_id=35 sending model_to_device
   [ComfyUI] Model 'DepthAnything3Net_1' gone from worker (restarted?), treating as offloaded
   [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 1239 / 24575 MB
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (4.32s): result: NodeOutput
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (0.36s): result: NodeOutput
   [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 1239 / 24575 MB
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'V2-Style', resize_method: 'resize', invert_depth: True, keep_model_size: False, da3_model: dict, images: torch.float32 [1,683,1024,3] cpu
   [ComfyUI] [VRAM] Before DepthAnything_V3: 1239 / 24575 MB
@@ -80,37 +78,38 @@ Capturing execution frames: simple.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'manager_path', 'storage_key', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 683, 1024, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 683, 1024, 3])
-  Frame 3 saved (frame_002.jpg, t=4.5s)
-  [capture-periodic] freeze=4ms shot=128ms unfreeze=7ms saved=True
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: No comfy kitchen, using old apply_rope functions.
-  [capture-loop] iter=50 t=6.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=11.6/31.9GB (36%) swap=1.1/11.7GB (10%) cpu=15% browser_rss=0.92GB
-  Frame 4 saved (frame_003.jpg, t=6.8s)
-  [capture-periodic] freeze=5ms shot=121ms unfreeze=4ms saved=True
+  Frame 2 saved (frame_001.jpg, t=2.2s)
+  [capture-periodic] freeze=4ms shot=120ms unfreeze=5ms saved=True
+  Frame 3 saved (frame_002.jpg, t=4.5s)
+  [capture-periodic] freeze=4ms shot=114ms unfreeze=5ms saved=True
   [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=36
   [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 24.47GB
   [ComfyUI] [comfy-env] VRAM after eviction: 24.47GB
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +322MB (now 322MB) reserved=352MB peak=322MB
+  [capture-loop] iter=50 t=6.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=12.4/31.9GB (39%) swap=1.1/11.7GB (10%) cpu=15% browser_rss=0.93GB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +314MB (now 314MB) reserved=320MB peak=314MB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +1180MB (now 1502MB) reserved=2240MB peak=1502MB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +538MB (now 853MB) reserved=928MB peak=853MB
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=36
   [ComfyUI] [SubprocessWorker] got response: ok
   [ComfyUI] [comfy-env] Created 1 model patchers: ['DepthAnything3Net_1']
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (7.01s): result: NodeOutput
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (7.47s): result: NodeOutput
   [ComfyUI] [VRAM] After DepthAnything_V3: 1239 / 24575 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
-  [ComfyUI] Prompt executed in 11.41 seconds
+  [ComfyUI] Prompt executed in 7.92 seconds
+  Node executed (1 total), capturing...
   [ComfyUI] [comfy-env] [VRAM] Before offload 'DepthAnything3Net_1' (783 MB) -> cpu: 1239 / 24575 MB
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
   [ComfyUI] [SubprocessWorker] call_id=37 sending model_to_device
-  Node executed (1 total), capturing...
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] -731MB (now 122MB) reserved=2464MB peak=1172MB
   [ComfyUI] [comfy-env] [VRAM] After offload 'DepthAnything3Net_1' (783 MB): 1239 / 24575 MB
-  Frame 5 saved (frame_004.jpg, t=11.9s)
-  [capture-node] freeze=4ms shot=124ms unfreeze=0ms saved=True
-  Execution complete (t=11.9s)
-  Captured 5 unique frames over 12.04s
+  Frame 4 saved (frame_003.jpg, t=8.2s)
+  [capture-node] freeze=5ms shot=149ms unfreeze=4ms saved=True
+  Execution complete (t=8.6s)
+  Captured 4 unique frames over 8.57s
   [debug] iframes: 0
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: simple_executed.png
-  [timing] final_screenshot: 0.3s
-    Captured 6 video frames
+  [timing] final_screenshot: 0.2s
+    Captured 5 video frames
