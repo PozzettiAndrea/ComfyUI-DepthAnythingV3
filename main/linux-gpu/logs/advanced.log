@@ -3,8 +3,8 @@ Capturing execution frames: advanced.json
   Frame 1 saved (frame_000.jpg, t=0.0s)
   Validating workflow...
   [ComfyUI] === /validate endpoint called ===
-  [ComfyUI] Received JSON with keys: ['prompt']
   Queuing workflow for execution...
+  [ComfyUI] Received JSON with keys: ['prompt']
   [ComfyUI] Prompt has 11 nodes
   [ComfyUI]   Node 2: LoadImage
   [ComfyUI]     Inputs: {"image": "bridge.jpg"}
@@ -25,23 +25,23 @@ Capturing execution frames: advanced.json
   [ComfyUI]   Node 11: MaskPreview
   [ComfyUI]     Inputs: {"mask": ["12", 7]}
   [ComfyUI]   Node 12: DepthAnything_V3
-  [ComfyUI] [comfy-env] SubprocessWorker: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI]     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
-  [ComfyUI] [comfy-env] env_vars: {'COMFYUI_BASE': '/workspaces/DepthAnythingV3-0926/ComfyUI'}
   [ComfyUI]   Node 13: PreviewImage
-  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI]     Inputs: {"images": ["12", 4]}
-  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-0926/ComfyUI', '/workspaces/DepthAnythingV3-0926/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages', '/workspaces/DepthAnythingV3-0926/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
-  [ComfyUI] Generated prompt_id: 80b08987-77ff-4a3c-9d67-8e78842f9aaf
-  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
+  [ComfyUI] Generated prompt_id: 6bfcbdbc-4bb9-4a8b-9648-ad5472257a67
+  [ComfyUI] [comfy-env] SubprocessWorker: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] Calling execution.validate_prompt()...
-  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/root/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_xvidy7rt/persistent_worker.py', 'abstract://comfy_worker_0b399cec44ba']...
+  [ComfyUI] [comfy-env] env_vars: {'COMFYUI_BASE': '/workspaces/DepthAnythingV3-2026/ComfyUI'}
   [ComfyUI] Validation result: valid=True
-  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_0b399cec44ba (abstract, no filesystem path)
+  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] === Validation PASSED ===
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/workspaces/DepthAnythingV3-2026/ComfyUI', '/workspaces/DepthAnythingV3-2026/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/root/.ce/.pixi/envs/depthanythingv3-nodes/lib/python3.10/site-packages', '/workspaces/DepthAnythingV3-2026/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
   [ComfyUI] got prompt
+  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/root/.ce/.pixi/envs/depthanythingv3-nodes/bin/python
   [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
-  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 152 / 7703 MB
+  [ComfyUI] [SubprocessWorker] launching cmd=['/root/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/root/.ce/pixi.toml', '-e', 'depthanythingv3-nodes', 'python', '/tmp/comfyui_pvenv_woi8n8ya/persistent_worker.py', 'abstract://comfy_worker_417715fd5e0b']...
+  [ComfyUI] [VRAM] Before DownloadAndLoadDepthAnythingV3Model: 302 / 24124 MB
+  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_417715fd5e0b (abstract, no filesystem path)
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
@@ -50,45 +50,43 @@ Capturing execution frames: advanced.json
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=1 sending call_method
+  Frame 2 saved (frame_001.jpg, t=2.6s)
+  [capture-periodic] freeze=4ms shot=192ms unfreeze=5ms saved=True
   [ComfyUI] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-  Frame 2 saved (frame_001.jpg, t=2.4s)
-  [capture-periodic] freeze=2ms shot=138ms unfreeze=3ms saved=True
   [ComfyUI] 
-  Frame 3 saved (frame_002.jpg, t=4.6s)
-  [capture-periodic] freeze=2ms shot=141ms unfreeze=4ms saved=True
+  Frame 3 saved (frame_002.jpg, t=4.9s)
+  [capture-periodic] freeze=4ms shot=188ms unfreeze=5ms saved=True
+  [capture-loop] iter=50 t=6.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=4.2/31.2GB (14%) swap=0.6/32.0GB (2%) cpu=4% browser_rss=0.84GB
   [ComfyUI] model.safetensors:   0%|          | 0.00/1.64G [00:00<?, ?B/s]
-  [ComfyUI] model.safetensors:   4%|▍         | 67.1M/1.64G [00:02<01:05, 24.2MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
-  [capture-loop] iter=50 t=5.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.3/31.3GB (11%) swap=0.7/32.0GB (2%) cpu=8% browser_rss=0.85GB
-  Frame 4 saved (frame_003.jpg, t=6.9s)
-  [capture-periodic] freeze=2ms shot=145ms unfreeze=2ms saved=True
+  [ComfyUI] model.safetensors:  16%|█▌        | 256M/1.64G [00:04<00:21, 63.1MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
   [ComfyUI] 
-  [ComfyUI] model.safetensors:  29%|██▊       | 470M/1.64G [00:08<00:20, 58.4MB/s] [SubprocessWorker] callback 'report_progress' from call_id=1
-  [capture-loop] iter=100 t=11.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.6/31.3GB (12%) swap=0.7/32.0GB (2%) cpu=10% browser_rss=0.85GB
-  Frame 5 saved (frame_004.jpg, t=11.4s)
-  [capture-periodic] freeze=2ms shot=105ms unfreeze=6ms saved=True
+  [ComfyUI] model.safetensors:  20%|██        | 335M/1.64G [00:04<00:18, 72.1MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  Frame 4 saved (frame_003.jpg, t=9.4s)
+  [capture-periodic] freeze=3ms shot=195ms unfreeze=4ms saved=True
+  [capture-loop] iter=100 t=12.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=4.8/31.2GB (15%) swap=0.6/32.0GB (2%) cpu=5% browser_rss=0.84GB
   [ComfyUI] 
-  [ComfyUI] model.safetensors:  37%|███▋      | 604M/1.64G [00:09<00:13, 76.3MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] model.safetensors:  33%|███▎      | 537M/1.64G [00:09<00:19, 56.5MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
   [ComfyUI] 
-  [ComfyUI] model.safetensors:  49%|████▉     | 805M/1.64G [00:10<00:09, 87.8MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
-  Frame 6 saved (frame_005.jpg, t=13.7s)
-  [capture-periodic] freeze=2ms shot=145ms unfreeze=6ms saved=True
+  [ComfyUI] model.safetensors:  37%|███▋      | 604M/1.64G [00:09<00:15, 67.1MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  Frame 5 saved (frame_004.jpg, t=13.9s)
+  [capture-periodic] freeze=3ms shot=188ms unfreeze=5ms saved=True
   [ComfyUI] 
-  [ComfyUI] model.safetensors:  53%|█████▎    | 872M/1.64G [00:12<00:10, 76.3MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
-  Frame 7 saved (frame_006.jpg, t=16.0s)
-  [capture-periodic] freeze=2ms shot=152ms unfreeze=7ms saved=True
-  [capture-loop] iter=150 t=17.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.6/31.3GB (11%) swap=0.7/32.0GB (2%) cpu=12% browser_rss=0.86GB
+  [ComfyUI] model.safetensors:  49%|████▉     | 805M/1.64G [00:12<00:12, 64.6MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
   [ComfyUI] 
-  [ComfyUI] model.safetensors:  73%|███████▎  | 1.21G/1.64G [00:14<00:04, 103MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] model.safetensors:  53%|█████▎    | 872M/1.64G [00:13<00:10, 71.3MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [capture-loop] iter=150 t=18.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=4 ram=4.9/31.2GB (16%) swap=0.6/32.0GB (2%) cpu=5% browser_rss=0.85GB
   [ComfyUI] 
-  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:14<00:00, 193MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:14<00:00, 200MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  Frame 6 saved (frame_005.jpg, t=18.4s)
+  [capture-periodic] freeze=3ms shot=202ms unfreeze=3ms saved=True
   [ComfyUI] 
-  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:15<00:00, 104MB/s]
+  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:15<00:00, 109MB/s]
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (18.15s): result: NodeOutput
-  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 269 / 7703 MB
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (18.56s): result: NodeOutput
+  [ComfyUI] [VRAM] After DownloadAndLoadDepthAnythingV3Model: 563 / 24124 MB
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'V2-Style', resize_method: 'resize', invert_depth: False, keep_model_size: False, da3_model: dict, images: torch.float32 [1,683,1024,3] cpu
-  [ComfyUI] [VRAM] Before DepthAnything_V3: 269 / 7703 MB
+  [ComfyUI] [VRAM] Before DepthAnything_V3: 563 / 24124 MB
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
@@ -96,8 +94,6 @@ Capturing execution frames: advanced.json
   [ComfyUI] [SubprocessWorker] worker started/confirmed
   [ComfyUI] [comfy-env] PRE-SERIALIZE 'images' shape: torch.Size([1, 683, 1024, 3])
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
-  Frame 8 saved (frame_007.jpg, t=18.2s)
-  [capture-periodic] freeze=2ms shot=146ms unfreeze=4ms saved=True
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=2 sending call_method
@@ -105,31 +101,33 @@ Capturing execution frames: advanced.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 683, 1024, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 683, 1024, 3])
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: No comfy kitchen, using old apply_rope functions.
-  Frame 9 saved (frame_008.jpg, t=20.5s)
-  [capture-periodic] freeze=2ms shot=128ms unfreeze=5ms saved=True
+  Frame 7 saved (frame_006.jpg, t=20.8s)
+  [capture-periodic] freeze=3ms shot=191ms unfreeze=3ms saved=True
+  [capture-loop] iter=200 t=24.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=4.3/31.2GB (14%) swap=0.6/32.0GB (2%) cpu=7% browser_rss=0.77GB
   [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=2
-  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 7.80GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 7.80GB
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +242MB (now 242MB) reserved=256MB peak=242MB
+  [ComfyUI] [comfy-env] VRAM request: 0.82GB, free before eviction: 24.71GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 24.71GB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +650MB (now 650MB) reserved=672MB peak=650MB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
-  [capture-loop] iter=200 t=22.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=4.1/31.3GB (13%) swap=0.7/32.0GB (2%) cpu=13% browser_rss=0.86GB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +202MB (now 853MB) reserved=864MB peak=853MB
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [VRAM] +238MB (now 1091MB) reserved=1216MB peak=1091MB
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=2
   [ComfyUI] [SubprocessWorker] got response: ok
   [ComfyUI] [comfy-env] Created 1 model patchers: ['DepthAnything3Net_1']
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (4.73s): result: NodeOutput
-  [ComfyUI] [VRAM] After DepthAnything_V3: 2969 / 7703 MB
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (10.56s): result: NodeOutput
+  [ComfyUI] [VRAM] After DepthAnything_V3: 3271 / 24124 MB
   [ComfyUI] [VRAM] Loaded: SubprocessModel (783 MB)
   Node executed (1 total), capturing...
-  [ComfyUI] Prompt executed in 23.13 seconds
-  Frame 10 saved (frame_009.jpg, t=23.4s)
-  [capture-node] freeze=2ms shot=180ms unfreeze=2ms saved=True
+  [ComfyUI] Prompt executed in 29.51 seconds
+  Frame 8 saved (frame_007.jpg, t=29.8s)
+  [capture-node] freeze=16ms shot=279ms unfreeze=4ms saved=True
   Node executed (8 total), capturing...
-  Frame 11 saved (frame_010.jpg, t=23.9s)
-  [capture-node] freeze=2ms shot=153ms unfreeze=0ms saved=True
-  Execution complete (t=23.9s)
-  Captured 11 unique frames over 24.07s
+  Frame 9 saved (frame_008.jpg, t=30.5s)
+  [capture-node] freeze=3ms shot=219ms unfreeze=0ms saved=True
+  Execution complete (t=30.5s)
+  Captured 9 unique frames over 30.8s
   [debug] iframes: 0
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_executed.png
-  [timing] final_screenshot: 0.3s
-    Captured 12 video frames
+  [timing] final_screenshot: 0.5s
+    Captured 10 video frames

@@ -1,0 +1,702 @@
+[2026-05-18 18:30:24.163] [info]  setup plugin alembic.autogenerate.schemas
+setup plugin alembic.autogenerate.tables
+
+[2026-05-18 18:30:24.165] [info]  setup plugin alembic.autogenerate.types
+setup plugin alembic.autogenerate.constraints
+setup plugin alembic.autogenerate.defaults
+setup plugin alembic.autogenerate.comments
+
+[2026-05-18 18:30:25.168] [info]  Adding extra search path custom_nodes C:\Users\stduser\Documents\ComfyUI\custom_nodes
+
+[2026-05-18 18:30:25.169] [info]  Adding extra search path download_model_base C:\Users\stduser\Documents\ComfyUI\models
+Adding extra search path custom_nodes C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\custom_nodes
+Setting output directory to: C:\Users\stduser\Documents\ComfyUI\output
+Setting input directory to: C:\Users\stduser\Documents\ComfyUI\input
+Setting user directory to: C:\Users\stduser\Documents\ComfyUI\user
+
+[2026-05-18 18:30:27.758] [info]  [START] Security scan
+[DONE] Security scan
+** ComfyUI startup time: 2026-05-18 18:30:27.757
+
+[2026-05-18 18:30:27.760] [info]  ** Platform: Windows
+** Python version: 3.12.11 (main, Aug 18 2025, 19:17:54) [MSC v.1944 64 bit (AMD64)]
+** Python executable: C:\Users\stduser\Documents\ComfyUI\.venv\Scripts\python.exe
+** ComfyUI Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+** ComfyUI Base Folder Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+
+[2026-05-18 18:30:27.761] [info]  ** User directory: C:\Users\stduser\Documents\ComfyUI\user
+** ComfyUI-Manager config path: C:\Users\stduser\Documents\ComfyUI\user\__manager\config.ini
+** Log path: C:\Users\stduser\Documents\ComfyUI\user\comfyui.log
+
+[2026-05-18 18:30:28.779] [info]  [ComfyUI-Manager] Skipped fixing the 'comfyui-frontend-package' dependency because the ComfyUI is outdated.
+
+[2026-05-18 18:30:28.780] [info]  [PRE] ComfyUI-Manager
+
+[2026-05-18 18:30:38.805] [info]  Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_mxfp8', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_mxfp8', 'scaled_mm_nvfp4']}
+Found comfy_kitchen backend cuda: {'available': False, 'disabled': True, 'unavailable_reason': 'CUDA not available on this system', 'capabilities': []}
+
+[2026-05-18 18:30:38.806] [info]  Found comfy_kitchen backend triton: {'available': False, 'disabled': True, 'unavailable_reason': "ImportError: No module named 'triton'", 'capabilities': []}
+
+[2026-05-18 18:30:38.851] [info]  Checkpoint files will always be loaded safely.
+
+[2026-05-18 18:30:38.933] [info]  Total VRAM 16379 MB, total RAM 16379 MB
+
+[2026-05-18 18:30:38.936] [info]  pytorch version: 2.10.0+cpu
+Set vram state to: DISABLED
+Device: cpu
+
+[2026-05-18 18:30:39.961] [info]  Using sub quadratic optimization for attention, if you have memory or speed issues try using: --use-split-cross-attention
+
+[2026-05-18 18:30:47.667] [info]  Python version: 3.12.11 (main, Aug 18 2025, 19:17:54) [MSC v.1944 64 bit (AMD64)]
+
+[2026-05-18 18:30:47.669] [info]  ComfyUI version: 0.21.1
+comfy-aimdo version: 0.3.0
+
+[2026-05-18 18:30:47.671] [info]  comfy-kitchen version: 0.2.8
+
+[2026-05-18 18:30:47.672] [info]  [Prompt Server] web root: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\web_custom_versions\desktop_app
+
+[2026-05-18 18:30:47.674] [info]  Asset seeder disabled
+[START] ComfyUI-Manager
+
+[2026-05-18 18:30:48.084] [info]  [ComfyUI-Manager] Using GitPython backend
+
+[2026-05-18 18:30:48.181] [info]  [ComfyUI-Manager] network_mode: public
+
+[2026-05-18 18:30:48.192] [info]  [ComfyUI-Manager] The matrix sharing feature has been disabled because the `matrix-nio` dependency is not installed.
+	To use this feature, please run the following command:
+	C:\Users\stduser\Documents\ComfyUI\.venv\Scripts\python.exe -m pip install matrix-nio
+
+
+[2026-05-18 18:30:52.377] [info]  
+Import times for custom nodes:
+
+[2026-05-18 18:30:52.378] [info]     0.0 seconds: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\custom_nodes\websocket_image_save.py
+
+
+[2026-05-18 18:30:52.397] [info]  Context impl SQLiteImpl.
+
+[2026-05-18 18:30:52.399] [info]  Will assume non-transactional DDL.
+
+[2026-05-18 18:30:52.417] [info]  Context impl SQLiteImpl.
+
+[2026-05-18 18:30:52.418] [info]  Will assume non-transactional DDL.
+
+[2026-05-18 18:30:52.441] [info]  Running upgrade  -> 0001_assets, Initial assets schema
+Revision ID: 0001_assets
+Revises: None
+Create Date: 2025-12-10 00:00:00
+
+[2026-05-18 18:30:52.889] [info]  Running upgrade 0001_assets -> 0002_merge_to_asset_references, Merge AssetInfo and AssetCacheState into unified asset_references table.
+
+[2026-05-18 18:30:53.289] [info]  Running upgrade 0002_merge_to_asset_references -> 0003_add_metadata_job_id, Add system_metadata and job_id columns to asset_references.
+Change preview_id FK from assets.id to asset_references.id.
+
+[2026-05-18 18:30:53.377] [info]  Database upgraded from None to 0003_add_metadata_job_id
+
+[2026-05-18 18:30:53.472] [info]  Starting server
+
+
+[2026-05-18 18:30:53.473] [info]  To see the GUI go to: http://127.0.0.1:8000
+
+[2026-05-18 18:32:19.376] [info]  FETCH ComfyRegistry Data [DONE]
+
+[2026-05-18 18:32:19.672] [info]  [ComfyUI-Manager] default cache updated: https://api.comfy.org/nodes
+
+[2026-05-18 18:32:19.704] [info]  FETCH DATA from: C:\Users\stduser\Documents\ComfyUI\user\__manager\cache\1514988643_custom-node-list.json
+[2026-05-18 18:32:19.719] [info]   [DONE]
+
+[2026-05-18 18:32:19.774] [info]  [ComfyUI-Manager] All startup tasks have been completed.
+
+[2026-05-18 18:32:43.613] [info]  [ComfyUI-Manager] The ComfyRegistry cache update is still in progress, so an outdated cache is being used.
+
+[2026-05-18 18:32:48.645] [error]   0%|          | 0.00/18.0M [00:00<?, ?B/s]
+[2026-05-18 18:32:48.761] [error]  35%|███▌      | 6.29M/18.0M [00:00<00:00, 54.4MB/s]
+[2026-05-18 18:32:49.119] [error]  65%|██████▌   | 11.7M/18.0M [00:00<00:00, 22.5MB/s]
+[2026-05-18 18:32:49.391] [error]  83%|████████▎ | 14.9M/18.0M [00:00<00:00, 17.3MB/s]
+[2026-05-18 18:32:49.407] [error] 100%|██████████| 18.0M/18.0M [00:00<00:00, 23.6MB/s]
+[2026-05-18 18:32:49.409] [error] 
+
+[2026-05-18 18:32:49.541] [info]  Extracted zip file to C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3
+
+[2026-05-18 18:32:49.557] [info]  Install: pip packages
+[2026-05-18 18:32:49.558] [info]  
+
+[2026-05-18 18:32:50.640] [info]  [ComfyUI-Manager] Skipped fixing the 'comfyui-frontend-package' dependency because the ComfyUI is outdated.
+Install: install script
+
+[2026-05-18 18:32:51.785] [info]  
+Restarting... [Legacy Mode]
+
+
+Command: ['"C:\\Users\\stduser\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe"', '"C:\\Users\\stduser\\.comfy-test-cache\\desktop\\ComfyUI\\resources\\ComfyUI\\main.py"', '--user-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\user', '--input-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\input', '--output-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\output', '--front-end-root', 'C:\\Users\\stduser\\.comfy-test-cache\\desktop\\ComfyUI\\resources\\ComfyUI\\web_custom_versions\\desktop_app', '--base-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI', '--database-url', 'sqlite:///C:/Users/stduser/Documents/ComfyUI/user/comfyui.db', '--extra-model-paths-config', 'C:\\Users\\stduser\\AppData\\Roaming\\ComfyUI\\extra_models_config.yaml', '--log-stdout', '--listen', '127.0.0.1', '--port', '8000', '--enable-manager', '--cpu']
+
+[2026-05-18 18:32:52.391] [info]  setup plugin alembic.autogenerate.schemas
+setup plugin alembic.autogenerate.tables
+setup plugin alembic.autogenerate.types
+setup plugin alembic.autogenerate.constraints
+setup plugin alembic.autogenerate.defaults
+setup plugin alembic.autogenerate.comments
+
+[2026-05-18 18:32:52.828] [info]  Adding extra search path custom_nodes C:\Users\stduser\Documents\ComfyUI\custom_nodes
+Adding extra search path download_model_base C:\Users\stduser\Documents\ComfyUI\models
+Adding extra search path custom_nodes C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\custom_nodes
+
+[2026-05-18 18:32:52.830] [info]  Setting output directory to: C:\Users\stduser\Documents\ComfyUI\output
+Setting input directory to: C:\Users\stduser\Documents\ComfyUI\input
+Setting user directory to: C:\Users\stduser\Documents\ComfyUI\user
+
+[2026-05-18 18:32:54.254] [info]  [START] Security scan
+[DONE] Security scan
+** ComfyUI startup time: 2026-05-18 18:32:54.254
+[2026-05-18 18:32:54.256] [info]  
+** Platform: Windows
+** Python version: 3.12.11 (main, Aug 18 2025, 19:17:54) [MSC v.1944 64 bit (AMD64)]
+** Python executable: C:\Users\stduser\Documents\ComfyUI\.venv\Scripts\python.exe
+** ComfyUI Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+** ComfyUI Base Folder Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+
+[2026-05-18 18:32:54.257] [info]  ** User directory: C:\Users\stduser\Documents\ComfyUI\user
+** ComfyUI-Manager config path: C:\Users\stduser\Documents\ComfyUI\user\__manager\config.ini
+** Log path: C:\Users\stduser\Documents\ComfyUI\user\comfyui.log
+
+[2026-05-18 18:32:54.743] [info]  
+#######################################################################
+[ComfyUI-Manager] Starting dependency installation/(de)activation for the extension
+
+
+[2026-05-18 18:32:54.744] [info]  
+## ComfyUI-Manager: EXECUTE => ['C:\\Users\\stduser\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe', '-m', 'pip', 'install', 'comfy-env==0.3.84']
+
+## Execute management script for 'C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3'
+
+[2026-05-18 18:32:56.210] [info]   Collecting comfy-env==0.3.84
+
+[2026-05-18 18:32:56.264] [info]     Downloading comfy_env-0.3.84-py3-none-any.whl.metadata (7.5 kB)
+
+[2026-05-18 18:32:56.286] [info]   
+[2026-05-18 18:32:56.287] [info]   
+[2026-05-18 18:32:56.341] [info]   Collecting pre-commit (from comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.355] [info]     Downloading pre_commit-4.6.0-py2.py3-none-any.whl.metadata (1.2 kB)
+
+[2026-05-18 18:32:56.394] [info]   
+[2026-05-18 18:32:56.408] [info]   Collecting tomli-w>=1.0.0 (from comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.420] [info]     Downloading tomli_w-1.2.0-py3-none-any.whl.metadata (5.7 kB)
+
+[2026-05-18 18:32:56.469] [info]   Collecting tomli>=2.0.0 (from comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.471] [info]     Using cached tomli-2.4.1-cp312-cp312-win_amd64.whl.metadata (10 kB)
+
+[2026-05-18 18:32:56.476] [info]   
+[2026-05-18 18:32:56.518] [info]   Collecting cfgv>=2.0.0 (from pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.530] [info]     Downloading cfgv-3.5.0-py2.py3-none-any.whl.metadata (8.9 kB)
+
+[2026-05-18 18:32:56.623] [info]   Collecting identify>=1.0.0 (from pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.635] [info]     Downloading identify-2.6.19-py2.py3-none-any.whl.metadata (4.4 kB)
+
+[2026-05-18 18:32:56.693] [info]   Collecting nodeenv>=0.11.1 (from pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.704] [info]     Downloading nodeenv-1.10.0-py2.py3-none-any.whl.metadata (24 kB)
+
+[2026-05-18 18:32:56.782] [info]   Collecting virtualenv>=20.10.0 (from pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.794] [info]     Downloading virtualenv-21.3.3-py3-none-any.whl.metadata (3.5 kB)
+
+[2026-05-18 18:32:56.846] [info]   Collecting distlib<1,>=0.3.7 (from virtualenv>=20.10.0->pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.860] [info]     Downloading distlib-0.4.0-py2.py3-none-any.whl.metadata (5.2 kB)
+
+[2026-05-18 18:32:56.930] [info]   Collecting filelock<4,>=3.24.2 (from virtualenv>=20.10.0->pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:56.943] [info]     Downloading filelock-3.29.0-py3-none-any.whl.metadata (2.0 kB)
+
+[2026-05-18 18:32:57.003] [info]   Collecting platformdirs<5,>=3.9.1 (from virtualenv>=20.10.0->pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:57.015] [info]     Downloading platformdirs-4.9.6-py3-none-any.whl.metadata (4.7 kB)
+
+[2026-05-18 18:32:57.062] [info]   Collecting python-discovery>=1.3.1 (from virtualenv>=20.10.0->pre-commit->comfy-env==0.3.84)
+
+[2026-05-18 18:32:57.075] [info]     Downloading python_discovery-1.3.1-py3-none-any.whl.metadata (5.6 kB)
+
+[2026-05-18 18:32:57.128] [info]   Downloading comfy_env-0.3.84-py3-none-any.whl (123 kB)
+
+[2026-05-18 18:32:57.162] [info]   Using cached tomli-2.4.1-cp312-cp312-win_amd64.whl (108 kB)
+
+[2026-05-18 18:32:57.173] [info]   Downloading tomli_w-1.2.0-py3-none-any.whl (6.7 kB)
+
+[2026-05-18 18:32:57.207] [info]   Downloading pre_commit-4.6.0-py2.py3-none-any.whl (226 kB)
+
+[2026-05-18 18:32:57.245] [info]   Downloading cfgv-3.5.0-py2.py3-none-any.whl (7.4 kB)
+
+[2026-05-18 18:32:57.278] [info]   Downloading identify-2.6.19-py2.py3-none-any.whl (99 kB)
+
+[2026-05-18 18:32:57.307] [info]   Downloading nodeenv-1.10.0-py2.py3-none-any.whl (23 kB)
+
+[2026-05-18 18:32:57.333] [info]   Downloading virtualenv-21.3.3-py3-none-any.whl (7.6 MB)
+
+[2026-05-18 18:32:57.417] [info]      ---------------------------------------- 7.6/7.6 MB 94.0 MB/s eta 0:00:00
+
+[2026-05-18 18:32:57.428] [info]   Downloading distlib-0.4.0-py2.py3-none-any.whl (469 kB)
+
+[2026-05-18 18:32:57.457] [info]   Downloading filelock-3.29.0-py3-none-any.whl (39 kB)
+
+[2026-05-18 18:32:57.481] [info]   Downloading platformdirs-4.9.6-py3-none-any.whl (21 kB)
+
+[2026-05-18 18:32:57.508] [info]   Downloading python_discovery-1.3.1-py3-none-any.whl (33 kB)
+
+[2026-05-18 18:32:57.755] [info]   Installing collected packages: distlib, tomli-w, tomli, platformdirs, nodeenv, identify, filelock, cfgv, python-discovery, virtualenv, pre-commit, comfy-env
+
+[2026-05-18 18:32:58.134] [info]     Attempting uninstall: filelock
+
+[2026-05-18 18:32:58.139] [info]       Found existing installation: filelock 3.20.3
+
+[2026-05-18 18:32:58.144] [info]       Uninstalling filelock-3.20.3:
+
+[2026-05-18 18:32:58.147] [info]         Successfully uninstalled filelock-3.20.3
+
+[2026-05-18 18:32:59.043] [info]   Successfully installed cfgv-3.5.0 comfy-env-0.3.84 distlib-0.4.0 filelock-3.29.0 identify-2.6.19 nodeenv-1.10.0 platformdirs-4.9.6 pre-commit-4.6.0 python-discovery-1.3.1 tomli-2.4.1 tomli-w-1.2.0 virtualenv-21.3.3
+
+[2026-05-18 18:32:59.451] [error] [!]
+[2026-05-18 18:32:59.453] [error]  
+[!] [notice] A new release of pip is available: 25.0.1 -> 26.1.1
+[!] [notice] To update, run: python.exe -m pip install --upgrade pip
+
+[2026-05-18 18:32:59.554] [info]  
+## ComfyUI-Manager: EXECUTE => ['C:\\Users\\stduser\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe', '-m', 'pip', 'install', 'comfy-3d-viewers==0.2.44']
+
+## Execute management script for 'C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3'
+[2026-05-18 18:32:59.555] [info]  
+
+[2026-05-18 18:33:00.948] [info]   Collecting comfy-3d-viewers==0.2.44
+
+[2026-05-18 18:33:00.981] [info]     Downloading comfy_3d_viewers-0.2.44-py3-none-any.whl.metadata (2.2 kB)
+
+[2026-05-18 18:33:01.020] [info]   Downloading comfy_3d_viewers-0.2.44-py3-none-any.whl (1.3 MB)
+
+[2026-05-18 18:33:01.088] [info]      ---------------------------------------- 1.3/1.3 MB 21.1 MB/s eta 0:00:00
+
+[2026-05-18 18:33:01.313] [info]   Installing collected packages: comfy-3d-viewers
+
+[2026-05-18 18:33:01.456] [info]   Successfully installed comfy-3d-viewers-0.2.44
+
+[2026-05-18 18:33:01.698] [error] [!] 
+[2026-05-18 18:33:01.699] [error] 
+[!] [notice] A new release of pip is available: 25.0.1 -> 26.1.1
+[!] [notice] To update, run: python.exe -m pip install --upgrade pip
+
+[2026-05-18 18:33:01.773] [info]  
+## ComfyUI-Manager: EXECUTE => ['C:\\Users\\stduser\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe', 'install.py']
+
+## Execute management script for 'C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3'
+
+[2026-05-18 18:33:02.066] [info]   [comfy-env] WARNING: Could not enable long paths (needs admin)
+
+[2026-05-18 18:33:02.068] [info]   
+ Installing 3 node dependencies...
+   Cloning ComfyUI-VideoHelperSuite...
+
+[2026-05-18 18:33:02.835] [info]     Installing requirements for ComfyUI-VideoHelperSuite...
+
+[2026-05-18 18:33:05.433] [info]     Cloning ComfyUI-KJNodes...
+
+[2026-05-18 18:33:06.929] [info]     Installing requirements for ComfyUI-KJNodes...
+
+[2026-05-18 18:33:22.440] [info]     Cloning ComfyUI-GeometryPack...
+
+[2026-05-18 18:33:25.267] [info]     Installing requirements for ComfyUI-GeometryPack...
+
+[2026-05-18 18:33:27.592] [info]     Running install.py for ComfyUI-GeometryPack...
+
+[2026-05-18 18:33:27.845] [info]   [comfy-env] WARNING: Could not enable long paths (needs admin)
+
+[2026-05-18 18:33:27.880] [error] [!]
+[2026-05-18 18:33:27.881] [error]  [comfy-env] pixi not found, downloading...
+
+[2026-05-18 18:33:30.010] [error] [!] 
+[2026-05-18 18:33:30.012] [info]   [comfy-env] _discover: scanning C:\Users\stduser\Documents\ComfyUI\custom_nodes
+
+[2026-05-18 18:33:30.013] [error] [comfy-env] pixi installed: C:\Users\stduser\.pixi\bin\pixi.exe
+
+[2026-05-18 18:33:30.015] [info]   
+[2026-05-18 18:33:30.016] [info]  [comfy-env] _discover: ComfyUI-DepthAnythingV3 -> depthanythingv3-nodes (custom_nodes\ComfyUI-DepthAnythingV3\nodes\comfy-env.toml)
+
+[2026-05-18 18:33:30.029] [info]   [comfy-env] _discover: ComfyUI-GeometryPack -> geometrypack-nodes (custom_nodes\ComfyUI-GeometryPack\nodes\comfy-env.toml)
+
+[2026-05-18 18:33:30.032] [info]   [comfy-env] _discover: ComfyUI-KJNodes: no comfy-env.toml found
+
+[2026-05-18 18:33:30.035] [info]   [comfy-env] _discover: ComfyUI-VideoHelperSuite: no comfy-env.toml found
+
+[2026-05-18 18:33:30.036] [info]   [comfy-env] Workspace: C:\ce
+ 
+[2026-05-18 18:33:30.037] [info]  [comfy-env] ComfyUI: C:\Users\stduser\Documents\ComfyUI
+ [comfy-env] Found 2 node config(s):
+   - depthanythingv3-nodes <- custom_nodes\ComfyUI-DepthAnythingV3\nodes\comfy-env.toml (python=host)
+   - geometrypack-nodes <- custom_nodes\ComfyUI-GeometryPack\nodes\comfy-env.toml (python=host)
+
+[2026-05-18 18:33:30.041] [info]   [comfy-env] Bootstrap interpreter has python 3.12 + torch 2.10.0 (cpu). Looking for cuda-only wheels matching cpu/torch2.10/cp312.
+
+[2026-05-18 18:33:31.588] [info]   [comfy-env] GPU: No GPU detected
+
+[2026-05-18 18:33:31.619] [info]   [comfy-env] No CUDA detected -- pinning comfyui torch to CPU index
+
+[2026-05-18 18:33:31.621] [info]   [comfy-env] Desktop app detected: source=C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI, data=C:\Users\stduser\Documents\ComfyUI
+
+[2026-05-18 18:33:31.626] [info]   Generated C:\ce\pixi.toml
+
+[2026-05-18 18:33:31.627] [info]   [comfy-env] Patched C:\Users\stduser\AppData\Roaming\uv\python\cpython-3.12.11-windows-x86_64-none\Lib\platform.py for conda-forge compat
+
+[2026-05-18 18:33:31.628] [info]   [comfy-env] Installing 2 environment(s):
+   - depthanythingv3-nodes (python=host, 10 pypi deps, 2 cuda wheels)
+   - geometrypack-nodes (python=host, 14 pypi deps, 1 cuda wheels)
+ [comfy-env] Running `pixi install -e depthanythingv3-nodes -e geometrypack-nodes`...
+
+[2026-05-18 18:33:55.972] [info]      WARN Skipped running the post-link scripts because `run-post-link-scripts` = `false`
+   	- Scripts/.librsvg-pre-unlink.bat
+
+[2026-05-18 18:33:55.974] [info]     To enable them, run:
+   	pixi config set --local run-post-link-scripts insecure
+   More info:
+   	https://pixi.sh/latest/reference/pixi_configuration/#run-post-link-scripts
+
+[2026-05-18 18:36:57.655] [info]      WARN Skipped running the post-link scripts because `run-post-link-scripts` = `false`
+   	- Scripts/.librsvg-pre-unlink.bat
+
+[2026-05-18 18:36:57.657] [info]     To enable them, run:
+   	pixi config set --local run-post-link-scripts insecure
+   More info:
+   	https://pixi.sh/latest/reference/pixi_configuration/#run-post-link-scripts
+
+[2026-05-18 18:37:14.694] [info]     The following environments have been installed: depthanythingv3-nodes, geometrypack-nodes.
+
+[2026-05-18 18:37:14.773] [info]   [comfy-env] Recorded install hash 5cdcfa2f5865 -> C:\ce\install.hash
+ [comfy-env] Install log: C:\ce\install.log
+
+[2026-05-18 18:37:14.775] [info]   
+ Installation complete!
+
+[2026-05-18 18:37:15.091] [info]   
+ [requirements] Re-installing main package requirements...
+ 
+[2026-05-18 18:37:15.093] [info]    Installing requirements for ComfyUI-DepthAnythingV3...
+
+[2026-05-18 18:37:15.127] [info]   [comfy-env] _discover: scanning C:\Users\stduser\Documents\ComfyUI\custom_nodes
+
+[2026-05-18 18:37:15.130] [info]   [comfy-env] _discover: ComfyUI-DepthAnythingV3 -> depthanythingv3-nodes (custom_nodes\ComfyUI-DepthAnythingV3\nodes\comfy-env.toml)
+
+[2026-05-18 18:37:15.137] [info]   [comfy-env] _discover: ComfyUI-GeometryPack -> geometrypack-nodes (custom_nodes\ComfyUI-GeometryPack\nodes\comfy-env.toml)
+
+[2026-05-18 18:37:15.140] [info]   [comfy-env] _discover: ComfyUI-KJNodes: no comfy-env.toml found
+
+[2026-05-18 18:37:15.143] [info]   [comfy-env] _discover: ComfyUI-VideoHelperSuite: no comfy-env.toml found
+
+[2026-05-18 18:37:15.144] [info]   [comfy-env] Workspace inputs unchanged (hash 5cdcfa2f5865) -- skipping install. Delete C:\ce\install.hash to force.
+ 
+[2026-05-18 18:37:15.145] [info]  
+ Installation complete!
+
+[2026-05-18 18:37:15.178] [info]  
+[ComfyUI-Manager] Startup script completed.
+#######################################################################
+
+
+[2026-05-18 18:37:15.730] [info]  [ComfyUI-Manager] Skipped fixing the 'comfyui-frontend-package' dependency because the ComfyUI is outdated.
+
+[2026-05-18 18:37:15.732] [info]  [ComfyUI-Manager] Restarting to reapply dependency installation.
+Command: ['"C:\\Users\\stduser\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe"', '"C:\\Users\\stduser\\.comfy-test-cache\\desktop\\ComfyUI\\resources\\ComfyUI\\main.py"', '--user-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\user', '--input-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\input', '--output-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI\\output', '--front-end-root', 'C:\\Users\\stduser\\.comfy-test-cache\\desktop\\ComfyUI\\resources\\ComfyUI\\web_custom_versions\\desktop_app', '--base-directory', 'C:\\Users\\stduser\\Documents\\ComfyUI', '--database-url', 'sqlite:///C:/Users/stduser/Documents/ComfyUI/user/comfyui.db', '--extra-model-paths-config', 'C:\\Users\\stduser\\AppData\\Roaming\\ComfyUI\\extra_models_config.yaml', '--log-stdout', '--listen', '127.0.0.1', '--port', '8000', '--enable-manager', '--cpu']
+--------------------------------------------------------------------------
+
+
+[2026-05-18 18:37:16.296] [info]  setup plugin alembic.autogenerate.schemas
+setup plugin alembic.autogenerate.tables
+
+[2026-05-18 18:37:16.297] [info]  setup plugin alembic.autogenerate.types
+setup plugin alembic.autogenerate.constraints
+setup plugin alembic.autogenerate.defaults
+setup plugin alembic.autogenerate.comments
+
+[2026-05-18 18:37:16.761] [info]  Adding extra search path custom_nodes C:\Users\stduser\Documents\ComfyUI\custom_nodes
+Adding extra search path download_model_base C:\Users\stduser\Documents\ComfyUI\models
+Adding extra search path custom_nodes C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\custom_nodes
+
+[2026-05-18 18:37:16.763] [info]  Setting output directory to: C:\Users\stduser\Documents\ComfyUI\output
+Setting input directory to: C:\Users\stduser\Documents\ComfyUI\input
+Setting user directory to: C:\Users\stduser\Documents\ComfyUI\user
+
+[2026-05-18 18:37:18.229] [info]  [START] Security scan
+[DONE] Security scan
+** ComfyUI startup time: 2026-05-18 18:37:18.228
+
+[2026-05-18 18:37:18.230] [info]  ** Platform: Windows
+** Python version: 3.12.11 (main, Aug 18 2025, 19:17:54) [MSC v.1944 64 bit (AMD64)]
+** Python executable: C:\Users\stduser\Documents\ComfyUI\.venv\Scripts\python.exe
+** ComfyUI Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+** ComfyUI Base Folder Path: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+
+[2026-05-18 18:37:18.289] [info]  ** User directory:
+[2026-05-18 18:37:18.291] [info]   C:\Users\stduser\Documents\ComfyUI\user
+** ComfyUI-Manager config path: C:\Users\stduser\Documents\ComfyUI\user\__manager\config.ini
+** Log path: C:\Users\stduser\Documents\ComfyUI\user\comfyui.log
+
+[2026-05-18 18:37:19.359] [info]  [ComfyUI-Manager] Skipped fixing the 'comfyui-frontend-package' dependency because the ComfyUI is outdated.
+
+[2026-05-18 18:37:19.360] [info]  [PRE] ComfyUI-Manager
+
+[2026-05-18 18:37:19.656] [error] [comfy-env] ComfyUI-DepthAnythingV3: 1 isolation env(s):
+[2026-05-18 18:37:19.657] [error] 
+[comfy-env]   nodes -> C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3\nodes
+[comfy-env] prestartup complete
+
+[2026-05-18 18:37:19.828] [error] [comfy-env] ComfyUI-GeometryPack: 1 isolation env(s):
+[2026-05-18 18:37:19.830] [error] 
+[comfy-env]   nodes -> C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-GeometryPack\nodes
+[comfy-env] prestartup complete
+
+[2026-05-18 18:37:22.478] [info]  Found comfy_kitchen backend cuda: {'available': False, 'disabled': True, 'unavailable_reason': 'CUDA not available on this system', 'capabilities': []}
+Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_mxfp8', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_mxfp8', 'scaled_mm_nvfp4']}
+
+[2026-05-18 18:37:22.480] [info]  Found comfy_kitchen backend triton: {'available': False, 'disabled': True, 'unavailable_reason': "ImportError: No module named 'triton'", 'capabilities': []}
+
+[2026-05-18 18:37:22.485] [info]  Checkpoint files will always be loaded safely.
+
+[2026-05-18 18:37:22.498] [info]  Total VRAM 16379 MB, total RAM 16379 MB
+
+[2026-05-18 18:37:22.499] [info]  pytorch version: 2.10.0+cpu
+Set vram state to: DISABLED
+Device: cpu
+
+[2026-05-18 18:37:22.751] [info]  Using sub quadratic optimization for attention, if you have memory or speed issues try using: --use-split-cross-attention
+
+[2026-05-18 18:37:25.288] [info]  Python version: 3.12.11 (main, Aug 18 2025, 19:17:54) [MSC v.1944 64 bit (AMD64)]
+ComfyUI version: 0.21.1
+
+[2026-05-18 18:37:25.289] [info]  comfy-aimdo version: 0.3.0
+
+[2026-05-18 18:37:25.290] [info]  comfy-kitchen version: 0.2.8
+
+[2026-05-18 18:37:25.292] [info]  [Prompt Server] web root: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\web_custom_versions\desktop_app
+
+[2026-05-18 18:37:25.293] [info]  Asset seeder disabled
+
+[2026-05-18 18:37:25.294] [info]  [START] ComfyUI-Manager
+
+[2026-05-18 18:37:25.432] [info]  [ComfyUI-Manager] Using GitPython backend
+
+[2026-05-18 18:37:25.485] [info]  [ComfyUI-Manager] network_mode: public
+
+[2026-05-18 18:37:25.490] [info]  [ComfyUI-Manager] The matrix sharing feature has been disabled because the `matrix-nio` dependency is not installed.
+	To use this feature, please run the following command:
+	C:\Users\stduser\Documents\ComfyUI\.venv\Scripts\python.exe -m pip install matrix-nio
+
+
+[2026-05-18 18:37:27.101] [error] [comfy-env] Version: 0.3.84
+[2026-05-18 18:37:27.103] [error] 
+
+[2026-05-18 18:37:27.714] [error] [comfy-env] register_nodes: ComfyUI-DepthAnythingV3
+[2026-05-18 18:37:27.716] [error] 
+
+[2026-05-18 18:37:27.718] [error] [comfy-env] ComfyUI source dir: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+[2026-05-18 18:37:27.719] [error] 
+
+[2026-05-18 18:37:27.720] [error] [comfy-env] Scanning nodes metadata (isolation root)...
+[2026-05-18 18:37:27.721] [error] 
+
+[2026-05-18 18:37:34.946] [error] [comfy-env] Scanned nodes: 15 nodes (7.2s)
+[2026-05-18 18:37:34.947] [error] 
+
+[2026-05-18 18:37:34.948] [error] [comfy-env] Scanned nodes root: 15 nodes (7.2s)
+
+[2026-05-18 18:37:34.949] [error] [comfy-env] Imported nodes root: 15 nodes (isolation)
+
+[2026-05-18 18:37:34.950] [error] [comfy-env] Registered 15 total nodes
+
+[2026-05-18 18:37:34.953] [info]  loading...
+
+[2026-05-18 18:37:34.954] [info]  calling register_nodes
+
+[2026-05-18 18:37:34.955] [error] [comfy-env] Version: 0.3.84
+[2026-05-18 18:37:34.956] [error] 
+
+[2026-05-18 18:37:34.974] [error] [comfy-env] register_nodes: ComfyUI-GeometryPack
+[2026-05-18 18:37:34.976] [error] 
+
+[2026-05-18 18:37:34.983] [error] [comfy-env] ComfyUI source dir: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI
+[2026-05-18 18:37:34.984] [error] 
+
+[2026-05-18 18:37:34.986] [error] [comfy-env] Scanning nodes metadata (isolation root)...
+[2026-05-18 18:37:34.987] [error] 
+
+[2026-05-18 18:37:48.112] [error] [comfy-env] Scanned nodes: 125 nodes (13.1s)
+[2026-05-18 18:37:48.114] [error] 
+
+[2026-05-18 18:37:48.115] [error] [comfy-env] Scanned nodes root: 125 nodes (13.1s)
+[2026-05-18 18:37:48.116] [error] 
+
+[2026-05-18 18:37:48.118] [error] [comfy-env] Imported nodes root: 125 nodes (isolation)
+[2026-05-18 18:37:48.119] [error] 
+[comfy-env] Registered 125 total nodes
+[2026-05-18 18:37:48.120] [error] 
+
+[2026-05-18 18:37:48.552] [info]  
+Import times for custom nodes:
+   0.0 seconds: C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\custom_nodes\websocket_image_save.py
+
+[2026-05-18 18:37:48.554] [info]     0.2 seconds: C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-VideoHelperSuite
+   0.3 seconds: C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-KJNodes
+   7.9 seconds: C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3
+  13.2 seconds: C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-GeometryPack
+
+
+[2026-05-18 18:37:48.556] [info]  Context impl SQLiteImpl.
+
+[2026-05-18 18:37:48.557] [info]  Will assume non-transactional DDL.
+
+[2026-05-18 18:37:48.635] [info]  Starting server
+
+
+[2026-05-18 18:37:48.637] [info]  To see the GUI go to: http://127.0.0.1:8000
+
+[2026-05-18 18:37:57.857] [info]  [ComfyUI-Manager] The ComfyRegistry cache update is still in progress, so an outdated cache is being used.
+
+[2026-05-18 18:37:58.045] [info]  FETCH DATA from: C:\Users\stduser\Documents\ComfyUI\.venv\Lib\site-packages\comfyui_manager\custom-node-list.json
+[2026-05-18 18:37:58.096] [info]   [DONE]
+
+[2026-05-18 18:37:58.178] [info]  [DEPRECATION WARNING] Detected import of deprecated legacy API: /extensions/core/widgetInputs.js. This is likely caused by a custom node extension using outdated APIs. Please update your extensions or contact the extension author for an updated version.
+
+[2026-05-18 18:38:03.318] [info]  [ComfyUI-Manager] The ComfyRegistry cache update is still in progress, so an outdated cache is being used.
+
+[2026-05-18 18:38:03.426] [info]  FETCH DATA from: C:\Users\stduser\Documents\ComfyUI\.venv\Lib\site-packages\comfyui_manager\custom-node-list.json
+[2026-05-18 18:38:03.452] [info]   [DONE]
+
+[2026-05-18 18:38:22.271] [info]  got prompt
+
+[2026-05-18 18:38:22.569] [info]  [ComfyUI-DepthAnythingV3] python: C:\ce\.pixi\envs\depthanythingv3-nodes\python.exe
+[ComfyUI-DepthAnythingV3] sys_path sent to worker: ['C:\\Users\\stduser\\.comfy-test-cache\\desktop\\ComfyUI\\resources\\ComfyUI', 'C:\\Users\\stduser\\Documents\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3', 'C:\\ce\\.pixi\\envs\\depthanythingv3-nodes\\Lib\\site-packages', 'C:\\Users\\stduser\\Documents\\ComfyUI\\custom_nodes\\ComfyUI-DepthAnythingV3']
+
+[2026-05-18 18:38:25.933] [error] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
+
+[2026-05-18 18:38:27.607] [error] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+[2026-05-18 18:38:27.611] [error] [worker:ComfyUI-DepthAnythingV3] WARNING: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+[2026-05-18 18:38:27.714] [error] model.safetensors:   0%|          | 0.00/1.64G [00:00<?, ?B/s]
+[2026-05-18 18:38:30.224] [error] model.safetensors:   4%|▍         | 67.1M/1.64G [00:02<00:58, 26.7MB/s]
+[2026-05-18 18:38:31.343] [error] model.safetensors:   8%|▊         | 134M/1.64G [00:03<00:38, 39.6MB/s] 
+[2026-05-18 18:38:31.982] [error] model.safetensors:  12%|█▏        | 201M/1.64G [00:04<00:26, 55.4MB/s]
+[2026-05-18 18:38:32.242] [error] model.safetensors:  16%|█▋        | 268M/1.64G [00:04<00:16, 80.9MB/s]
+[2026-05-18 18:38:32.969] [error] model.safetensors:  20%|██        | 335M/1.64G [00:05<00:15, 84.1MB/s]
+[2026-05-18 18:38:33.468] [error] model.safetensors:  24%|██▍       | 402M/1.64G [00:05<00:12, 96.3MB/s]
+[2026-05-18 18:38:33.969] [error] model.safetensors:  29%|██▊       | 470M/1.64G [00:06<00:11, 106MB/s] 
+[2026-05-18 18:38:34.479] [error] model.safetensors:  33%|███▎      | 537M/1.64G [00:06<00:09, 114MB/s]
+[2026-05-18 18:38:34.968] [error] model.safetensors:  37%|███▋      | 604M/1.64G [00:07<00:08, 119MB/s]
+[2026-05-18 18:38:35.468] [error] model.safetensors:  41%|████      | 671M/1.64G [00:07<00:07, 123MB/s]
+[2026-05-18 18:38:35.968] [error] model.safetensors:  45%|████▍     | 738M/1.64G [00:08<00:07, 127MB/s]
+[2026-05-18 18:38:36.220] [error] model.safetensors:  47%|████▋     | 768M/1.64G [00:08<00:06, 126MB/s]
+[2026-05-18 18:38:36.470] [error] model.safetensors:  49%|████▉     | 805M/1.64G [00:08<00:06, 130MB/s]
+[2026-05-18 18:38:36.969] [error] model.safetensors:  53%|█████▎    | 872M/1.64G [00:09<00:05, 131MB/s]
+[2026-05-18 18:38:37.495] [error] model.safetensors:  57%|█████▋    | 939M/1.64G [00:09<00:05, 132MB/s]
+[2026-05-18 18:38:37.969] [error] model.safetensors:  62%|██████▏   | 1.02G/1.64G [00:10<00:04, 145MB/s]
+[2026-05-18 18:38:38.468] [error] model.safetensors:  65%|██████▌   | 1.07G/1.64G [00:10<00:04, 130MB/s]
+[2026-05-18 18:38:38.969] [error] model.safetensors:  69%|██████▉   | 1.14G/1.64G [00:11<00:03, 131MB/s]
+[2026-05-18 18:38:39.469] [error] model.safetensors:  73%|███████▎  | 1.21G/1.64G [00:11<00:03, 132MB/s]
+[2026-05-18 18:38:39.969] [error] model.safetensors:  78%|███████▊  | 1.27G/1.64G [00:12<00:02, 133MB/s]
+[2026-05-18 18:38:41.470] [error] model.safetensors:  82%|████████▏ | 1.34G/1.64G [00:13<00:03, 82.8MB/s]
+[2026-05-18 18:38:41.969] [error] model.safetensors:  86%|████████▌ | 1.41G/1.64G [00:14<00:02, 93.7MB/s]
+[2026-05-18 18:38:42.511] [error] model.safetensors:  90%|████████▉ | 1.48G/1.64G [00:14<00:01, 103MB/s] 
+[2026-05-18 18:38:42.969] [error] model.safetensors:  94%|█████████▍| 1.54G/1.64G [00:15<00:00, 111MB/s]
+[2026-05-18 18:38:43.710] [error] model.safetensors: 100%|██████████| 1.64G/1.64G [00:15<00:00, 121MB/s]model.safetensors: 100%|██████████| 1.64G/1.64G [00:15<00:00, 103MB/s]
+
+[2026-05-18 18:38:43.776] [error] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
+[2026-05-18 18:38:43.778] [error] 
+
+[2026-05-18 18:38:43.780] [error] [ComfyUI-DepthAnythingV3] Health check: ok
+
+[2026-05-18 18:38:44.629] [error] [worker:ComfyUI-DepthAnythingV3] WARNING: No comfy kitchen, using old apply_rope functions.
+
+[2026-05-18 18:38:51.150] [error] !!! Exception during processing !!! No module named 'transformers'
+
+Worker traceback:
+Traceback (most recent call last):
+  File "C:\Users\stduser\AppData\Local\Temp\comfyui_pvenv_a881e4a0\persistent_worker.py", line 1762, in main
+    result = method(**inputs)
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy_api\latest\_io.py", line 1833, in EXECUTE_NORMALIZED
+    to_return = cls.execute(*args, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3\nodes\nodes_inference.py", line 86, in execute
+    patcher = _get_or_build_da3_model(da3_model)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3\nodes\load_model.py", line 193, in _get_or_build_da3_model
+    import comfy.model_patcher
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\model_patcher.py", line 32, in <module>
+    import comfy.hooks
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\hooks.py", line 14, in <module>
+    import comfy.lora
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\lora.py", line 23, in <module>
+    import comfy.model_base
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\model_base.py", line 61, in <module>
+    import comfy.ldm.hidream_o1.model
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\ldm\hidream_o1\model.py", line 20, in <module>
+    from comfy.text_encoders.qwen35 import Qwen35VisionModel
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\text_encoders\qwen35.py", line 10, in <module>
+    from comfy import sd1_clip
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\sd1_clip.py", line 3, in <module>
+    from transformers import CLIPTokenizer
+ModuleNotFoundError: No module named 'transformers'
+
+
+[2026-05-18 18:38:51.171] [error] Traceback (most recent call last):
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\execution.py", line 535, in execute
+    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\execution.py", line 335, in get_output_data
+    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\execution.py", line 309, in _async_map_node_over_list
+    await process_inputs(input_dict, i)
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\execution.py", line 297, in process_inputs
+    result = f(**inputs)
+             ^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\.venv\Lib\site-packages\comfy_env\isolation\metadata.py", line 556, in proxy
+    result = worker.call_method(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\.venv\Lib\site-packages\comfy_env\isolation\workers\subprocess.py", line 674, in call_method
+    raise WorkerError(
+comfy_env.isolation.workers.base.WorkerError: No module named 'transformers'
+
+Worker traceback:
+Traceback (most recent call last):
+  File "C:\Users\stduser\AppData\Local\Temp\comfyui_pvenv_a881e4a0\persistent_worker.py", line 1762, in main
+    result = method(**inputs)
+             ^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy_api\latest\_io.py", line 1833, in EXECUTE_NORMALIZED
+    to_return = cls.execute(*args, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3\nodes\nodes_inference.py", line 86, in execute
+    patcher = _get_or_build_da3_model(da3_model)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\stduser\Documents\ComfyUI\custom_nodes\ComfyUI-DepthAnythingV3\nodes\load_model.py", line 193, in _get_or_build_da3_model
+    import comfy.model_patcher
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\model_patcher.py", line 32, in <module>
+    import comfy.hooks
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\hooks.py", line 14, in <module>
+    import comfy.lora
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\lora.py", line 23, in <module>
+    import comfy.model_base
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\model_base.py", line 61, in <module>
+    import comfy.ldm.hidream_o1.model
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\ldm\hidream_o1\model.py", line 20, in <module>
+    from comfy.text_encoders.qwen35 import Qwen35VisionModel
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\text_encoders\qwen35.py", line 10, in <module>
+    from comfy import sd1_clip
+  File "C:\Users\stduser\.comfy-test-cache\desktop\ComfyUI\resources\ComfyUI\comfy\sd1_clip.py", line 3, in <module>
+    from transformers import CLIPTokenizer
+ModuleNotFoundError: No module named 'transformers'
+
+
+
+[2026-05-18 18:38:51.174] [info]  Prompt executed in 28.90 seconds
+
