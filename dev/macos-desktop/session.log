@@ -1,416 +1,219 @@
 [   0s] CDP targets: 1
 [   0s]   page: file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/welcome | ComfyUI
 [   1s] Main page: file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/welcome | ComfyUI
-[   2s] Buttons: ['Get Started']
+[   1s] Buttons: ['Get Started']
 [   2s]   wizard: COMFY_TEST_GPU=0 platform=darwin preferred=['Apple Silicon', 'MPS', 'M4', 'M3', 'M2', 'M1']
 [   3s]   clicked [BTN|Get Started]
 [   4s]   url: file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/welcome -> file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/install
-[   5s]   clicked [BTN|Next]
+[   4s]   clicked [BTN|Next]
 [  11s]   clicked [BTN|Next]
 [  13s]   clicked [BTN|Install]
-[  15s]   url: file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/install -> file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/server-start
-[  77s]   /system_stats up after 74s
-[  77s]   app: waiting for backend stability (continuous /system_stats up for 30s)
-[  77s]   app: /system_stats up; awaiting 30s of stability
-[ 108s]   app: backend stable for 30s; proceeding
-[ 108s]   capturing canvas load...
-[ 116s]   post: waiting for Cloud upsell
-[ 117s]   post: clicked Cloud upsell via [button:has-text("Continue Locally"):visible]
-[ 119s]   post: waiting for Close Templates
-[ 127s]   post: Close Templates not found, skipping
-[ 127s]   post: pressed Escape (Close Templates fallback)
-[ 129s]   post: waiting for Extensions
-[ 130s]   post: clicked Extensions via [button[aria-label="Extensions"]:visible]
-[ 132s]   ext: node meta = display='Depth Anything V3' publisher='pznodes' version='0.1.16'
-[ 136s]   ext: searching "Depth Anything V3"
-[ 140s]   ext: clicking Depth Anything V3 by pznodes tile
-[ 144s]   ext: scrolling to + opening version selector
-[ 147s]   ext: selected 0.1.16
-[ 148s]   ext: clicking right-panel Install
-[ 150s]   ext: clicked Install (last of 4 visible)
-[ 158s]   ext: waiting for "Apply Changes" toast
-[ 241s]   ext: clicked Apply Changes
-[ 246s]   app: Apply Changes already triggered in-app restart, skipping pkill
-[ 252s]   app: relaunching with CDP
-[ 252s]   app: waiting for CDP
-[ 252s]   app: CDP up after 1s
-[ 252s]   app: reconnecting Playwright
-[ 252s]   app: attached to http://127.0.0.1:8000/
-[ 281s]   app: server ready after 13s
-[ 281s]   app: waiting for main canvas (window.app.graph)
-[ 281s]   app: canvas ready after 1s (http://127.0.0.1:8000/)
-[ 286s]   app: forcing renderer reload to refresh node-pack manifest
-[ 288s]   app: canvas re-ready after reload in 2s
-[ 291s]   ext: closing Nodes Manager dialog
-[ 291s]   ext: dismissing What's New popup
-[ 292s]   ext: closed What's New popup
-[ 294s]   ext: dismissing Node Pack Issues modal (if present)
-[ 294s]   ext: Node Pack Issues modal not present
-[ 294s]   ext: opening Templates sidebar
-[ 295s]   ext: clicked Templates
-[ 299s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 301s]   ext: clicked comfyui-depthanythingv3 section
-[ 303s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
-[ 303s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 303s]   ext: picking first matching comfyui-depthanythingv3 template
-[ 303s]   ext: 7 visible cards
-[ 305s]   ext: clicked template simple
-[ 311s]   ext: installing WS execution listener
-[ 311s]   ext: clicking Run
-[ 311s]   ext: clicked Run
-[ 311s]   ext: waiting for execution_success / execution_error
-[ 345s]   ext: WS events=19 elapsed=33s
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129177093}
-[ 345s]     ws: {'type': 'executing', 'ts': 1779129177093}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129177216}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129177218}
-[ 345s]     ws: {'type': 'executing', 'ts': 1779129177218}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129185703}
-[ 345s]     ws: {'type': 'progress', 'ts': 1779129185703}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129196370}
-[ 345s]     ws: {'type': 'progress', 'ts': 1779129196393}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129202474}
-[ 345s]     ws: {'type': 'progress', 'ts': 1779129202476}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129202845}
-[ 345s]     ws: {'type': 'progress_state', 'ts': 1779129202855}
-[ 345s]     ws: {'type': 'executing', 'ts': 1779129202856}
-[ 345s]     ws: {'type': 'execution_error', 'ts': 1779129210398}
-[ 345s]   ext: execution_error data:
-[ 345s] {
-  "prompt_id": "8b57c5fb-62b1-46b0-8e69-8b68334ccf02",
-  "node_id": "14",
-  "node_type": "DepthAnything_V3",
-  "executed": [
-    "2",
-    "3"
-  ],
-  "exception_message": "No module named 'transformers'\n\nWorker traceback:\nTraceback (most recent call last):\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv_as71sj2q/persistent_worker.py\", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py\", line 86, in execute\n    patcher = _get_or_build_da3_model(da3_model)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py\", line 193, in _get_or_build_da3_model\n    import comfy.model_patcher\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_patcher.py\", line 32, in <module>\n    import comfy.hooks\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/hooks.py\", line 14, in <module>\n    import comfy.lora\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/lora.py\", line 23, in <module>\n    import comfy.model_base\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_base.py\", line 61, in <module>\n    import comfy.ldm.hidream_o1.model\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/ldm/hidream_o1/model.py\", line 20, in <module>\n    from comfy.text_encoders.qwen35 import Qwen35VisionModel\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/text_encoders/qwen35.py\", line 10, in <module>\n    from comfy import sd1_clip\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/sd1_clip.py\", line 3, in <module>\n    from transformers import CLIPTokenizer\nModuleNotFoundError: No module named 'transformers'\n\n",
-  "exception_type": "comfy_env.isolation.workers.base.WorkerError",
-  "traceback": [
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/metadata.py\", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\n    raise WorkerError(\n"
-  ],
-  "current_inputs": {
-    "normalization_mode": [
-      "V2-Style"
-    ],
-    "resize_method": [
-      "resize"
-    ],
-    "invert_depth": [
-      true
-    ],
-    "keep_model_size": [
-      false
-    ],
-    "da3_model": [
-      "{'model_path': '/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"
-    ],
-    "images": [
-      "tensor([[[[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         ...,\n\n         [[0.1367, 0.1367, 0.1367],\n          [0.2500, 0.2500, 0.2500],\n          [0.0352, 0.0352, 0.0352],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.1250, 0.1250, 0.1250],\n          [0.1602, 0.1602, 0.1602],\n          [0.5234, 0.5234, 0.5234],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0195, 0.0195, 0.0195],\n          [0.2266, 0.2266, 0.2266],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]]]])"
-    ]
-  },
-  "current_outputs": [
-    "2",
-    "4",
-    "3",
-    "14"
-  ],
-  "timestamp": 1779129210353
-}
-[ 351s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
-[ 351s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 351s]   loop: spec=include items=['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple'] -> 4 workflow(s) ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
-[ 351s]   loop: matching=4 first_ran='simple' remaining=3 -> ['advanced_3d_multiview', 'advanced', 'advanced_3d']
-[ 351s]   loop: full restart for workflow 2/4 (advanced_3d_multiview)
-[ 351s]   loop: closing current browser
-[ 351s]   loop: killing ComfyUI process
-[ 356s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 356s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
-[ 357s]   loop: DevToolsActivePort -> 49970 after 2s
-[ 357s]   loop: reconnecting Playwright on port 49970
-[ 358s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/desktop-start
-[ 372s]   loop: server ready after 12s
-[ 373s]   loop: canvas ready after 2s
-[ 373s]   loop: forcing renderer reload
-[ 376s]   loop: canvas ready after 2s
-[ 379s]   ext: closing Nodes Manager dialog
-[ 379s]   ext: dismissing What's New popup
-[ 379s]   ext: What's New popup not present
-[ 379s]   ext: dismissing Node Pack Issues modal (if present)
-[ 379s]   ext: Node Pack Issues modal not present
-[ 379s]   ext: opening Templates sidebar
-[ 380s]   ext: clicked Templates
-[ 384s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 386s]   ext: clicked comfyui-depthanythingv3 section
-[ 388s]   ext: clicking template advanced_3d_multiview
-[ 391s]   ext: clicked template advanced_3d_multiview
-[ 396s]   ext: installing WS execution listener
-[ 396s]   ext: clicking Run
-[ 397s]   ext: clicked Run
-[ 397s]   ext: waiting for execution_success / execution_error
-[ 406s]   ext: WS events=17 elapsed=8s
-[ 406s]     ws: {'type': 'execution_start', 'ts': 1779129262843}
-[ 406s]     ws: {'type': 'execution_cached', 'ts': 1779129262844}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129262849}
-[ 406s]     ws: {'type': 'executing', 'ts': 1779129262850}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129263157}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129263159}
-[ 406s]     ws: {'type': 'executing', 'ts': 1779129263159}
-[ 406s]     ws: {'type': 'executed', 'ts': 1779129263291}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129263294}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129263297}
-[ 406s]     ws: {'type': 'executing', 'ts': 1779129263298}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129267757}
-[ 406s]     ws: {'type': 'progress_state', 'ts': 1779129267760}
-[ 406s]     ws: {'type': 'executing', 'ts': 1779129267760}
-[ 406s]     ws: {'type': 'execution_error', 'ts': 1779129271138}
-[ 406s]   ext: execution_error data:
-[ 406s] {
-  "prompt_id": "39210c3e-3ee3-4976-9dce-f6fde2a3d149",
-  "node_id": "39",
-  "node_type": "DepthAnythingV3_MultiView",
-  "executed": [
-    "3",
-    "21",
-    "27"
-  ],
-  "exception_message": "No module named 'transformers'\n\nWorker traceback:\nTraceback (most recent call last):\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv_1ds6ncqc/persistent_worker.py\", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_multiview.py\", line 75, in execute\n    patcher = _get_or_build_da3_model(da3_model)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py\", line 193, in _get_or_build_da3_model\n    import comfy.model_patcher\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_patcher.py\", line 32, in <module>\n    import comfy.hooks\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/hooks.py\", line 14, in <module>\n    import comfy.lora\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/lora.py\", line 23, in <module>\n    import comfy.model_base\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_base.py\", line 61, in <module>\n    import comfy.ldm.hidream_o1.model\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/ldm/hidream_o1/model.py\", line 20, in <module>\n    from comfy.text_encoders.qwen35 import Qwen35VisionModel\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/text_encoders/qwen35.py\", line 10, in <module>\n    from comfy import sd1_clip\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/sd1_clip.py\", line 3, in <module>\n    from transformers import CLIPTokenizer\nModuleNotFoundError: No module named 'transformers'\n\n",
-  "exception_type": "comfy_env.isolation.workers.base.WorkerError",
-  "traceback": [
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/metadata.py\", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\n    raise WorkerError(\n"
-  ],
-  "current_inputs": {
-    "normalization_mode": [
-      "Raw"
-    ],
-    "resize_method": [
-      "resize"
-    ],
-    "invert_depth": [
-      false
-    ],
-    "keep_model_size": [
-      false
-    ],
-    "da3_model": [
-      "{'model_path': '/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"
-    ],
-    "images": [
-      "tensor([[[[0.6157, 0.8706, 1.0000],\n          [0.6157, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6157, 0.8706, 1.0000],\n          [0.6157, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         [[0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          [0.6118, 0.8706, 1.0000],\n          ...,\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000],\n          [0.5961, 0.8667, 1.0000]],\n\n         ...,\n\n         [[0.3216, 0.4157, 0.4941],\n          [0.3216, 0.4157, 0.4941],\n          [0.3294, 0.4118, 0.4863],\n          ...,\n          [0.2863, 0.4039, 0.4980],\n          [0.3098, 0.4275, 0.5216],\n          [0.3333, 0.4510, 0.5451]],\n\n         [[0.3255, 0.4196, 0.4980],\n          [0.3216, 0.4157, 0.4941],\n          [0.3294, 0.4118, 0.4863],\n          ...,\n          [0.2275, 0.3451, 0.4392],\n          [0.2039, 0.3216, 0.4157],\n          [0.2157, 0.3333, 0.4275]],\n\n         [[0.3176, 0.4118, 0.4902],\n          [0.3216, 0.4157, 0.4941],\n          [0.3255, 0.4078, 0.4824],\n          ...,\n          [0.3137, 0.4314, 0.5255],\n          [0.3059, 0.4235, 0.5176],\n          [0.2863, 0.4039, 0.4980]]]])",
-      "tensor([[[[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         [[0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          [0.6196, 0.8784, 1.0000],\n          ...,\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000],\n          [0.6000, 0.8784, 1.0000]],\n\n         ...,\n\n         [[0.3686, 0.4078, 0.4784],\n          [0.3725, 0.4118, 0.4824],\n          [0.3686, 0.4078, 0.4784],\n          ...,\n          [0.2745, 0.4039, 0.4941],\n          [0.2941, 0.4235, 0.5137],\n          [0.2980, 0.4275, 0.5176]],\n\n         [[0.3647, 0.4039, 0.4745],\n          [0.3608, 0.4000, 0.4706],\n          [0.3647, 0.4039, 0.4745],\n          ...,\n          [0.3020, 0.4314, 0.5216],\n          [0.3255, 0.4549, 0.5451],\n          [0.3333, 0.4627, 0.5529]],\n\n         [[0.3569, 0.3961, 0.4667],\n          [0.3569, 0.3961, 0.4667],\n          [0.3569, 0.3961, 0.4667],\n          ...,\n          [0.3176, 0.4471, 0.5373],\n          [0.2941, 0.4235, 0.5137],\n          [0.2902, 0.4196, 0.5098]]]])"
-    ]
-  },
-  "current_outputs": [
-    "21",
-    "48",
-    "45",
-    "44",
-    "3",
-    "38",
-    "39",
-    "27"
-  ],
-  "timestamp": 1779129271116
-}
-[ 411s]   loop: full restart for workflow 3/4 (advanced)
-[ 411s]   loop: closing current browser
-[ 411s]   loop: killing ComfyUI process
-[ 416s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 416s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
-[ 418s]   loop: DevToolsActivePort -> 50085 after 2s
-[ 418s]   loop: reconnecting Playwright on port 50085
-[ 418s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/desktop-start
-[ 432s]   loop: server ready after 12s
-[ 435s]   loop: canvas ready after 2s
-[ 435s]   loop: forcing renderer reload
-[ 437s]   loop: canvas ready after 2s
-[ 440s]   ext: closing Nodes Manager dialog
-[ 440s]   ext: dismissing What's New popup
-[ 440s]   ext: What's New popup not present
-[ 440s]   ext: dismissing Node Pack Issues modal (if present)
-[ 440s]   ext: Node Pack Issues modal not present
-[ 440s]   ext: opening Templates sidebar
-[ 441s]   ext: clicked Templates
-[ 445s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 447s]   ext: clicked comfyui-depthanythingv3 section
-[ 450s]   ext: clicking template advanced
-[ 452s]   ext: clicked template advanced
-[ 457s]   ext: installing WS execution listener
-[ 457s]   ext: clicking Run
-[ 458s]   ext: clicked Run
-[ 458s]   ext: waiting for execution_success / execution_error
-[ 463s]   ext: WS events=13 elapsed=5s
-[ 463s]     ws: {'type': 'status', 'ts': 1779129323598}
-[ 463s]     ws: {'type': 'status', 'ts': 1779129323599}
-[ 463s]     ws: {'type': 'execution_start', 'ts': 1779129323627}
-[ 463s]     ws: {'type': 'execution_cached', 'ts': 1779129323628}
-[ 463s]     ws: {'type': 'progress_state', 'ts': 1779129323631}
-[ 463s]     ws: {'type': 'executing', 'ts': 1779129323632}
-[ 463s]     ws: {'type': 'progress_state', 'ts': 1779129323701}
-[ 463s]     ws: {'type': 'progress_state', 'ts': 1779129323710}
-[ 463s]     ws: {'type': 'executing', 'ts': 1779129323710}
-[ 463s]     ws: {'type': 'progress_state', 'ts': 1779129326011}
-[ 463s]     ws: {'type': 'progress_state', 'ts': 1779129326287}
-[ 463s]     ws: {'type': 'executing', 'ts': 1779129326287}
-[ 463s]     ws: {'type': 'execution_error', 'ts': 1779129328493}
-[ 463s]   ext: execution_error data:
-[ 463s] {
-  "prompt_id": "a1da7b93-f59d-40b8-b9ce-61471e846cbc",
-  "node_id": "12",
-  "node_type": "DepthAnything_V3",
-  "executed": [
-    "2",
-    "3"
-  ],
-  "exception_message": "No module named 'transformers'\n\nWorker traceback:\nTraceback (most recent call last):\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv_imn6h5lb/persistent_worker.py\", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py\", line 86, in execute\n    patcher = _get_or_build_da3_model(da3_model)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py\", line 193, in _get_or_build_da3_model\n    import comfy.model_patcher\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_patcher.py\", line 32, in <module>\n    import comfy.hooks\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/hooks.py\", line 14, in <module>\n    import comfy.lora\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/lora.py\", line 23, in <module>\n    import comfy.model_base\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_base.py\", line 61, in <module>\n    import comfy.ldm.hidream_o1.model\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/ldm/hidream_o1/model.py\", line 20, in <module>\n    from comfy.text_encoders.qwen35 import Qwen35VisionModel\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/text_encoders/qwen35.py\", line 10, in <module>\n    from comfy import sd1_clip\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/sd1_clip.py\", line 3, in <module>\n    from transformers import CLIPTokenizer\nModuleNotFoundError: No module named 'transformers'\n\n",
-  "exception_type": "comfy_env.isolation.workers.base.WorkerError",
-  "traceback": [
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/metadata.py\", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\n    raise WorkerError(\n"
-  ],
-  "current_inputs": {
-    "normalization_mode": [
-      "V2-Style"
-    ],
-    "resize_method": [
-      "resize"
-    ],
-    "invert_depth": [
-      false
-    ],
-    "keep_model_size": [
-      false
-    ],
-    "da3_model": [
-      "{'model_path': '/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"
-    ],
-    "images": [
-      "tensor([[[[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         ...,\n\n         [[0.1367, 0.1367, 0.1367],\n          [0.2500, 0.2500, 0.2500],\n          [0.0352, 0.0352, 0.0352],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.1250, 0.1250, 0.1250],\n          [0.1602, 0.1602, 0.1602],\n          [0.5234, 0.5234, 0.5234],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]],\n\n         [[0.0000, 0.0000, 0.0000],\n          [0.0195, 0.0195, 0.0195],\n          [0.2266, 0.2266, 0.2266],\n          ...,\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000],\n          [0.0000, 0.0000, 0.0000]]]])"
-    ]
-  },
-  "current_outputs": [
-    "3",
-    "9",
-    "4",
-    "6",
-    "8",
-    "12",
-    "13",
-    "11",
-    "2",
-    "7",
-    "10"
-  ],
-  "timestamp": 1779129328444
-}
-[ 468s]   loop: full restart for workflow 4/4 (advanced_3d)
-[ 468s]   loop: closing current browser
-[ 468s]   loop: killing ComfyUI process
-[ 473s]   loop: launching ComfyUI with --remote-debugging-port=0
-[ 473s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
-[ 474s]   loop: DevToolsActivePort -> 50195 after 2s
-[ 474s]   loop: reconnecting Playwright on port 50195
-[ 475s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/desktop-start
-[ 484s]   loop: server ready after 8s
-[ 485s]   loop: canvas ready after 2s
-[ 485s]   loop: forcing renderer reload
-[ 487s]   loop: canvas ready after 2s
-[ 490s]   ext: closing Nodes Manager dialog
-[ 490s]   ext: dismissing What's New popup
-[ 490s]   ext: What's New popup not present
-[ 490s]   ext: dismissing Node Pack Issues modal (if present)
-[ 490s]   ext: Node Pack Issues modal not present
-[ 490s]   ext: opening Templates sidebar
-[ 491s]   ext: clicked Templates
-[ 495s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
-[ 497s]   ext: clicked comfyui-depthanythingv3 section
-[ 500s]   ext: clicking template advanced_3d
-[ 502s]   ext: clicked template advanced_3d
-[ 507s]   ext: installing WS execution listener
-[ 507s]   ext: clicking Run
-[ 508s]   ext: clicked Run
-[ 508s]   ext: waiting for execution_success / execution_error
-[ 512s]   ext: WS events=15 elapsed=4s
-[ 512s]     ws: {'type': 'status', 'ts': 1779129373401}
-[ 512s]     ws: {'type': 'status', 'ts': 1779129373401}
-[ 512s]     ws: {'type': 'execution_start', 'ts': 1779129373425}
-[ 512s]     ws: {'type': 'execution_cached', 'ts': 1779129373542}
-[ 512s]     ws: {'type': 'progress_state', 'ts': 1779129373555}
-[ 512s]     ws: {'type': 'executing', 'ts': 1779129373564}
-[ 512s]     ws: {'type': 'progress_state', 'ts': 1779129373607}
-[ 512s]     ws: {'type': 'progress_state', 'ts': 1779129373616}
-[ 512s]     ws: {'type': 'executing', 'ts': 1779129373617}
-[ 512s]     ws: {'type': 'progress_state', 'ts': 1779129375603}
-[ 512s]     ws: {'type': 'progress_state', 'ts': 1779129375604}
-[ 512s]     ws: {'type': 'executing', 'ts': 1779129375605}
-[ 512s]     ws: {'type': 'execution_error', 'ts': 1779129377545}
-[ 512s]     ws: {'type': 'status', 'ts': 1779129378064}
-[ 512s]     ws: {'type': 'executing', 'ts': 1779129378064}
-[ 512s]   ext: execution_error data:
-[ 512s] {
-  "prompt_id": "32a05d3b-7e0e-447c-9810-862996e89dcc",
-  "node_id": "21",
-  "node_type": "DepthAnything_V3",
-  "executed": [
-    "3",
-    "2"
-  ],
-  "exception_message": "No module named 'transformers'\n\nWorker traceback:\nTraceback (most recent call last):\n  File \"/var/folders/tb/y368xp_x10s3ty1b_mtl5mxr0000gn/T/comfyui_pvenv_uisul7bj/persistent_worker.py\", line 1762, in main\n    result = method(**inputs)\n             ^^^^^^^^^^^^^^^^\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py\", line 1833, in EXECUTE_NORMALIZED\n    to_return = cls.execute(*args, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py\", line 86, in execute\n    patcher = _get_or_build_da3_model(da3_model)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/runner/Documents/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/load_model.py\", line 193, in _get_or_build_da3_model\n    import comfy.model_patcher\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_patcher.py\", line 32, in <module>\n    import comfy.hooks\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/hooks.py\", line 14, in <module>\n    import comfy.lora\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/lora.py\", line 23, in <module>\n    import comfy.model_base\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/model_base.py\", line 61, in <module>\n    import comfy.ldm.hidream_o1.model\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/ldm/hidream_o1/model.py\", line 20, in <module>\n    from comfy.text_encoders.qwen35 import Qwen35VisionModel\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/text_encoders/qwen35.py\", line 10, in <module>\n    from comfy import sd1_clip\n  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/comfy/sd1_clip.py\", line 3, in <module>\n    from transformers import CLIPTokenizer\nModuleNotFoundError: No module named 'transformers'\n\n",
-  "exception_type": "comfy_env.isolation.workers.base.WorkerError",
-  "traceback": [
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 535, in execute\n    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 335, in get_output_data\n    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 309, in _async_map_node_over_list\n    await process_inputs(input_dict, i)\n",
-    "  File \"/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/execution.py\", line 297, in process_inputs\n    result = f(**inputs)\n             ^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/metadata.py\", line 556, in proxy\n    result = worker.call_method(\n             ^^^^^^^^^^^^^^^^^^^\n",
-    "  File \"/Users/runner/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_env/isolation/workers/subprocess.py\", line 674, in call_method\n    raise WorkerError(\n"
-  ],
-  "current_inputs": {
-    "normalization_mode": [
-      "Raw"
-    ],
-    "resize_method": [
-      "resize"
-    ],
-    "invert_depth": [
-      false
-    ],
-    "keep_model_size": [
-      false
-    ],
-    "da3_model": [
-      "{'model_path': '/Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/ComfyUI/models/depthanything3/da3_large.safetensors', 'model_key': 'da3-large', 'dtype': 'bf16', 'attention': 'auto'}"
-    ],
-    "images": [
-      "tensor([[[[0.8549, 0.4863, 0.3216],\n          [0.9098, 0.5412, 0.3765],\n          [0.9333, 0.5529, 0.3922],\n          ...,\n          [0.4784, 0.3529, 0.3098],\n          [0.4784, 0.3569, 0.3020],\n          [0.4667, 0.3451, 0.2902]],\n\n         [[0.9529, 0.5843, 0.4196],\n          [0.9529, 0.5843, 0.4196],\n          [0.9490, 0.5686, 0.4078],\n          ...,\n          [0.4980, 0.3725, 0.3294],\n          [0.4824, 0.3608, 0.3059],\n          [0.4706, 0.3490, 0.2941]],\n\n         [[0.8392, 0.4627, 0.2902],\n          [0.8118, 0.4353, 0.2627],\n          [0.7451, 0.3608, 0.1922],\n          ...,\n          [0.4902, 0.3569, 0.3176],\n          [0.5216, 0.3882, 0.3490],\n          [0.4824, 0.3490, 0.3098]],\n\n         ...,\n\n         [[0.9490, 0.6078, 0.4157],\n          [0.9294, 0.5882, 0.3961],\n          [0.9490, 0.6353, 0.4588],\n          ...,\n          [0.5569, 0.3216, 0.2039],\n          [0.5882, 0.3686, 0.2392],\n          [0.5882, 0.3686, 0.2392]],\n\n         [[0.9490, 0.5961, 0.4000],\n          [0.9686, 0.6157, 0.4196],\n          [0.9843, 0.6745, 0.5059],\n          ...,\n          [0.5412, 0.3059, 0.1961],\n          [0.5725, 0.3529, 0.2314],\n          [0.5725, 0.3529, 0.2314]],\n\n         [[0.9608, 0.6000, 0.4078],\n          [0.9961, 0.6353, 0.4431],\n          [0.9922, 0.6902, 0.5255],\n          ...,\n          [0.5373, 0.3020, 0.1922],\n          [0.5529, 0.3333, 0.2118],\n          [0.5451, 0.3255, 0.2039]]]])"
-    ]
-  },
-  "current_outputs": [
-    "25",
-    "22",
-    "23",
-    "3",
-    "2",
-    "21"
-  ],
-  "timestamp": 1779129377525
-}
-[ 518s] Captured 666 frames
-[ 518s] Wrote /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/results.json (4 workflow(s), sha=7839628da8a1)
+[  14s]   url: file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/install -> file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/server-start
+[ 130s]   /system_stats up after 128s
+[ 130s]   app: waiting for backend stability (continuous /system_stats up for 30s)
+[ 130s]   app: /system_stats up; awaiting 30s of stability
+[ 160s]   app: backend stable for 30s; proceeding
+[ 160s]   capturing canvas load...
+[ 168s]   post: waiting for Cloud upsell
+[ 169s]   post: clicked Cloud upsell via [button:has-text("Continue Locally"):visible]
+[ 171s]   post: waiting for Close Templates
+[ 180s]   post: Close Templates not found, skipping
+[ 180s]   post: pressed Escape (Close Templates fallback)
+[ 182s]   post: waiting for Extensions
+[ 183s]   post: clicked Extensions via [button[aria-label="Extensions"]:visible]
+[ 185s]   ext: node meta = display='Depth Anything V3' publisher='pznodes' version='0.1.18'
+[ 188s]   ext: searching "Depth Anything V3"
+[ 192s]   ext: clicking Depth Anything V3 by pznodes tile
+[ 196s]   ext: scrolling to + opening version selector
+[ 200s]   ext: selected 0.1.18
+[ 201s]   ext: clicking right-panel Install
+[ 203s]   ext: clicked Install (last of 4 visible)
+[ 211s]   ext: waiting for "Apply Changes" toast
+[ 304s]   ext: clicked Apply Changes
+[ 309s]   app: Apply Changes already triggered in-app restart, skipping pkill
+[ 314s]   app: relaunching with CDP
+[ 315s]   app: waiting for CDP
+[ 315s]   app: CDP up after 1s
+[ 315s]   app: reconnecting Playwright
+[ 315s]   app: attached to http://127.0.0.1:8000/
+[ 347s]   app: server ready after 14s
+[ 347s]   app: waiting for main canvas (window.app.graph)
+[ 347s]   app: canvas ready after 1s (http://127.0.0.1:8000/#a73bca98-b1f6-49c3-8921-4e640e575db9)
+[ 352s]   app: forcing renderer reload to refresh node-pack manifest
+[ 355s]   app: canvas re-ready after reload in 2s
+[ 358s]   ext: closing Nodes Manager dialog
+[ 358s]   ext: dismissing What's New popup
+[ 358s]   ext: closed What's New popup
+[ 361s]   ext: dismissing Node Pack Issues modal (if present)
+[ 361s]   ext: closed Node Pack Issues modal
+[ 364s]   ext: opening Templates sidebar
+[ 364s]   ext: clicked Templates
+[ 368s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 371s]   ext: clicked comfyui-depthanythingv3 section
+[ 373s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
+[ 373s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 373s]   ext: picking first matching comfyui-depthanythingv3 template
+[ 373s]   ext: 7 visible cards
+[ 375s]   ext: clicked template simple
+[ 380s]   ext: installing WS execution listener
+[ 380s]   ext: clicking Run
+[ 381s]   ext: clicked Run
+[ 381s]   ext: waiting for execution_success / execution_error
+[ 465s]   ext: WS events=32 elapsed=83s
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188005011}
+[ 465s]     ws: {'type': 'progress', 'ts': 1779188005029}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188005306}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188005312}
+[ 465s]     ws: {'type': 'executing', 'ts': 1779188005313}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188064378}
+[ 465s]     ws: {'type': 'progress', 'ts': 1779188064551}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188064843}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188064884}
+[ 465s]     ws: {'type': 'executing', 'ts': 1779188064898}
+[ 465s]     ws: {'type': 'executed', 'ts': 1779188065496}
+[ 465s]     ws: {'type': 'progress_state', 'ts': 1779188065519}
+[ 465s]     ws: {'type': 'execution_success', 'ts': 1779188065535}
+[ 465s]     ws: {'type': 'status', 'ts': 1779188065537}
+[ 465s]     ws: {'type': 'executing', 'ts': 1779188065537}
+[ 465s]   ext: execution_success after 83s
+[ 470s]   ext: fetching comfy-test.toml from https://raw.githubusercontent.com/PozzettiAndrea/ComfyUI-DepthAnythingV3/main/comfy-test.toml
+[ 470s]   ext: cpu spec = include ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 470s]   loop: spec=include items=['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple'] -> 4 workflow(s) ['advanced_3d_multiview', 'advanced', 'advanced_3d', 'simple']
+[ 470s]   loop: matching=4 first_ran='simple' remaining=3 -> ['advanced_3d_multiview', 'advanced', 'advanced_3d']
+[ 470s]   loop: full restart for workflow 2/4 (advanced_3d_multiview)
+[ 470s]   loop: closing current browser
+[ 470s]   loop: killing ComfyUI process
+[ 476s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 476s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
+[ 478s]   loop: DevToolsActivePort -> 49998 after 3s
+[ 478s]   loop: reconnecting Playwright on port 49998
+[ 479s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/server-start
+[ 495s]   loop: server ready after 13s
+[ 499s]   loop: canvas ready after 3s
+[ 499s]   loop: forcing renderer reload
+[ 501s]   loop: canvas ready after 2s
+[ 505s]   ext: closing Nodes Manager dialog
+[ 505s]   ext: dismissing What's New popup
+[ 505s]   ext: What's New popup not present
+[ 505s]   ext: dismissing Node Pack Issues modal (if present)
+[ 505s]   ext: Node Pack Issues modal not present
+[ 505s]   ext: opening Templates sidebar
+[ 506s]   ext: clicked Templates
+[ 510s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 512s]   ext: clicked comfyui-depthanythingv3 section
+[ 515s]   ext: clicking template advanced_3d_multiview
+[ 518s]   ext: clicked template advanced_3d_multiview
+[ 523s]   ext: installing WS execution listener
+[ 523s]   ext: clicking Run
+[ 524s]   ext: clicked Run
+[ 524s]   ext: waiting for execution_success / execution_error
+[ 599s]   ext: WS events=39 elapsed=74s
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188198450}
+[ 599s]     ws: {'type': 'executing', 'ts': 1779188198484}
+[ 599s]     ws: {'type': 'executed', 'ts': 1779188199160}
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188199178}
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188199191}
+[ 599s]     ws: {'type': 'executing', 'ts': 1779188199192}
+[ 599s]     ws: {'type': 'executed', 'ts': 1779188199395}
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188199436}
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188199442}
+[ 599s]     ws: {'type': 'executing', 'ts': 1779188199442}
+[ 599s]     ws: {'type': 'executed', 'ts': 1779188199456}
+[ 599s]     ws: {'type': 'progress_state', 'ts': 1779188199462}
+[ 599s]     ws: {'type': 'execution_success', 'ts': 1779188199585}
+[ 599s]     ws: {'type': 'status', 'ts': 1779188199667}
+[ 599s]     ws: {'type': 'executing', 'ts': 1779188199671}
+[ 599s]   ext: execution_success after 74s
+[ 604s]   loop: full restart for workflow 3/4 (advanced)
+[ 604s]   loop: closing current browser
+[ 605s]   loop: killing ComfyUI process
+[ 611s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 611s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
+[ 613s]   loop: DevToolsActivePort -> 50199 after 3s
+[ 613s]   loop: reconnecting Playwright on port 50199
+[ 615s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/server-start
+[ 630s]   loop: server ready after 12s
+[ 632s]   loop: canvas ready after 2s
+[ 632s]   loop: forcing renderer reload
+[ 635s]   loop: canvas ready after 2s
+[ 638s]   ext: closing Nodes Manager dialog
+[ 638s]   ext: dismissing What's New popup
+[ 638s]   ext: What's New popup not present
+[ 638s]   ext: dismissing Node Pack Issues modal (if present)
+[ 638s]   ext: Node Pack Issues modal not present
+[ 638s]   ext: opening Templates sidebar
+[ 639s]   ext: clicked Templates
+[ 643s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 645s]   ext: clicked comfyui-depthanythingv3 section
+[ 647s]   ext: clicking template advanced
+[ 649s]   ext: clicked template advanced
+[ 654s]   ext: installing WS execution listener
+[ 654s]   ext: clicking Run
+[ 655s]   ext: clicked Run
+[ 655s]   ext: waiting for execution_success / execution_error
+[ 704s]   ext: WS events=50 elapsed=48s
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300387}
+[ 704s]     ws: {'type': 'executing', 'ts': 1779188300388}
+[ 704s]     ws: {'type': 'executed', 'ts': 1779188300408}
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300410}
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300414}
+[ 704s]     ws: {'type': 'executing', 'ts': 1779188300471}
+[ 704s]     ws: {'type': 'executed', 'ts': 1779188300485}
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300497}
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300504}
+[ 704s]     ws: {'type': 'executing', 'ts': 1779188300537}
+[ 704s]     ws: {'type': 'executed', 'ts': 1779188300560}
+[ 704s]     ws: {'type': 'progress_state', 'ts': 1779188300565}
+[ 704s]     ws: {'type': 'execution_success', 'ts': 1779188300585}
+[ 704s]     ws: {'type': 'status', 'ts': 1779188300590}
+[ 704s]     ws: {'type': 'executing', 'ts': 1779188300590}
+[ 704s]   ext: execution_success after 48s
+[ 709s]   loop: full restart for workflow 4/4 (advanced_3d)
+[ 709s]   loop: closing current browser
+[ 709s]   loop: killing ComfyUI process
+[ 714s]   loop: launching ComfyUI with --remote-debugging-port=0
+[ 715s]   loop: waiting for DevToolsActivePort at /Users/runner/Library/Application Support/ComfyUI/DevToolsActivePort
+[ 717s]   loop: DevToolsActivePort -> 50367 after 3s
+[ 717s]   loop: reconnecting Playwright on port 50367
+[ 718s]   loop: attached to file:///Users/runner/.comfy-test-cache/desktop/ComfyUI.app/Contents/Resources/desktop-ui/index.html#/desktop-start
+[ 735s]   loop: server ready after 14s
+[ 737s]   loop: canvas ready after 2s
+[ 737s]   loop: forcing renderer reload
+[ 740s]   loop: canvas ready after 2s
+[ 743s]   ext: closing Nodes Manager dialog
+[ 743s]   ext: dismissing What's New popup
+[ 743s]   ext: What's New popup not present
+[ 743s]   ext: dismissing Node Pack Issues modal (if present)
+[ 743s]   ext: Node Pack Issues modal not present
+[ 743s]   ext: opening Templates sidebar
+[ 744s]   ext: clicked Templates
+[ 748s]   ext: locating "comfyui-depthanythingv3" section in Templates panel
+[ 751s]   ext: clicked comfyui-depthanythingv3 section
+[ 753s]   ext: clicking template advanced_3d
+[ 755s]   ext: clicked template advanced_3d
+[ 761s]   ext: installing WS execution listener
+[ 761s]   ext: clicking Run
+[ 761s]   ext: clicked Run
+[ 761s]   ext: waiting for execution_success / execution_error
+[ 798s]   ext: WS events=27 elapsed=36s
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188395558}
+[ 798s]     ws: {'type': 'progress', 'ts': 1779188395586}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188395724}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188395734}
+[ 798s]     ws: {'type': 'executing', 'ts': 1779188395745}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188395923}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188395933}
+[ 798s]     ws: {'type': 'executing', 'ts': 1779188395934}
+[ 798s]     ws: {'type': 'executed', 'ts': 1779188398727}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188398729}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188398731}
+[ 798s]     ws: {'type': 'executing', 'ts': 1779188398732}
+[ 798s]     ws: {'type': 'executed', 'ts': 1779188398748}
+[ 798s]     ws: {'type': 'progress_state', 'ts': 1779188398782}
+[ 798s]     ws: {'type': 'execution_success', 'ts': 1779188398792}
+[ 798s]   ext: execution_success after 36s
+[ 803s] Captured 803 frames
+[ 803s] Wrote /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/results.json (4 workflow(s), sha=6b08cf418dff)
 ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   built with Apple clang version 13.1.6 (clang-1316.0.21.2.5)
   configuration: --prefix=/Volumes/tempdisk/sw --extra-cflags=-fno-stack-check --arch=arm64 --cc=/usr/bin/clang --enable-gpl --enable-libvmaf --enable-libopenjpeg --enable-libopus --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libwebp --enable-libass --enable-libfreetype --enable-fontconfig --enable-libtheora --enable-libvorbis --enable-libsnappy --enable-libaom --enable-libvidstab --enable-libzimg --enable-libsvtav1 --enable-libharfbuzz --enable-libkvazaar --pkg-config-flags=--static --enable-ffplay --enable-postproc --enable-neon --enable-runtime-cpudetect --disable-indev=qtkit --disable-indev=x11grab_xcb
@@ -422,16 +225,16 @@ ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
-  Duration: 00:02:13.20, start: 0.000000, bitrate: N/A
+Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
+  Duration: 00:02:40.60, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x653, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x138005f70] using cpu capabilities: ARMv8 NEON
-[libx264 @ 0x138005f70] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x138005f70] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/driver.mp4':
+[libx264 @ 0x146e07640] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x146e07640] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x146e07640] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x654, q=2-31, 5 fps, 10240 tbn
@@ -439,32 +242,40 @@ Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-frame=   73 fps=0.0 q=23.0 size=     256KiB time=00:00:14.20 bitrate= 147.7kbits/s speed=  22x    
-frame=  217 fps=172 q=23.0 size=     512KiB time=00:00:43.00 bitrate=  97.6kbits/s speed=34.1x    
-frame=  373 fps=195 q=23.0 size=     512KiB time=00:01:14.20 bitrate=  56.5kbits/s speed=38.8x    
-frame=  478 fps=190 q=23.0 size=    1280KiB time=00:01:35.20 bitrate= 110.1kbits/s speed=37.8x    
-frame=  576 fps=183 q=23.0 size=    2048KiB time=00:01:54.80 bitrate= 146.1kbits/s speed=36.5x    
-[out#0/mp4 @ 0x600002974000] video:2597KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.328781%
-frame=  666 fps=186 q=-1.0 Lsize=    2605KiB time=00:02:12.80 bitrate= 160.7kbits/s speed=37.1x    
-[libx264 @ 0x138005f70] frame I:21    Avg QP: 8.45  size: 41706
-[libx264 @ 0x138005f70] frame P:196   Avg QP:17.05  size:  5558
-[libx264 @ 0x138005f70] frame B:449   Avg QP:21.83  size:  1544
-[libx264 @ 0x138005f70] consecutive B-frames:  7.2%  6.3%  7.2% 79.3%
-[libx264 @ 0x138005f70] mb I  I16..4: 58.2% 15.1% 26.7%
-[libx264 @ 0x138005f70] mb P  I16..4:  3.0%  3.4%  3.5%  P16..4:  2.3%  0.8%  0.5%  0.0%  0.0%    skip:86.5%
-[libx264 @ 0x138005f70] mb B  I16..4:  0.4%  0.5%  0.6%  B16..8:  3.9%  0.6%  0.3%  direct: 0.3%  skip:93.4%  L0:51.1% L1:46.2% BI: 2.8%
-[libx264 @ 0x138005f70] 8x8 transform intra:25.7% inter:43.4%
-[libx264 @ 0x138005f70] coded y,uvDC,uvAC intra: 37.2% 21.5% 15.9% inter: 1.1% 0.6% 0.2%
-[libx264 @ 0x138005f70] i16 v,h,dc,p: 69% 27%  2%  2%
-[libx264 @ 0x138005f70] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 31% 19% 30%  2%  3%  3%  4%  3%  5%
-[libx264 @ 0x138005f70] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 28% 17%  3%  5%  5%  5%  4%  4%
-[libx264 @ 0x138005f70] i8c dc,h,v,p: 77% 13%  8%  3%
-[libx264 @ 0x138005f70] Weighted P-Frames: Y:1.5% UV:1.5%
-[libx264 @ 0x138005f70] ref P L0: 65.5%  3.3% 15.7% 15.5%  0.0%
-[libx264 @ 0x138005f70] ref B L0: 66.7% 29.6%  3.7%
-[libx264 @ 0x138005f70] ref B L1: 95.6%  4.4%
-[libx264 @ 0x138005f70] kb/s:159.67
-[ 521s] Wrote /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/driver.mp4
+frame=   11 fps=0.0 q=23.0 size=       0KiB time=00:00:01.80 bitrate=   0.2kbits/s speed=3.41x    
+frame=   79 fps= 67 q=23.0 size=     256KiB time=00:00:15.40 bitrate= 136.2kbits/s speed=13.1x    
+frame=  155 fps= 88 q=23.0 size=     512KiB time=00:00:30.60 bitrate= 137.1kbits/s speed=17.4x    
+frame=  237 fps= 99 q=23.0 size=     512KiB time=00:00:47.00 bitrate=  89.2kbits/s speed=19.6x    
+frame=  340 fps=113 q=23.0 size=     512KiB time=00:01:07.60 bitrate=  62.1kbits/s speed=22.5x    
+frame=  394 fps=112 q=23.0 size=    1024KiB time=00:01:18.40 bitrate= 107.0kbits/s speed=22.3x    
+[vf#0:0 @ 0x600002780000] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1024x656
+frame=  469 fps=116 q=23.0 size=    1024KiB time=00:01:33.40 bitrate=  89.8kbits/s speed=23.1x    
+frame=  534 fps=115 q=23.0 size=    1536KiB time=00:01:46.40 bitrate= 118.3kbits/s speed=  23x    
+[vf#0:0 @ 0x600002780000] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1024x653
+frame=  620 fps=119 q=20.0 size=    1792KiB time=00:02:03.60 bitrate= 118.8kbits/s speed=23.7x    
+[vf#0:0 @ 0x600002780000] Reconfiguring filter graph because video parameters changed to rgb24(pc, gbr), 1024x656
+frame=  705 fps=120 q=23.0 size=    2048KiB time=00:02:20.60 bitrate= 119.3kbits/s speed=  24x    
+[out#0/mp4 @ 0x6000023843c0] video:2794KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.361397%
+frame=  803 fps=126 q=-1.0 Lsize=    2804KiB time=00:02:40.20 bitrate= 143.4kbits/s speed=25.1x    
+[libx264 @ 0x146e07640] frame I:21    Avg QP: 8.60  size: 42849
+[libx264 @ 0x146e07640] frame P:237   Avg QP:16.33  size:  5123
+[libx264 @ 0x146e07640] frame B:545   Avg QP:21.68  size:  1369
+[libx264 @ 0x146e07640] consecutive B-frames:  6.5%  7.2%  5.6% 80.7%
+[libx264 @ 0x146e07640] mb I  I16..4: 57.3% 16.4% 26.3%
+[libx264 @ 0x146e07640] mb P  I16..4:  3.0%  3.1%  3.3%  P16..4:  2.3%  0.9%  0.6%  0.0%  0.0%    skip:86.9%
+[libx264 @ 0x146e07640] mb B  I16..4:  0.4%  0.5%  0.5%  B16..8:  3.9%  0.6%  0.3%  direct: 0.3%  skip:93.7%  L0:53.9% L1:43.7% BI: 2.4%
+[libx264 @ 0x146e07640] 8x8 transform intra:26.2% inter:42.4%
+[libx264 @ 0x146e07640] coded y,uvDC,uvAC intra: 38.5% 20.1% 15.0% inter: 1.1% 0.6% 0.1%
+[libx264 @ 0x146e07640] i16 v,h,dc,p: 70% 27%  2%  2%
+[libx264 @ 0x146e07640] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 18% 32%  2%  3%  3%  4%  3%  5%
+[libx264 @ 0x146e07640] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 30% 29% 17%  3%  5%  4%  5%  4%  4%
+[libx264 @ 0x146e07640] i8c dc,h,v,p: 79% 12%  7%  3%
+[libx264 @ 0x146e07640] Weighted P-Frames: Y:2.1% UV:2.1%
+[libx264 @ 0x146e07640] ref P L0: 60.5%  2.8% 17.5% 19.2%  0.0%
+[libx264 @ 0x146e07640] ref B L0: 66.2% 29.7%  4.1%
+[libx264 @ 0x146e07640] ref B L1: 94.8%  5.2%
+[libx264 @ 0x146e07640] kb/s:142.47
+[ 810s] Wrote /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/driver.mp4
 ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   built with Apple clang version 13.1.6 (clang-1316.0.21.2.5)
   configuration: --prefix=/Volumes/tempdisk/sw --extra-cflags=-fno-stack-check --arch=arm64 --cc=/usr/bin/clang --enable-gpl --enable-libvmaf --enable-libopenjpeg --enable-libopus --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libwebp --enable-libass --enable-libfreetype --enable-fontconfig --enable-libtheora --enable-libvorbis --enable-libsnappy --enable-libaom --enable-libvidstab --enable-libzimg --enable-libsvtav1 --enable-libharfbuzz --enable-libkvazaar --pkg-config-flags=--static --enable-ffplay --enable-postproc --enable-neon --enable-runtime-cpudetect --disable-indev=qtkit --disable-indev=x11grab_xcb
@@ -476,16 +287,16 @@ ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
-  Duration: 00:00:52.60, start: 0.000000, bitrate: N/A
+Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
+  Duration: 00:01:20.00, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x653, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x149607460] using cpu capabilities: ARMv8 NEON
-[libx264 @ 0x149607460] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x149607460] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/videos/simple/driver.mp4':
+[libx264 @ 0x13b607c40] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x13b607c40] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x13b607c40] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/videos/simple/driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x654, q=2-31, 5 fps, 10240 tbn
@@ -493,28 +304,29 @@ Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[out#0/mp4 @ 0x6000020183c0] video:75KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.903535%
-frame=   50 fps=0.0 q=-1.0 Lsize=      76KiB time=00:00:09.60 bitrate=  65.3kbits/s speed=34.1x    
-[libx264 @ 0x149607460] frame I:1     Avg QP:10.62  size: 47222
-[libx264 @ 0x149607460] frame P:13    Avg QP:15.40  size:  1779
-[libx264 @ 0x149607460] frame B:36    Avg QP:19.16  size:   162
-[libx264 @ 0x149607460] consecutive B-frames:  4.0%  0.0%  0.0% 96.0%
-[libx264 @ 0x149607460] mb I  I16..4: 56.9% 16.2% 26.9%
-[libx264 @ 0x149607460] mb P  I16..4:  1.5%  0.4%  0.7%  P16..4:  1.6%  0.3%  0.1%  0.0%  0.0%    skip:95.4%
-[libx264 @ 0x149607460] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  4.9%  0.1%  0.0%  direct: 0.0%  skip:94.9%  L0:58.1% L1:41.9% BI: 0.0%
-[libx264 @ 0x149607460] 8x8 transform intra:16.0% inter:74.0%
-[libx264 @ 0x149607460] coded y,uvDC,uvAC intra: 31.7% 12.5% 9.5% inter: 0.3% 0.1% 0.1%
-[libx264 @ 0x149607460] i16 v,h,dc,p: 57% 42%  0%  0%
-[libx264 @ 0x149607460] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 21% 14% 65%  0%  0%  0%  0%  0%  0%
-[libx264 @ 0x149607460] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 32% 18%  2%  3%  3%  3%  2%  4%
-[libx264 @ 0x149607460] i8c dc,h,v,p: 72% 20%  7%  1%
-[libx264 @ 0x149607460] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x149607460] ref P L0: 78.6%  1.0% 19.9%  0.6%
-[libx264 @ 0x149607460] ref B L0: 24.3% 75.2%  0.5%
-[libx264 @ 0x149607460] ref B L1: 98.1%  1.9%
-[libx264 @ 0x149607460] kb/s:60.94
-[ 522s]   videos/simple/driver.mp4 placed (frames 404..453)
-[ 522s]   screenshots/simple_executed.png placed
+frame=   89 fps=0.0 q=23.0 size=       0KiB time=N/A bitrate=N/A speed=N/A    
+[out#0/mp4 @ 0x600003c883c0] video:78KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.473463%
+frame=   94 fps=0.0 q=-1.0 Lsize=      80KiB time=00:00:18.40 bitrate=  35.7kbits/s speed=29.7x    
+[libx264 @ 0x13b607c40] frame I:1     Avg QP:10.74  size: 46882
+[libx264 @ 0x13b607c40] frame P:24    Avg QP:14.43  size:   782
+[libx264 @ 0x13b607c40] frame B:69    Avg QP:21.78  size:   200
+[libx264 @ 0x13b607c40] consecutive B-frames:  1.1%  2.1%  3.2% 93.6%
+[libx264 @ 0x13b607c40] mb I  I16..4: 57.4% 15.7% 26.9%
+[libx264 @ 0x13b607c40] mb P  I16..4:  0.6%  0.1%  0.3%  P16..4:  1.1%  0.1%  0.1%  0.0%  0.0%    skip:97.7%
+[libx264 @ 0x13b607c40] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  5.1%  0.2%  0.0%  direct: 0.0%  skip:94.6%  L0:52.4% L1:47.5% BI: 0.1%
+[libx264 @ 0x13b607c40] 8x8 transform intra:16.3% inter:63.8%
+[libx264 @ 0x13b607c40] coded y,uvDC,uvAC intra: 33.6% 11.7% 9.4% inter: 0.1% 0.1% 0.1%
+[libx264 @ 0x13b607c40] i16 v,h,dc,p: 60% 40%  0%  0%
+[libx264 @ 0x13b607c40] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 18% 17% 63%  1%  0%  0%  0%  0%  0%
+[libx264 @ 0x13b607c40] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 31% 18%  2%  3%  3%  3%  2%  4%
+[libx264 @ 0x13b607c40] i8c dc,h,v,p: 72% 20%  7%  1%
+[libx264 @ 0x13b607c40] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x13b607c40] ref P L0: 77.2%  0.6% 16.5%  5.7%
+[libx264 @ 0x13b607c40] ref B L0: 49.6% 50.0%  0.4%
+[libx264 @ 0x13b607c40] ref B L1: 97.3%  2.7%
+[libx264 @ 0x13b607c40] kb/s:33.82
+[ 811s]   videos/simple/driver.mp4 placed (frames 404..497)
+[ 811s]   screenshots/simple_executed.png placed
 ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   built with Apple clang version 13.1.6 (clang-1316.0.21.2.5)
   configuration: --prefix=/Volumes/tempdisk/sw --extra-cflags=-fno-stack-check --arch=arm64 --cc=/usr/bin/clang --enable-gpl --enable-libvmaf --enable-libopenjpeg --enable-libopus --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libwebp --enable-libass --enable-libfreetype --enable-fontconfig --enable-libtheora --enable-libvorbis --enable-libsnappy --enable-libaom --enable-libvidstab --enable-libzimg --enable-libsvtav1 --enable-libharfbuzz --enable-libkvazaar --pkg-config-flags=--static --enable-ffplay --enable-postproc --enable-neon --enable-runtime-cpudetect --disable-indev=qtkit --disable-indev=x11grab_xcb
@@ -526,45 +338,45 @@ ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
-  Duration: 00:00:36.00, start: 0.000000, bitrate: N/A
-  Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x653, 5 fps, 5 tbr, 5 tbn
+Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
+  Duration: 00:00:53.60, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x656, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x124f08290] using cpu capabilities: ARMv8 NEON
-[libx264 @ 0x124f08290] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x124f08290] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/videos/advanced_3d_multiview/driver.mp4':
+[libx264 @ 0x157608220] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x157608220] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x157608220] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/videos/advanced_3d_multiview/driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
-  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x654, q=2-31, 5 fps, 10240 tbn
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x656, q=2-31, 5 fps, 10240 tbn
       Metadata:
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[out#0/mp4 @ 0x600002e94480] video:89KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.434896%
-frame=   38 fps=0.0 q=-1.0 Lsize=      90KiB time=00:00:07.20 bitrate= 102.3kbits/s speed=37.9x    
-[libx264 @ 0x124f08290] frame I:2     Avg QP:11.73  size: 30163
-[libx264 @ 0x124f08290] frame P:10    Avg QP:18.02  size:  2550
-[libx264 @ 0x124f08290] frame B:26    Avg QP:23.46  size:   165
-[libx264 @ 0x124f08290] consecutive B-frames:  5.3%  5.3% 15.8% 73.7%
-[libx264 @ 0x124f08290] mb I  I16..4: 52.6% 25.5% 22.0%
-[libx264 @ 0x124f08290] mb P  I16..4:  1.5%  0.9%  1.3%  P16..4:  1.3%  0.3%  0.1%  0.0%  0.0%    skip:94.6%
-[libx264 @ 0x124f08290] mb B  I16..4:  0.3%  0.1%  0.0%  B16..8:  1.6%  0.1%  0.0%  direct: 0.0%  skip:97.9%  L0:47.9% L1:51.8% BI: 0.3%
-[libx264 @ 0x124f08290] 8x8 transform intra:25.5% inter:47.2%
-[libx264 @ 0x124f08290] coded y,uvDC,uvAC intra: 14.8% 12.9% 9.6% inter: 0.2% 0.3% 0.2%
-[libx264 @ 0x124f08290] i16 v,h,dc,p: 62% 35%  0%  3%
-[libx264 @ 0x124f08290] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 63% 15% 21%  0%  1%  0%  0%  0%  1%
-[libx264 @ 0x124f08290] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 33% 17%  2%  3%  2%  3%  2%  3%
-[libx264 @ 0x124f08290] i8c dc,h,v,p: 76% 15%  7%  3%
-[libx264 @ 0x124f08290] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x124f08290] ref P L0: 76.5%  3.5% 17.4%  2.6%
-[libx264 @ 0x124f08290] ref B L0: 80.5% 17.9%  1.6%
-[libx264 @ 0x124f08290] ref B L1: 97.1%  2.9%
-[libx264 @ 0x124f08290] kb/s:94.86
-[ 522s]   videos/advanced_3d_multiview/driver.mp4 placed (frames 487..524)
-[ 522s]   screenshots/advanced_3d_multiview_executed.png placed
+[out#0/mp4 @ 0x6000032e4480] video:88KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.841516%
+frame=   66 fps=0.0 q=-1.0 Lsize=      89KiB time=00:00:12.80 bitrate=  57.1kbits/s speed=35.5x    
+[libx264 @ 0x157608220] frame I:2     Avg QP:11.32  size: 30104
+[libx264 @ 0x157608220] frame P:17    Avg QP:15.46  size:  1483
+[libx264 @ 0x157608220] frame B:47    Avg QP:23.31  size:    78
+[libx264 @ 0x157608220] consecutive B-frames:  3.0%  6.1%  0.0% 90.9%
+[libx264 @ 0x157608220] mb I  I16..4: 53.6% 24.2% 22.3%
+[libx264 @ 0x157608220] mb P  I16..4:  0.5%  0.4%  0.6%  P16..4:  1.0%  0.2%  0.1%  0.0%  0.0%    skip:97.2%
+[libx264 @ 0x157608220] mb B  I16..4:  0.0%  0.0%  0.0%  B16..8:  1.2%  0.0%  0.0%  direct: 0.0%  skip:98.6%  L0:49.0% L1:50.8% BI: 0.2%
+[libx264 @ 0x157608220] 8x8 transform intra:24.6% inter:48.2%
+[libx264 @ 0x157608220] coded y,uvDC,uvAC intra: 15.2% 14.5% 10.7% inter: 0.1% 0.2% 0.1%
+[libx264 @ 0x157608220] i16 v,h,dc,p: 70% 27%  0%  2%
+[libx264 @ 0x157608220] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 65% 13% 19%  0%  1%  1%  1%  0%  0%
+[libx264 @ 0x157608220] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 33% 33% 19%  2%  3%  2%  3%  2%  4%
+[libx264 @ 0x157608220] i8c dc,h,v,p: 78% 13%  6%  3%
+[libx264 @ 0x157608220] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x157608220] ref P L0: 79.0%  1.7% 11.0%  8.3%
+[libx264 @ 0x157608220] ref B L0: 73.8% 25.1%  1.0%
+[libx264 @ 0x157608220] ref B L1: 97.5%  2.5%
+[libx264 @ 0x157608220] kb/s:53.98
+[ 811s]   videos/advanced_3d_multiview/driver.mp4 placed (frames 536..601)
+[ 811s]   screenshots/advanced_3d_multiview_executed.png placed
 ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   built with Apple clang version 13.1.6 (clang-1316.0.21.2.5)
   configuration: --prefix=/Volumes/tempdisk/sw --extra-cflags=-fno-stack-check --arch=arm64 --cc=/usr/bin/clang --enable-gpl --enable-libvmaf --enable-libopenjpeg --enable-libopus --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libwebp --enable-libass --enable-libfreetype --enable-fontconfig --enable-libtheora --enable-libvorbis --enable-libsnappy --enable-libaom --enable-libvidstab --enable-libzimg --enable-libsvtav1 --enable-libharfbuzz --enable-libkvazaar --pkg-config-flags=--static --enable-ffplay --enable-postproc --enable-neon --enable-runtime-cpudetect --disable-indev=qtkit --disable-indev=x11grab_xcb
@@ -576,16 +388,16 @@ ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
-  Duration: 00:00:21.00, start: 0.000000, bitrate: N/A
+Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
+  Duration: 00:00:33.00, start: 0.000000, bitrate: N/A
   Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x653, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x155f06140] using cpu capabilities: ARMv8 NEON
-[libx264 @ 0x155f06140] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x155f06140] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/videos/advanced/driver.mp4':
+[libx264 @ 0x124005300] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x124005300] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x124005300] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/videos/advanced/driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
   Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x654, q=2-31, 5 fps, 10240 tbn
@@ -593,28 +405,28 @@ Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[out#0/mp4 @ 0x6000005bc000] video:113KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.117168%
-frame=   36 fps=0.0 q=-1.0 Lsize=     114KiB time=00:00:06.80 bitrate= 137.0kbits/s speed=20.8x    
-[libx264 @ 0x155f06140] frame I:2     Avg QP:12.80  size: 40328
-[libx264 @ 0x155f06140] frame P:10    Avg QP:17.21  size:  2379
-[libx264 @ 0x155f06140] frame B:24    Avg QP:21.45  size:   420
-[libx264 @ 0x155f06140] consecutive B-frames:  8.3%  5.6%  8.3% 77.8%
-[libx264 @ 0x155f06140] mb I  I16..4: 45.6% 27.1% 27.3%
-[libx264 @ 0x155f06140] mb P  I16..4:  2.2%  0.6%  1.1%  P16..4:  1.7%  0.4%  0.1%  0.0%  0.0%    skip:93.9%
-[libx264 @ 0x155f06140] mb B  I16..4:  0.4%  0.1%  0.1%  B16..8:  3.3%  0.2%  0.0%  direct: 0.1%  skip:95.7%  L0:43.4% L1:56.3% BI: 0.3%
-[libx264 @ 0x155f06140] 8x8 transform intra:25.1% inter:50.0%
-[libx264 @ 0x155f06140] coded y,uvDC,uvAC intra: 26.0% 16.7% 12.3% inter: 0.4% 0.4% 0.2%
-[libx264 @ 0x155f06140] i16 v,h,dc,p: 50% 45%  0%  5%
-[libx264 @ 0x155f06140] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 52% 14% 30%  0%  2%  1%  1%  0%  0%
-[libx264 @ 0x155f06140] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 35% 33% 16%  2%  3%  3%  3%  2%  3%
-[libx264 @ 0x155f06140] i8c dc,h,v,p: 69% 17% 10%  4%
-[libx264 @ 0x155f06140] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x155f06140] ref P L0: 77.1%  2.9%  5.8% 14.2%
-[libx264 @ 0x155f06140] ref B L0: 62.0% 35.6%  2.4%
-[libx264 @ 0x155f06140] ref B L1: 97.3%  2.7%
-[libx264 @ 0x155f06140] kb/s:127.24
-[ 522s]   videos/advanced/driver.mp4 placed (frames 562..597)
-[ 522s]   screenshots/advanced_executed.png placed
+[out#0/mp4 @ 0x600002f54000] video:126KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.287620%
+frame=   68 fps=0.0 q=-1.0 Lsize=     128KiB time=00:00:13.20 bitrate=  79.3kbits/s speed=27.3x    
+[libx264 @ 0x124005300] frame I:2     Avg QP:13.81  size: 38587
+[libx264 @ 0x124005300] frame P:18    Avg QP:14.55  size:  2422
+[libx264 @ 0x124005300] frame B:48    Avg QP:20.59  size:   160
+[libx264 @ 0x124005300] consecutive B-frames:  5.9%  0.0%  0.0% 94.1%
+[libx264 @ 0x124005300] mb I  I16..4: 46.5% 26.8% 26.7%
+[libx264 @ 0x124005300] mb P  I16..4:  2.0%  0.5%  1.0%  P16..4:  1.6%  0.3%  0.1%  0.0%  0.0%    skip:94.5%
+[libx264 @ 0x124005300] mb B  I16..4:  0.1%  0.0%  0.0%  B16..8:  3.7%  0.1%  0.0%  direct: 0.0%  skip:96.0%  L0:48.7% L1:51.3% BI: 0.1%
+[libx264 @ 0x124005300] 8x8 transform intra:24.1% inter:49.7%
+[libx264 @ 0x124005300] coded y,uvDC,uvAC intra: 26.2% 19.9% 13.2% inter: 0.2% 0.3% 0.1%
+[libx264 @ 0x124005300] i16 v,h,dc,p: 53% 40%  0%  7%
+[libx264 @ 0x124005300] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 49% 15% 28%  0%  2%  2%  1%  0%  1%
+[libx264 @ 0x124005300] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 35% 32% 15%  2%  3%  3%  3%  3%  3%
+[libx264 @ 0x124005300] i8c dc,h,v,p: 68% 17%  9%  6%
+[libx264 @ 0x124005300] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x124005300] ref P L0: 80.8%  1.6% 14.9%  2.7%
+[libx264 @ 0x124005300] ref B L0: 60.6% 38.9%  0.6%
+[libx264 @ 0x124005300] ref B L1: 95.6%  4.4%
+[libx264 @ 0x124005300] kb/s:75.57
+[ 812s]   videos/advanced/driver.mp4 placed (frames 639..706)
+[ 812s]   screenshots/advanced_executed.png placed
 ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   built with Apple clang version 13.1.6 (clang-1316.0.21.2.5)
   configuration: --prefix=/Volumes/tempdisk/sw --extra-cflags=-fno-stack-check --arch=arm64 --cc=/usr/bin/clang --enable-gpl --enable-libvmaf --enable-libopenjpeg --enable-libopus --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libvpx --enable-libwebp --enable-libass --enable-libfreetype --enable-fontconfig --enable-libtheora --enable-libvorbis --enable-libsnappy --enable-libaom --enable-libvidstab --enable-libzimg --enable-libsvtav1 --enable-libharfbuzz --enable-libkvazaar --pkg-config-flags=--static --enable-ffplay --enable-postproc --enable-neon --enable-runtime-cpudetect --disable-indev=qtkit --disable-indev=x11grab_xcb
@@ -626,43 +438,43 @@ ffmpeg version 7.1 Copyright (c) 2000-2024 the FFmpeg developers
   libswscale      8.  3.100 /  8.  3.100
   libswresample   5.  3.100 /  5.  3.100
   libpostproc    58.  3.100 / 58.  3.100
-Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
-  Duration: 00:00:07.00, start: 0.000000, bitrate: N/A
-  Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x653, 5 fps, 5 tbr, 5 tbn
+Input #0, image2, from '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames/frame_%06d.png':
+  Duration: 00:00:12.00, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgb24(pc, gbr/bt709/iec61966-2-1), 1024x656, 5 fps, 5 tbr, 5 tbn
 Stream mapping:
   Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
 Press [q] to stop, [?] for help
-[libx264 @ 0x13e805070] using cpu capabilities: ARMv8 NEON
-[libx264 @ 0x13e805070] profile High, level 3.1, 4:2:0, 8-bit
-[libx264 @ 0x13e805070] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/videos/advanced_3d/driver.mp4':
+[libx264 @ 0x15a0058f0] using cpu capabilities: ARMv8 NEON
+[libx264 @ 0x15a0058f0] profile High, level 3.1, 4:2:0, 8-bit
+[libx264 @ 0x15a0058f0] 264 - core 164 r3190 7ed753b - H.264/MPEG-4 AVC codec - Copyleft 2003-2024 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=4 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=5 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+Output #0, mp4, to '/Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/videos/advanced_3d/driver.mp4':
   Metadata:
     encoder         : Lavf61.7.100
-  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x654, q=2-31, 5 fps, 10240 tbn
+  Stream #0:0: Video: h264 (avc1 / 0x31637661), yuv420p(tv, unknown/bt709/iec61966-2-1, progressive), 1024x656, q=2-31, 5 fps, 10240 tbn
       Metadata:
         encoder         : Lavc61.19.100 libx264
       Side data:
         cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
-[out#0/mp4 @ 0x600000230000] video:87KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.428683%
-frame=   35 fps=0.0 q=-1.0 Lsize=      88KiB time=00:00:06.60 bitrate= 109.7kbits/s speed=35.5x    
-[libx264 @ 0x13e805070] frame I:2     Avg QP:12.48  size: 32646
-[libx264 @ 0x13e805070] frame P:9     Avg QP:17.78  size:  2254
-[libx264 @ 0x13e805070] frame B:24    Avg QP:22.43  size:   124
-[libx264 @ 0x13e805070] consecutive B-frames:  5.7%  5.7%  8.6% 80.0%
-[libx264 @ 0x13e805070] mb I  I16..4: 47.7% 27.7% 24.6%
-[libx264 @ 0x13e805070] mb P  I16..4:  1.2%  0.9%  1.1%  P16..4:  1.5%  0.2%  0.1%  0.0%  0.0%    skip:94.8%
-[libx264 @ 0x13e805070] mb B  I16..4:  0.2%  0.2%  0.0%  B16..8:  1.7%  0.0%  0.0%  direct: 0.1%  skip:97.8%  L0:52.2% L1:47.3% BI: 0.5%
-[libx264 @ 0x13e805070] 8x8 transform intra:28.4% inter:54.2%
-[libx264 @ 0x13e805070] coded y,uvDC,uvAC intra: 16.8% 15.5% 12.0% inter: 0.2% 0.3% 0.1%
-[libx264 @ 0x13e805070] i16 v,h,dc,p: 56% 39%  0%  4%
-[libx264 @ 0x13e805070] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 67% 11% 18%  0%  2%  1%  1%  0%  0%
-[libx264 @ 0x13e805070] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 38% 31% 15%  2%  3%  3%  3%  2%  3%
-[libx264 @ 0x13e805070] i8c dc,h,v,p: 75% 14%  7%  4%
-[libx264 @ 0x13e805070] Weighted P-Frames: Y:0.0% UV:0.0%
-[libx264 @ 0x13e805070] ref P L0: 84.4%  0.7% 14.3%  0.6%
-[libx264 @ 0x13e805070] ref B L0: 86.3% 13.0%  0.8%
-[libx264 @ 0x13e805070] ref B L1: 98.5%  1.5%
-[libx264 @ 0x13e805070] kb/s:101.21
-[ 523s]   videos/advanced_3d/driver.mp4 placed (frames 632..666)
-[ 523s]   screenshots/advanced_3d_executed.png placed
-[ 523s]   removed /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1827/dev/macos-desktop/debug/electron_inspect/frames after successful encode
+[out#0/mp4 @ 0x600001420000] video:92KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 1.680931%
+frame=   60 fps=0.0 q=-1.0 Lsize=      93KiB time=00:00:11.60 bitrate=  66.0kbits/s speed=35.7x    
+[libx264 @ 0x15a0058f0] frame I:2     Avg QP:12.44  size: 33411
+[libx264 @ 0x15a0058f0] frame P:15    Avg QP:16.47  size:  1419
+[libx264 @ 0x15a0058f0] frame B:43    Avg QP:24.12  size:   122
+[libx264 @ 0x15a0058f0] consecutive B-frames:  3.3%  3.3%  0.0% 93.3%
+[libx264 @ 0x15a0058f0] mb I  I16..4: 45.5% 29.5% 25.1%
+[libx264 @ 0x15a0058f0] mb P  I16..4:  0.6%  0.4%  0.6%  P16..4:  1.2%  0.2%  0.1%  0.0%  0.0%    skip:97.0%
+[libx264 @ 0x15a0058f0] mb B  I16..4:  0.1%  0.1%  0.0%  B16..8:  1.2%  0.1%  0.0%  direct: 0.1%  skip:98.5%  L0:66.1% L1:33.3% BI: 0.6%
+[libx264 @ 0x15a0058f0] 8x8 transform intra:29.7% inter:50.2%
+[libx264 @ 0x15a0058f0] coded y,uvDC,uvAC intra: 16.9% 17.5% 13.7% inter: 0.1% 0.3% 0.1%
+[libx264 @ 0x15a0058f0] i16 v,h,dc,p: 61% 33%  0%  5%
+[libx264 @ 0x15a0058f0] i8 v,h,dc,ddl,ddr,vr,hd,vl,hu: 62% 18% 16%  0%  1%  1%  1%  0%  0%
+[libx264 @ 0x15a0058f0] i4 v,h,dc,ddl,ddr,vr,hd,vl,hu: 36% 31% 17%  2%  3%  3%  3%  2%  3%
+[libx264 @ 0x15a0058f0] i8c dc,h,v,p: 75% 14%  7%  5%
+[libx264 @ 0x15a0058f0] Weighted P-Frames: Y:0.0% UV:0.0%
+[libx264 @ 0x15a0058f0] ref P L0: 82.5%  1.0% 10.0%  6.4%
+[libx264 @ 0x15a0058f0] ref B L0: 86.2% 12.1%  1.8%
+[libx264 @ 0x15a0058f0] ref B L1: 97.2%  2.8%
+[libx264 @ 0x15a0058f0] kb/s:62.24
+[ 812s]   videos/advanced_3d/driver.mp4 placed (frames 744..803)
+[ 812s]   screenshots/advanced_3d_executed.png placed
+[ 812s]   removed /Users/runner/work/comfy-gpu-ci/comfy-gpu-ci/comfy-test-logs/DepthAnythingV3-1046/dev/macos-desktop/debug/electron_inspect/frames after successful encode
