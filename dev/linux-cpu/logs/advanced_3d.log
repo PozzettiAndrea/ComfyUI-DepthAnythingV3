@@ -8,8 +8,8 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [32m[INFO][0m   Node 2: LoadImage
   [ComfyUI] [32m[INFO][0m     Inputs: {"image": "kaffi.jpg"}
   [ComfyUI] [32m[INFO][0m   Node 3: DownloadAndLoadDepthAnythingV3Model
-  Queuing workflow for execution...
   [ComfyUI] [32m[INFO][0m     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
+  Queuing workflow for execution...
   [ComfyUI] [32m[INFO][0m   Node 21: DepthAnything_V3
   [ComfyUI] [32m[INFO][0m     Inputs: {"normalization_mode": "Raw", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
   [ComfyUI] [32m[INFO][0m   Node 22: DA3_ToPointCloud
@@ -18,7 +18,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [32m[INFO][0m     Inputs: {"filename_prefix": "pointcloud", "pointcloud": ["22", 0]}
   [ComfyUI] [32m[INFO][0m   Node 25: DA3_PreviewPointCloud
   [ComfyUI] [32m[INFO][0m     Inputs: {"file_path": ["23", 0], "color_mode": "RGB", "preview_vtk": ""}
-  [ComfyUI] [32m[INFO][0m Generated prompt_id: 5b571b38-038a-4c1c-99e4-539c1db2e2ed
+  [ComfyUI] [32m[INFO][0m Generated prompt_id: 6a81b47d-00c3-4b9b-b383-b6fb20755e9c
   [ComfyUI] [32m[INFO][0m Calling execution.validate_prompt()...
   [ComfyUI] [32m[INFO][0m Validation result: valid=True
   [ComfyUI] [32m[INFO][0m === Validation PASSED ===
@@ -27,14 +27,22 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
   [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ping (timeout=5.0s)...
-  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: ok
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Health check: failed
+  [ComfyUI] [ComfyUI-DepthAnythingV3] Socket unhealthy, restarting worker...
+  [ComfyUI] [ComfyUI-DepthAnythingV3] python: /home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
+  [ComfyUI] [SubprocessWorker] is_pixi=True, python=/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
+  [ComfyUI] [SubprocessWorker] launching cmd=['/home/runner/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/home/runner/.ce/envs/depthanythingv3-nodes/pixi.toml', '-e', 'default', 'python', '/tmp/comfyui_pvenv_p9yicrt2/persistent_worker.py', 'abstract://comfy_worker_6bb31aab7fa2']...
+  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_6bb31aab7fa2 (abstract, no filesystem path)
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: comfy_kitchen does not support stochastic FP8 rounding, please update comfy_kitchen.
   [ComfyUI] [SubprocessWorker] worker started/confirmed
   [ComfyUI] [SubprocessWorker] serializing kwargs to shm...
   [ComfyUI] [SubprocessWorker] created 0 shm blocks
   [ComfyUI] [SubprocessWorker] sending request via socket...
   [ComfyUI] [SubprocessWorker] call_id=3 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (0.02s): result: NodeOutput
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (1.62s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'Raw', resize_method: 'resize', invert_depth: False, keep_model_size: False, da3_model: dict, images: torch.float32 [1,533,800,3] cpu
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -49,20 +57,25 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 533, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 533, 800, 3])
-  [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=4
-  [ComfyUI] [comfy-env] VRAM request: 1.64GB, free before eviction: 13.72GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 13.72GB
   Frame 2 saved (frame_001.jpg, t=2.2s)
-  [capture-periodic] freeze=2ms shot=69ms unfreeze=1ms saved=True
+  [capture-periodic] freeze=2ms shot=102ms unfreeze=3ms saved=True
+  [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=4
+  [ComfyUI] [comfy-env] VRAM request: 1.64GB, free before eviction: 14.03GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 14.03GB
   Frame 3 saved (frame_002.jpg, t=4.3s)
-  [capture-periodic] freeze=2ms shot=69ms unfreeze=3ms saved=True
-  [capture-loop] iter=50 t=5.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.3/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=23% browser_rss=0.96GB
-  [capture-loop] iter=100 t=10.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.2/15.6GB (20%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.95GB
-  [capture-loop] iter=150 t=16.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.3/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.96GB
-  [capture-loop] iter=200 t=21.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.3/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=29% browser_rss=0.96GB
+  [capture-periodic] freeze=2ms shot=93ms unfreeze=4ms saved=True
+  [capture-loop] iter=50 t=5.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.9/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.99GB
+  [capture-loop] iter=100 t=11.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.7/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.99GB
+  [capture-loop] iter=150 t=16.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.8/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.99GB
+  [capture-loop] iter=200 t=22.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.0/15.6GB (19%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.99GB
+  [capture-loop] iter=250 t=27.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.8/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=34% browser_rss=0.87GB
+  [capture-loop] iter=300 t=33.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.8/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=35% browser_rss=0.86GB
+  [capture-loop] iter=350 t=39.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.0/15.6GB (19%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.86GB
+  [capture-loop] iter=400 t=44.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.1/15.6GB (20%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.86GB
+  [capture-loop] iter=450 t=50.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.3/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.84GB
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=4
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (23.48s): result: NodeOutput
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (49.93s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DA3_ToPointCloud: confidence_threshold: 0.2, downsample: 1, allow_around_1: True, filter_outliers: False, outlier_percentage: 5.0, depth_raw: torch.float32 [1,532,800,3] cpu, confidence: torch.float32 [1,532,800,3] cpu, intrinsics: '{\n  "intrinsics": [\n    {\n      "image_0": [\n       ..., sky_mask: torch.float32 [1,532,800] cpu, source_image: torch.float32 [1,532,800,3] cpu
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_ToPointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -90,7 +103,7 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 532, 800, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 532, 800, 3])
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.05s): result: NodeOutput
+  [ComfyUI] [comfy-env] DA3_ToPointCloud done (0.08s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DA3_SavePointCloud: filename_prefix: 'pointcloud', pointcloud: list[1]
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_3d.DA3_SavePointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -110,10 +123,10 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[311011, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([311011, 3])
-  Frame 4 saved (frame_003.jpg, t=23.8s)
-  [capture-periodic] freeze=2ms shot=67ms unfreeze=1ms saved=True
+  Frame 4 saved (frame_003.jpg, t=51.8s)
+  [capture-periodic] freeze=5ms shot=112ms unfreeze=5ms saved=True
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DA3_SavePointCloud done (1.27s): result: NodeOutput
+  [ComfyUI] [comfy-env] DA3_SavePointCloud done (2.18s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DA3_PreviewPointCloud: file_path: '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspa..., color_mode: 'RGB'
   [ComfyUI] [SubprocessWorker] call_method: nodes.preview_nodes.DA3_PreviewPointCloud.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -126,18 +139,18 @@ Capturing execution frames: advanced_3d.json
   [ComfyUI] [SubprocessWorker] call_id=7 sending call_method
   [ComfyUI] [SubprocessWorker] got response: ok
   [ComfyUI] [comfy-env] DA3_PreviewPointCloud done (0.01s): result: NodeOutput
-  [ComfyUI] [32m[INFO][0m [32mPrompt executed in 24.97 seconds[0m
+  [ComfyUI] [32m[INFO][0m [32mPrompt executed in 53.84 seconds[0m
   Node executed (1 total), capturing...
-  Frame 5 saved (frame_004.jpg, t=25.3s)
-  [capture-node] freeze=2ms shot=90ms unfreeze=1ms saved=True
+  Frame 5 saved (frame_004.jpg, t=54.2s)
+  [capture-node] freeze=3ms shot=101ms unfreeze=3ms saved=True
   Node executed (2 total), capturing...
-  Frame 6 saved (frame_005.jpg, t=26.6s)
-  [capture-node] freeze=1ms shot=66ms unfreeze=0ms saved=True
-  Execution complete (t=26.6s)
-  Captured 6 unique frames over 26.73s
+  Frame 6 saved (frame_005.jpg, t=56.4s)
+  [capture-node] freeze=2ms shot=90ms unfreeze=0ms saved=True
+  Execution complete (t=56.3s)
+  Captured 6 unique frames over 56.48s
   [debug] iframes: 1
-  [debug]   iframe[0]: src=http://127.0.0.1:41891/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1780789, canvas=486x397, rafFrozen=True
+  [debug]   iframe[0]: src=http://127.0.0.1:41882/extensions/ComfyUI-GeometryPack/viewer_vtk.html?v=1780789, canvas=486x397, rafFrozen=True
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_3d_executed.png
-  [timing] final_screenshot: 0.1s
+  [timing] final_screenshot: 0.2s
     Captured 7 video frames

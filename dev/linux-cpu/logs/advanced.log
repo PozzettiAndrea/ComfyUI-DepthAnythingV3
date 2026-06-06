@@ -6,13 +6,13 @@ Capturing execution frames: advanced.json
   Validating workflow...
   [ComfyUI] [32m[INFO][0m === /validate endpoint called ===
   [ComfyUI] [32m[INFO][0m Received JSON with keys: ['prompt']
-  Queuing workflow for execution...
   [ComfyUI] [32m[INFO][0m Prompt has 11 nodes
   [ComfyUI] [32m[INFO][0m   Node 2: LoadImage
   [ComfyUI] [32m[INFO][0m     Inputs: {"image": "bridge.jpg"}
   [ComfyUI] [32m[INFO][0m   Node 3: DownloadAndLoadDepthAnythingV3Model
   [ComfyUI] [32m[INFO][0m     Inputs: {"model": "da3_large.safetensors", "precision": "auto", "attention": "auto"}
   [ComfyUI] [32m[INFO][0m   Node 4: PreviewImage
+  Queuing workflow for execution...
   [ComfyUI] [32m[INFO][0m     Inputs: {"images": ["12", 0]}
   [ComfyUI] [32m[INFO][0m   Node 6: PreviewImage
   [ComfyUI] [32m[INFO][0m     Inputs: {"images": ["12", 1]}
@@ -30,21 +30,21 @@ Capturing execution frames: advanced.json
   [ComfyUI] [32m[INFO][0m     Inputs: {"normalization_mode": "V2-Style", "resize_method": "resize", "invert_depth": false, "keep_model_size": false, "da3_model": ["3", 0], "images": ["2", 0]}
   [ComfyUI] [32m[INFO][0m   Node 13: PreviewImage
   [ComfyUI] [32m[INFO][0m     Inputs: {"images": ["12", 4]}
-  [ComfyUI] [32m[INFO][0m Generated prompt_id: a0a06d74-2da0-478e-95b2-04570e362c4a
+  [ComfyUI] [32m[INFO][0m Generated prompt_id: 9e49ebf2-d3e5-41f0-9578-2aab92ae9b96
   [ComfyUI] [32m[INFO][0m Calling execution.validate_prompt()...
   [ComfyUI] [32m[INFO][0m Validation result: valid=True
   [ComfyUI] [32m[INFO][0m === Validation PASSED ===
   [ComfyUI] [32m[INFO][0m got prompt
-  [ComfyUI] [comfy-env] SubprocessWorker: /home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
   [ComfyUI] [comfy-env] Running DownloadAndLoadDepthAnythingV3Model: model: 'da3_large.safetensors', precision: 'auto', attention: 'auto'
   [ComfyUI] [SubprocessWorker] call_method: nodes.load_model.DownloadAndLoadDepthAnythingV3Model.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
-  [ComfyUI] [comfy-env] env_vars: {'COMFYUI_BASE': '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI'}
+  [ComfyUI] [comfy-env] SubprocessWorker: /home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
+  [ComfyUI] [comfy-env] env_vars: {'COMFYUI_BASE': '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI'}
   [ComfyUI] [ComfyUI-DepthAnythingV3] python: /home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
-  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
+  [ComfyUI] [ComfyUI-DepthAnythingV3] sys_path sent to worker: ['/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3', '/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages', '/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3']
   [ComfyUI] [SubprocessWorker] is_pixi=True, python=/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/bin/python
-  [ComfyUI] [SubprocessWorker] launching cmd=['/home/runner/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/home/runner/.ce/envs/depthanythingv3-nodes/pixi.toml', '-e', 'default', 'python', '/tmp/comfyui_pvenv_u8m3x4km/persistent_worker.py', 'abstract://comfy_worker_04e186362828']...
-  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_04e186362828 (abstract, no filesystem path)
+  [ComfyUI] [SubprocessWorker] launching cmd=['/home/runner/.pixi/bin/pixi', 'run', '--as-is', '--manifest-path', '/home/runner/.ce/envs/depthanythingv3-nodes/pixi.toml', '-e', 'default', 'python', '/tmp/comfyui_pvenv_p9yicrt2/persistent_worker.py', 'abstract://comfy_worker_a531c8873f06']...
+  [ComfyUI] [SubprocessWorker] socket_addr=abstract://comfy_worker_a531c8873f06 (abstract, no filesystem path)
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] ERROR: Failed to import comfy_kitchen, Error: No module named 'comfy_kitchen', fp8 and fp4 support will not be available.
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: comfy_kitchen does not support stochastic FP8 rounding, please update comfy_kitchen.
   [ComfyUI] [SubprocessWorker] worker started/confirmed
@@ -54,24 +54,36 @@ Capturing execution frames: advanced.json
   [ComfyUI] [SubprocessWorker] call_id=1 sending call_method
   [ComfyUI] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-  [ComfyUI] 
   Frame 2 saved (frame_001.jpg, t=2.2s)
-  [capture-periodic] freeze=1ms shot=60ms unfreeze=1ms saved=True
+  [capture-periodic] freeze=3ms shot=105ms unfreeze=4ms saved=True
+  [ComfyUI] 
   [ComfyUI] model.safetensors:   0%|          | 0.00/1.64G [00:00<?, ?B/s]
-  [ComfyUI] model.safetensors:  16%|█▋        | 268M/1.64G [00:01<00:09, 148MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
-  Frame 3 saved (frame_002.jpg, t=4.3s)
-  [capture-periodic] freeze=1ms shot=63ms unfreeze=2ms saved=True
-  [capture-loop] iter=50 t=5.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=3.0/15.6GB (19%) swap=0.0/3.0GB (0%) cpu=27% browser_rss=0.85GB
+  [ComfyUI] model.safetensors:  20%|██        | 335M/1.64G [00:02<00:08, 148MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  Frame 3 saved (frame_002.jpg, t=4.5s)
+  [capture-periodic] freeze=12ms shot=213ms unfreeze=32ms saved=True
   [ComfyUI] 
-  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:08<00:00, 201MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
-  [capture-loop] iter=100 t=10.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=1 ram=2.1/15.6GB (14%) swap=0.0/3.0GB (0%) cpu=12% browser_rss=0.85GB
-  Frame 4 saved (frame_003.jpg, t=10.8s)
-  [capture-periodic] freeze=1ms shot=49ms unfreeze=1ms saved=True
-  [capture-loop] iter=150 t=16.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=1 ram=2.1/15.6GB (14%) swap=0.0/3.0GB (0%) cpu=4% browser_rss=0.85GB
+  [ComfyUI] model.safetensors:  24%|██▍       | 402M/1.64G [00:02<00:07, 164MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
   [ComfyUI] 
-  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:16<00:00, 99.0MB/s]
+  [ComfyUI] model.safetensors:  29%|██▊       | 470M/1.64G [00:03<00:07, 156MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] 
+  [ComfyUI] model.safetensors:  49%|████▉     | 805M/1.64G [00:03<00:02, 302MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [capture-loop] iter=50 t=6.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=7 ram=2.5/15.6GB (16%) swap=0.0/3.0GB (0%) cpu=37% browser_rss=0.85GB
+  [ComfyUI] 
+  [ComfyUI] model.safetensors:  53%|█████▎    | 872M/1.64G [00:03<00:02, 297MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] 
+  Frame 4 saved (frame_003.jpg, t=6.8s)
+  [capture-periodic] freeze=3ms shot=243ms unfreeze=2ms saved=True
+  [ComfyUI] model.safetensors:  69%|██████▉   | 1.14G/1.64G [00:04<00:01, 375MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] 
+  [ComfyUI] model.safetensors:  86%|████████▌ | 1.41G/1.64G [00:04<00:00, 507MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  [ComfyUI] 
+  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:05<00:00, 421MB/s][SubprocessWorker] callback 'report_progress' from call_id=1
+  Frame 5 saved (frame_004.jpg, t=9.8s)
+  [capture-periodic] freeze=2ms shot=93ms unfreeze=5ms saved=True
+  [ComfyUI] 
+  [ComfyUI] model.safetensors: 100%|██████████| 1.64G/1.64G [00:08<00:00, 196MB/s]
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (18.36s): result: NodeOutput
+  [ComfyUI] [comfy-env] DownloadAndLoadDepthAnythingV3Model done (10.70s): result: NodeOutput
   [ComfyUI] [comfy-env] Running DepthAnything_V3: normalization_mode: 'V2-Style', resize_method: 'resize', invert_depth: False, keep_model_size: False, da3_model: dict, images: torch.float32 [1,683,1024,3] cpu
   [ComfyUI] [SubprocessWorker] call_method: nodes.nodes_inference.DepthAnything_V3.EXECUTE_NORMALIZED
   [ComfyUI] [SubprocessWorker] acquired lock, ensuring started...
@@ -86,79 +98,88 @@ Capturing execution frames: advanced.json
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] _from_shm got dict with keys: ['__type__', 'strategy', 'parent_pid', 'fd', 'storage_size']
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZE TensorRef: tensor_size=[1, 683, 1024, 3]
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] [comfy-env] DESERIALIZED tensor shape: torch.Size([1, 683, 1024, 3])
-  Frame 5 saved (frame_004.jpg, t=19.7s)
-  [capture-periodic] freeze=1ms shot=54ms unfreeze=1ms saved=True
-  [capture-loop] iter=200 t=22.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=6 ram=2.2/15.6GB (14%) swap=0.0/3.0GB (0%) cpu=14% browser_rss=0.85GB
+  Frame 6 saved (frame_005.jpg, t=12.1s)
+  [capture-periodic] freeze=3ms shot=98ms unfreeze=4ms saved=True
+  [capture-loop] iter=100 t=13.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.2/15.6GB (14%) swap=0.0/3.0GB (0%) cpu=26% browser_rss=0.86GB
   [ComfyUI] [SubprocessWorker] callback 'request_vram_budget' from call_id=2
-  [ComfyUI] [comfy-env] VRAM request: 1.64GB, free before eviction: 14.31GB
-  [ComfyUI] [comfy-env] VRAM after eviction: 14.31GB
+  [ComfyUI] [comfy-env] VRAM request: 1.64GB, free before eviction: 14.29GB
+  [ComfyUI] [comfy-env] VRAM after eviction: 14.29GB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] WARNING: WARNING: This model does not support sky segmentation. V2-Style normalization will work but without sky masking. Use Mono/Metric/Nested models for best V2-Style results.
-  [capture-loop] iter=250 t=27.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.8/15.6GB (24%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.78GB
-  [capture-loop] iter=300 t=32.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.4/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.78GB
-  [capture-loop] iter=350 t=38.0s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.4/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.78GB
-  [capture-loop] iter=400 t=43.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.4/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.78GB
-  [capture-loop] iter=450 t=48.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.5/15.6GB (16%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.78GB
-  [capture-loop] iter=500 t=54.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.1/15.6GB (20%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.78GB
-  [capture-loop] iter=550 t=59.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.2/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.78GB
+  [capture-loop] iter=150 t=18.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.6/15.6GB (23%) swap=0.0/3.0GB (0%) cpu=39% browser_rss=0.85GB
+  [capture-loop] iter=200 t=24.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.9/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=35% browser_rss=0.78GB
+  [capture-loop] iter=250 t=29.7s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.5/15.6GB (16%) swap=0.0/3.0GB (0%) cpu=36% browser_rss=0.77GB
+  [capture-loop] iter=300 t=35.2s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.3/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=34% browser_rss=0.77GB
+  [capture-loop] iter=350 t=40.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.4/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=400 t=46.3s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.3/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=450 t=51.8s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.4/15.6GB (15%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=500 t=57.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.4/15.6GB (22%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3]
   [ComfyUI] === WATCHDOG TICK 1 ===
-  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] Thread 0x00007f96136156c0 (most recent call first):
+  [ComfyUI] [worker:ComfyUI-DepthAnythingV3] Thread 0x00007fe66d0156c0 (most recent call first):
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 363 in wait
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 660 in wait
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/tqdm/_monitor.py", line 69 in run
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 1015 in _bootstrap
   [ComfyUI] 
-  [ComfyUI] Current thread 0x00007f9651a576c0 (most recent call first):
-  [ComfyUI]   File "/tmp/comfyui_pvenv_u8m3x4km/persistent_worker.py", line 52 in _watchdog
+  [ComfyUI] Current thread 0x00007fe6ab49f6c0 (most recent call first):
+  [ComfyUI]   File "/tmp/comfyui_pvenv_p9yicrt2/persistent_worker.py", line 52 in _watchdog
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 995 in run
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/threading.py", line 1015 in _bootstrap
   [ComfyUI] 
-  [ComfyUI] Thread 0x00007f9652578740 (most recent call first):
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/comfy/ops.py", line 494 in forward_comfy_cast_weights
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/comfy/ops.py", line 501 in forward
+  [ComfyUI] Thread 0x00007fe6abfc1740 (most recent call first):
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py", line 181 in _get_attention_scores_no_kv_chunking
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py", line 259 in efficient_dot_product_attention
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/comfy/ldm/modules/attention.py", line 275 in attention_sub_quad
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/comfy/ldm/modules/attention.py", line 139 in wrapper
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 453 in forward
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1787 in _call_impl
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1776 in _wrapped_call_impl
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 244 in forward
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 516 in attn_residual_func
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 521 in forward
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1787 in _call_impl
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1776 in _wrapped_call_impl
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 519 in ffn_residual_func
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 522 in forward
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 791 in process_attention
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 750 in _get_intermediate_layers_not_chunked
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 800 in get_intermediate_layers
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 891 in forward
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1787 in _call_impl
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1776 in _wrapped_call_impl
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 791 in process_attention
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 741 in _get_intermediate_layers_not_chunked
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 800 in get_intermediate_layers
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 891 in forward
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1560 in forward
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1787 in _call_impl
   [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1776 in _wrapped_call_impl
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/depth_anything_v3/model.py", line 1560 in forward
-  [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1787 in _call_impl
-  [ComfyUI]   File "/home/runner/.ce/envs/depthanythingv3-nodes/.pixi/envs/default/lib/python3.13/site-packages/torch/nn/modules/module.py", line 1776 in _wrapped_call_impl
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156 in execute
-  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2335/ComfyUI/comfy_api/latest/_io.py", line 1892 in EXECUTE_NORMALIZED
-  [ComfyUI]   File "/tmp/comfyui_pvenv_u8m3x4km/persistent_worker.py", line 1762 in main
-  [ComfyUI]   File "/tmp/comfyui_pvenv_u8m3x4km/persistent_worker.py", line 1807 in <module>
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/custom_nodes/ComfyUI-DepthAnythingV3/nodes/nodes_inference.py", line 156 in execute
+  [ComfyUI]   File "/home/runner/work/comfy-gpu-ci/comfy-gpu-ci/test_workspaces/DepthAnythingV3-2333/ComfyUI/comfy_api/latest/_io.py", line 1892 in EXECUTE_NORMALIZED
+  [ComfyUI]   File "/tmp/comfyui_pvenv_p9yicrt2/persistent_worker.py", line 1762 in main
+  [ComfyUI]   File "/tmp/comfyui_pvenv_p9yicrt2/persistent_worker.py", line 1807 in <module>
   [ComfyUI] 
   [ComfyUI] [worker:ComfyUI-DepthAnythingV3] === END ===
   [ComfyUI] 
-  [capture-loop] iter=600 t=65.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.7/15.6GB (17%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.77GB
-  [capture-loop] iter=650 t=70.4s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=3.3/15.6GB (22%) swap=0.0/3.0GB (0%) cpu=30% browser_rss=0.77GB
+  [capture-loop] iter=550 t=62.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.8/15.6GB (24%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=600 t=68.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.3/15.6GB (21%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=650 t=73.9s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.9/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.77GB
+  [capture-loop] iter=700 t=79.5s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.7/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=750 t=85.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=2.4/15.6GB (16%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=800 t=90.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=2 ram=2.9/15.6GB (18%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=850 t=96.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.1/15.6GB (20%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=900 t=101.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.7/15.6GB (24%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.77GB
+  [capture-loop] iter=950 t=107.1s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.5/15.6GB (22%) swap=0.0/3.0GB (0%) cpu=33% browser_rss=0.77GB
+  [capture-loop] iter=1000 t=112.6s state={'complete': False, 'error': None, 'executedCount': 0, 'wsState': 1} eval_ms=3 ram=3.8/15.6GB (24%) swap=0.0/3.0GB (0%) cpu=32% browser_rss=0.77GB
   [ComfyUI] [SubprocessWorker] callback 'report_progress' from call_id=2
   [ComfyUI] [SubprocessWorker] got response: ok
-  [ComfyUI] [comfy-env] DepthAnything_V3 done (55.79s): result: NodeOutput
-  Node executed (3 total), capturing...
-  [ComfyUI] [32m[INFO][0m [32mPrompt executed in 74.30 seconds[0m
-  Frame 6 saved (frame_005.jpg, t=74.5s)
-  [capture-node] freeze=2ms shot=83ms unfreeze=4ms saved=True
+  [ComfyUI] [comfy-env] DepthAnything_V3 done (105.20s): result: NodeOutput
+  Node executed (1 total), capturing...
+  [ComfyUI] [32m[INFO][0m [32mPrompt executed in 116.14 seconds[0m
+  Frame 7 saved (frame_006.jpg, t=116.3s)
+  [capture-node] freeze=11ms shot=219ms unfreeze=3ms saved=True
   Node executed (8 total), capturing...
-  Frame 7 saved (frame_006.jpg, t=74.9s)
-  [capture-node] freeze=2ms shot=65ms unfreeze=0ms saved=True
-  Execution complete (t=74.9s)
-  Captured 7 unique frames over 75.06s
+  Frame 8 saved (frame_007.jpg, t=116.8s)
+  [capture-node] freeze=2ms shot=94ms unfreeze=3ms saved=True
+  Execution complete (t=117.1s)
+  Captured 8 unique frames over 117.07s
   [debug] iframes: 0
   [timing] trigger_3d_previews: 0.0s
   Saved high-quality screenshot: advanced_executed.png
   [timing] final_screenshot: 0.2s
-    Captured 8 video frames
+    Captured 9 video frames
