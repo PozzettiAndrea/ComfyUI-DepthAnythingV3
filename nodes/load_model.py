@@ -205,8 +205,6 @@ def _get_or_build_da3_model(config):
         patcher.model_options["da3_config"] = MODEL_CONFIGS[config["model_key"]]
         patcher.model_options["da3_dtype"] = dtype
         patcher.model_options["da3_model_key"] = config["model_key"]
-        if "da3_tiled_config" in config:
-            patcher.model_options["da3_tiled_config"] = config["da3_tiled_config"]
         _DA3_MODEL_CACHE[key] = patcher
     return _DA3_MODEL_CACHE[key]
 
@@ -667,97 +665,6 @@ class DownloadAndLoadDepthAnythingV3Model(io.ComfyNode):
             "attention": attention,
         }
         return io.NodeOutput(config)
-
-
-class DA3_EnableTiledProcessing(io.ComfyNode):
-    """Configure model for tiled processing to handle high-resolution images."""
-
-    @classmethod
-    def define_schema(cls):
-        return io.Schema(
-            node_id="DA3_EnableTiledProcessing",
-            display_name="DA3 Enable Tiled Processing",
-            category="DepthAnythingV3",
-            description="Enable tiled processing for memory-efficient inference on high-resolution images. "
-                        "tile_size should be a multiple of 14 for patch alignment.",
-            inputs=[
-                io.Custom("DA3MODEL").Input("da3_model"),
-                io.Int.Input("tile_size", default=512, min=256, max=2048, step=14),
-                io.Int.Input("overlap", default=64, min=0, max=256, step=14),
-            ],
-            outputs=[
-                io.Custom("DA3MODEL").Output(display_name="da3_model"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, da3_model, tile_size=512, overlap=64):
-        patch_size = DEFAULT_PATCH_SIZE
-        tile_size = (tile_size // patch_size) * patch_size
-        if tile_size < patch_size:
-            tile_size = patch_size
-        overlap = (overlap // patch_size) * patch_size
-
-        # Store tiled config in the config dict (JSON-safe)
-        da3_model["da3_tiled_config"] = {
-            "enabled": True,
-            "tile_size": tile_size,
-            "overlap": overlap,
-        }
-
-        logger.info(f"Enabled tiled processing: tile_size={tile_size}, overlap={overlap}")
-
-        return io.NodeOutput(da3_model)
-
-
-class DA3_DownloadModel(io.ComfyNode):
-    """Download a DA3 model from HuggingFace if not already present."""
-
-    @classmethod
-    def define_schema(cls):
-        return io.Schema(
-            node_id="DA3_DownloadModel",
-            display_name="DA3: Download Model (HuggingFace)",
-            category="DepthAnythingV3",
-            is_output_node=True,
-            description="Download a DA3 model from HuggingFace to ComfyUI/models/depthanything3/. "
-                        "Only downloads if not already present. After downloading, use the Load node to load the model.",
-            inputs=[
-                io.Combo.Input("model", options=list(MODEL_REPOS.keys()), default='da3_large.safetensors'),
-            ],
-            outputs=[
-                io.String.Output(display_name="status"),
-            ],
-        )
-
-    @classmethod
-    def execute(cls, model):
-        download_path = os.path.join(folder_paths.models_dir, "depthanything3")
-        os.makedirs(download_path, exist_ok=True)
-        model_path = os.path.join(download_path, model)
-
-        if os.path.exists(model_path):
-            return io.NodeOutput(f"Model already exists: {model_path}")
-
-        try:
-            from huggingface_hub import hf_hub_download
-        except ImportError:
-            return io.NodeOutput("Error: huggingface_hub not installed. Install with: pip install huggingface_hub")
-
-        logger.info(f"Downloading model to: {model_path}")
-        repo = MODEL_REPOS[model]
-        hf_hub_download(
-            repo_id=repo,
-            filename="model.safetensors",
-            local_dir=download_path,
-            tqdm_class=_comfy_tqdm(),
-        )
-        # The downloaded file might be named differently (model.safetensors)
-        downloaded_file = os.path.join(download_path, "model.safetensors")
-        if os.path.exists(downloaded_file) and not os.path.exists(model_path):
-            os.rename(downloaded_file, model_path)
-
-        return io.NodeOutput(f"Downloaded: {model_path}")
 
 
 SALAD_REPO_ID = "apozz/salad-safetensors"
