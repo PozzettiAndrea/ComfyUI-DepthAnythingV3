@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GeomPack VTK.js Viewer (Unified)</title>
+    <link rel="stylesheet" href="./js/viewer/ui/styles.css">
+    <style>
+        /* draggable divider between the 3D view and the bottom utilities */
+        #vsplit {
+            flex: 0 0 7px;
+            height: 7px;
+            cursor: row-resize;
+            background: #3a3a3a;
+            border-top: 1px solid #555;
+            border-bottom: 1px solid #222;
+        }
+        #vsplit:hover, #vsplit.dragging { background: #4a90d9; }
+        #viewerContainer { position: relative; }
+        #controls { overflow-y: auto; box-sizing: border-box; }
+        /* minimise / restore toggle for the bottom utilities */
+        #ctrlToggle {
+            position: absolute; right: 8px; bottom: 6px;
+            width: 22px; height: 16px; line-height: 14px; text-align: center;
+            font-size: 11px; color: #bbb; background: rgba(20, 20, 20, 0.55);
+            border: 1px solid #555; border-radius: 3px; cursor: pointer;
+            opacity: 0.45; user-select: none; z-index: 6;
+        }
+        #ctrlToggle:hover { opacity: 1; background: rgba(40, 40, 40, 0.9); }
+    </style>
+</head>
+<body>
+    <div id="viewerContainer">
+        <div id="container"></div>
+        <div id="ctrlToggle" title="Hide controls">&#9662;</div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Ready to load mesh</div>
+        </div>
+
+        <!-- Settings overlay and panel -->
+        <div id="settingsOverlay" class="settings-overlay"></div>
+        <div id="settingsPanel" class="settings-panel">
+            <h3>Appearance Settings</h3>
+            <div class="setting-row">
+                <label>Point Size:</label>
+                <input type="number" id="pointSize" min="1" max="20" step="1" value="5">
+            </div>
+            <div class="setting-row">
+                <label>Mesh Color:</label>
+                <input type="color" id="meshColor" value="#99ccff">
+            </div>
+            <div class="setting-row">
+                <label>Edge Width:</label>
+                <input type="number" id="edgeWidth" min="1" max="10" step="1" value="1">
+            </div>
+            <div class="setting-row">
+                <label>Render Mode:</label>
+                <select id="representationSettings">
+                    <option value="2">Surface</option>
+                    <option value="1">Wireframe</option>
+                    <option value="0">Points</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label>
+                    <input type="checkbox" id="parallelProjection"> Parallel Projection
+                </label>
+            </div>
+            <div class="setting-row">
+                <label>
+                    <input type="checkbox" id="showAxisIndicator"> Show Axis Indicator
+                </label>
+            </div>
+            <div class="setting-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #444;">
+                <label style="font-weight: bold; color: #aaa;">Colormap:</label>
+            </div>
+            <div class="setting-row">
+                <label>Preset:</label>
+                <select id="colormapSelector" style="width: 140px;"></select>
+            </div>
+            <div class="setting-row">
+                <label>
+                    <input type="checkbox" id="autoColorRange" checked> Auto Range
+                </label>
+            </div>
+            <div class="setting-row">
+                <label>Min:</label>
+                <input type="number" id="colormapMin" step="any" placeholder="Auto" style="width: 120px;">
+            </div>
+            <div class="setting-row">
+                <label>Max:</label>
+                <input type="number" id="colormapMax" step="any" placeholder="Auto" style="width: 120px;">
+            </div>
+            <div class="button-row">
+                <button id="applySettings">Apply</button>
+                <button id="cancelSettings">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vsplit" title="Drag to resize the 3D view vs the controls"></div>
+
+    <div id="controls">
+        <button id="settingsButton" class="settings-button" title="Appearance Settings">[Settings]</button>
+
+        <span class="control-separator"></span>
+
+        <label class="control-label">
+            <input type="checkbox" id="showEdges"> Edges
+        </label>
+
+        <span class="control-separator"></span>
+
+        <!-- Camera view buttons -->
+        <button class="view-button" data-view="+X">+X</button>
+        <button class="view-button" data-view="-X">-X</button>
+        <button class="view-button" data-view="+Y">+Y</button>
+        <button class="view-button" data-view="-Y">-Y</button>
+        <button class="view-button" data-view="+Z">+Z</button>
+        <button class="view-button" data-view="-Z">-Z</button>
+
+        <span class="control-separator"></span>
+
+        <label id="filterLabel" class="control-label">
+            Filter:
+            <select id="filterSelector">
+                <option value="">None</option>
+                <option value="normals">Normals</option>
+                <option value="smooth">Smooth</option>
+                <option value="clip_plane">Clip Plane</option>
+                <option value="elevation">Elevation</option>
+                <option value="cell_sizes">Cell Sizes</option>
+                <option value="outline">Outline</option>
+            </select>
+        </label>
+
+        <span class="control-separator"></span>
+
+        <label id="fieldLabel" class="control-label" style="display:none;">
+            Field:
+            <select id="fieldSelector"></select>
+        </label>
+        <label id="channelLabel" class="control-label" style="display:none;">
+            Channel:
+            <select id="channelSelector">
+                <option value="magnitude">Magnitude</option>
+            </select>
+        </label>
+        <button id="screenshot">Screenshot</button>
+        <button id="saveMesh" class="save-button">Save Mesh</button>
+    </div>
+
+    <!-- Load VTK.js bundle -->
+    <script src="./js/vtk-gltf.mjs"></script>
+    <!-- Load unified viewer bundle -->
+    <script src="./js/viewer-bundle-vtk.mjs"></script>
+
+    <script>
+        // Use unified viewer modules
+        const {
+            CameraController,
+            ActorManager,
+            FieldVisualization,
+            ScreenshotCapture,
+            AxisIndicator,
+            loadMesh,
+            detectFormat,
+            sendMeshLoaded,
+            sendError,
+            extractFilename,
+            hexToRgb,
+            rgbToString
+        } = window.GeomPackViewer;
+
+        console.log('[GeomPack VTK Viewer] Initializing unified viewer...');
+
+        // DOM elements
+        const loading = document.getElementById('loading');
+        const loadingText = loading.querySelector('.loading-text');
+        const container = document.getElementById('container');
+
+        // VTK setup
+        const vtkRenderWindow = vtk.Rendering.Core.vtkRenderWindow;
+        const vtkRenderer = vtk.Rendering.Core.vtkRenderer;
+        const vtkOpenGLRenderWindow = vtk.Rendering.OpenGL.vtkRenderWindow;
+        const vtkRenderWindowInteractor = vtk.Rendering.Core.vtkRenderWindowInteractor;
+        const vtkInteractorStyleTrackballCamera = vtk.Interaction.Style.vtkInteractorStyleTrackballCamera;
+        const vtkActor = vtk.Rendering.Core.vtkActor;
+        const vtkMapper = vtk.Rendering.Core.vtkMapper;
+        const vtkPolyDataNormals = vtk.Filters.Core.vtkPolyDataNormals;
+
+        // Create render window
+        const renderWindow = vtkRenderWindow.newInstance();
+        const renderer = vtkRenderer.newInstance();
+        renderer.setBackground(0.16, 0.16, 0.16);
+        renderWindow.addRenderer(renderer);
+
+        // Create OpenGL view
+        const openGLRenderWindow = vtkOpenGLRenderWindow.newInstance();
+        openGLRenderWindow.setContainer(container);
+        renderWindow.addView(openGLRenderWindow);
+
+        // Resize to container
+        const { width, height } = container.getBoundingClientRect();
+        openGLRenderWindow.setSize(width, height);
+
+        // Create interactor
+        const interactor = vtkRenderWindowInteractor.newInstance();
+        interactor.setView(openGLRenderWindow);
+        interactor.initialize();
+        interactor.bindEvents(container);
+
+        const interactorStyle = vtkInteractorStyleTrackballCamera.newInstance();
+        interactor.setInteractorStyle(interactorStyle);
+
+        // Initialize modules
+        const cameraController = new CameraController(renderer, renderWindow, {
+            distanceMultiplier: 2.5
+        });
+
+        const actorManager = new ActorManager(renderWindow);
+
+        const fieldVisualization = new FieldVisualization(vtk, renderWindow);
+        const screenshotCapture = new ScreenshotCapture(renderWindow);
+
+        // Create axis indicator (disabled by default)
+        const axisIndicator = new AxisIndicator(vtk, interactor, {
+            enabled: false,
+            corner: 'BOTTOM_LEFT'
+        });
+
+        // Create single actor/mapper for mesh
+        const actor = vtkActor.newInstance();
+        const mapper = vtkMapper.newInstance();
+        actor.setMapper(mapper);
+
+        // Configure default appearance
+        const property = actor.getProperty();
+        property.setEdgeVisibility(false);
+        property.setColor(0.6, 0.8, 1.0);  // Light blue
+        property.setAmbient(0.4);
+        property.setDiffuse(0.8);
+        property.setSpecular(0.3);
+        property.setSpecularPower(20);
+        property.setRepresentation(2);
+
+        renderer.addActor(actor);
+
+        // State
+        let currentReader = null;
+        let currentFilename = null;
+        let meshBounds = null;
+        let currentPolyData = null;
+        let originalPolyData = null;  // Unfiltered polydata for filter reset
+        let isCurrentDataPointCloud = false;
+
+        // Field component metadata (populated by populateFieldSelectors)
+        let fieldComponentMap = {};
+
+        // Settings state
+        let currentSettings = {
+            pointSize: 5,
+            meshColor: '#99ccff',
+            edgeWidth: 1,
+            representation: 2,
+            parallelProjection: false,
+            showAxisIndicator: false
+        };
+
+        // Show/hide loading
+        function showLoading(show, text = 'Loading mesh...') {
+            loading.style.display = show ? 'flex' : 'none';
+            loadingText.textContent = text;
+        }
+
+        // Send camera state to parent node widget
+        let _cameraWheelTimer = null;
+        function sendCameraState() {
+            const cam = renderer.getActiveCamera();
+            window.parent.postMessage({
+                type: 'WIDGET_UPDATE',
+                widget: 'camera_state',
+                value: JSON.stringify({
+                    position: cam.getPosition(),
+                    focalPoint: cam.getFocalPoint(),
+                    viewUp: cam.getViewUp()
+                })
+            }, '*');
+        }
+
+        function applyCameraState(cameraState) {
+            if (!cameraState) return false;
+            try {
+                const cs = typeof cameraState === 'string' ? JSON.parse(cameraState) : cameraState;
+                if (!cs.position || !cs.focalPoint || !cs.viewUp) return false;
+                const cam = renderer.getActiveCamera();
+                cam.setPosition(...cs.position);
+                cam.setFocalPoint(...cs.focalPoint);
+                cam.setViewUp(...cs.viewUp);
+                renderer.resetCameraClippingRange();
+                return true;
+            } catch(e) { return false; }
+        }
+
+        interactor.onEndAnimation(() => sendCameraState());
+        container.addEventListener('wheel', () => {
+            clearTimeout(_cameraWheelTimer);
+            _cameraWheelTimer = setTimeout(sendCameraState, 150);
+        });
+
+        // Load mesh function
+        async function loadMeshFile(filepath, lineWidth = 1.0, showEdges = false, cameraState = null, selectedField = null, selectedChannel = null, selectedColormap = null) {
+            console.log('[GeomPack VTK Viewer] Loading:', filepath);
+            showLoading(true, 'Loading mesh...');
+
+            // Extract filename
+            const urlParams = new URLSearchParams(filepath.split('?')[1] || '');
+            currentFilename = urlParams.get('filename') || filepath.split('/').pop().split('?')[0];
+
+            try {
+                // Determine file type and create reader
+                const isSTL = filepath.includes('.stl');
+                const isOBJ = filepath.includes('.obj');
+                const isVTP = filepath.includes('.vtp');
+                const isPLY = filepath.includes('.ply');
+
+                if (!isSTL && !isOBJ && !isVTP && !isPLY) {
+                    throw new Error('Unsupported format. Use STL, OBJ, VTP, or PLY.');
+                }
+
+                // Fetch file
+                const response = await fetch(filepath);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+
+                // Create appropriate reader
+                if (isSTL) {
+                    currentReader = vtk.IO.Geometry.vtkSTLReader.newInstance();
+                    currentReader.parseAsArrayBuffer(arrayBuffer);
+                } else if (isOBJ) {
+                    currentReader = vtk.IO.Misc.vtkOBJReader.newInstance();
+                    const text = new TextDecoder().decode(arrayBuffer);
+                    currentReader.parseAsText(text);
+                } else if (isVTP) {
+                    currentReader = vtk.IO.XML.vtkXMLPolyDataReader.newInstance();
+                    currentReader.parseAsArrayBuffer(arrayBuffer);
+                } else if (isPLY) {
+                    currentReader = vtk.IO.Geometry.vtkPLYReader.newInstance();
+                    currentReader.parseAsArrayBuffer(arrayBuffer);
+                }
+
+                const polydata = currentReader.getOutputData();
+                if (!polydata) {
+                    throw new Error('Failed to parse mesh data');
+                }
+
+                currentPolyData = polydata;
+                originalPolyData = polydata;  // Save unfiltered copy for filter reset
+                meshBounds = polydata.getBounds();
+
+                // Reset filter selector
+                document.getElementById('filterSelector').value = '';
+
+                // Detect point cloud (no polygons)
+                const numPolys = polydata.getNumberOfPolys();
+                isCurrentDataPointCloud = numPolys === 0;
+
+                if (isCurrentDataPointCloud) {
+                    console.log('[GeomPack VTK Viewer] Detected point cloud, skipping normals filter');
+                    // Connect mapper directly to polydata (no normals filter for point clouds)
+                    mapper.setInputData(polydata);
+
+                    // Lock representation to Points mode
+                    property.setRepresentation(0);
+                    property.setPointSize(currentSettings.pointSize);
+                } else {
+                    // For meshes, use normals filter for proper shading
+                    const normalsFilter = vtkPolyDataNormals.newInstance();
+                    normalsFilter.setInputData(polydata);
+                    normalsFilter.update();
+                    // Use the filtered polydata so scalars are preserved
+                    const filteredPolyData = normalsFilter.getOutputData();
+                    mapper.setInputData(filteredPolyData);
+                    currentPolyData = filteredPolyData;  // Update reference for field visualization
+                }
+                mapper.update();
+
+                property.setLineWidth(lineWidth);
+
+                // Populate field selectors
+                populateFieldSelectors(polydata);
+
+                // Position camera (restore saved state or auto-position)
+                if (!applyCameraState(cameraState)) {
+                    cameraController.positionInitialCamera(meshBounds);
+                }
+
+                // Render
+                renderWindow.render();
+
+                // Force resize and re-render
+                requestAnimationFrame(() => {
+                    openGLRenderWindow.setSize(container.clientWidth, container.clientHeight);
+                    renderer.resetCameraClippingRange();
+                    renderWindow.render();
+                    interactor.enable();
+                });
+
+                // Apply show_edges from node input
+                property.setEdgeVisibility(showEdges);
+                document.getElementById('showEdges').checked = showEdges;
+
+                // Restore selected field, channel, and colormap
+                if (selectedField) {
+                    const fieldSelector = document.getElementById('fieldSelector');
+                    if (fieldSelector && Array.from(fieldSelector.options).some(o => o.value === selectedField)) {
+                        fieldSelector.value = selectedField;
+                        updateChannelSelector();
+                        // Restore channel
+                        if (selectedChannel) {
+                            const channelSel = document.getElementById('channelSelector');
+                            if (channelSel && Array.from(channelSel.options).some(o => o.value === selectedChannel)) {
+                                channelSel.value = selectedChannel;
+                            }
+                        }
+                        // Restore colormap
+                        if (selectedColormap) {
+                            const colormapSel = document.getElementById('colormapSelector');
+                            if (colormapSel && Array.from(colormapSel.options).some(o => o.value === selectedColormap)) {
+                                colormapSel.value = selectedColormap;
+                            }
+                        }
+                        updateColormap();
+                    }
+                }
+
+                showLoading(false);
+                console.log('[GeomPack VTK Viewer] Mesh loaded:', polydata.getNumberOfPoints(), 'points');
+                console.log('[GeomPack VTK Viewer] Loaded successfully');
+
+            } catch (error) {
+                console.error('[GeomPack VTK Viewer] Error:', error);
+                showLoading(true, `Error: ${error.message}`);
+                loading.style.color = '#ff6b6b';
+
+                if (window.parent) {
+                    window.parent.postMessage({ type: 'MESH_ERROR', error: error.message }, '*');
+                }
+            }
+        }
+
+        // Populate field selectors from polydata
+        function populateFieldSelectors(polydata) {
+            const fieldSelector = document.getElementById('fieldSelector');
+            const fieldLabel = document.getElementById('fieldLabel');
+            const colormapSelector = document.getElementById('colormapSelector');
+
+            fieldSelector.innerHTML = '<option value="">None</option>';
+
+            // Extract fields using FieldVisualization module
+            const fieldInfo = fieldVisualization.extractFields(polydata);
+
+            // Store field metadata for channel selector
+            fieldComponentMap = {};
+            if (fieldInfo.hasFields) {
+                const fmtRange = (v) => (v === 0 ? '0'
+                    : (Math.abs(v) >= 1000 || Math.abs(v) < 0.01) ? v.toExponential(2) : v.toFixed(3));
+                fieldInfo.allFields.forEach(field => {
+                    const option = document.createElement('option');
+                    option.value = field.fullName;
+                    let label = field.displayName;
+                    try {
+                        const isCell = field.fullName.startsWith('cell:');
+                        const actual = field.fullName.substring(field.fullName.indexOf(':') + 1);
+                        const data = isCell ? polydata.getCellData() : polydata.getPointData();
+                        const arr = data.getArrayByName(actual);
+                        if (arr) {
+                            const r = arr.getRange();
+                            label += `  [${fmtRange(r[0])}, ${fmtRange(r[1])}]`;
+                        }
+                    } catch (e) { /* range optional */ }
+                    option.textContent = label;
+                    fieldSelector.appendChild(option);
+                    fieldComponentMap[field.fullName] = field.numComponents;
+                });
+
+                fieldLabel.style.display = 'flex';
+
+                // Populate colormap selector
+                const colormapOptions = fieldVisualization.getColormapOptions(true);
+                colormapSelector.innerHTML = '';
+                colormapOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    if (opt.disabled) option.disabled = true;
+                    if (opt.value === 'erdc_rainbow_bright') option.selected = true;
+                    colormapSelector.appendChild(option);
+                });
+
+                // Default to "None" - don't auto-select any field
+                // fieldSelector.value stays as "" (None option)
+            } else {
+                fieldLabel.style.display = 'none';
+            }
+
+            // Reset channel selector
+            updateChannelSelector();
+        }
+
+        // Update channel selector based on selected field's component count
+        function updateChannelSelector() {
+            const fieldName = document.getElementById('fieldSelector').value;
+            const channelSelector = document.getElementById('channelSelector');
+            const channelLabel = document.getElementById('channelLabel');
+
+            const numComponents = fieldComponentMap[fieldName] || 1;
+
+            if (!fieldName || numComponents <= 1) {
+                channelLabel.style.display = 'none';
+                channelSelector.value = 'magnitude';
+                return;
+            }
+
+            channelSelector.innerHTML = '<option value="magnitude">Magnitude</option>';
+            if (numComponents === 3) {
+                channelSelector.innerHTML += '<option value="0">X</option>';
+                channelSelector.innerHTML += '<option value="1">Y</option>';
+                channelSelector.innerHTML += '<option value="2">Z</option>';
+            } else {
+                for (let i = 0; i < numComponents; i++) {
+                    channelSelector.innerHTML += `<option value="${i}">Component ${i}</option>`;
+                }
+            }
+            channelLabel.style.display = 'flex';
+        }
+
+        // Update colormap visualization
+        function updateColormap() {
+            const fieldName = document.getElementById('fieldSelector').value;
+            if (!fieldName || !currentPolyData) {
+                mapper.setScalarVisibility(false);
+                property.setColor(0.6, 0.8, 1.0);  // Light blue
+                document.getElementById('channelLabel').style.display = 'none';
+                renderWindow.render();
+                return;
+            }
+
+            const channelValue = document.getElementById('channelSelector').value;
+            const numComponents = fieldComponentMap[fieldName] || 1;
+
+            // If multi-component field with a specific channel selected, extract that component
+            let effectiveFieldName = fieldName;
+            if (numComponents > 1 && channelValue !== 'magnitude') {
+                const componentIdx = parseInt(channelValue);
+                effectiveFieldName = extractComponentAsField(fieldName, componentIdx);
+            }
+
+            const colormapName = document.getElementById('colormapSelector').value || 'erdc_rainbow_bright';
+            const autoRange = document.getElementById('autoColorRange').checked;
+
+            let range = null;
+            if (!autoRange) {
+                const minVal = parseFloat(document.getElementById('colormapMin').value);
+                const maxVal = parseFloat(document.getElementById('colormapMax').value);
+                if (!isNaN(minVal) && !isNaN(maxVal)) {
+                    range = [minVal, maxVal];
+                }
+            }
+
+            fieldVisualization.applyField(mapper, currentPolyData, effectiveFieldName, {
+                colormap: colormapName,
+                range: range,
+                render: false
+            });
+
+            // Update range inputs if auto
+            if (autoRange) {
+                const isCellData = effectiveFieldName.startsWith('cell:');
+                const actualName = isCellData ? effectiveFieldName.substring(5) : effectiveFieldName.substring(6);
+                const data = isCellData ? currentPolyData.getCellData() : currentPolyData.getPointData();
+                const array = data.getArrayByName(actualName);
+                if (array) {
+                    const dataRange = array.getRange();
+                    document.getElementById('colormapMin').value = dataRange[0].toFixed(3);
+                    document.getElementById('colormapMax').value = dataRange[1].toFixed(3);
+                }
+            }
+
+            renderWindow.render();
+        }
+
+        // Extract a single component from a multi-component field into a new 1-component array
+        function extractComponentAsField(fieldName, componentIdx) {
+            const vtkDataArray = vtk.Common.Core.vtkDataArray;
+            const isCellData = fieldName.startsWith('cell:');
+            const actualName = isCellData ? fieldName.substring(5) : fieldName.substring(6);
+            const data = isCellData ? currentPolyData.getCellData() : currentPolyData.getPointData();
+            const srcArray = data.getArrayByName(actualName);
+
+            if (!srcArray) return fieldName;
+
+            const numComponents = srcArray.getNumberOfComponents();
+            const numTuples = srcArray.getNumberOfTuples();
+            const srcData = srcArray.getData();
+            const extracted = new Float32Array(numTuples);
+
+            for (let i = 0; i < numTuples; i++) {
+                extracted[i] = srcData[i * numComponents + componentIdx];
+            }
+
+            const channelNames = numComponents === 3 ? ['X', 'Y', 'Z'] : null;
+            const suffix = channelNames ? channelNames[componentIdx] : `c${componentIdx}`;
+            const newName = `${actualName}_${suffix}`;
+
+            // Add or replace the extracted array
+            const existing = data.getArrayByName(newName);
+            if (!existing) {
+                data.addArray(vtkDataArray.newInstance({
+                    name: newName,
+                    values: extracted,
+                    numberOfComponents: 1,
+                }));
+            } else {
+                // Update values in place
+                existing.setData(extracted);
+            }
+
+            return (isCellData ? 'cell:' : 'point:') + newName;
+        }
+
+        // ── Preview Mesh Filters ──────────────────────────────────
+        function applyFilter(filterType) {
+            if (!originalPolyData) return;
+
+            if (!filterType) {
+                // Reset to original polydata
+                resetToOriginal();
+                return;
+            }
+
+            console.log('[GeomPack VTK Viewer] Applying filter:', filterType);
+
+            try {
+                if (filterType === 'normals') {
+                    applyNormals();
+                } else if (filterType === 'smooth') {
+                    applySmooth();
+                } else if (filterType === 'clip_plane') {
+                    applyClipPlane();
+                } else if (filterType === 'elevation') {
+                    applyElevation();
+                } else if (filterType === 'cell_sizes') {
+                    applyCellSizes();
+                } else if (filterType === 'outline') {
+                    applyOutline();
+                }
+            } catch (error) {
+                console.error('[GeomPack VTK Viewer] Filter error:', error);
+            }
+        }
+
+        function resetToOriginal() {
+            if (!originalPolyData) return;
+
+            // Re-apply normals filter (same as initial load)
+            const normalsFilter = vtkPolyDataNormals.newInstance();
+            normalsFilter.setInputData(originalPolyData);
+            normalsFilter.update();
+            const filteredPolyData = normalsFilter.getOutputData();
+
+            mapper.setInputData(filteredPolyData);
+            currentPolyData = filteredPolyData;
+            mapper.setScalarVisibility(false);
+            property.setColor(0.6, 0.8, 1.0);
+            mapper.update();
+
+            // Repopulate field selectors from original data
+            populateFieldSelectors(originalPolyData);
+
+            renderWindow.render();
+            console.log('[GeomPack VTK Viewer] Reset to original mesh');
+        }
+
+        function applySmooth() {
+            const smoother = vtk.Filters.General.vtkWindowedSincPolyDataFilter.newInstance();
+            smoother.setInputData(originalPolyData);
+            smoother.setNumberOfIterations(20);
+            smoother.update();
+
+            const smoothed = smoother.getOutputData();
+
+            // Apply normals to smoothed result
+            const normalsFilter = vtkPolyDataNormals.newInstance();
+            normalsFilter.setInputData(smoothed);
+            normalsFilter.update();
+            const result = normalsFilter.getOutputData();
+
+            mapper.setInputData(result);
+            currentPolyData = result;
+            mapper.update();
+            populateFieldSelectors(smoothed);
+            renderWindow.render();
+            console.log('[GeomPack VTK Viewer] Applied smooth filter (20 iterations)');
+        }
+
+        function applyClipPlane() {
+            const bounds = originalPolyData.getBounds();
+            const center = [
+                (bounds[0] + bounds[1]) / 2,
+                (bounds[2] + bounds[3]) / 2,
+                (bounds[4] + bounds[5]) / 2,
+            ];
+
+            const plane = vtk.Common.DataModel.vtkPlane.newInstance();
+            plane.setOrigin(center);
+            plane.setNormal([0, 0, 1]);  // Clip along Z
+
+            const cutter = vtk.Filters.Core.vtkCutter.newInstance();
+            cutter.setCutFunction(plane);
+            cutter.setInputData(originalPolyData);
+            cutter.update();
+
+            const result = cutter.getOutputData();
+            mapper.setInputData(result);
+            currentPolyData = result;
+            mapper.update();
+            populateFieldSelectors(result);
+            renderWindow.render();
+            console.log('[GeomPack VTK Viewer] Applied clip plane at mesh center along Z');
+        }
+
+        function applyElevation() {
+            // Compute elevation along Z axis as a new point data array
+            const vtkDataArray = vtk.Common.Core.vtkDataArray;
+
+            // Start from normals-filtered original
+            const normalsFilter = vtkPolyDataNormals.newInstance();
+            normalsFilter.setInputData(originalPolyData);
+            normalsFilter.update();
+            const polydata = normalsFilter.getOutputData();
+
+            const points = polydata.getPoints();
+            const numPoints = points.getNumberOfPoints();
+            const elevation = new Float32Array(numPoints);
+            const bounds = polydata.getBounds();
+            const axisIdx = 2; // Z
+            const lo = bounds[axisIdx * 2];
+            const hi = bounds[axisIdx * 2 + 1];
+            const range = hi - lo;
+
+            for (let i = 0; i < numPoints; i++) {
+                const pt = points.getPoint(i);
+                elevation[i] = range > 0 ? (pt[axisIdx] - lo) / range : 0;
+            }
+
+            const arr = vtkDataArray.newInstance({
+                name: 'Elevation',
+                values: elevation,
+                numberOfComponents: 1,
+            });
+            polydata.getPointData().addArray(arr);
+
+            mapper.setInputData(polydata);
+            currentPolyData = polydata;
+            mapper.update();
+
+            // Repopulate fields and auto-select Elevation
+            populateFieldSelectors(polydata);
+            const fieldSelector = document.getElementById('fieldSelector');
+            fieldSelector.value = 'point:Elevation';
+            updateColormap();
+
+            console.log('[GeomPack VTK Viewer] Applied elevation filter (Z axis)');
+        }
+
+        function applyCellSizes() {
+            const vtkDataArray = vtk.Common.Core.vtkDataArray;
+
+            // Start from normals-filtered original
+            const normalsFilter = vtkPolyDataNormals.newInstance();
+            normalsFilter.setInputData(originalPolyData);
+            normalsFilter.update();
+            const polydata = normalsFilter.getOutputData();
+
+            const pointsData = polydata.getPoints().getData();
+            const polysData = polydata.getPolys().getData();
+            const numCells = polydata.getNumberOfCells();
+            const areas = new Float32Array(numCells);
+
+            let offset = 0;
+            let cellIdx = 0;
+            while (offset < polysData.length && cellIdx < numCells) {
+                const nPts = polysData[offset];
+                if (nPts >= 3) {
+                    const i0 = polysData[offset + 1];
+                    const i1 = polysData[offset + 2];
+                    const i2 = polysData[offset + 3];
+                    const p0 = [pointsData[i0*3], pointsData[i0*3+1], pointsData[i0*3+2]];
+                    const p1 = [pointsData[i1*3], pointsData[i1*3+1], pointsData[i1*3+2]];
+                    const p2 = [pointsData[i2*3], pointsData[i2*3+1], pointsData[i2*3+2]];
+                    const v1 = [p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2]];
+                    const v2 = [p2[0]-p0[0], p2[1]-p0[1], p2[2]-p0[2]];
+                    const cross = [
+                        v1[1]*v2[2] - v1[2]*v2[1],
+                        v1[2]*v2[0] - v1[0]*v2[2],
+                        v1[0]*v2[1] - v1[1]*v2[0],
+                    ];
+                    areas[cellIdx] = 0.5 * Math.sqrt(cross[0]**2 + cross[1]**2 + cross[2]**2);
+                }
+                offset += nPts + 1;
+                cellIdx++;
+            }
+
+            const arr = vtkDataArray.newInstance({
+                name: 'Area',
+                values: areas,
+                numberOfComponents: 1,
+            });
+            polydata.getCellData().addArray(arr);
+
+            mapper.setInputData(polydata);
+            currentPolyData = polydata;
+            mapper.update();
+
+            // Repopulate fields and auto-select Area
+            populateFieldSelectors(polydata);
+            const fieldSelector = document.getElementById('fieldSelector');
+            fieldSelector.value = 'cell:Area';
+            updateColormap();
+
+            console.log('[GeomPack VTK Viewer] Applied cell sizes filter');
+        }
+
+        function applyNormals() {
+            const normalsFilter = vtkPolyDataNormals.newInstance();
+            normalsFilter.setInputData(originalPolyData);
+            normalsFilter.setComputePointNormals(true);
+            normalsFilter.setComputeCellNormals(true);
+            normalsFilter.update();
+
+            const result = normalsFilter.getOutputData();
+            mapper.setInputData(result);
+            currentPolyData = result;
+            mapper.update();
+            populateFieldSelectors(result);
+
+            // Auto-select Normals field
+            const fieldSelector = document.getElementById('fieldSelector');
+            fieldSelector.value = 'point:Normals';
+            updateColormap();
+
+            console.log('[GeomPack VTK Viewer] Applied normals filter (point + cell normals)');
+        }
+
+        function applyOutline() {
+            const outline = vtk.Filters.General.vtkOutlineFilter.newInstance();
+            outline.setInputData(originalPolyData);
+            outline.update();
+
+            const result = outline.getOutputData();
+            mapper.setInputData(result);
+            currentPolyData = result;
+            mapper.setScalarVisibility(false);
+            property.setColor(0.6, 0.8, 1.0);
+            mapper.update();
+            populateFieldSelectors(result);
+            renderWindow.render();
+            console.log('[GeomPack VTK Viewer] Applied outline (bounding box) filter');
+        }
+
+        // Camera view
+        function setCameraView(direction) {
+            if (!meshBounds) return;
+            cameraController.setCameraView(direction, meshBounds);
+            renderWindow.render();
+        }
+
+        // Event listeners - Camera views
+        document.querySelectorAll('.view-button').forEach(button => {
+            button.addEventListener('click', () => setCameraView(button.dataset.view));
+        });
+
+        // Edges toggle (bidirectional: also notify parent to update widget)
+        document.getElementById('showEdges').addEventListener('change', (e) => {
+            property.setEdgeVisibility(e.target.checked);
+            renderWindow.render();
+            window.parent.postMessage({
+                type: 'WIDGET_UPDATE',
+                widget: 'show_edges',
+                value: e.target.checked
+            }, '*');
+        });
+
+        // Filter selector
+        document.getElementById('filterSelector').addEventListener('change', (e) => {
+            applyFilter(e.target.value);
+        });
+
+        // Field selector — also update channel dropdown + notify parent
+        document.getElementById('fieldSelector').addEventListener('change', () => {
+            updateChannelSelector();
+            updateColormap();
+            window.parent.postMessage({
+                type: 'WIDGET_UPDATE',
+                widget: 'selected_field',
+                value: document.getElementById('fieldSelector').value
+            }, '*');
+        });
+
+        // Channel selector
+        document.getElementById('channelSelector').addEventListener('change', () => {
+            updateColormap();
+            window.parent.postMessage({
+                type: 'WIDGET_UPDATE',
+                widget: 'selected_channel',
+                value: document.getElementById('channelSelector').value
+            }, '*');
+        });
+
+        // ---- resizable 3D view <-> bottom utilities + canvas auto-resize ----
+        (function setupViewResize() {
+            const ctrls = document.getElementById('controls');
+            const split = document.getElementById('vsplit');
+            // size-change guard: never re-trigger work for an unchanged size
+            // (this is what prevents the ResizeObserver-style feedback loop).
+            let lastW = 0, lastH = 0;
+            function resizeCanvas() {
+                const r = container.getBoundingClientRect();
+                const w = Math.round(r.width), h = Math.round(r.height);
+                if (w < 2 || h < 2 || (w === lastW && h === lastH)) return;
+                lastW = w; lastH = h;
+                openGLRenderWindow.setSize(w, h);
+                renderWindow.render();
+            }
+            // the iframe's own window fires 'resize' when the node/iframe resizes
+            window.addEventListener('resize', resizeCanvas);
+            // drag the divider to rebalance the 3D view vs the controls
+            let dragging = false;
+            split.addEventListener('mousedown', (e) => {
+                dragging = true; split.classList.add('dragging');
+                document.body.style.cursor = 'row-resize'; e.preventDefault();
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const total = document.body.clientHeight;
+                let h = total - e.clientY - split.offsetHeight / 2;
+                h = Math.max(30, Math.min(total - 80, h));
+                ctrls.style.flex = '0 0 ' + h + 'px';
+                ctrls.style.height = h + 'px';
+                resizeCanvas();
+            });
+            window.addEventListener('mouseup', () => {
+                if (!dragging) return;
+                dragging = false; split.classList.remove('dragging');
+                document.body.style.cursor = ''; resizeCanvas();
+            });
+
+            // minimise / restore the bottom utilities
+            const toggle = document.getElementById('ctrlToggle');
+            let collapsed = false;
+            function setCollapsed(c) {
+                collapsed = c;
+                ctrls.style.display = c ? 'none' : '';
+                split.style.display = c ? 'none' : '';
+                toggle.innerHTML = c ? '&#9652;' : '&#9662;';  // up when hidden, down when shown
+                toggle.title = c ? 'Show controls' : 'Hide controls';
+                resizeCanvas();
+                // tell the parent node to collapse/restore its info panel too,
+                // so this single arrow minimises BOTH the controls and the info.
+                try { window.parent.postMessage({ type: 'TOGGLE_INFO', collapsed: c }, '*'); } catch (e) {}
+            }
+            toggle.addEventListener('click', () => setCollapsed(!collapsed));
+        })();
+
+        // Colormap selector
+        document.getElementById('colormapSelector').addEventListener('change', () => {
+            updateColormap();
+            window.parent.postMessage({
+                type: 'WIDGET_UPDATE',
+                widget: 'selected_colormap',
+                value: document.getElementById('colormapSelector').value
+            }, '*');
+        });
+
+        // Auto range toggle
+        document.getElementById('autoColorRange').addEventListener('change', (e) => {
+            document.getElementById('colormapMin').disabled = e.target.checked;
+            document.getElementById('colormapMax').disabled = e.target.checked;
+            updateColormap();
+        });
+
+        // Manual range inputs
+        document.getElementById('colormapMin').addEventListener('change', () => {
+            if (!document.getElementById('autoColorRange').checked) updateColormap();
+        });
+        document.getElementById('colormapMax').addEventListener('change', () => {
+            if (!document.getElementById('autoColorRange').checked) updateColormap();
+        });
+
+        // Screenshot
+        document.getElementById('screenshot').addEventListener('click', async () => {
+            renderWindow.render();
+            const image = await screenshotCapture.capture();
+            window.parent.postMessage({
+                type: 'SCREENSHOT',
+                image: image,
+                timestamp: Date.now()
+            }, '*');
+        });
+
+        // Save mesh
+        document.getElementById('saveMesh').addEventListener('click', async () => {
+            if (!currentFilename) {
+                alert('No mesh loaded.');
+                return;
+            }
+
+            const saveButton = document.getElementById('saveMesh');
+            const originalText = saveButton.textContent;
+
+            try {
+                saveButton.disabled = true;
+                saveButton.textContent = 'Saving...';
+
+                const response = await fetch('/geometrypack/save_preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ temp_filename: currentFilename })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    saveButton.textContent = '[x] Saved!';
+                    alert(`Mesh saved!\n\nFilename: ${result.saved_filename}\nLocation: ComfyUI/output/`);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                saveButton.textContent = '[ ] Error';
+                alert(`Error: ${error.message}`);
+            } finally {
+                setTimeout(() => {
+                    saveButton.textContent = originalText;
+                    saveButton.disabled = false;
+                }, 2000);
+            }
+        });
+
+        // Settings panel
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const settingsOverlay = document.getElementById('settingsOverlay');
+
+        settingsButton.addEventListener('click', () => {
+            document.getElementById('pointSize').value = currentSettings.pointSize;
+            document.getElementById('meshColor').value = currentSettings.meshColor;
+            document.getElementById('edgeWidth').value = currentSettings.edgeWidth;
+            document.getElementById('representationSettings').value = currentSettings.representation;
+            document.getElementById('parallelProjection').checked = currentSettings.parallelProjection;
+            document.getElementById('showAxisIndicator').checked = currentSettings.showAxisIndicator;
+
+            // Lock representation for point clouds
+            const representationSelect = document.getElementById('representationSettings');
+            if (isCurrentDataPointCloud) {
+                representationSelect.value = '0';
+                representationSelect.disabled = true;
+                representationSelect.title = 'Point clouds can only be rendered in Points mode';
+            } else {
+                representationSelect.disabled = false;
+                representationSelect.title = '';
+            }
+
+            settingsPanel.classList.add('visible');
+            settingsOverlay.classList.add('visible');
+        });
+
+        function closeSettings() {
+            settingsPanel.classList.remove('visible');
+            settingsOverlay.classList.remove('visible');
+        }
+
+        settingsOverlay.addEventListener('click', closeSettings);
+        document.getElementById('cancelSettings').addEventListener('click', closeSettings);
+
+        document.getElementById('applySettings').addEventListener('click', () => {
+            const newPointSize = parseFloat(document.getElementById('pointSize').value);
+            const newColor = document.getElementById('meshColor').value;
+            const newEdgeWidth = parseFloat(document.getElementById('edgeWidth').value);
+            const newRepresentation = parseInt(document.getElementById('representationSettings').value);
+            const newParallel = document.getElementById('parallelProjection').checked;
+            const newAxisIndicator = document.getElementById('showAxisIndicator').checked;
+
+            // Convert hex to RGB
+            const rgb = hexToRgb(newColor);
+
+            property.setColor(rgb[0], rgb[1], rgb[2]);
+            property.setLineWidth(newEdgeWidth);
+            property.setPointSize(newPointSize);
+
+            // Only apply representation change for non-point-cloud data
+            if (!isCurrentDataPointCloud) {
+                property.setRepresentation(newRepresentation);
+            }
+
+            cameraController.setParallelProjection(newParallel);
+            axisIndicator.setEnabled(newAxisIndicator);
+
+            // Preserve field coloring: if a field is selected, re-apply it so the
+            // (possibly new) colormap range sticks instead of the field vanishing.
+            // Only fall back to the solid mesh colour when no field is active.
+            const _activeField = document.getElementById('fieldSelector')?.value;
+            if (_activeField && _activeField !== '') {
+                updateColormap();
+            } else {
+                mapper.setScalarVisibility(false);
+            }
+
+            // Update stored settings
+            currentSettings = {
+                pointSize: newPointSize,
+                meshColor: newColor,
+                edgeWidth: newEdgeWidth,
+                representation: newRepresentation,
+                parallelProjection: newParallel,
+                showAxisIndicator: newAxisIndicator
+            };
+
+            renderWindow.render();
+            closeSettings();
+        });
+
+        // Resize handling
+        const resizeObserver = new ResizeObserver(() => {
+            const { width, height } = container.getBoundingClientRect();
+            if (width > 0 && height > 0) {
+                openGLRenderWindow.setSize(width, height);
+                renderWindow.render();
+            }
+        });
+        resizeObserver.observe(container);
+
+        // Focus camera on a specific 3D point
+        function focusOnPoint(point, viewRadius = null) {
+            const camera = renderer.getActiveCamera();
+
+            // Get current camera direction (from focal point to camera position)
+            const currentFocalPoint = camera.getFocalPoint();
+            const currentPosition = camera.getPosition();
+            const direction = [
+                currentPosition[0] - currentFocalPoint[0],
+                currentPosition[1] - currentFocalPoint[1],
+                currentPosition[2] - currentFocalPoint[2]
+            ];
+
+            // Normalize direction
+            const length = Math.sqrt(direction[0]**2 + direction[1]**2 + direction[2]**2);
+            if (length > 0) {
+                direction[0] /= length;
+                direction[1] /= length;
+                direction[2] /= length;
+            } else {
+                // Default to looking from +Z if no current direction
+                direction[0] = 0;
+                direction[1] = 0;
+                direction[2] = 1;
+            }
+
+            // Calculate view distance based on mesh bounds
+            let distance;
+            if (viewRadius !== null) {
+                distance = viewRadius * 2.5;
+            } else if (meshBounds) {
+                const maxDim = Math.max(
+                    meshBounds[1] - meshBounds[0],
+                    meshBounds[3] - meshBounds[2],
+                    meshBounds[5] - meshBounds[4]
+                );
+                distance = maxDim * 0.3;  // Closer view for focused point
+            } else {
+                distance = 10;  // Fallback
+            }
+
+            // Position camera along the direction from the point
+            const newPosition = [
+                point[0] + direction[0] * distance,
+                point[1] + direction[1] * distance,
+                point[2] + direction[2] * distance
+            ];
+
+            camera.setFocalPoint(...point);
+            camera.setPosition(...newPosition);
+
+            renderer.resetCameraClippingRange();
+            renderWindow.render();
+        }
+
+        // Listen for postMessage from parent
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'LOAD_MESH') {
+                const lineWidth = event.data.lineWidth || 1.0;
+                const showEdges = event.data.showEdges || false;
+                const cameraState = event.data.cameraState || null;
+                const selectedField = event.data.selectedField || null;
+                const selectedChannel = event.data.selectedChannel || null;
+                const selectedColormap = event.data.selectedColormap || null;
+                loadMeshFile(event.data.filepath, lineWidth, showEdges, cameraState, selectedField, selectedChannel, selectedColormap);
+            } else if (event.data.type === 'FOCUS_ON_POINT') {
+                const point = event.data.point;
+                const radius = event.data.radius || null;
+                if (point && Array.isArray(point) && point.length === 3) {
+                    console.log('[GeomPack VTK Viewer] Focusing on point:', point);
+                    focusOnPoint(point, radius);
+                }
+            }
+        });
+
+        console.log('[GeomPack VTK Viewer] Ready (unified)');
+    </script>
+</body>
+</html>

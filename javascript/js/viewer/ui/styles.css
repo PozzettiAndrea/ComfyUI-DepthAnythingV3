@@ -1,0 +1,366 @@
+/**
+ * Shared styles for all VTK viewers
+ * Single source of truth - changes here affect all viewers
+ */
+
+/* ========== Base Layout ========== */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #2a2a2a;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#viewerContainer {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* ========== Loading Overlay ========== */
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* ========== Controls Bar ========== */
+#controls {
+    background: #1a1a1a;
+    border-top: 1px solid #444;
+    padding: 8px 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #ccc;
+}
+
+#controls label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#controls select,
+#controls button {
+    background: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+#controls button {
+    cursor: pointer;
+}
+
+#controls button:hover {
+    background: #444;
+}
+
+#controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#controls input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/* Divider between control groups */
+.controls-divider {
+    width: 1px;
+    height: 20px;
+    background: #444;
+    margin: 0 8px;
+}
+
+/* ========== Settings Panel ========== */
+#settingsPanel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1a1a1a;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 16px;
+    z-index: 2000;
+    display: none;
+    min-width: 280px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+#settingsPanel.visible {
+    display: block;
+}
+
+#settingsPanel h3 {
+    margin: 0 0 12px 0;
+    color: #ccc;
+    font-size: 14px;
+    font-weight: normal;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+}
+
+#settingsPanel .setting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+#settingsPanel .setting-row label {
+    flex: 0 0 100px;
+    color: #ccc;
+    font-size: 12px;
+}
+
+#settingsPanel .setting-row input[type="color"] {
+    flex: 1;
+    height: 32px;
+    border: 1px solid #555;
+    background: #333;
+    cursor: pointer;
+}
+
+#settingsPanel .setting-row input[type="number"] {
+    flex: 1;
+    background: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+#settingsPanel .setting-row select {
+    flex: 1;
+    background: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+#settingsPanel .setting-row input[type="checkbox"] {
+    cursor: pointer;
+}
+
+#settingsPanel .setting-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #444;
+}
+
+#settingsPanel .setting-section-label {
+    font-weight: bold;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+#settingsPanel .button-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+#settingsPanel .button-row button {
+    flex: 1;
+    padding: 6px 12px;
+    font-size: 12px;
+    background: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#settingsPanel .button-row button:hover {
+    background: #444;
+}
+
+/* Settings overlay (dark backdrop) */
+#settingsOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    display: none;
+}
+
+#settingsOverlay.visible {
+    display: block;
+}
+
+/* Settings button (gear icon) */
+#settingsButton {
+    background: #333;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* ========== Info Panel (for textured viewer) ========== */
+#infoPanel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(26, 26, 26, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #ccc;
+    z-index: 100;
+    display: none;
+}
+
+#infoPanel.visible {
+    display: block;
+}
+
+#infoPanel .info-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+#infoPanel .info-row:last-child {
+    margin-bottom: 0;
+}
+
+#infoPanel .info-label {
+    color: #888;
+}
+
+#infoPanel .info-value {
+    color: #4a9eff;
+}
+
+#infoPanel .info-value.warning {
+    color: #ffaa00;
+}
+
+#infoPanel .info-value.error {
+    color: #ff6b6b;
+}
+
+#infoPanel .info-value.success {
+    color: #6bff6b;
+}
+
+/* ========== Dual Viewer Specific ========== */
+.viewer-dual #viewerContainer {
+    display: flex;
+}
+
+.viewer-dual .viewport-container {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+}
+
+.viewer-dual .viewport-label {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ccc;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    z-index: 100;
+}
+
+.viewer-dual #sideBySideContainer {
+    display: none;
+    width: 100%;
+    height: 100%;
+    gap: 2px;
+}
+
+.viewer-dual #sideBySideContainer.active {
+    display: flex;
+}
+
+.viewer-dual #overlayContainer {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+.viewer-dual #overlayContainer.active {
+    display: block;
+}
+
+/* Field controls for dual viewer */
+.field-controls {
+    display: none;
+}
+
+.field-controls.active {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ========== Save Button Variants ========== */
+#saveMesh,
+#saveGLB {
+    background: #2a5a2a;
+}
+
+#saveMesh:hover,
+#saveGLB:hover {
+    background: #3a6a3a;
+}
+
+/* ========== Utility Classes ========== */
+.hidden {
+    display: none !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
