@@ -1111,6 +1111,14 @@ Output: GLB file path
 
         # Extract subfolder from filename if present
         subfolder = str(Path(filename).parent) if Path(filename).parent != Path(".") else ""
-        return io.NodeOutput(str(filepath), ui={
+
+        # Return the path relative to the output folder (e.g. "mesh_ab12cd34.glb").
+        # ComfyUI's Preview 3D rejects absolute paths with "Invalid file path".
+        try:
+            output_file_path = filepath.resolve().relative_to(output_path.resolve()).as_posix()
+        except ValueError:
+            output_file_path = str(filepath)
+
+        return io.NodeOutput(output_file_path, ui={
             "meshes": [{"filename": Path(filename).name, "subfolder": subfolder, "type": "output"}]
         })
