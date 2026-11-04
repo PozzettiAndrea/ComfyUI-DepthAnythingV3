@@ -970,6 +970,7 @@ Output: GLB file path
     def execute(cls, depth_raw, confidence, intrinsics=None, sky_mask=None, source_image=None,
                 confidence_threshold=0.1, depth_edge_threshold=0.1, downsample=1, target_faces=100000, filename_prefix="mesh", allow_around_1=False, use_draco_compression=False):
         """Convert depth map to mesh and save as GLB."""
+        import uuid
         from pathlib import Path
 
         # Validate depth
@@ -1089,7 +1090,8 @@ Output: GLB file path
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Generate filename
-        filename = f"{filename_prefix}_0000.glb"
+        # Unique name per run: the Floyo viewer does not reload a file with the same name
+        filename = f"{filename_prefix}_{uuid.uuid4().hex[:8]}.glb"
         filepath = output_path / filename
 
         # Ensure parent directory exists (for subfolder prefixes like "subfolder/mesh")
