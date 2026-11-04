@@ -188,4 +188,4 @@ Join the [Comfy3D Discord](https://discord.gg/bcdQCUjnHE) for help, updates, and
 
 Model architecture files based on Depth Anything 3 (Apache 2.0 / CC BY-NC 4.0 depending on model).
 
-Note: Some models (Giant, Nested) use CC BY-NC 4.0 license (non-commercial use only).
+Note: Some models (Giant, Nested) use CC BY-NC 4.0 license (non-commercial use only)
