@@ -683,6 +683,12 @@ Output: GLB file path
             ],
         )
 
+    @classmethod
+    def fingerprint_inputs(cls, **kwargs):
+        """Run on every queue so each run saves a new file, even with the same inputs."""
+        import uuid
+        return uuid.uuid4().hex
+
     @staticmethod
     def _parse_intrinsics(intrinsics_str, batch_idx=0):
         """Parse camera intrinsics from JSON string."""
